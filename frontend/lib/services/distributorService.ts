@@ -3,9 +3,11 @@ import {
   doc,
   getDocs,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
@@ -100,4 +102,35 @@ export async function createDistributorInFirestore(
     createdAt: null,
     updatedAt: null,
   };
+}
+
+export async function getDistributorsBySalesperson(
+  salespersonId: string,
+): Promise<Distributor[]> {
+  const q = query(
+    collection(db, COLLECTIONS.DISTRIBUTORS),
+    where("createdBy", "==", salespersonId),
+  );
+
+  const snap = await getDocs(q);
+  return snap.docs.map(mapDistributor);
+}
+
+export function subscribeDistributorsBySalesperson(
+  salespersonId: string,
+  onChange: (rows: Distributor[]) => void,
+  onError?: (error: Error) => void,
+): Unsubscribe {
+  return onSnapshot(
+    query(
+      collection(db, COLLECTIONS.DISTRIBUTORS),
+      where("createdBy", "==", salespersonId),
+    ),
+    (querySnap) => onChange(querySnap.docs.map(mapDistributor)),
+    (error) => {
+      if (onError) {
+        onError(error);
+      }
+    },
+  );
 }

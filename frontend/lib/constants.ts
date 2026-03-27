@@ -15,4 +15,12 @@ export const COLLECTIONS = {
   USERS: "users",
   DISTRIBUTORS: "distributors",
   ORDERS: "orders",
+  VISITS: "visits",
 } as const;
+
+export const ROLE_ROUTES: Record<string, string> = {
+  [USER_ROLES.ADMIN]: "/dashboard",
+  [USER_ROLES.SALESPERSON]: "/dashboard",
+  [USER_ROLES.SUPERVISOR]: "/dashboard",
+  [USER_ROLES.DISTRIBUTOR]: "/dashboard",
+};

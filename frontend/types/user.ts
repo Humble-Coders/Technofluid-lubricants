@@ -18,6 +18,7 @@ export type User = {
   distributorCount?: number;
   ordersCount?: number;
   createdBy?: string | null;
+  supervisorId?: string | null;
   approvedBy?: string | null;
   approvedAt?: FirestoreDateValue;
   lastLoginAt?: FirestoreDateValue;

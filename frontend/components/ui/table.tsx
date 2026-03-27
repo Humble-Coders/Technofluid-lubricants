@@ -24,6 +24,16 @@ export function TH({ children }: { children: ReactNode }) {
   );
 }
 
-export function TD({ children }: { children: ReactNode }) {
-  return <td className="px-4 py-3 text-sm text-textPrimary">{children}</td>;
+export function TD({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <td className={`px-4 py-3 text-sm text-textPrimary ${className}`}>
+      {children}
+    </td>
+  );
 }

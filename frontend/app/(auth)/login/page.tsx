@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/app/(auth)/_components/button";
 import { Input } from "@/app/(auth)/_components/input";
 import { loginSchema, type LoginFormInput } from "@/lib/validation/formSchemas";
+import { ROLE_ROUTES } from "@/lib/constants";
 
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -76,16 +77,24 @@ export default function LoginPage() {
       }
 
       // 🔥 STEP 4: Role-based routing
-      if (userData.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard"); // change later if needed
-      }
-    } catch (error: any) {
-      console.error(error.message);
+      const route = ROLE_ROUTES[userData.role] ?? "/dashboard";
+      router.push(route);
+    } catch (error: unknown) {
+      const code = (error as { code?: string }).code;
+      console.error(code);
 
-      if (error.code === "auth/invalid-credential") {
+      if (
+        code === "auth/invalid-credential" ||
+        code === "auth/user-not-found" ||
+        code === "auth/wrong-password"
+      ) {
         setError("Invalid email or password");
+      } else if (code === "auth/user-disabled") {
+        setError("This account has been disabled.");
+      } else if (code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please try again later.");
+      } else if (code === "auth/network-request-failed") {
+        setError("Network error. Check your connection and try again.");
       } else {
         setError("Login failed. Please try again.");
       }

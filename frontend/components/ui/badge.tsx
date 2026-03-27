@@ -3,9 +3,14 @@ import type { ReactNode } from "react";
 type BadgeVariant =
   | "pending"
   | "approved"
+  | "rejected"
   | "active"
   | "inactive"
-  | "processing";
+  | "processing"
+  | "success"
+  | "danger"
+  | "info"
+  | "secondary";
 
 type BadgeProps = {
   variant: BadgeVariant;
@@ -15,9 +20,14 @@ type BadgeProps = {
 const badgeStyles: Record<BadgeVariant, string> = {
   pending: "bg-warning/15 text-warning",
   approved: "bg-success/15 text-success",
+  rejected: "bg-danger/15 text-danger",
   active: "bg-success/15 text-success",
   inactive: "bg-textSecondary/15 text-textSecondary",
   processing: "bg-accent/15 text-accent",
+  success: "bg-success/15 text-success",
+  danger: "bg-danger/15 text-danger",
+  info: "bg-info/15 text-info",
+  secondary: "bg-textSecondary/15 text-textSecondary",
 };
 
 export function Badge({ variant, children }: BadgeProps) {

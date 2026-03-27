@@ -4,21 +4,19 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
-import { Sidebar } from "@/components/layout/Sidebar";
+import { SalespersonSidebar } from "@/components/layout/SalespersonSidebar";
 import { Topbar } from "@/components/layout/Topbar";
 
 const titleMap: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/dashboard/supervisors": "Supervisors",
-  "/dashboard/salespersons": "Salespersons",
   "/dashboard/distributors": "Distributors",
   "/dashboard/orders": "Orders",
-  "/dashboard/coupons": "Coupons",
+  "/dashboard/visits": "Visits",
 };
 
-export function AdminShell({ children }: { children: ReactNode }) {
+export function SalespersonShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const title = titleMap[pathname] ?? "Admin";
+  const title = titleMap[pathname] ?? "Salesperson";
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
@@ -30,7 +28,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           : "16rem",
       }}
     >
-      <Sidebar isCollapsed={isSidebarCollapsed} />
+      <SalespersonSidebar isCollapsed={isSidebarCollapsed} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           title={title}
