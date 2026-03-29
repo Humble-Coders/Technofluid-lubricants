@@ -1,3 +1,4 @@
+// File: frontend/components/ui/input.tsx
 import type { InputHTMLAttributes } from "react";
 
 type InputProps = {

@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/coupons/page.tsx
 "use client";
 
 import { useState } from "react";

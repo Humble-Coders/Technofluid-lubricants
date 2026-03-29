@@ -1,3 +1,4 @@
+// File: frontend/lib/validation/formSchemas.ts
 import { z } from "zod";
 
 export const loginSchema = z.object({

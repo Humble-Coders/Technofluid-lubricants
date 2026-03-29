@@ -1,3 +1,4 @@
+// File: frontend/app/(auth)/_components/input.tsx
 import type { InputHTMLAttributes } from "react";
 
 type InputProps = {

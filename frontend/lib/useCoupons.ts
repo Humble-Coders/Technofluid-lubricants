@@ -1,3 +1,4 @@
+// File: frontend/lib/useCoupons.ts
 "use client";
 
 import { useEffect, useState } from "react";

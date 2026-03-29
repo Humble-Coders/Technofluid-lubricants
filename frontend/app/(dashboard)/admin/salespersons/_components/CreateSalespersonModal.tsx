@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/salespersons/_components/CreateSalespersonModal.tsx
 "use client";
 
 import { useState } from "react";
@@ -25,7 +26,7 @@ export function CreateSalespersonModal({
   onCreate,
 }: CreateSalespersonModalProps) {
   const [errors, setErrors] = useState<
-    Partial<Record<keyof CreateSalespersonFormInput, string>>
+    Partial<Record<keyof CreateSalespersonFormInput | "submit", string>>
   >({});
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -58,13 +59,17 @@ export function CreateSalespersonModal({
     }
 
     setIsLoading(true);
+    setErrors({});
+
     try {
       await onCreate(payload);
-
       reset();
       onClose();
     } catch (error) {
-      console.error("Error creating salesperson:", error);
+      // ✅ NEW: Show error to user
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create salesperson";
+      setErrors({ submit: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +83,11 @@ export function CreateSalespersonModal({
       mode="workspace"
       footer={
         <>
-          <Button variant="secondary" onClick={onClose} disabled={isLoading}>
+          <Button
+            variant="secondary"
+            onClick={onClose}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={isLoading}>
@@ -88,6 +97,13 @@ export function CreateSalespersonModal({
       }
     >
       <div className="grid gap-4 md:grid-cols-2">
+        {/* ✅ NEW: Show submit error */}
+        {errors.submit && (
+          <div className="md:col-span-2 rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900 dark:text-red-100">
+            {errors.submit}
+          </div>
+        )}
+
         <Input
           id="salesperson-name"
           label="Name"
@@ -98,6 +114,7 @@ export function CreateSalespersonModal({
             setErrors((prev) => ({ ...prev, name: "" }));
           }}
           error={errors.name}
+          disabled={isLoading}
         />
         <Input
           id="salesperson-phone"
@@ -109,6 +126,7 @@ export function CreateSalespersonModal({
             setErrors((prev) => ({ ...prev, phone: "" }));
           }}
           error={errors.phone}
+          disabled={isLoading}
         />
         <Input
           id="salesperson-email"
@@ -122,6 +140,7 @@ export function CreateSalespersonModal({
           }}
           className="md:col-span-2"
           error={errors.email}
+          disabled={isLoading}
         />
       </div>
     </Modal>

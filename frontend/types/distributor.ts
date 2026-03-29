@@ -1,3 +1,4 @@
+// File: frontend/types/distributor.ts
 import type { Timestamp } from "firebase/firestore";
 
 import { USER_STATUS } from "@/lib/constants";

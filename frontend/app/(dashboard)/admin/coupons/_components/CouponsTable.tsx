@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/coupons/_components/CouponsTable.tsx
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
 

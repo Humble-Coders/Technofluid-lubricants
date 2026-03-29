@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/orders/_components/OrdersTable.tsx
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";

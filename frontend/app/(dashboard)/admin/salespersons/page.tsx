@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/salespersons/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
 import { useSalespersons } from "@/lib/useSalespersons";
-import { auth } from "@/lib/firebase";
+import { createSalesperson as createSalespersonAction } from "@/lib/actions/createSalesperson";
 import {
   CreateSalespersonModal,
   type CreateSalespersonFormInput,
@@ -22,8 +23,8 @@ export default function SalespersonsPage() {
     "all" | "pending" | "approved"
   >("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { salespersons, approveSalesperson, createSalesperson } =
-    useSalespersons();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // ✅ NEW
+  const { salespersons, approveSalesperson } = useSalespersons();
 
   const filteredSalespersons = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -48,25 +49,42 @@ export default function SalespersonsPage() {
   const handleApprove = async (id: string) => {
     try {
       await approveSalesperson(id);
+      setErrorMessage(null); // ✅ Clear error on success
     } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to approve salesperson";
+      setErrorMessage(message); // ✅ Show error
       console.error("Failed to approve salesperson:", err);
     }
   };
 
   const handleCreate = async (salespersonData: CreateSalespersonFormInput) => {
     try {
-      await createSalesperson({
-        ...salespersonData,
-        createdBy: auth.currentUser?.uid,
-      });
+      await createSalespersonAction(salespersonData);
+      setErrorMessage(null); // ✅ Clear error on success
       setIsCreateOpen(false);
+      // Note: useSalespersons() will auto-refresh via Firestore subscription
     } catch (err) {
-      console.error("Failed to create salesperson:", err);
+      // ✅ Don't log password in console for security!
+      console.error("Failed to create salesperson");
     }
   };
 
   return (
     <section className="space-y-5">
+      {/* ✅ NEW: Error alert at top */}
+      {errorMessage && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900 dark:text-red-100">
+          {errorMessage}
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="ml-auto block text-xs underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <SalespersonsStats salespersons={salespersons} />
 
       <div className="flex justify-end">

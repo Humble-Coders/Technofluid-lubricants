@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/layout.tsx
 "use client";
 
 import type { ReactNode } from "react";

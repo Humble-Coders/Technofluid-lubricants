@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/salesperson/orders/_components/OrdersTable.tsx
 import { Timestamp } from "firebase/firestore";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +8,10 @@ import type { Order } from "@/types/order";
 
 function formatDate(value: Order["createdAt"]): string {
   if (!value) return "-";
-  const date = value instanceof Timestamp ? value.toDate() : new Date(value as string | Date);
+  const date =
+    value instanceof Timestamp
+      ? value.toDate()
+      : new Date(value as string | Date);
   return date.toLocaleDateString();
 }
 

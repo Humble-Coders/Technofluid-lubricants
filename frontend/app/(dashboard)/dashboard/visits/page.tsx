@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/dashboard/visits/page.tsx
 "use client";
 
 import { useEffect } from "react";

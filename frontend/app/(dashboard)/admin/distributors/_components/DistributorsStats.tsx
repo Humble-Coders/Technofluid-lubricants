@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/distributors/_components/DistributorsStats.tsx
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
 
 import type { DistributorRow } from "../../_data/mockData";

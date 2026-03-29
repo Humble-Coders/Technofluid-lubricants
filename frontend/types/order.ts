@@ -1,3 +1,4 @@
+// File: frontend/types/order.ts
 import type { Timestamp } from "firebase/firestore";
 
 export type OrderStatus =

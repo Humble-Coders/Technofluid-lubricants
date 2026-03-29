@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/_data/mockData.ts
 export type ApprovalStatus = "pending" | "approved";
 export type OrderStatus = "pending" | "processing" | "approved";
 export type CouponType = "global" | "targeted";

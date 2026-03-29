@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/dashboard/page.tsx
 "use client";
 
 import { useAuth } from "@/lib/useAuth";

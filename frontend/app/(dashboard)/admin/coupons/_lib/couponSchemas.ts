@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/coupons/_lib/couponSchemas.ts
 import { z } from "zod";
 
 const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;

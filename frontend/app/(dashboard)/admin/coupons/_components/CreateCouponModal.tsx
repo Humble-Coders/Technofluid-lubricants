@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/coupons/_components/CreateCouponModal.tsx
 "use client";
 
 import { useMemo, useState } from "react";

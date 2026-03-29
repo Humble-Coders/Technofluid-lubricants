@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/salesperson/orders/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -110,7 +111,10 @@ export default function SalespersonOrdersPage() {
             label="Search"
             placeholder="Search by distributor or items"
             value={searchQuery}
-            onChange={(event) => { setSearchQuery(event.target.value); resetPage(); }}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              resetPage();
+            }}
           />
           <Select
             id="order-status"

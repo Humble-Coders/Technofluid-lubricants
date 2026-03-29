@@ -1,3 +1,4 @@
+// File: frontend/components/ui/modal.tsx
 "use client";
 
 import { useEffect } from "react";

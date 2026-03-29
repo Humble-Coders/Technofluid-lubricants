@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/supervisors/_components/SupervisorsStats.tsx
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
 
 import type { SupervisorRow } from "../../_data/mockData";

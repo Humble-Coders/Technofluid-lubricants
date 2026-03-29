@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/dashboard/layout.tsx
 "use client";
 
 import type { ReactNode } from "react";
@@ -15,12 +16,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    if (!user || !userData || !userData.isActive || userData.status !== "approved") {
+    if (
+      !user ||
+      !userData ||
+      !userData.isActive ||
+      userData.status !== "approved"
+    ) {
       router.push("/login");
     }
   }, [user, userData, loading, router]);
 
-  if (loading || !user || !userData || !userData.isActive || userData.status !== "approved") {
+  if (
+    loading ||
+    !user ||
+    !userData ||
+    !userData.isActive ||
+    userData.status !== "approved"
+  ) {
     return (
       <div className="flex h-screen items-center justify-center">
         Checking access...

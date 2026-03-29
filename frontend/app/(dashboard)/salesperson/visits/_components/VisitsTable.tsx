@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/salesperson/visits/_components/VisitsTable.tsx
 import { Timestamp } from "firebase/firestore";
 
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
@@ -6,7 +7,10 @@ import type { Visit } from "@/types/visit";
 
 function formatDate(value: Visit["nextFollowUp"] | Visit["createdAt"]): string {
   if (!value) return "-";
-  const date = value instanceof Timestamp ? value.toDate() : new Date(value as string | Date);
+  const date =
+    value instanceof Timestamp
+      ? value.toDate()
+      : new Date(value as string | Date);
   return date.toLocaleDateString();
 }
 

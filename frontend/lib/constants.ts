@@ -1,3 +1,4 @@
+// File: frontend/lib/constants.ts
 export const USER_ROLES = {
   ADMIN: "admin",
   SUPERVISOR: "supervisor",

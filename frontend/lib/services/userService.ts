@@ -1,3 +1,4 @@
+// File: frontend/lib/services/userService.ts
 import {
   collection,
   doc,

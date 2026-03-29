@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/supervisors/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
 import { useSupervisors } from "@/lib/useSupervisors";
-import { auth } from "@/lib/firebase";
+import { createSupervisor as createSupervisorAction } from "@/lib/actions/createSupervisor";
 import {
   CreateSupervisorModal,
   type CreateSupervisorFormInput,
@@ -22,7 +23,7 @@ export default function SupervisorsPage() {
     "all" | "pending" | "approved"
   >("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { supervisors, approveSupervisor, createSupervisor } = useSupervisors();
+  const { supervisors, approveSupervisor } = useSupervisors();
 
   const filteredSupervisors = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -54,10 +55,7 @@ export default function SupervisorsPage() {
 
   const handleCreate = async (supervisorData: CreateSupervisorFormInput) => {
     try {
-      await createSupervisor({
-        ...supervisorData,
-        createdBy: auth.currentUser?.uid,
-      });
+      await createSupervisorAction(supervisorData);
       setIsCreateOpen(false);
     } catch (err) {
       console.error("Failed to create supervisor:", err);

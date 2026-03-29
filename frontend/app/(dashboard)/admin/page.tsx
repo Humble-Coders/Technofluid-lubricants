@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/page.tsx
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
 
 import { dashboardStats } from "./_data/mockData";

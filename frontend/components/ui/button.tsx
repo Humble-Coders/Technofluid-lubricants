@@ -1,3 +1,4 @@
+// File: frontend/components/ui/button.tsx
 import type { ButtonHTMLAttributes } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "danger";

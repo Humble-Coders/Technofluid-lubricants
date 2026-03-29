@@ -1,3 +1,4 @@
+// File: frontend/types/visit.ts
 import type { Timestamp } from "firebase/firestore";
 
 export type LeadType = "hot" | "warm" | "cold";

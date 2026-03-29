@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/distributors/_components/CreateDistributorModal.tsx
 "use client";
 
 import { useState } from "react";

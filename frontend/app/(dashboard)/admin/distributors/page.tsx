@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/distributors/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -7,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useDistributors } from "@/lib/useDistributors";
-import { auth } from "@/lib/firebase";
+import { createDistributor as createDistributorAction } from "@/lib/actions/createDistributor";
 import {
   CreateDistributorModal,
   type CreateDistributorFormInput,
@@ -21,8 +22,7 @@ export default function DistributorsPage() {
     "all" | "pending" | "approved"
   >("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { distributors, approveDistributor, createDistributor } =
-    useDistributors();
+  const { distributors, approveDistributor } = useDistributors();
 
   const filteredDistributors = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -55,15 +55,7 @@ export default function DistributorsPage() {
 
   const handleCreate = async (distributorData: CreateDistributorFormInput) => {
     try {
-      const currentUser = auth.currentUser;
-      if (!currentUser?.uid) {
-        throw new Error("User must be logged in to create a distributor");
-      }
-
-      await createDistributor({
-        ...distributorData,
-        createdBy: currentUser.uid,
-      });
+      await createDistributorAction(distributorData);
       setIsCreateOpen(false);
     } catch (err) {
       console.error("Failed to create distributor:", err);

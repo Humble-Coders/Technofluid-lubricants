@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/salesperson/distributors/_components/DistributorsTable.tsx
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
 

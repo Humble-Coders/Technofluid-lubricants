@@ -1,3 +1,4 @@
+// File: frontend/app/(auth)/_lib/auth-placeholders.ts
 export type LoginPayload = {
   email: string;
   password: string;

@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/supervisors/_components/SupervisorsTable.tsx
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
 

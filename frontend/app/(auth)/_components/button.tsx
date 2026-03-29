@@ -1,3 +1,4 @@
+// File: frontend/app/(auth)/_components/button.tsx
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type ButtonProps = {

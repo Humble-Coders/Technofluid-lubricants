@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/salesperson/visits/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -120,7 +121,10 @@ export default function SalespersonVisitsPage() {
             label="Search Visits"
             placeholder="Search by distributor or notes"
             value={searchQuery}
-            onChange={(event) => { setSearchQuery(event.target.value); setPage(1); }}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setPage(1);
+            }}
           />
         </div>
 

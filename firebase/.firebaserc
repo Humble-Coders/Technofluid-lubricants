@@ -1,6 +1,5 @@
 {
   "projects": {
-    "default": "lubricant-project-7ce6f",
     "blaze": "hs-website-21095"
   },
   "targets": {},

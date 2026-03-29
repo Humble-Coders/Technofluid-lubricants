@@ -1,3 +1,4 @@
+// File: frontend/lib/services/distributorService.ts
 import {
   collection,
   doc,

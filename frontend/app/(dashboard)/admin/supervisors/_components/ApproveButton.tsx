@@ -1,3 +1,4 @@
+// File: frontend/app/(dashboard)/admin/supervisors/_components/ApproveButton.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,4 @@
+// File: frontend/lib/useAuth.ts
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,7 +27,7 @@ export function useAuth() {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        setUserData(docSnap.data());
+        setUserData(docSnap.data() as User);
       }
 
       setLoading(false);

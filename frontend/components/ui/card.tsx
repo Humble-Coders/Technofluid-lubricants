@@ -1,3 +1,4 @@
+// File: frontend/components/ui/card.tsx
 import type { ReactNode } from "react";
 
 type CardProps = {

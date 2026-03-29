@@ -1,3 +1,4 @@
+// File: frontend/components/ui/table.tsx
 import type { ReactNode } from "react";
 
 export function Table({ children }: { children: ReactNode }) {

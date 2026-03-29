@@ -1,4 +1,5 @@
 // lib/firebase.ts
+// File: frontend/lib/firebase.ts
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -21,4 +22,4 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // Services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const functions = getFunctions(app);
+export const functions = getFunctions(app, "us-central1");

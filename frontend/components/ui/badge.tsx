@@ -1,3 +1,4 @@
+// File: frontend/components/ui/badge.tsx
 import type { ReactNode } from "react";
 
 type BadgeVariant =
