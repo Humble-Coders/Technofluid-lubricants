@@ -8,6 +8,7 @@ export type CreateUserByAdminPayload = {
   password: string;
   name: string;
   role: UserRole;
+  phone?: string;
 };
 
 export type ApproveUserPayload = {
@@ -60,7 +61,6 @@ function handleFirebaseError(error: unknown): Error {
   return new Error("An unexpected error occurred");
 }
 
-// ✅ UPDATED: Add error handling
 export async function createUserByAdmin(
   payload: CreateUserByAdminPayload,
 ): Promise<CreateUserByAdminResponse> {
@@ -68,7 +68,7 @@ export async function createUserByAdmin(
     const callable = httpsCallable<
       CreateUserByAdminPayload,
       CreateUserByAdminResponse
-    >(functions, "createUserByAdmin");
+    >(functions, "createUserByAdminCallable");
     const result = await callable(payload);
     return result.data;
   } catch (error) {
@@ -100,6 +100,21 @@ export async function rejectUser(
     const callable = httpsCallable<RejectUserPayload, MutationResponse>(
       functions,
       "rejectUser",
+    );
+    const result = await callable(payload);
+    return result.data;
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
+export async function deleteUser(
+  payload: ApproveUserPayload,
+): Promise<MutationResponse> {
+  try {
+    const callable = httpsCallable<ApproveUserPayload, MutationResponse>(
+      functions,
+      "deleteUser",
     );
     const result = await callable(payload);
     return result.data;

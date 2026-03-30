@@ -4,10 +4,12 @@
 import { useEffect, useState } from "react";
 
 import type { DistributorRow } from "@/app/(dashboard)/admin/_data/mockData";
+import { deleteUser } from "@/lib/api/admin";
 import {
   approveDistributor,
   createDistributorInFirestore,
   subscribeDistributors,
+  updateDistributor,
 } from "@/lib/services/distributorService";
 import type { CreateDistributorInput } from "@/types/distributor";
 
@@ -84,11 +86,34 @@ export function useDistributors() {
     }
   };
 
+  const handleUpdateDistributor = async (
+    id: string,
+    fields: { name?: string; phone?: string },
+  ) => {
+    try {
+      await updateDistributor(id, fields);
+    } catch (err) {
+      console.error("Error updating distributor:", err);
+      throw err;
+    }
+  };
+
+  const handleDeleteDistributor = async (id: string) => {
+    try {
+      await deleteUser({ uid: id });
+    } catch (err) {
+      console.error("Error deleting distributor:", err);
+      throw err;
+    }
+  };
+
   return {
     distributors,
     loading,
     error,
     approveDistributor: handleApproveDistributor,
     createDistributor,
+    updateDistributor: handleUpdateDistributor,
+    deleteDistributor: handleDeleteDistributor,
   };
 }

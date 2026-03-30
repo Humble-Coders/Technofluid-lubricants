@@ -5,16 +5,19 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useDistributors } from "@/lib/useDistributors";
 import { createDistributor as createDistributorAction } from "@/lib/actions/createDistributor";
+import type { DistributorRow } from "../_data/mockData";
 import {
   CreateDistributorModal,
   type CreateDistributorFormInput,
 } from "./_components/CreateDistributorModal";
 import { DistributorsStats } from "./_components/DistributorsStats";
 import { DistributorsTable } from "./_components/DistributorsTable";
+import { EditDistributorModal } from "./_components/EditDistributorModal";
 
 export default function DistributorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,7 +25,11 @@ export default function DistributorsPage() {
     "all" | "pending" | "approved"
   >("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { distributors, approveDistributor } = useDistributors();
+  const [editTarget, setEditTarget] = useState<DistributorRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DistributorRow | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { distributors, approveDistributor, updateDistributor, deleteDistributor } =
+    useDistributors();
 
   const filteredDistributors = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -48,8 +55,11 @@ export default function DistributorsPage() {
   const handleApprove = async (distributorId: string) => {
     try {
       await approveDistributor(distributorId);
+      setErrorMessage(null);
     } catch (err) {
-      console.error("Failed to approve distributor:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to approve distributor";
+      setErrorMessage(message);
     }
   };
 
@@ -62,8 +72,40 @@ export default function DistributorsPage() {
     }
   };
 
+  const handleEdit = async (
+    id: string,
+    fields: { name?: string; phone?: string },
+  ) => {
+    try {
+      await updateDistributor(id, fields);
+      setErrorMessage(null);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to update distributor";
+      setErrorMessage(message);
+      throw err;
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteDistributor(deleteTarget.id);
+  };
+
   return (
     <section className="space-y-5">
+      {errorMessage && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900 dark:text-red-100">
+          {errorMessage}
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="ml-auto block text-xs underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <DistributorsStats distributors={distributors} />
 
       <div className="flex justify-end">
@@ -102,12 +144,34 @@ export default function DistributorsPage() {
       <DistributorsTable
         distributors={filteredDistributors}
         onApprove={handleApprove}
+        onEdit={(d) => setEditTarget(d)}
+        onDelete={(d) => setDeleteTarget(d)}
       />
 
       <CreateDistributorModal
         open={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreate={handleCreate}
+      />
+
+      {editTarget && (
+        <EditDistributorModal
+          open={!!editTarget}
+          initial={{
+            id: editTarget.id,
+            name: editTarget.name,
+            phone: editTarget.phone ?? "",
+          }}
+          onClose={() => setEditTarget(null)}
+          onSave={handleEdit}
+        />
+      )}
+
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        name={deleteTarget?.name ?? ""}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
       />
     </section>
   );

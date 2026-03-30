@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 
 import type { SalespersonRow } from "@/app/(dashboard)/admin/_data/mockData";
 import { USER_ROLES } from "@/lib/constants";
+import { deleteUser } from "@/lib/api/admin";
 import {
   approveUser,
   createUserInFirestore,
   subscribeUsersByRole,
+  updateUser,
 } from "@/lib/services/userService";
 
 type CreateSalespersonInput = {
@@ -108,11 +110,34 @@ export function useSalespersons() {
     }
   };
 
+  const updateSalesperson = async (
+    id: string,
+    fields: { name?: string; phone?: string },
+  ) => {
+    try {
+      await updateUser(id, fields);
+    } catch (err) {
+      console.error("Error updating salesperson:", err);
+      throw err;
+    }
+  };
+
+  const deleteSalesperson = async (id: string) => {
+    try {
+      await deleteUser({ uid: id });
+    } catch (err) {
+      console.error("Error deleting salesperson:", err);
+      throw err;
+    }
+  };
+
   return {
     salespersons,
     loading,
     error,
     approveSalesperson,
     createSalesperson,
+    updateSalesperson,
+    deleteSalesperson,
   };
 }

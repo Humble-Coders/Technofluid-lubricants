@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 
 import type { SupervisorRow } from "@/app/(dashboard)/admin/_data/mockData";
 import { USER_ROLES } from "@/lib/constants";
+import { deleteUser } from "@/lib/api/admin";
 import {
   approveUser,
   createUserInFirestore,
   subscribeUsersByRole,
+  updateUser,
 } from "@/lib/services/userService";
 
 type CreateSupervisorInput = {
@@ -108,5 +110,34 @@ export function useSupervisors() {
     }
   };
 
-  return { supervisors, loading, error, approveSupervisor, createSupervisor };
+  const updateSupervisor = async (
+    id: string,
+    fields: { name?: string; phone?: string },
+  ) => {
+    try {
+      await updateUser(id, fields);
+    } catch (err) {
+      console.error("Error updating supervisor:", err);
+      throw err;
+    }
+  };
+
+  const deleteSupervisor = async (id: string) => {
+    try {
+      await deleteUser({ uid: id });
+    } catch (err) {
+      console.error("Error deleting supervisor:", err);
+      throw err;
+    }
+  };
+
+  return {
+    supervisors,
+    loading,
+    error,
+    approveSupervisor,
+    createSupervisor,
+    updateSupervisor,
+    deleteSupervisor,
+  };
 }

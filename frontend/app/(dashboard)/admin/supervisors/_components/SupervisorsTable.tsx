@@ -1,5 +1,6 @@
 // File: frontend/app/(dashboard)/admin/supervisors/_components/SupervisorsTable.tsx
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
 
 import type { SupervisorRow } from "../../_data/mockData";
@@ -8,11 +9,15 @@ import { ApproveButton } from "./ApproveButton";
 type SupervisorsTableProps = {
   supervisors: SupervisorRow[];
   onApprove: (id: string) => void;
+  onEdit: (supervisor: SupervisorRow) => void;
+  onDelete: (supervisor: SupervisorRow) => void;
 };
 
 export function SupervisorsTable({
   supervisors,
   onApprove,
+  onEdit,
+  onDelete,
 }: SupervisorsTableProps) {
   return (
     <Table>
@@ -45,13 +50,25 @@ export function SupervisorsTable({
               </TD>
               <TD>{supervisor.createdAt}</TD>
               <TD>
-                {supervisor.status === "pending" ? (
-                  <ApproveButton onApprove={() => onApprove(supervisor.id)} />
-                ) : (
-                  <span className="text-xs font-medium text-textSecondary">
-                    Approved
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {supervisor.status === "pending" && (
+                    <ApproveButton onApprove={() => onApprove(supervisor.id)} />
+                  )}
+                  <Button
+                    variant="secondary"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onEdit(supervisor)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onDelete(supervisor)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </TD>
             </tr>
           ))

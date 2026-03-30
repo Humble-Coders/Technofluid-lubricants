@@ -90,6 +90,14 @@ export function subscribeUsersByRole(
   );
 }
 
+export async function updateUser(
+  uid: string,
+  fields: { name?: string; phone?: string },
+) {
+  const userRef = doc(db, COLLECTIONS.USERS, uid);
+  await updateDoc(userRef, { ...fields, updatedAt: serverTimestamp() });
+}
+
 export async function approveUser(uid: string, approvedBy?: string) {
   const userRef = doc(db, COLLECTIONS.USERS, uid);
   await updateDoc(userRef, {

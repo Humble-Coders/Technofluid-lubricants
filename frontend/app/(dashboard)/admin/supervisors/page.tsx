@@ -5,15 +5,18 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
 import { useSupervisors } from "@/lib/useSupervisors";
 import { createSupervisor as createSupervisorAction } from "@/lib/actions/createSupervisor";
+import type { SupervisorRow } from "../_data/mockData";
 import {
   CreateSupervisorModal,
   type CreateSupervisorFormInput,
 } from "./_components/CreateSupervisorModal";
+import { EditSupervisorModal } from "./_components/EditSupervisorModal";
 import { SupervisorsStats } from "./_components/SupervisorsStats";
 import { SupervisorsTable } from "./_components/SupervisorsTable";
 
@@ -23,7 +26,11 @@ export default function SupervisorsPage() {
     "all" | "pending" | "approved"
   >("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { supervisors, approveSupervisor } = useSupervisors();
+  const [editTarget, setEditTarget] = useState<SupervisorRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<SupervisorRow | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { supervisors, approveSupervisor, updateSupervisor, deleteSupervisor } =
+    useSupervisors();
 
   const filteredSupervisors = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -48,8 +55,11 @@ export default function SupervisorsPage() {
   const handleApprove = async (id: string) => {
     try {
       await approveSupervisor(id);
+      setErrorMessage(null);
     } catch (err) {
-      console.error("Failed to approve supervisor:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to approve supervisor";
+      setErrorMessage(message);
     }
   };
 
@@ -62,8 +72,40 @@ export default function SupervisorsPage() {
     }
   };
 
+  const handleEdit = async (
+    id: string,
+    fields: { name?: string; phone?: string },
+  ) => {
+    try {
+      await updateSupervisor(id, fields);
+      setErrorMessage(null);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to update supervisor";
+      setErrorMessage(message);
+      throw err;
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteSupervisor(deleteTarget.id);
+  };
+
   return (
     <section className="space-y-5">
+      {errorMessage && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900 dark:text-red-100">
+          {errorMessage}
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="ml-auto block text-xs underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <SupervisorsStats supervisors={supervisors} />
 
       <div className="flex justify-end">
@@ -100,12 +142,30 @@ export default function SupervisorsPage() {
       <SupervisorsTable
         supervisors={filteredSupervisors}
         onApprove={handleApprove}
+        onEdit={(s) => setEditTarget(s)}
+        onDelete={(s) => setDeleteTarget(s)}
       />
 
       <CreateSupervisorModal
         open={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreate={handleCreate}
+      />
+
+      {editTarget && (
+        <EditSupervisorModal
+          open={!!editTarget}
+          initial={{ id: editTarget.id, name: editTarget.name, phone: editTarget.phone ?? "" }}
+          onClose={() => setEditTarget(null)}
+          onSave={handleEdit}
+        />
+      )}
+
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        name={deleteTarget?.name ?? ""}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
       />
     </section>
   );

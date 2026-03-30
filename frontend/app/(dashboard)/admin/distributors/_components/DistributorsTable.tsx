@@ -7,12 +7,16 @@ import type { DistributorRow } from "../../_data/mockData";
 
 type DistributorsTableProps = {
   distributors: DistributorRow[];
-  onApprove: (distributorId: string) => void;
+  onApprove: (id: string) => void;
+  onEdit: (distributor: DistributorRow) => void;
+  onDelete: (distributor: DistributorRow) => void;
 };
 
 export function DistributorsTable({
   distributors,
   onApprove,
+  onEdit,
+  onDelete,
 }: DistributorsTableProps) {
   return (
     <Table>
@@ -45,14 +49,30 @@ export function DistributorsTable({
               </TD>
               <TD>{distributor.contactInfo}</TD>
               <TD>
-                <Button
-                  variant="secondary"
-                  className="h-9 px-3"
-                  onClick={() => onApprove(distributor.id)}
-                  disabled={distributor.status === "approved"}
-                >
-                  {distributor.status === "approved" ? "Approved" : "Approve"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onApprove(distributor.id)}
+                    disabled={distributor.status === "approved"}
+                  >
+                    {distributor.status === "approved" ? "Approved" : "Approve"}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onEdit(distributor)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onDelete(distributor)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </TD>
             </tr>
           ))

@@ -1,5 +1,6 @@
 // File: frontend/app/(dashboard)/admin/salespersons/_components/SalespersonsTable.tsx
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
 
 import type { SalespersonRow } from "../../_data/mockData";
@@ -8,11 +9,15 @@ import { ApproveButton } from "./ApproveButton";
 type SalespersonsTableProps = {
   salespersons: SalespersonRow[];
   onApprove: (id: string) => void;
+  onEdit: (salesperson: SalespersonRow) => void;
+  onDelete: (salesperson: SalespersonRow) => void;
 };
 
 export function SalespersonsTable({
   salespersons,
   onApprove,
+  onEdit,
+  onDelete,
 }: SalespersonsTableProps) {
   return (
     <Table>
@@ -45,13 +50,25 @@ export function SalespersonsTable({
               </TD>
               <TD>{salesperson.createdAt}</TD>
               <TD>
-                {salesperson.status === "pending" ? (
-                  <ApproveButton onApprove={() => onApprove(salesperson.id)} />
-                ) : (
-                  <span className="text-xs font-medium text-textSecondary">
-                    Approved
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {salesperson.status === "pending" && (
+                    <ApproveButton onApprove={() => onApprove(salesperson.id)} />
+                  )}
+                  <Button
+                    variant="secondary"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onEdit(salesperson)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="h-9 px-3 text-xs"
+                    onClick={() => onDelete(salesperson)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </TD>
             </tr>
           ))

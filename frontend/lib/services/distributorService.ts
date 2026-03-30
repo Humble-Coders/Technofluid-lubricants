@@ -58,6 +58,18 @@ export function subscribeDistributors(
   );
 }
 
+export async function updateDistributor(
+  uid: string,
+  fields: { name?: string; phone?: string },
+) {
+  const distributorRef = doc(db, COLLECTIONS.DISTRIBUTORS, uid);
+  await updateDoc(distributorRef, {
+    ...fields,
+    ...(fields.phone ? { contactInfo: fields.phone } : {}),
+    updatedAt: serverTimestamp(),
+  });
+}
+
 export async function approveDistributor(uid: string, approvedBy?: string) {
   const distributorRef = doc(db, COLLECTIONS.DISTRIBUTORS, uid);
   await updateDoc(distributorRef, {
