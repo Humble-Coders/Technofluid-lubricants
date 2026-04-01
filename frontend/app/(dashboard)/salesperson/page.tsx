@@ -6,6 +6,20 @@ import { useSalespersonDistributors } from "@/lib/useSalespersonDistributors";
 import { useSalespersonOrders } from "@/lib/useSalespersonOrders";
 import { useVisits } from "@/lib/useVisits";
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function leadBadgeClass(leadType: string) {
+  if (leadType === "hot") return "bg-danger/10 text-danger";
+  if (leadType === "warm") return "bg-warning/10 text-warning";
+  return "bg-info/10 text-info";
+}
 
 export default function SalespersonDashboardPage() {
   const { userData } = useAuth();
@@ -19,121 +33,157 @@ export default function SalespersonDashboardPage() {
 
   const isLoading = distLoading || ordLoading || visitsLoading;
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        Loading dashboard...
-      </div>
-    );
-  }
+  const totalValue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+  const pendingOrders = orders.filter((o) => o.status === "pending").length;
 
   const stats = [
     {
       id: "distributors",
-      label: "Total Distributors",
-      value: distributors.length.toString(),
+      label: "My Distributors",
+      value: isLoading ? "—" : distributors.length.toString(),
+      accent: "bg-accent/10 text-accent",
     },
     {
       id: "orders",
       label: "Total Orders",
-      value: orders.length.toString(),
+      value: isLoading ? "—" : orders.length.toString(),
+      accent: "bg-info/10 text-info",
     },
     {
-      id: "visits",
-      label: "Recent Visits",
-      value: visits.length.toString(),
+      id: "pending",
+      label: "Pending Orders",
+      value: isLoading ? "—" : pendingOrders.toString(),
+      accent: "bg-warning/10 text-warning",
     },
     {
-      id: "totalAmount",
+      id: "value",
       label: "Total Order Value",
-      value: `$${orders.reduce((sum, order) => sum + order.totalAmount, 0).toLocaleString()}`,
+      value: isLoading ? "—" : `₹${totalValue.toLocaleString()}`,
+      accent: "bg-success/10 text-success",
     },
   ];
 
+  const recentOrders = [...orders]
+    .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+    .slice(0, 5);
+
+  const recentVisits = visits.slice(0, 5);
+
   return (
     <section className="space-y-6">
+      {/* Welcome */}
+      <div>
+        <h2 className="text-2xl font-semibold tracking-tight text-textPrimary">
+          {getGreeting()}, {userData?.name ?? ""}
+        </h2>
+        <p className="mt-1 text-sm text-textSecondary">
+          Here&rsquo;s a summary of your activity.
+        </p>
+      </div>
+
+      {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.id}>
-            <CardTitle>{stat.label}</CardTitle>
+          <Card key={stat.id} className="p-5">
+            <div
+              className={`mb-3 inline-flex rounded-lg px-2.5 py-1 text-xs font-semibold ${stat.accent}`}
+            >
+              {stat.label}
+            </div>
             <CardValue>{stat.value}</CardValue>
           </Card>
         ))}
       </div>
 
+      {/* Activity rows */}
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Recent Orders */}
         <Card>
-          <CardTitle>Recent Orders</CardTitle>
-          <div className="mt-4">
-            {orders.length === 0 ? (
-              <p className="text-sm text-textSecondary">No orders yet</p>
+          <div className="flex items-center justify-between">
+            <CardTitle>Recent Orders</CardTitle>
+            <span className="text-xs text-textSecondary">
+              {orders.length} total
+            </span>
+          </div>
+          <div className="mt-4 space-y-2">
+            {isLoading ? (
+              <p className="text-sm text-textSecondary">Loading...</p>
+            ) : recentOrders.length === 0 ? (
+              <p className="text-sm text-textSecondary">No orders yet.</p>
             ) : (
-              <div className="space-y-3">
-                {orders.slice(0, 5).map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between border-b border-border pb-2 last:border-0"
-                  >
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-textPrimary">
-                        {order.distributorName}
-                      </p>
-                      <p className="text-xs text-textSecondary">
-                        {order.itemsSummary}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-textPrimary">
-                        ${order.totalAmount.toLocaleString()}
-                      </p>
-                      <span className="inline-block rounded-full bg-info/10 px-2 py-1 text-xs font-medium text-info">
-                        {order.status}
-                      </span>
-                    </div>
+              recentOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex items-center gap-3 rounded-xl border border-border bg-page px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-textPrimary">
+                      {order.distributorName}
+                    </p>
+                    <p className="truncate text-xs text-textSecondary">
+                      {order.itemsSummary}
+                    </p>
                   </div>
-                ))}
-              </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="text-sm font-semibold text-textPrimary">
+                      ₹{order.totalAmount.toLocaleString()}
+                    </span>
+                    <Badge
+                      variant={
+                        order.status === "approved"
+                          ? "approved"
+                          : order.status === "processing"
+                            ? "processing"
+                            : "pending"
+                      }
+                    >
+                      {order.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </Card>
 
+        {/* Recent Visits */}
         <Card>
-          <CardTitle>Recent Visits</CardTitle>
-          <div className="mt-4">
-            {visits.length === 0 ? (
-              <p className="text-sm text-textSecondary">No visits logged</p>
+          <div className="flex items-center justify-between">
+            <CardTitle>Recent Visits</CardTitle>
+            <span className="text-xs text-textSecondary">
+              {visits.length} total
+            </span>
+          </div>
+          <div className="mt-4 space-y-2">
+            {isLoading ? (
+              <p className="text-sm text-textSecondary">Loading...</p>
+            ) : recentVisits.length === 0 ? (
+              <p className="text-sm text-textSecondary">No visits logged.</p>
             ) : (
-              <div className="space-y-3">
-                {visits.slice(0, 5).map((visit) => (
-                  <div
-                    key={visit.id}
-                    className="flex items-center justify-between border-b border-border pb-2 last:border-0"
-                  >
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-textPrimary">
-                        {visit.distributorName}
+              recentVisits.map((visit) => (
+                <div
+                  key={visit.id}
+                  className="flex items-center gap-3 rounded-xl border border-border bg-page px-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-textPrimary">
+                      {visit.distributorName}
+                    </p>
+                    {visit.notes ? (
+                      <p className="truncate text-xs text-textSecondary">
+                        {visit.notes.length > 55
+                          ? visit.notes.slice(0, 55) + "…"
+                          : visit.notes}
                       </p>
-                      <p className="text-xs text-textSecondary">
-                        {visit.notes.substring(0, 50)}
-                        {visit.notes.length > 50 ? "..." : ""}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                          visit.leadType === "hot"
-                            ? "bg-red-100 text-red-700"
-                            : visit.leadType === "warm"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {visit.leadType}
-                      </span>
-                    </div>
+                    ) : null}
                   </div>
-                ))}
-              </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${leadBadgeClass(visit.leadType)}`}
+                  >
+                    {visit.leadType}
+                  </span>
+                </div>
+              ))
             )}
           </div>
         </Card>

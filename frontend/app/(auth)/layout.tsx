@@ -14,7 +14,7 @@ export default function AuthLayout({
             href="/"
             className="text-xl font-bold tracking-tight text-textPrimary"
           >
-            LubeFlow
+            Humble Solutions
           </Link>
           <p className="mt-2 text-sm text-textSecondary">
             Access your workspace account

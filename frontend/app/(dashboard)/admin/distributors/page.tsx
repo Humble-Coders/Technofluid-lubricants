@@ -9,6 +9,7 @@ import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useDistributors } from "@/lib/useDistributors";
+import { useSalespersons } from "@/lib/useSalespersons";
 import { createDistributor as createDistributorAction } from "@/lib/actions/createDistributor";
 import type { DistributorRow } from "../_data/mockData";
 import {
@@ -30,6 +31,11 @@ export default function DistributorsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { distributors, approveDistributor, updateDistributor, deleteDistributor } =
     useDistributors();
+  const { salespersons } = useSalespersons();
+  const salespersonNameById = useMemo(
+    () => Object.fromEntries(salespersons.map((s) => [s.id, s.name])),
+    [salespersons],
+  );
 
   const filteredDistributors = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -143,6 +149,7 @@ export default function DistributorsPage() {
 
       <DistributorsTable
         distributors={filteredDistributors}
+        salespersonNameById={salespersonNameById}
         onApprove={handleApprove}
         onEdit={(d) => setEditTarget(d)}
         onDelete={(d) => setDeleteTarget(d)}

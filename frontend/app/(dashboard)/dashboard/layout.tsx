@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { AdminShell } from "@/components/layout/AdminShell";
 import { SalespersonShell } from "@/components/layout/SalespersonShell";
+import { DistributorShell } from "@/components/layout/DistributorShell";
 import { useAuth } from "@/lib/useAuth";
 import { USER_ROLES } from "@/lib/constants";
 
@@ -42,6 +43,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (userData.role === USER_ROLES.ADMIN) {
     return <AdminShell>{children}</AdminShell>;
+  }
+
+  if (userData.role === USER_ROLES.DISTRIBUTOR) {
+    return <DistributorShell>{children}</DistributorShell>;
   }
 
   return <SalespersonShell>{children}</SalespersonShell>;

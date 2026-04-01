@@ -9,6 +9,7 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
@@ -71,13 +72,27 @@ export async function updateDistributor(
 }
 
 export async function approveDistributor(uid: string, approvedBy?: string) {
+  const batch = writeBatch(db);
+
+  // Update distributors collection
   const distributorRef = doc(db, COLLECTIONS.DISTRIBUTORS, uid);
-  await updateDoc(distributorRef, {
+  batch.update(distributorRef, {
     status: USER_STATUS.APPROVED,
     approvedBy: approvedBy ?? null,
     approvedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+
+  // Also update users collection so the login check passes
+  const userRef = doc(db, COLLECTIONS.USERS, uid);
+  batch.update(userRef, {
+    status: USER_STATUS.APPROVED,
+    approvedBy: approvedBy ?? null,
+    approvedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  await batch.commit();
 }
 
 export async function createDistributorInFirestore(

@@ -1,4 +1,4 @@
-# LubeFlow Schema Reference
+# Humble Solutions Schema Reference
 
 This document is the maintained schema contract for Firestore collections, callable function payloads, and frontend domain types.
 

@@ -1,10 +1,10 @@
-# LubeFlow Workflow Guide
+# Humble Solutions Workflow Guide
 
 This document explains the current frontend and backend execution flows in detail, including route flows, auth flow, service layer flow, hook behavior, UI responsibilities, and a complete source file responsibility map.
 
 ## 1) System Overview
 
-LubeFlow currently uses:
+Humble Solutions currently uses:
 
 - Next.js App Router frontend
 - Firebase Auth for identity

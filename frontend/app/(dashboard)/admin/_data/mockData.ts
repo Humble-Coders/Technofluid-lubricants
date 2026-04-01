@@ -53,7 +53,10 @@ export type CouponRow = {
   type: CouponType;
   targetRole?: CouponTargetRole;
   targetNames?: string[];
-  discount: string;
+  discountType: "percentage" | "flat";
+  discountValue: number;
+  usageLimit: number; // 0 = unlimited
+  usageCount: number;
   status: CouponStatus;
   validTill: string;
 };
@@ -172,7 +175,10 @@ export const couponsSeed: CouponRow[] = [
     id: "c1",
     code: "SPRING10",
     type: "global",
-    discount: "10%",
+    discountType: "percentage",
+    discountValue: 10,
+    usageLimit: 0,
+    usageCount: 0,
     status: "active",
     validTill: "2026-04-15",
   },
@@ -182,7 +188,10 @@ export const couponsSeed: CouponRow[] = [
     type: "targeted",
     targetRole: "distributor",
     targetNames: ["Metro Oils Supply", "Prime Lubes Co."],
-    discount: "$25",
+    discountType: "flat",
+    discountValue: 25,
+    usageLimit: 50,
+    usageCount: 3,
     status: "inactive",
     validTill: "2026-05-01",
   },

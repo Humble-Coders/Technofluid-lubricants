@@ -17,6 +17,9 @@ export const COLLECTIONS = {
   DISTRIBUTORS: "distributors",
   ORDERS: "orders",
   VISITS: "visits",
+  PRODUCTS: "products",
+  COUPONS: "coupons",
+  RATE_LISTS: "rate_lists",
 } as const;
 
 export const ROLE_ROUTES: Record<string, string> = {

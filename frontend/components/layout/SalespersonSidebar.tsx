@@ -107,7 +107,7 @@ export function SalespersonSidebar({ isCollapsed }: SalespersonSidebarProps) {
               isCollapsed ? "text-base" : "text-xl"
             }`}
           >
-            {isCollapsed ? "LF" : "LubeFlow"}
+            {isCollapsed ? "HS" : "Humble Solutions"}
           </p>
           {!isCollapsed ? (
             <p className="mt-1 text-xs uppercase tracking-wider text-textSecondary">

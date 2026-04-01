@@ -7,6 +7,7 @@ import type { DistributorRow } from "../../_data/mockData";
 
 type DistributorsTableProps = {
   distributors: DistributorRow[];
+  salespersonNameById: Record<string, string>;
   onApprove: (id: string) => void;
   onEdit: (distributor: DistributorRow) => void;
   onDelete: (distributor: DistributorRow) => void;
@@ -14,6 +15,7 @@ type DistributorsTableProps = {
 
 export function DistributorsTable({
   distributors,
+  salespersonNameById,
   onApprove,
   onEdit,
   onDelete,
@@ -43,7 +45,7 @@ export function DistributorsTable({
           distributors.map((distributor) => (
             <tr key={distributor.id}>
               <TD>{distributor.name}</TD>
-              <TD>{distributor.createdBy}</TD>
+              <TD>{salespersonNameById[distributor.createdBy] ?? distributor.createdBy}</TD>
               <TD>
                 <Badge variant={distributor.status}>{distributor.status}</Badge>
               </TD>

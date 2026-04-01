@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 
 import { auth } from "@/lib/firebase";
+import { useAuth } from "@/lib/useAuth";
 
 type TopbarProps = {
   title: string;
@@ -19,6 +20,7 @@ export function Topbar({
   onToggleSidebar,
 }: TopbarProps) {
   const router = useRouter();
+  const { userData } = useAuth();
   const [open, setOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -133,9 +135,14 @@ export function Topbar({
             >
               <div className="rounded-lg px-2 py-1.5">
                 <p className="text-sm font-semibold text-textPrimary">
-                  Admin User
+                  {userData?.name ?? "—"}
                 </p>
-                <p className="text-xs text-textSecondary">admin@lubeflow.com</p>
+                <p className="text-xs text-textSecondary">{userData?.email ?? "—"}</p>
+                {userData?.role ? (
+                  <p className="mt-0.5 text-xs capitalize text-textSecondary">
+                    {userData.role}
+                  </p>
+                ) : null}
               </div>
               <div className="my-1 h-px bg-border" />
               <button

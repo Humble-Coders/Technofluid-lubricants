@@ -15,10 +15,13 @@ export type FirestoreDateValue = Timestamp | Date | string | null;
 export type Order = {
   id: string;
   salespersonId: string;
+  distributorId?: string;
   distributorName: string;
   itemsSummary: string;
   totalQty: number;
   totalAmount: number;
+  discount?: number;
+  couponCode?: string;
   status: OrderStatus;
   createdAt?: FirestoreDateValue;
 };

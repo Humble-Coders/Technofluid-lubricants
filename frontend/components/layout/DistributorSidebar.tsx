@@ -1,4 +1,4 @@
-// File: frontend/components/layout/Sidebar.tsx
+// File: frontend/components/layout/DistributorSidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -9,7 +9,7 @@ import { auth } from "@/lib/firebase";
 
 const navItems = [
   {
-    href: "/dashboard",
+    href: "/distributor",
     label: "Dashboard",
     icon: (
       <svg
@@ -27,8 +27,8 @@ const navItems = [
     ),
   },
   {
-    href: "/dashboard/supervisors",
-    label: "Supervisors",
+    href: "/distributor/place-order",
+    label: "Place Order",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -37,48 +37,15 @@ const navItems = [
         stroke="currentColor"
         strokeWidth="2"
       >
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" />
+        <circle cx="9" cy="21" r="1" />
+        <circle cx="20" cy="21" r="1" />
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
     ),
   },
   {
-    href: "/dashboard/salespersons",
-    label: "Salespersons",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        className="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3z" />
-        <path d="M8 12c2.2 0 4-1.8 4-4S10.2 4 8 4 4 5.8 4 8s1.8 4 4 4z" />
-        <path d="M3 20c1.2-3.1 3.9-5 7-5" />
-        <path d="M13 20c.8-2.3 2.8-3.8 5-4" />
-      </svg>
-    ),
-  },
-  {
-    href: "/dashboard/distributors",
-    label: "Distributors",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        className="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <rect x="3" y="8" width="18" height="10" rx="2" />
-        <path d="M7 8V6h10v2" />
-      </svg>
-    ),
-  },
-  {
-    href: "/dashboard/orders",
-    label: "Orders",
+    href: "/distributor/orders",
+    label: "My Orders",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -95,8 +62,8 @@ const navItems = [
     ),
   },
   {
-    href: "/dashboard/coupons",
-    label: "Coupons",
+    href: "/distributor/rate-list",
+    label: "Rate List",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -105,20 +72,19 @@ const navItems = [
         stroke="currentColor"
         strokeWidth="2"
       >
-        <path d="M4 7h16v10H4z" />
-        <path d="M12 7v10" />
-        <circle cx="8" cy="12" r="1" />
-        <circle cx="16" cy="12" r="1" />
+        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+        <path d="M2 17l10 5 10-5" />
+        <path d="M2 12l10 5 10-5" />
       </svg>
     ),
   },
 ];
 
-type SidebarProps = {
+type DistributorSidebarProps = {
   isCollapsed: boolean;
 };
 
-export function Sidebar({ isCollapsed }: SidebarProps) {
+export function DistributorSidebar({ isCollapsed }: DistributorSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -147,7 +113,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
           </p>
           {!isCollapsed ? (
             <p className="mt-1 text-xs uppercase tracking-wider text-textSecondary">
-              Admin Panel
+              Distributor
             </p>
           ) : null}
         </div>
@@ -155,7 +121,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
         <nav className="space-y-1">
           {navItems.map((item) => {
             const isActive =
-              item.href === "/dashboard"
+              item.href === "/distributor"
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
 

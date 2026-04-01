@@ -1,0 +1,39 @@
+// File: frontend/lib/useRateList.ts
+"use client";
+
+import { useEffect, useState } from "react";
+
+import type { RateListEntry } from "@/types/product";
+import { subscribeRateListByDistributor } from "@/lib/services/rateListService";
+
+export function useRateList(distributorId: string | null) {
+  const [entries, setEntries] = useState<RateListEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!distributorId) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = subscribeRateListByDistributor(
+      distributorId,
+      (data) => {
+        setEntries(data);
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error listening to rate list:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch rate list");
+        setLoading(false);
+      },
+    );
+
+    return () => unsubscribe();
+  }, [distributorId]);
+
+  return { entries, loading, error };
+}

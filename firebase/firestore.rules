@@ -1,0 +1,121 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isApproved() {
+      let u = userDoc();
+      return u.isActive == true && u.status == "approved";
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && isApproved() && userDoc().role == role;
+    }
+
+    function isAdmin()       { return hasRole("admin"); }
+    function isSalesperson() { return hasRole("salesperson"); }
+    function isDistributor() { return hasRole("distributor"); }
+    function isSupervisor()  { return hasRole("supervisor"); }
+
+    function isStaff() {
+      return isAdmin() || isSupervisor() || isSalesperson();
+    }
+
+    // ─── Users ────────────────────────────────────────────────────────────────
+
+    match /users/{uid} {
+      // Any signed-in user can read their own doc; admin/supervisor read all
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin() || isSupervisor());
+
+      // Users can create their own doc during signup (status will be "pending")
+      allow create: if isSignedIn() && request.auth.uid == uid;
+
+      // Only admin can update user docs (covers approval batch write from frontend)
+      allow update: if isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── Distributors ─────────────────────────────────────────────────────────
+
+    match /distributors/{distributorId} {
+      allow read: if isStaff()
+                  || (isDistributor() && request.auth.uid == distributorId);
+
+      // Salesperson creates on behalf of a distributor; distributor creates own doc during signup
+      allow create: if isSalesperson()
+                    || (isSignedIn() && request.auth.uid == distributorId);
+
+      allow update: if isAdmin() || isSupervisor()
+                    || (isSalesperson() && resource.data.createdBy == request.auth.uid);
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── Orders ───────────────────────────────────────────────────────────────
+
+    match /orders/{orderId} {
+      // Admin / supervisor / salesperson see all orders
+      allow read: if isStaff()
+                  // Distributor sees only their own orders
+                  || (isDistributor() && resource.data.distributorId == request.auth.uid);
+
+      // Salesperson creates orders on behalf of distributors
+      allow create: if isSalesperson()
+                    // Distributor places their own order
+                    || (isDistributor() && request.resource.data.distributorId == request.auth.uid);
+
+      // Only admin / supervisor can change order status
+      allow update: if isAdmin() || isSupervisor();
+      allow delete: if isAdmin();
+    }
+
+    // ─── Visits ───────────────────────────────────────────────────────────────
+
+    match /visits/{visitId} {
+      allow read:   if isStaff();
+      allow create: if isSalesperson();
+      allow update: if isAdmin() || isSupervisor()
+                    || (isSalesperson() && resource.data.salespersonId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // ─── Products ─────────────────────────────────────────────────────────────
+
+    match /products/{productId} {
+      // All approved users can read the product catalogue
+      allow read:  if isSignedIn() && isApproved();
+      // Only admin manages products
+      allow write: if isAdmin();
+    }
+
+    // ─── Coupons ──────────────────────────────────────────────────────────────
+
+    match /coupons/{couponId} {
+      // Distributors need to read coupons to validate them client-side
+      allow read:  if isSignedIn() && isApproved();
+      // Only admin creates / manages coupons
+      allow write: if isAdmin();
+    }
+
+    // ─── Rate Lists ───────────────────────────────────────────────────────────
+
+    match /rate_lists/{entryId} {
+      // Distributor reads only their own rate entries; staff reads all
+      allow read: if isStaff()
+                  || (isDistributor() && resource.data.distributorId == request.auth.uid);
+      // Only admin manages rate lists
+      allow write: if isAdmin();
+    }
+  }
+}
