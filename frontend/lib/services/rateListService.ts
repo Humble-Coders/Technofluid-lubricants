@@ -1,8 +1,14 @@
 // File: frontend/lib/services/rateListService.ts
 import {
+  addDoc,
   collection,
+  deleteDoc,
+  doc,
+  getDocs,
   onSnapshot,
   query,
+  serverTimestamp,
+  updateDoc,
   where,
   type QueryDocumentSnapshot,
   type Unsubscribe,
@@ -24,6 +30,43 @@ function mapRateListEntry(docSnap: QueryDocumentSnapshot): RateListEntry {
     unit: String(data.unit ?? ""),
     effectiveDate: data.effectiveDate ?? null,
   };
+}
+
+export async function upsertRateEntry(
+  distributorId: string,
+  productId: string,
+  productName: string,
+  price: number,
+  unit: string,
+): Promise<void> {
+  const q = query(
+    collection(db, COLLECTIONS.RATE_LISTS),
+    where("distributorId", "==", distributorId),
+    where("productId", "==", productId),
+  );
+
+  const snap = await getDocs(q);
+
+  if (!snap.empty) {
+    await updateDoc(doc(db, COLLECTIONS.RATE_LISTS, snap.docs[0].id), {
+      price,
+      unit,
+      updatedAt: serverTimestamp(),
+    });
+  } else {
+    await addDoc(collection(db, COLLECTIONS.RATE_LISTS), {
+      distributorId,
+      productId,
+      productName,
+      price,
+      unit,
+      effectiveDate: serverTimestamp(),
+    });
+  }
+}
+
+export async function deleteRateEntry(entryId: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTIONS.RATE_LISTS, entryId));
 }
 
 export function subscribeRateListByDistributor(
