@@ -160,7 +160,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
               isCollapsed ? "text-base" : "text-xl"
             }`}
           >
-            {isCollapsed ? "HS" : "Humble Solutions"}
+            {isCollapsed ? "TL" : "Technofluid Lubricants"}
           </p>
           {!isCollapsed ? (
             <p className="mt-1 text-xs uppercase tracking-wider text-textSecondary">

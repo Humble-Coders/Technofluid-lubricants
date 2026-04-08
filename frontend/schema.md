@@ -1,4 +1,4 @@
-# Humble Solutions Schema Reference
+# Technofluid Lubricants Schema Reference
 
 This document is the maintained schema contract for Firestore collections, callable function payloads, and frontend domain types.
 

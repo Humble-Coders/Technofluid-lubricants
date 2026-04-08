@@ -1,10 +1,10 @@
-# Humble Solutions Frontend
+# Technofluid Lubricants Frontend
 
 This README documents what has been built in this frontend so far, how it works today, what was fixed recently, and what still needs to be improved.
 
 ## Project Summary
 
-Humble Solutions frontend is a Next.js App Router project for a lubricant operations workflow.
+Technofluid Lubricants frontend is a Next.js App Router project for a lubricant operations workflow.
 
 Current implementation is centered on:
 

@@ -64,7 +64,7 @@ export default function SalespersonDashboardPage() {
   ];
 
   const recentOrders = [...orders]
-    .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+    .sort((a, b) => ((b.createdAt ?? "") > (a.createdAt ?? "") ? 1 : -1))
     .slice(0, 5);
 
   const recentVisits = visits.slice(0, 5);
