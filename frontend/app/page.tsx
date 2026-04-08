@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import productData from "./products.json";
 
@@ -10,7 +13,7 @@ const STATS = [
 ];
 
 const INDUSTRIES = productData.industries;
-const FEATURED_INDUSTRIES = INDUSTRIES.slice(0, 6);
+const PRODUCTS_PER_PAGE = 6;
 const PRODUCT_TOTAL = INDUSTRIES.reduce(
   (total, industry) => total + industry.products.length,
   0,
@@ -44,6 +47,14 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(INDUSTRIES.length / PRODUCTS_PER_PAGE);
+  const visibleIndustries = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return INDUSTRIES.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+  }, [currentPage]);
+
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans">
       <Navbar />
@@ -170,7 +181,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {FEATURED_INDUSTRIES.map((industry, index) => (
+            {visibleIndustries.map((industry, index) => (
               <article
                 key={industry.name}
                 className="group flex h-full flex-col rounded-3xl border border-black/[0.06] bg-white p-6 shadow-[0_10px_40px_rgba(10,22,40,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-accent/25 hover:shadow-[0_18px_50px_rgba(0,92,185,0.12)]"
@@ -178,7 +189,10 @@ export default function LandingPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-textSecondary">
-                      Industry {String(index + 1).padStart(2, "0")}
+                      Industry{" "}
+                      {String(
+                        (currentPage - 1) * PRODUCTS_PER_PAGE + index + 1,
+                      ).padStart(2, "0")}
                     </span>
                     <h3 className="mt-3 text-[1.15rem] font-bold leading-tight tracking-tight text-textPrimary">
                       {industry.name}
@@ -221,6 +235,58 @@ export default function LandingPage() {
                 </div>
               </article>
             ))}
+          </div>
+
+          <div className="mt-10 flex flex-col gap-4 border-t border-black/[0.07] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[12px] text-textSecondary">
+              Showing{" "}
+              {Math.min(
+                (currentPage - 1) * PRODUCTS_PER_PAGE + 1,
+                INDUSTRIES.length,
+              )}
+              -{Math.min(currentPage * PRODUCTS_PER_PAGE, INDUSTRIES.length)} of{" "}
+              {INDUSTRIES.length} industries
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                className="rounded-full border border-black/[0.08] px-4 py-2 text-[12px] font-semibold text-textPrimary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Prev
+              </button>
+
+              {Array.from(
+                { length: totalPages },
+                (_, pageIndex) => pageIndex + 1,
+              ).map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  type="button"
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className={`h-10 min-w-10 rounded-full px-3 text-[12px] font-semibold transition-colors ${
+                    pageNumber === currentPage
+                      ? "bg-accent text-white"
+                      : "border border-black/[0.08] text-textPrimary hover:border-accent hover:text-accent"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages, page + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="rounded-full border border-black/[0.08] px-4 py-2 text-[12px] font-semibold text-textPrimary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </section>

@@ -6,11 +6,16 @@ interface IndustryProduct {
   products: string[];
 }
 
+interface ProductsData {
+  industries: IndustryProduct[];
+}
+
 // Read products.json at build time
 function getProducts(): IndustryProduct[] {
   const filePath = path.join(process.cwd(), "app", "products.json");
   const data = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(data);
+  const parsedData = JSON.parse(data) as ProductsData;
+  return parsedData.industries;
 }
 
 export default function ProductsPage() {
