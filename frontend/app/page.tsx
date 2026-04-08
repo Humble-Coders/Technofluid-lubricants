@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
+import productData from "./products.json";
 
 const STATS = [
   { value: "500+", label: "Active Distributors" },
@@ -8,36 +9,12 @@ const STATS = [
   { value: "99%", label: "On-time Delivery" },
 ];
 
-const PRODUCTS = [
-  {
-    num: "01",
-    name: "Engine Oils",
-    tag: "Automotive",
-    description:
-      "High-performance engine oils engineered to extend engine life and maximise efficiency across all vehicle types.",
-  },
-  {
-    num: "02",
-    name: "Hydraulic Fluids",
-    tag: "Industrial",
-    description:
-      "Premium hydraulic fluids designed for industrial machinery, ensuring smooth operation under high pressure.",
-  },
-  {
-    num: "03",
-    name: "Gear Lubricants",
-    tag: "Drivetrain",
-    description:
-      "Specialty gear lubricants that reduce friction, prevent wear, and protect your drivetrain in extreme conditions.",
-  },
-  {
-    num: "04",
-    name: "Industrial Greases",
-    tag: "Maintenance",
-    description:
-      "Long-lasting greases formulated for bearing and chassis applications in automotive and industrial use.",
-  },
-];
+const INDUSTRIES = productData.industries;
+const FEATURED_INDUSTRIES = INDUSTRIES.slice(0, 6);
+const PRODUCT_TOTAL = INDUSTRIES.reduce(
+  (total, industry) => total + industry.products.length,
+  0,
+);
 
 const FEATURES = [
   {
@@ -73,10 +50,8 @@ export default function LandingPage() {
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_380px]">
-
         {/* Left — white */}
         <div className="flex flex-col justify-between px-6 py-10 lg:border-r lg:border-black/[0.06] lg:px-16 lg:py-14">
-
           {/* Top label */}
           <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-black/30">
             Technofluid Lubricants
@@ -135,12 +110,12 @@ export default function LandingPage() {
 
           {/* Bottom — product category strip */}
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2 border-t border-black/[0.06] pt-6">
-            {PRODUCTS.map((p) => (
+            {INDUSTRIES.slice(0, 4).map((industry) => (
               <span
-                key={p.num}
+                key={industry.name}
                 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/25"
               >
-                {p.name}
+                {industry.name}
               </span>
             ))}
           </div>
@@ -178,55 +153,73 @@ export default function LandingPage() {
       {/* ── Products ──────────────────────────────────────── */}
       <section id="products" className="bg-white px-6 py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-4 border-b border-black/[0.07] pb-10 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="text-[2rem] font-extrabold tracking-tight text-textPrimary sm:text-[2.5rem]">
-              Products
-            </h2>
-            <p className="max-w-xs text-[13px] leading-relaxed text-textSecondary sm:text-right">
-              A comprehensive lineup engineered for every industrial and
-              automotive application.
+          <div className="grid gap-8 border-b border-black/[0.07] pb-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-black/35">
+                Product Coverage
+              </span>
+              <h2 className="mt-3 text-[2rem] font-extrabold tracking-tight text-textPrimary sm:text-[2.5rem]">
+                Built for Heavy-Duty Operations
+              </h2>
+            </div>
+            <p className="max-w-xl text-[13px] leading-relaxed text-textSecondary lg:justify-self-end lg:text-right">
+              {INDUSTRIES.length} industry profiles and {PRODUCT_TOTAL} product
+              formulations, grouped by the environments they are built to
+              support.
             </p>
           </div>
 
-          <div className="divide-y divide-black/[0.06]">
-            {PRODUCTS.map((p) => (
-              <div
-                key={p.num}
-                className="group grid grid-cols-[36px_1fr] items-start gap-5 py-8 md:grid-cols-[36px_1fr_auto] md:items-center"
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {FEATURED_INDUSTRIES.map((industry, index) => (
+              <article
+                key={industry.name}
+                className="group flex h-full flex-col rounded-3xl border border-black/[0.06] bg-white p-6 shadow-[0_10px_40px_rgba(10,22,40,0.05)] transition-all duration-200 hover:-translate-y-1 hover:border-accent/25 hover:shadow-[0_18px_50px_rgba(0,92,185,0.12)]"
               >
-                <span className="pt-1 text-[11px] font-bold text-black/20">
-                  {p.num}
-                </span>
-                <div>
-                  <div className="flex flex-wrap items-baseline gap-3">
-                    <h3 className="text-[1.25rem] font-bold tracking-tight text-textPrimary">
-                      {p.name}
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-textSecondary">
+                      Industry {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="mt-3 text-[1.15rem] font-bold leading-tight tracking-tight text-textPrimary">
+                      {industry.name}
                     </h3>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-textSecondary">
-                      {p.tag}
+                  </div>
+                  <div className="rounded-full bg-page px-3 py-1.5 text-[11px] font-bold text-textPrimary">
+                    {industry.products.length} products
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {industry.products.slice(0, 4).map((product) => (
+                    <span
+                      key={product}
+                      className="rounded-full border border-black/[0.06] bg-[#f8fbff] px-3 py-1 text-[11px] leading-5 text-textSecondary"
+                    >
+                      {product}
+                    </span>
+                  ))}
+                  {industry.products.length > 4 ? (
+                    <span className="rounded-full border border-dashed border-border px-3 py-1 text-[11px] leading-5 text-textSecondary">
+                      +{industry.products.length - 4} more
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="mt-6 text-[13px] leading-relaxed text-textSecondary">
+                  Product coverage tailored for demanding environments like{" "}
+                  {industry.name.toLowerCase()}.
+                </p>
+
+                <div className="mt-auto pt-6">
+                  <div className="h-px bg-black/[0.06]" />
+                  <div className="mt-4 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-textSecondary">
+                    <span>Application profile</span>
+                    <span className="transition-colors group-hover:text-accent">
+                      See details
                     </span>
                   </div>
-                  <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-textSecondary">
-                    {p.description}
-                  </p>
                 </div>
-                {/* Arrow */}
-                <span className="hidden h-8 w-8 items-center justify-center rounded-full border border-border text-textSecondary transition-all group-hover:border-accent group-hover:bg-accent group-hover:text-white md:flex">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-3 w-3"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    />
-                  </svg>
-                </span>
-              </div>
+              </article>
             ))}
           </div>
         </div>
@@ -314,10 +307,13 @@ export default function LandingPage() {
 
           {/* Product category strip */}
           <div className="grid grid-cols-2 divide-x divide-black/[0.06] pt-2 md:grid-cols-4">
-            {PRODUCTS.map((p) => (
-              <div key={p.num} className="px-0 py-8 md:px-8 md:first:pl-0">
+            {INDUSTRIES.slice(0, 4).map((industry) => (
+              <div
+                key={industry.name}
+                className="px-0 py-8 md:px-8 md:first:pl-0"
+              >
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-textSecondary">
-                  {p.name}
+                  {industry.name}
                 </p>
               </div>
             ))}
