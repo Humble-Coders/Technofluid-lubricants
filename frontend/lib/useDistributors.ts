@@ -3,11 +3,16 @@
 
 import { useEffect, useState } from "react";
 
+import { sendPasswordResetEmail } from "firebase/auth";
+
 import type { DistributorRow } from "@/app/(dashboard)/admin/_data/mockData";
-import { deleteUser } from "@/lib/api/admin";
+import { approveDistributorByAdmin, deleteUser } from "@/lib/api/admin";
+import { auth } from "@/lib/firebase";
 import {
   approveDistributor,
+  approveDistributorRequest,
   createDistributorInFirestore,
+  deleteDistributorDoc,
   subscribeDistributors,
   updateDistributor,
 } from "@/lib/services/distributorService";
@@ -30,6 +35,7 @@ export function useDistributors() {
             createdBy: row.createdBy,
             status: row.status === "approved" ? "approved" : "pending",
             contactInfo: row.contactInfo || row.phone || "",
+            authCreated: row.authCreated,
           }));
 
           setDistributors(distributorsData);
@@ -59,7 +65,17 @@ export function useDistributors() {
 
   const handleApproveDistributor = async (distributorId: string) => {
     try {
-      await approveDistributor(distributorId);
+      const distributor = distributors.find((d) => d.id === distributorId);
+
+      if (distributor && distributor.authCreated === false) {
+        // Salesperson-created: no auth user exists yet.
+        // Cloud function creates the Auth user, migrates Firestore docs, then we
+        // send a password-reset email so the distributor can set their password.
+        const { email } = await approveDistributorByAdmin(distributorId);
+        await sendPasswordResetEmail(auth, email);
+      } else {
+        await approveDistributor(distributorId);
+      }
     } catch (err) {
       console.error("Error approving distributor:", err);
       throw err;
@@ -100,7 +116,13 @@ export function useDistributors() {
 
   const handleDeleteDistributor = async (id: string) => {
     try {
-      await deleteUser({ uid: id });
+      const distributor = distributors.find((d) => d.id === id);
+      if (distributor?.authCreated === false) {
+        // No auth user exists — just remove the Firestore doc.
+        await deleteDistributorDoc(id);
+      } else {
+        await deleteUser({ uid: id });
+      }
     } catch (err) {
       console.error("Error deleting distributor:", err);
       throw err;

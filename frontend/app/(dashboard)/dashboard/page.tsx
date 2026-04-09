@@ -21,7 +21,9 @@ function getGreeting() {
 }
 
 export default function DashboardPage() {
-  const { userData } = useAuth();
+  const { userData, loading } = useAuth();
+
+  if (loading) return null;
 
   if (userData?.role === USER_ROLES.SALESPERSON) {
     return <SalespersonDashboardPage />;

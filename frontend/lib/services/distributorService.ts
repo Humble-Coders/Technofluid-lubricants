@@ -1,6 +1,7 @@
 // File: frontend/lib/services/distributorService.ts
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   onSnapshot,
@@ -36,6 +37,8 @@ function mapDistributor(docSnap: QueryDocumentSnapshot): Distributor {
     contactInfo: String(data.contactInfo ?? data.phone ?? ""),
     createdAt: data.createdAt ?? null,
     updatedAt: data.updatedAt ?? null,
+    // absent on admin-created docs (cloud fn doesn't write it) → treat as true
+    authCreated: data.authCreated !== false,
   };
 }
 
@@ -111,6 +114,7 @@ export async function createDistributorInFirestore(
     approvedAt: null,
     lastLoginAt: null,
     contactInfo: input.phone,
+    authCreated: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -142,6 +146,19 @@ export async function getDistributorsBySalesperson(
 
   const snap = await getDocs(q);
   return snap.docs.map(mapDistributor);
+}
+
+export async function deleteDistributorDoc(uid: string) {
+  await deleteDoc(doc(db, COLLECTIONS.DISTRIBUTORS, uid));
+}
+
+export async function approveDistributorRequest(uid: string, approvedBy?: string) {
+  await updateDoc(doc(db, COLLECTIONS.DISTRIBUTORS, uid), {
+    status: USER_STATUS.APPROVED,
+    approvedBy: approvedBy ?? null,
+    approvedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export function subscribeDistributorsBySalesperson(

@@ -35,6 +35,7 @@ export type DistributorRow = {
   createdBy: string;
   status: ApprovalStatus;
   contactInfo: string;
+  authCreated?: boolean;
 };
 
 export type OrderRow = {

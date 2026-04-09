@@ -22,6 +22,8 @@ export type Distributor = {
   contactInfo: string;
   createdAt?: FirestoreDateValue;
   updatedAt?: FirestoreDateValue;
+  /** false when created by a salesperson (no auth user yet); true/absent for admin-created */
+  authCreated?: boolean;
 };
 
 export type CreateDistributorInput = {

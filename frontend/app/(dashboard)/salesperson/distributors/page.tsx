@@ -15,7 +15,7 @@ import {
 import { DistributorsTable } from "./_components/DistributorsTable";
 
 export default function SalespersonDistributorsPage() {
-  const { userData } = useAuth();
+  const { userData, loading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { distributors, createDistributor, loading, error } =
@@ -49,6 +49,8 @@ export default function SalespersonDistributorsPage() {
       console.error("Failed to create distributor:", err);
     }
   };
+
+  if (authLoading) return null;
 
   if (error) {
     return (

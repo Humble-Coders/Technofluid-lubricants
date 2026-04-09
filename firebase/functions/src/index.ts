@@ -4,3 +4,4 @@ admin.initializeApp();
 
 export { createUserByAdminCallable } from "./users/createUserCallable";
 export { deleteUser } from "./users/deleteUser";
+export { approveDistributorCallable } from "./users/approveDistributorCallable";

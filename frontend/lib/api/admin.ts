@@ -122,3 +122,24 @@ export async function deleteUser(
     throw handleFirebaseError(error);
   }
 }
+
+type ApproveDistributorResponse = {
+  success: boolean;
+  uid: string;
+  email: string;
+};
+
+export async function approveDistributorByAdmin(
+  distributorId: string,
+): Promise<ApproveDistributorResponse> {
+  try {
+    const callable = httpsCallable<
+      { distributorId: string },
+      ApproveDistributorResponse
+    >(functions, "approveDistributorCallable");
+    const result = await callable({ distributorId });
+    return result.data;
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}

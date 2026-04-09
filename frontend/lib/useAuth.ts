@@ -27,7 +27,7 @@ export function useAuth() {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        setUserData(docSnap.data() as User);
+        setUserData({ uid: docSnap.id, ...docSnap.data() } as User);
       }
 
       setLoading(false);
