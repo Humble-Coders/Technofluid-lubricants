@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const PAGE_SIZE = 10;
 
@@ -10,27 +11,18 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/useAuth";
 import { useVisits } from "@/lib/useVisits";
-import { useSalespersonDistributors } from "@/lib/useSalespersonDistributors";
-import {
-  CreateVisitModal,
-  type CreateVisitFormInput,
-} from "./_components/CreateVisitModal";
 import { VisitsTable } from "./_components/VisitsTable";
 
 export default function SalespersonVisitsPage() {
+  const router = useRouter();
   const { userData } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [page, setPage] = useState(1);
   const {
     visits,
-    createVisit,
     loading: visitsLoading,
     error,
   } = useVisits(userData?.uid ?? null);
-  const { distributors, loading: distLoading } = useSalespersonDistributors(
-    userData?.uid ?? null,
-  );
 
   const filteredVisits = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -52,22 +44,6 @@ export default function SalespersonVisitsPage() {
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
-
-  const handleCreate = async (visitData: CreateVisitFormInput) => {
-    try {
-      const distributor = distributors.find(
-        (d) => d.uid === visitData.distributorId,
-      );
-      if (!distributor) {
-        throw new Error("Distributor not found");
-      }
-
-      await createVisit(visitData, distributor.name);
-      setIsCreateOpen(false);
-    } catch (err) {
-      console.error("Failed to create visit:", err);
-    }
-  };
 
   if (error) {
     return (
@@ -109,8 +85,8 @@ export default function SalespersonVisitsPage() {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => setIsCreateOpen(true)} disabled={distLoading}>
-          {distLoading ? "Loading..." : "Log Visit"}
+        <Button onClick={() => router.push("/salesperson/visits/log")}>
+          Log Visit
         </Button>
       </div>
 
@@ -154,13 +130,6 @@ export default function SalespersonVisitsPage() {
         )}
       </Card>
 
-      {isCreateOpen && (
-        <CreateVisitModal
-          distributors={distributors}
-          onClose={() => setIsCreateOpen(false)}
-          onSubmit={handleCreate}
-        />
-      )}
     </section>
   );
 }

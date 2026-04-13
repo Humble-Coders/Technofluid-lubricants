@@ -99,7 +99,7 @@ export function DistributorSidebar({ isCollapsed }: DistributorSidebarProps) {
 
   return (
     <aside
-      className="hidden h-screen shrink-0 border-r border-border bg-surface p-3 transition-all duration-200 lg:block"
+      className="hidden h-full shrink-0 border-r border-border bg-surface p-3 transition-all duration-200 lg:block"
       style={{ width: "var(--admin-sidebar-width, 16rem)" }}
     >
       <div className="flex h-full flex-col">

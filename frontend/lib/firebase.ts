@@ -5,6 +5,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
+import { getStorage } from "firebase/storage";
 
 // Your config from .env.local
 const firebaseConfig = {
@@ -23,3 +24,4 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app, "us-central1");
+export const storage = getStorage(app);

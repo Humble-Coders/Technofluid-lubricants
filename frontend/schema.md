@@ -1,215 +1,297 @@
-# Technofluid Lubricants Schema Reference
+# Technofluid Lubricants Schema Reference (Current)
 
-This document is the maintained schema contract for Firestore collections, callable function payloads, and frontend domain types.
+Last verified: 2026-04-13
 
-Use this file as the source of truth when adding fields, writing rules, or implementing backend/frontend changes.
+This document reflects the schema and callable contracts currently implemented in this repository across:
 
-## 1) Canonical Enums and Constants
+- frontend Firestore service/hook layer
+- auth pages that write directly to Firestore
+- firebase Cloud Functions (TypeScript source)
+- security rules in firebase/firestore.rules
+
+Use this as the source of truth before adding fields, rules, or function payload changes.
+
+## 1) Canonical Enums and Collection Names
 
 Defined in frontend/lib/constants.ts:
 
-- USER_ROLES
-  - admin
-  - supervisor
-  - salesperson
-  - distributor
-
-- USER_STATUS
-  - pending
-  - approved
-  - rejected
-
-- COLLECTIONS
+- USER_ROLES: admin | supervisor | salesperson | distributor
+- USER_STATUS: pending | approved | rejected
+- COLLECTIONS:
   - users
   - distributors
   - orders
+  - visits
+  - products
+  - coupons
+  - rate_lists
 
-Additional UI enum values in admin mockData/coupon types:
+Additional domain enums/types:
 
-- OrderStatus (UI)
-  - pending
-  - processing
-  - approved
+- Order status (frontend type): pending | processing | approved | rejected | cancelled | delivered | string
+- Coupon type: global | targeted
+- Coupon status: active | inactive
+- Coupon discount type: percentage | flat
+- Visit lead type: hot | warm | cold
 
-- CouponType
-  - global
-  - targeted
+## 2) Firestore Collections
 
-- CouponStatus
-  - active
-  - inactive
+## 2.1 users
 
-## 2) Firestore Collection Schemas
+Path: users/{uid}
 
-## 2.1 users collection
+Primary writers:
 
-Path:
+- frontend/app/(auth)/signup/page.tsx
+- frontend/lib/services/userService.ts#createUserInFirestore
+- firebase/functions/src/users/createUserCallable.ts
+- firebase/functions/src/users/approveDistributorCallable.ts
 
-- users/{uid}
+Read/mapping sources:
 
-Current write sources:
+- frontend/lib/services/userService.ts
+- frontend/lib/useAuth.ts
+- frontend/app/(auth)/login/page.tsx
 
-- signup page (frontend auth flow)
-- userService.createUserInFirestore
-- cloud function createUserByAdmin
-
-Required fields (current practical contract):
+Current practical shape:
 
 - email: string
 - name: string
-- role: one of USER_ROLES
-- status: one of USER_STATUS (typically pending or approved)
+- phone: string (often empty string)
+- role: "admin" | "supervisor" | "salesperson" | "distributor"
+- status: "pending" | "approved" | "rejected" (rejected is allowed by type/rules, but no backend writer sets it today)
 - isActive: boolean
-
-Operational/audit fields:
-
-- phone: string
-- distributorCount: number
-- ordersCount: number
+- distributorCount: number (default 0 in most writers)
+- ordersCount: number (default 0 in most writers)
 - createdBy: string | null
+- supervisorId: string | null (type-level optional; currently not written by active writers)
 - approvedBy: string | null
-- approvedAt: timestamp | null
-- lastLoginAt: timestamp | null
-- createdAt: timestamp
-- updatedAt: timestamp
+- approvedAt: Timestamp | null
+- lastLoginAt: Timestamp | null
+- createdAt: Timestamp
+- updatedAt: Timestamp
 
-Example document:
+Example (admin-created user):
 
 {
-"email": "person@company.com",
-"name": "Jane Doe",
+"email": "staff@company.com",
+"name": "Aarav Singh",
 "phone": "+12025550123",
 "role": "salesperson",
-"status": "pending",
+"status": "approved",
 "isActive": true,
 "distributorCount": 0,
 "ordersCount": 0,
-"createdBy": "adminUidOrSelfUid",
-"approvedBy": null,
-"approvedAt": null,
-"lastLoginAt": null,
+"createdBy": "adminUid",
+"approvedBy": "adminUid",
+"approvedAt": "serverTimestamp()",
 "createdAt": "serverTimestamp()",
 "updatedAt": "serverTimestamp()"
 }
 
-## 2.2 distributors collection
+## 2.2 distributors
 
-Path:
+Path: distributors/{distributorId}
 
-- distributors/{uid}
+Primary writers:
 
-Current write sources:
+- frontend/app/(auth)/signup/page.tsx (for distributor signup)
+- frontend/lib/services/distributorService.ts#createDistributorInFirestore (salesperson-created placeholder)
+- firebase/functions/src/users/createUserCallable.ts (admin-created, auth-backed)
+- firebase/functions/src/users/approveDistributorCallable.ts (migrates placeholder to auth uid)
 
-- signup page for distributor role
-- distributorService.createDistributorInFirestore
-- cloud function createUserByAdmin when role is distributor
-
-Required fields (current practical contract):
+Current practical shape:
 
 - name: string
-- status: one of USER_STATUS (pending/approved in current UI)
-- isActive: boolean
-- createdBy: string
-- contactInfo: string
-
-Optional fields:
-
 - email: string
 - phone: string
-- address: string
+- address: string (optional in read models, not written by active writers)
+- status: "pending" | "approved" | "rejected"
+- isActive: boolean
+- createdBy: string | null
 - approvedBy: string | null
-- approvedAt: timestamp | null
-- lastLoginAt: timestamp | null
-- createdAt: timestamp
-- updatedAt: timestamp
+- approvedAt: Timestamp | null
+- lastLoginAt: Timestamp | null
+- contactInfo: string
+- authCreated: boolean (false for salesperson-created placeholder docs; true/absent for admin/auth-backed docs)
+- createdAt: Timestamp
+- updatedAt: Timestamp
 
-Example document:
+Important lifecycle:
 
-{
-"name": "Metro Oils Supply",
-"email": "ops@metro.com",
-"phone": "+12025550182",
-"status": "pending",
-"isActive": true,
-"createdBy": "adminUid",
-"approvedBy": null,
-"approvedAt": null,
-"lastLoginAt": null,
-"contactInfo": "+12025550182",
-"createdAt": "serverTimestamp()",
-"updatedAt": "serverTimestamp()"
-}
+- Salesperson-created distributor records start with authCreated: false and doc id != auth uid.
+- approveDistributorCallable creates Firebase Auth user, writes users/{authUid} and distributors/{authUid}, then deletes old placeholder distributor doc if ids differ.
 
-## 2.3 orders collection
+## 2.3 orders
 
-Path:
+Path: orders/{orderId}
 
-- orders/{orderId}
+Primary writer:
 
-Current read source:
+- frontend/lib/services/orderService.ts#createOrder
 
-- orderService and useOrders
+Current practical shape:
 
-Current UI-expected fields:
-
+- distributorId: string
 - distributorName: string
+- salespersonId: string
 - itemsSummary: string
 - totalQty: number
 - totalAmount: number
-- status: string (expected values pending, processing, approved)
-- createdAt: timestamp | string
+- discount: number (defaults to 0 on create)
+- couponCode: string | null
+- status: string (created as "pending")
+- createdAt: Timestamp
 
-Example document:
+Read model allows:
 
-{
-"distributorName": "Prime Lubes Co.",
-"itemsSummary": "Hydraulic Fluid x 70",
-"totalQty": 70,
-"totalAmount": 8400,
-"status": "processing",
-"createdAt": "serverTimestamp()"
-}
+- distributorId optional
+- discount optional
+- couponCode optional
+- createdAt as Timestamp | Date | string | null
 
-## 2.4 coupons collection
+UI currently handles statuses such as pending, processing, approved, delivered, dispatched.
 
-Path:
+## 2.4 visits
 
-- coupons/{couponId}
+Path: visits/{visitId}
 
-Current read source:
+Two document shapes exist in this collection.
 
-- useCoupons
+### 2.4.1 Legacy visit (simple log)
 
-Current create behavior:
+Primary writer:
 
-- UI creates local state entry only; no persistent Firestore write yet in current flow
+- frontend/lib/services/visitService.ts#createVisitInFirestore
 
-Expected fields from UI model:
+Shape:
 
-- code: string
-- type: global | targeted
-- targetRole?: salesperson | distributor
-- targetNames?: string[]
-- discount: string
-- status: active | inactive
+- salespersonId: string
+- distributorId: string
+- distributorName: string
+- leadType: "hot" | "warm" | "cold"
+- notes: string
+- nextFollowUp: Date | Timestamp | null
+- createdAt: Timestamp
+- updatedAt: Timestamp
+
+### 2.4.2 Log Visit (full field visit)
+
+Primary writer:
+
+- frontend/lib/services/logVisitService.ts#createLogVisit
+
+Shape:
+
+- salespersonId: string
+- salespersonName: string
+- firmName: string
+- status: "draft" | "submitted"
+- location: { lat: number, lng: number } | null
+- media: Array of:
+  - url: string
+  - storagePath: string (mandatory, used for Storage deletion)
+  - type: "image" | "video"
+  - createdAt: string (ISO 8601)
+- priorities:
+  - monthly: Array of { productId, productName, quantity } (min 5 on submit)
+  - annually: Array of { productId, productName, quantity } (min 5 on submit)
+- relatedFirms: Array of:
+  - name: string
+  - priorities:
+    - monthly: Array of { productId, productName, quantity } (min 5 on submit)
+    - annually: Array of { productId, productName, quantity } (optional; min 5 if present)
+- createdAt: Timestamp
+- updatedAt: Timestamp
+
+Media storage path pattern:
+
+- visits/{salespersonId}/media/{timestamp}_{randomId}.{ext}
+
+Validation rules enforced on "submitted" status only:
+
+- firmName required
+- priorities.monthly min 5 items; each item: productId non-empty, quantity > 0
+- priorities.annually min 5 items; each item: productId non-empty, quantity > 0
+- Each relatedFirm: name required, monthly min 5 items
+- Draft saves bypass priority/firm validation (firmName still required)
+
+## 2.5 products
+
+Path: products/{productId}
+
+Current frontend read model (active products query):
+
+- name: string
+- description?: string
+- basePrice: number
+- unit: string
+- category?: string
+- isActive: boolean
+- createdAt?: Timestamp | Date | string | null
+- updatedAt?: Timestamp | Date | string | null
+
+Writers are expected to be admin-only per rules; no frontend write service exists yet.
+
+## 2.6 coupons
+
+Path: coupons/{couponId}
+
+Read/query sources:
+
+- frontend/lib/useCoupons.ts (live snapshot)
+- frontend/lib/services/couponService.ts (validation + usage increment)
+
+Current create source:
+
+- frontend/lib/useCoupons.ts#createCoupon (persists to Firestore)
+
+Current practical shape:
+
+- code: string (validated in UI and queried uppercase)
+- type: "global" | "targeted"
+- targetRole: "salesperson" | "distributor" | null
+- targetNames: string[]
+- discountType: "percentage" | "flat"
+- discountValue: number
+- usageLimit: number (0 means unlimited)
+- usageCount: number
+- status: "active" | "inactive"
 - validTill: string (YYYY-MM-DD)
+- createdAt: Timestamp
 
-Example document:
+Validation rules:
 
-{
-"code": "SPRING10",
-"type": "global",
-"discount": "10%",
-"status": "active",
-"validTill": "2026-04-15"
-}
+- percentage discountValue must be <= 100
+- targeted coupons require targetRole and at least one targetNames entry
 
-## 3) Cloud Function Schemas
+## 2.7 rate_lists
 
-Backend implemented callable:
+Path: rate_lists/{entryId}
 
-- createUserByAdmin
-  - file: firebase/functions/src/index.ts
+Primary writer:
+
+- frontend/lib/services/rateListService.ts#upsertRateEntry
+
+Current practical shape:
+
+- distributorId: string
+- productId: string
+- productName: string
+- price: number
+- unit: string
+- effectiveDate: Timestamp (set on create)
+- updatedAt: Timestamp (set on update path only)
+
+## 3) Callable Cloud Function Contracts
+
+Exports from firebase/functions/src/index.ts:
+
+- createUserByAdminCallable
+- deleteUser
+- approveDistributorCallable
+
+## 3.1 createUserByAdminCallable
 
 Request payload:
 
@@ -217,140 +299,120 @@ Request payload:
 "email": "string",
 "password": "string",
 "name": "string",
-"role": "string"
+"role": "string",
+"phone": "string (optional)"
 }
 
-Response payload:
+Behavior:
+
+- Requires authenticated caller with users/{callerUid}.role == "admin"
+- Creates Firebase Auth user
+- Creates users/{newUid} with status="approved"
+- If role == "distributor", also creates distributors/{newUid} with status="approved"
+
+Response:
+
+{
+"success": true,
+"uid": "newAuthUid"
+}
+
+## 3.2 approveDistributorCallable
+
+Request payload:
+
+{
+"distributorId": "string"
+}
+
+Behavior:
+
+- Requires authenticated admin caller
+- Reads existing distributors/{distributorId}
+- Requires distributor email
+- Creates Firebase Auth user for distributor email
+- Writes users/{authUid} and distributors/{authUid} as approved
+- Deletes old distributors/{distributorId} when distributorId != authUid
+
+Response:
+
+{
+"success": true,
+"uid": "newAuthUid",
+"email": "distributorEmail"
+}
+
+## 3.3 deleteUser
+
+Request payload:
+
+{
+"uid": "string"
+}
+
+Behavior:
+
+- Requires authenticated admin caller
+- Deletes Firebase Auth user
+- Deletes users/{uid}
+- Deletes distributors/{uid} if target user role was distributor
+
+Response:
 
 {
 "success": true
 }
 
-Error model:
+## 3.4 Frontend Callable Wrappers vs Backend Exports
 
-- unauthenticated if caller has no auth context
-- internal for backend failures
+In frontend/lib/api/admin.ts:
 
-Frontend callable wrappers (declared in frontend/lib/api/admin.ts):
+- createUserByAdmin -> calls createUserByAdminCallable (implemented)
+- approveDistributorByAdmin -> calls approveDistributorCallable (implemented)
+- deleteUser -> calls deleteUser (implemented)
+- approveUser -> calls approveUser (NOT implemented in backend)
+- rejectUser -> calls rejectUser (NOT implemented in backend)
 
-- createUserByAdmin(payload)
-- approveUser(payload)
-- rejectUser(payload)
+Current impact:
 
-Important:
+- Supervisor/salesperson approval flows in hooks use direct Firestore updates (service layer), not callable functions.
+- Calling approveUser or rejectUser callable wrappers will fail until backend functions are added.
 
-- approveUser and rejectUser wrappers exist on frontend.
-- Matching backend callable implementations are currently not present in firebase/functions/src/index.ts.
+## 4) Security Rules Alignment (firebase/firestore.rules)
 
-## 4) Frontend Type Contracts
+Rules currently cover:
 
-## 4.1 User type (types/user.ts)
+- users, distributors, orders, visits, products, coupons, rate_lists
+- role + approved state checks via helpers (isApproved, hasRole, isStaff)
 
-User:
+Notable constraints:
 
-- uid: string
-- email: string
-- name: string
-- phone?: string
-- role: UserRole
-- status: UserStatus
-- isActive: boolean
-- distributorCount?: number
-- ordersCount?: number
-- createdBy?: string | null
-- approvedBy?: string | null
-- approvedAt?: timestamp/date/string/null
-- lastLoginAt?: timestamp/date/string/null
-- createdAt?: timestamp/date/string/null
-- updatedAt?: timestamp/date/string/null
+- users update/delete: admin only
+- distributors create: salesperson, or distributor self-create by uid
+- orders create: salesperson or distributor (self)
+- orders update: admin/supervisor only
+- coupons write: admin only
+- rate_lists write: admin only
 
-CreateUserInput:
+## 5) Current Drift and Risks
 
-- email: string
-- name: string
-- phone?: string
-- role: UserRole
-- createdBy?: string
+1. Stale callable wrappers:
+   - approveUser and rejectUser wrappers exist but backend exports do not.
+2. Status handling drift:
+   - orders status is effectively free-form string in type/service, while some UI assumes a narrow subset.
+3. Direct Firestore access outside services:
+   - auth login/signup and useAuth/useCoupons still access collections directly.
+4. Optional user fields not consistently written:
+   - supervisorId exists in User type but has no active writer path.
 
-## 4.2 Distributor type (types/distributor.ts)
+## 6) Change Checklist
 
-Distributor:
+When changing schema/contracts:
 
-- uid: string
-- name: string
-- email?: string
-- phone?: string
-- address?: string
-- status: DistributorStatus
-- isActive: boolean
-- createdBy: string
-- approvedBy?: string | null
-- approvedAt?: timestamp/date/string/null
-- lastLoginAt?: timestamp/date/string/null
-- contactInfo: string
-- createdAt?: timestamp/date/string/null
-- updatedAt?: timestamp/date/string/null
-
-CreateDistributorInput:
-
-- name: string
-- email: string
-- phone: string
-- createdBy: string
-
-## 4.3 Order type (types/order.ts)
-
-Order:
-
-- id: string
-- distributorName: string
-- itemsSummary: string
-- totalQty: number
-- totalAmount: number
-- status: OrderStatus
-- createdAt?: timestamp/date/string/null
-
-## 5) Validation Schemas
-
-Coupon create schema is defined in app/(dashboard)/admin/coupons/\_lib/couponSchemas.ts using Zod.
-
-Discriminated union by type:
-
-- global coupon
-  - code required, max 40
-  - discount required
-  - validTill required and must match YYYY-MM-DD
-
-- targeted coupon
-  - all global fields
-  - targetRole required and limited to salesperson/distributor
-  - targetNames required and must contain at least one non-empty value
-
-## 6) Schema Compatibility Rules
-
-When adding or changing fields:
-
-1. Update this schema.md first.
-2. Update constants/types if enum or domain structure changed.
-3. Update service mappers to preserve backward compatibility defaults.
-4. Update hooks mapping logic if table row shape depends on new fields.
-5. Update cloud function payload types and frontend API wrappers together.
-6. Update Firestore security rules accordingly.
-
-## 7) Current Gaps to Track
-
-1. Frontend includes callable wrappers for approve/reject but backend functions are missing.
-2. Coupons creation is not yet persisted to Firestore.
-3. Auth page flows still do direct Firestore writes/reads outside service layer.
-4. useAuth currently returns loosely typed userData.
-
-## 8) Suggested Next Schema Version Work
-
-Schema version proposal: v1.1
-
-- Add explicit role and status literal unions in backend function request validation.
-- Add users.status transitions policy:
-  - pending -> approved | rejected
-  - rejected -> pending (optional reopen flow)
-- Add orders.status transition matrix.
-- Add coupon persistence schema and timestamps.
+1. Update this file first.
+2. Update related types in frontend/types.
+3. Update service mappers/defaults in frontend/lib/services.
+4. Update any direct writers (signup page, useCoupons, etc.) to match.
+5. Update callable payload types and backend handlers together.
+6. Update firestore.rules for access model changes.
+7. Validate affected UI hooks/pages for status/date coercion assumptions.

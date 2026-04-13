@@ -29,3 +29,56 @@ export type UpdateVisitInput = {
   notes?: string;
   nextFollowUp?: Date | null;
 };
+
+// ─── Log Visit Feature ────────────────────────────────────────────────────────
+
+export type MediaItem = {
+  url: string;
+  storagePath: string;
+  type: "image" | "video";
+  createdAt: string; // ISO string
+};
+
+export type PriorityItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+};
+
+export type PrioritySet = {
+  monthly: PriorityItem[];
+  annually: PriorityItem[];
+};
+
+export type RelatedFirm = {
+  name: string;
+  priorities: {
+    monthly: PriorityItem[];
+    annually: PriorityItem[];
+  };
+};
+
+export type VisitStatus = "draft" | "submitted";
+
+export type LogVisit = {
+  id: string;
+  salespersonId: string;
+  salespersonName: string;
+  firmName: string;
+  status: VisitStatus;
+  location: { lat: number; lng: number } | null;
+  media: MediaItem[];
+  priorities: PrioritySet;
+  relatedFirms: RelatedFirm[];
+  createdAt: FirestoreDateValue;
+  updatedAt: FirestoreDateValue;
+};
+
+export type LogVisitInput = {
+  firmName: string;
+  status: VisitStatus;
+  location: { lat: number; lng: number } | null;
+  media: MediaItem[];
+  priorities: PrioritySet;
+  relatedFirms: RelatedFirm[];
+};

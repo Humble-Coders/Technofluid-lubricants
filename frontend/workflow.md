@@ -431,6 +431,54 @@ Page or Hook -> lib/api/\* -> Firebase httpsCallable -> Cloud Function -> Firest
 5. Frontend callable wrappers for approveUser/rejectUser exist, backend implementations are pending.
 6. Orders status update in orders page remains TODO and is not persisted.
 
+## 3.12 Log Visit Flow (Full Field Visit)
+
+Route: /salesperson/visits/log
+
+Entry: Salesperson taps "Log Visit" on /salesperson/visits, which navigates to the log page.
+
+### Component hierarchy
+
+```
+app/(dashboard)/salesperson/visits/log/page.tsx   (orchestrator, owns all form state)
+├── GeolocationCapture                             (calls navigator.geolocation, reports lat/lng or error)
+├── MediaUploader                                  (uploads to Storage on file select; calls onChange on completion)
+├── PriorityList (monthly)                         (internally manages rows; exports PriorityItem[] via onChange)
+├── PriorityList (annually)                        (same)
+└── RelatedFirmsSection                            (internally manages firm list with UUID keys)
+    └── FirmCard (per firm)
+        ├── PriorityList (monthly)
+        └── PriorityList (annually)
+```
+
+### Data flow
+
+1. Page mounts → `useProducts` subscribes to active products; products passed as prop down the tree.
+2. `useAuth` provides `userData.uid` (Storage upload path) and `userData.name` (stored in Firestore).
+3. User fills firmName, optionally captures location.
+4. User selects files → `MediaUploader` calls `uploadVisitMedia` immediately → stores MediaItem[] in page state.
+5. User builds priority lists in `PriorityList` components → each calls `onChange` with `PriorityItem[]` → page state updated.
+6. User optionally adds related firms via `RelatedFirmsSection` → calls `onChange` with `RelatedFirm[]` → page state updated.
+7. On "Save Draft": firmName validated only; `createLogVisit` called with `status: "draft"`.
+8. On "Submit Visit": full validation runs (min 5 items per required list, productId + quantity > 0, firm names); `createLogVisit` called with `status: "submitted"`.
+9. On success: router navigates to /salesperson/visits.
+
+### Media lifecycle
+
+- Upload on file select → Storage path: `visits/{uid}/media/{timestamp}_{random}.{ext}`
+- Remove before submit → `deleteVisitMedia(storagePath)` deletes from Storage; item removed from state.
+- On failed upload → error slot shown in grid; user can dismiss; item never reaches Firestore.
+
+### Key files
+
+- app/(dashboard)/salesperson/visits/log/page.tsx: main form, validation, submit
+- app/(dashboard)/salesperson/visits/log/_components/GeolocationCapture.tsx: geolocation UI
+- app/(dashboard)/salesperson/visits/log/_components/RelatedFirmsSection.tsx: related firms list
+- components/ui/ProductSelect.tsx: searchable combobox backed by products collection
+- components/ui/PriorityList.tsx: dynamic add/remove rows with ProductSelect + quantity
+- components/ui/MediaUploader.tsx: multi-file upload with Storage integration and preview grid
+- lib/services/logVisitService.ts: uploadVisitMedia, deleteVisitMedia, createLogVisit
+
 ## 7) Recommended Next Steps
 
 1. Introduce authService for login/signup/profile reads and remove Firestore access from auth page components.

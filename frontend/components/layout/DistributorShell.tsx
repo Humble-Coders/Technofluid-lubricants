@@ -22,7 +22,7 @@ export function DistributorShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="flex min-h-screen bg-page"
+      className="flex h-screen overflow-hidden bg-page"
       style={{
         ["--admin-sidebar-width" as string]: isSidebarCollapsed
           ? "5rem"
@@ -30,13 +30,15 @@ export function DistributorShell({ children }: { children: ReactNode }) {
       }}
     >
       <DistributorSidebar isCollapsed={isSidebarCollapsed} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Topbar
           title={title}
           isSidebarCollapsed={isSidebarCollapsed}
           onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
         />
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+          {children}
+        </main>
       </div>
     </div>
   );
