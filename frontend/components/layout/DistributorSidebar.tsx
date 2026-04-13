@@ -82,9 +82,15 @@ const navItems = [
 
 type DistributorSidebarProps = {
   isCollapsed: boolean;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 };
 
-export function DistributorSidebar({ isCollapsed }: DistributorSidebarProps) {
+export function DistributorSidebar({
+  isCollapsed,
+  isMobileOpen = false,
+  onCloseMobile,
+}: DistributorSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -97,81 +103,107 @@ export function DistributorSidebar({ isCollapsed }: DistributorSidebarProps) {
     }
   };
 
-  return (
-    <aside
-      className="hidden h-full shrink-0 border-r border-border bg-surface p-3 transition-all duration-200 lg:block"
-      style={{ width: "var(--admin-sidebar-width, 16rem)" }}
-    >
-      <div className="flex h-full flex-col">
-        <div className={`mb-6 ${isCollapsed ? "px-2" : "px-3"}`}>
-          <p
-            className={`font-bold tracking-tight text-textPrimary ${
-              isCollapsed ? "text-base" : "text-xl"
-            }`}
-          >
-            {isCollapsed ? "TL" : "Technofluid Lubricants"}
+  const closeMobile = () => {
+    onCloseMobile?.();
+  };
+
+  const renderNav = (collapsed: boolean, mobile = false) => (
+    <>
+      <div className={`mb-6 ${collapsed ? "px-2" : "px-3"}`}>
+        <p
+          className={`font-bold tracking-tight text-textPrimary ${
+            collapsed ? "text-base" : "text-xl"
+          }`}
+        >
+          {collapsed ? "TL" : "Technofluid Lubricants"}
+        </p>
+        {!collapsed ? (
+          <p className="mt-1 text-xs uppercase tracking-wider text-textSecondary">
+            Distributor
           </p>
-          {!isCollapsed ? (
-            <p className="mt-1 text-xs uppercase tracking-wider text-textSecondary">
-              Distributor
-            </p>
-          ) : null}
-        </div>
-
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const isActive =
-              item.href === "/distributor"
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={item.label}
-                className={`flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-accent/10 text-accent"
-                    : "text-textSecondary hover:bg-page hover:text-textPrimary"
-                }`}
-              >
-                <span className="shrink-0">{item.icon}</span>
-                {!isCollapsed ? (
-                  <span className="ml-3">{item.label}</span>
-                ) : null}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="mt-auto pt-4">
-          <button
-            type="button"
-            onClick={handleLogout}
-            title="Logout"
-            className="flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium text-textSecondary transition hover:bg-page hover:text-textPrimary"
-          >
-            <span className="shrink-0">
-              <svg
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <path d="M16 17l5-5-5-5" />
-                <path d="M21 12H9" />
-              </svg>
-            </span>
-            {!isCollapsed ? <span className="ml-3">Logout</span> : null}
-          </button>
-        </div>
+        ) : null}
       </div>
-    </aside>
+
+      <nav className="space-y-1">
+        {navItems.map((item) => {
+          const isActive =
+            item.href === "/distributor"
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              title={item.label}
+              onClick={mobile ? closeMobile : undefined}
+              className={`flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                isActive
+                  ? "bg-accent/10 text-accent"
+                  : "text-textSecondary hover:bg-page hover:text-textPrimary"
+              }`}
+            >
+              <span className="shrink-0">{item.icon}</span>
+              {!collapsed ? <span className="ml-3">{item.label}</span> : null}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="mt-auto pt-4">
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="Logout"
+          className="flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium text-textSecondary transition hover:bg-page hover:text-textPrimary"
+        >
+          <span className="shrink-0">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="M16 17l5-5-5-5" />
+              <path d="M21 12H9" />
+            </svg>
+          </span>
+          {!collapsed ? <span className="ml-3">Logout</span> : null}
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      <aside
+        className="hidden h-full shrink-0 border-r border-border bg-surface p-3 transition-all duration-200 lg:block"
+        style={{ width: "var(--admin-sidebar-width, 16rem)" }}
+      >
+        <div className="flex h-full flex-col">{renderNav(isCollapsed)}</div>
+      </aside>
+
+      <div
+        className={`fixed inset-0 z-40 bg-black/35 transition-opacity lg:hidden ${
+          isMobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={closeMobile}
+        aria-hidden="true"
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-[88vw] max-w-[20rem] border-r border-border bg-surface p-3 transition-transform duration-200 lg:hidden ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-label="Distributor navigation"
+      >
+        <div className="flex h-full flex-col">{renderNav(false, true)}</div>
+      </aside>
+    </>
   );
 }
