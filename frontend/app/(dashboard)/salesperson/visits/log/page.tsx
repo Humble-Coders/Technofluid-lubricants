@@ -257,7 +257,7 @@ export default function LogVisitPage() {
         </FormSection>
 
         <div className="xl:col-span-2">
-        {/* ── 5. Related Firms ── */}
+          {/* ── 5. Related Firms ── */}
           <FormSection step={5} title="Related Firms" badge="Optional">
             <RelatedFirmsSection
               products={products}
