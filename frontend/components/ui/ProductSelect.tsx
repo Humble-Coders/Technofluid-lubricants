@@ -90,7 +90,7 @@ export function ProductSelect({
           role="combobox"
           aria-expanded={isOpen}
           aria-autocomplete="list"
-          className={`w-full rounded-xl border bg-surface py-2.5 pl-9 pr-4 text-sm text-textPrimary outline-none transition placeholder:text-textSecondary/60 focus:ring-4 focus:ring-accent/20 ${
+          className={`w-full rounded-xl border bg-surface py-2.5 pl-8 pr-3 text-sm text-textPrimary outline-none transition placeholder:text-textSecondary/60 focus:ring-4 focus:ring-accent/20 sm:pl-9 sm:pr-4 ${
             error
               ? "border-danger focus:border-danger"
               : value
@@ -131,12 +131,9 @@ export function ProductSelect({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
+        <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
           {filtered.length > 0 ? (
-            <ul
-              role="listbox"
-              className="max-h-44 overflow-y-auto py-1"
-            >
+            <ul role="listbox" className="max-h-44 overflow-y-auto py-1">
               {filtered.map((product) => (
                 <li
                   key={product.id}
@@ -146,7 +143,7 @@ export function ProductSelect({
                     e.preventDefault(); // keep focus on input
                     handlePick(product);
                   }}
-                  className={`flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm transition hover:bg-page ${
+                  className={`flex cursor-pointer items-center justify-between px-3 py-2.5 text-sm transition hover:bg-page sm:px-4 ${
                     product.id === value
                       ? "bg-accent/5 text-accent"
                       : "text-textPrimary"
@@ -164,7 +161,7 @@ export function ProductSelect({
               ))}
             </ul>
           ) : (
-            <div className="px-4 py-3 text-sm text-textSecondary">
+            <div className="px-3 py-3 text-sm text-textSecondary sm:px-4">
               No results for &quot;{query}&quot;
             </div>
           )}

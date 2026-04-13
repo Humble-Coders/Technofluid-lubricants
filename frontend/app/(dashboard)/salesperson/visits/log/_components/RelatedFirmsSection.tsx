@@ -217,7 +217,7 @@ function FirmCard({
         <button
           type="button"
           onClick={onRemove}
-          className="mt-7 shrink-0 rounded-lg p-2 text-textSecondary transition hover:bg-danger/10 hover:text-danger"
+          className="mt-7 shrink-0 rounded-lg p-2 text-danger/60 transition hover:bg-danger/10 hover:text-danger"
           aria-label={`Remove firm ${index + 1}`}
         >
           <svg

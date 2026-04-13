@@ -78,7 +78,8 @@ export function MediaUploader({
   const dismissSlot = (id: string) =>
     setSlots((prev) => prev.filter((s) => s.id !== id));
 
-  const total = items.length + slots.filter((s) => s.state === "uploading").length;
+  const total =
+    items.length + slots.filter((s) => s.state === "uploading").length;
 
   return (
     <div className="space-y-3">
@@ -171,13 +172,15 @@ export function MediaUploader({
                       <polygon points="23 7 16 12 23 17 23 7" />
                       <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                     </svg>
-                    <span className="text-[10px] text-textSecondary">Video</span>
+                    <span className="text-[10px] text-textSecondary">
+                      Video
+                    </span>
                   </div>
                 )}
                 <button
                   type="button"
                   onClick={() => handleRemove(index)}
-                  className="absolute inset-0 flex items-center justify-center bg-textPrimary/0 text-transparent transition hover:bg-textPrimary/40 hover:text-white focus-visible:bg-textPrimary/40 focus-visible:text-white"
+                  className="absolute inset-0 flex items-center justify-center bg-textPrimary/0 text-danger/40 transition hover:bg-danger/20 hover:text-danger focus-visible:bg-danger/20 focus-visible:text-danger"
                   aria-label="Remove media"
                 >
                   <svg

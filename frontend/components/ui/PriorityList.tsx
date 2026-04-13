@@ -117,7 +117,7 @@ export function PriorityList({
         <button
           type="button"
           onClick={addRow}
-          className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-textPrimary shadow-sm transition hover:bg-page focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20"
+          className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs font-semibold text-textPrimary shadow-sm transition hover:bg-page focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20"
         >
           <svg
             viewBox="0 0 24 24"
@@ -163,9 +163,7 @@ export function PriorityList({
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          {required
-            ? `Add ${minItems} required items`
-            : "Add items (optional)"}
+          {required ? `Add ${minItems} required items` : "Add items (optional)"}
         </button>
       )}
 
@@ -175,10 +173,10 @@ export function PriorityList({
           {rows.map((row, index) => (
             <div
               key={row._key}
-              className="group flex items-start gap-2 rounded-xl border border-border bg-surface p-3 transition hover:border-accent/30"
+              className="group flex items-center gap-1 rounded-xl border border-border bg-surface p-2 transition hover:border-accent/30"
             >
               {/* Row number */}
-              <span className="mt-2.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-page text-[10px] font-bold text-textSecondary">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-page text-[10px] font-bold text-textSecondary">
                 {index + 1}
               </span>
 
@@ -195,10 +193,10 @@ export function PriorityList({
               </div>
 
               {/* Quantity */}
-              <div className="w-20 shrink-0">
+              <div className="flex w-12 shrink-0 items-center gap-1 self-center sm:w-18 sm:gap-1.5">
                 <label
                   htmlFor={`qty-${row._key}`}
-                  className="mb-1.5 block text-xs font-medium text-textSecondary"
+                  className="whitespace-nowrap text-[11px] font-medium text-textSecondary sm:text-xs"
                 >
                   Qty
                 </label>
@@ -208,7 +206,7 @@ export function PriorityList({
                   min={1}
                   value={row.quantity}
                   onChange={(e) => updateQuantity(index, e.target.value)}
-                  className="w-full rounded-xl border border-border bg-page px-2.5 py-2 text-center text-sm font-semibold text-textPrimary outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20"
+                  className="h-8 w-7 rounded-lg border border-border bg-page px-1 py-1 text-center text-xs font-semibold text-textPrimary outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20 sm:h-10 sm:w-12 sm:rounded-xl sm:px-2.5 sm:py-2 sm:text-sm"
                 />
               </div>
 
@@ -216,7 +214,7 @@ export function PriorityList({
               <button
                 type="button"
                 onClick={() => removeRow(index)}
-                className="mt-6 rounded-lg p-1.5 text-textSecondary opacity-0 transition hover:bg-danger/10 hover:text-danger group-hover:opacity-100"
+                className="self-center rounded-lg p-1 text-danger/60 transition hover:bg-danger/10 hover:text-danger"
                 aria-label="Remove item"
                 title="Remove item"
               >

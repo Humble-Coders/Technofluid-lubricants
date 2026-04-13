@@ -173,7 +173,7 @@ export default function LogVisitPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 pb-28">
+    <div className="mx-auto w-full max-w-6xl space-y-4 px-0.5 pb-28 sm:px-6">
       {/* ── Back nav ── */}
       <button
         type="button"
