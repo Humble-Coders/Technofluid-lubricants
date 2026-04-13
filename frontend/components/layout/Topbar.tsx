@@ -76,7 +76,7 @@ export function Topbar({
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="hidden items-center justify-center rounded-xl border border-border bg-surface p-2.5 text-textSecondary transition hover:bg-page hover:text-textPrimary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20 lg:inline-flex"
+            className="inline-flex items-center justify-center rounded-xl border border-border bg-surface p-2.5 text-textSecondary transition hover:bg-page hover:text-textPrimary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20"
             aria-label={
               isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
             }
@@ -137,7 +137,9 @@ export function Topbar({
                 <p className="text-sm font-semibold text-textPrimary">
                   {userData?.name ?? "—"}
                 </p>
-                <p className="text-xs text-textSecondary">{userData?.email ?? "—"}</p>
+                <p className="text-xs text-textSecondary">
+                  {userData?.email ?? "—"}
+                </p>
                 {userData?.role ? (
                   <p className="mt-0.5 text-xs capitalize text-textSecondary">
                     {userData.role}
