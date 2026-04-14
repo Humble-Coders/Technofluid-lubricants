@@ -23,7 +23,6 @@ import type {
   PriorityItem,
   RelatedFirm,
 } from "@/types/visit";
-import { GeolocationCapture } from "./_components/GeolocationCapture";
 import { RelatedFirmsSection } from "./_components/RelatedFirmsSection";
 
 const MIN_ITEMS = 5;
@@ -112,7 +111,6 @@ export default function LogVisitPage() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null,
   );
-  const [locationError, setLocationError] = useState("");
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [monthlyPriorities, setMonthlyPriorities] = useState<PriorityItem[]>(
     [],
@@ -129,7 +127,6 @@ export default function LogVisitPage() {
   const resetForm = () => {
     setFirmName("");
     setLocation(null);
-    setLocationError("");
     setMedia([]);
     setMonthlyPriorities([]);
     setAnnualPriorities([]);
@@ -318,15 +315,9 @@ export default function LogVisitPage() {
               }}
               error={errors.firmName}
             />
-            <GeolocationCapture
-              location={location}
-              onCapture={(loc) => {
-                setLocation(loc);
-                setLocationError("");
-              }}
-              onError={setLocationError}
-              error={locationError}
-            />
+            <div className="rounded-xl border border-border bg-page px-4 py-3 text-sm text-textSecondary">
+              Location is captured automatically when you take a photo or video.
+            </div>
           </div>
         </FormSection>
 
@@ -337,6 +328,7 @@ export default function LogVisitPage() {
               items={media}
               uploaderId={userData.uid}
               onChange={setMedia}
+              onLocationCaptured={setLocation}
             />
           ) : null}
         </FormSection>

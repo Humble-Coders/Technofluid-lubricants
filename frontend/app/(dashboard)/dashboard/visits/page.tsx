@@ -32,6 +32,12 @@ function formatDate(value: LogVisit["createdAt"]): string {
   return date.toLocaleString();
 }
 
+function formatLocation(location: LogVisit["location"]): string {
+  if (!location) return "-";
+
+  return `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`;
+}
+
 function statusBadgeClass(status: LogVisit["status"]): string {
   return status === "submitted"
     ? "bg-success/10 text-success border-success/20"
@@ -197,6 +203,7 @@ export default function DashboardVisitsPage() {
               <tr>
                 <TH>Logged At</TH>
                 <TH>Firm</TH>
+                <TH>Location</TH>
                 <TH>Salesperson</TH>
                 <TH>Status</TH>
                 <TH>Priorities</TH>
@@ -208,7 +215,7 @@ export default function DashboardVisitsPage() {
               {recentVisits.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-4 py-8 text-center text-sm text-textSecondary"
                   >
                     No visits match your filter.
@@ -227,6 +234,9 @@ export default function DashboardVisitsPage() {
                         {formatDate(visit.createdAt)}
                       </TD>
                       <TD className="font-medium">{visit.firmName}</TD>
+                      <TD className="text-sm text-textSecondary">
+                        {formatLocation(visit.location)}
+                      </TD>
                       <TD>{visit.salespersonName || visit.salespersonId}</TD>
                       <TD>
                         <span
