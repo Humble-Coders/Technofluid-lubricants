@@ -1,7 +1,7 @@
 // File: frontend/components/ui/PriorityList.tsx
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Product } from "@/types/product";
 import type { PriorityItem } from "@/types/visit";
@@ -20,6 +20,8 @@ type PriorityListProps = {
   /** Section label shown above the rows. Omit or pass "" to hide. */
   label?: string;
   products: Product[];
+  initialItems?: PriorityItem[];
+  resetKey?: string;
   /** Called every time the list changes with cleaned external items. */
   onChange: (items: PriorityItem[]) => void;
   minItems?: number;
@@ -41,17 +43,34 @@ function toExternal({ _key: _, ...item }: InternalRow): PriorityItem {
   return item;
 }
 
+function toInternal(items: PriorityItem[] = []): InternalRow[] {
+  return items.map((item) => ({
+    _key: crypto.randomUUID(),
+    productId: item.productId,
+    productName: item.productName,
+    quantity: item.quantity,
+  }));
+}
+
 export function PriorityList({
   label,
   products,
+  initialItems = [],
+  resetKey,
   onChange,
   minItems = 5,
   required = true,
   error,
 }: PriorityListProps) {
-  const [rows, setRows] = useState<InternalRow[]>([]);
+  const [rows, setRows] = useState<InternalRow[]>(() =>
+    toInternal(initialItems),
+  );
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
+
+  useEffect(() => {
+    setRows(toInternal(initialItems));
+  }, [resetKey]);
 
   const notify = useCallback(
     (next: InternalRow[]) => onChange(next.map(toExternal)),

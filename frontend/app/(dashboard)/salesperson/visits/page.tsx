@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/useAuth";
-import { useVisits } from "@/lib/useVisits";
+import { useLogVisits } from "@/lib/useLogVisits";
 import { VisitsTable } from "./_components/VisitsTable";
 
 export default function SalespersonVisitsPage() {
@@ -22,7 +22,7 @@ export default function SalespersonVisitsPage() {
     visits,
     loading: visitsLoading,
     error,
-  } = useVisits(userData?.uid ?? null);
+  } = useLogVisits(userData?.uid ?? null);
 
   const filteredVisits = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -33,8 +33,10 @@ export default function SalespersonVisitsPage() {
 
     return visits.filter((visit) => {
       return (
-        visit.distributorName.toLowerCase().includes(normalizedSearch) ||
-        visit.notes.toLowerCase().includes(normalizedSearch)
+        visit.firmName.toLowerCase().includes(normalizedSearch) ||
+        visit.status.toLowerCase().includes(normalizedSearch) ||
+        String(visit.location?.lat ?? "").includes(normalizedSearch) ||
+        String(visit.location?.lng ?? "").includes(normalizedSearch)
       );
     });
   }, [visits, searchQuery]);
@@ -58,9 +60,7 @@ export default function SalespersonVisitsPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <div>
-            <p className="text-sm font-medium text-textSecondary">
-              Total Visits
-            </p>
+            <p className="text-sm font-medium text-textSecondary">Total Logs</p>
             <p className="mt-1 text-2xl font-bold text-textPrimary">
               {visits.length}
             </p>
@@ -68,17 +68,17 @@ export default function SalespersonVisitsPage() {
         </Card>
         <Card>
           <div>
-            <p className="text-sm font-medium text-textSecondary">Hot Leads</p>
+            <p className="text-sm font-medium text-textSecondary">Submitted</p>
             <p className="mt-1 text-2xl font-bold text-textPrimary">
-              {visits.filter((v) => v.leadType === "hot").length}
+              {visits.filter((v) => v.status === "submitted").length}
             </p>
           </div>
         </Card>
         <Card>
           <div>
-            <p className="text-sm font-medium text-textSecondary">Warm Leads</p>
+            <p className="text-sm font-medium text-textSecondary">Drafts</p>
             <p className="mt-1 text-2xl font-bold text-textPrimary">
-              {visits.filter((v) => v.leadType === "warm").length}
+              {visits.filter((v) => v.status === "draft").length}
             </p>
           </div>
         </Card>
@@ -94,8 +94,8 @@ export default function SalespersonVisitsPage() {
         <div className="mb-4">
           <Input
             id="visit-search"
-            label="Search Visits"
-            placeholder="Search by distributor or notes"
+            label="Search Visit Logs"
+            placeholder="Search by firm, status, or location"
             value={searchQuery}
             onChange={(event) => {
               setSearchQuery(event.target.value);
@@ -104,7 +104,13 @@ export default function SalespersonVisitsPage() {
           />
         </div>
 
-        <VisitsTable visits={paginatedVisits} loading={visitsLoading} />
+        <VisitsTable
+          visits={paginatedVisits}
+          loading={visitsLoading}
+          onVisitClick={(visitId) => {
+            router.push(`/salesperson/visits/log?visitId=${visitId}`);
+          }}
+        />
         {totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between text-sm text-textSecondary">
             <span>
@@ -129,7 +135,6 @@ export default function SalespersonVisitsPage() {
           </div>
         )}
       </Card>
-
     </section>
   );
 }

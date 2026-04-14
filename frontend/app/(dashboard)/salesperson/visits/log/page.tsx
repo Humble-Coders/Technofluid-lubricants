@@ -1,8 +1,8 @@
 // File: frontend/app/(dashboard)/salesperson/visits/log/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,8 +11,13 @@ import { MediaUploader } from "@/components/ui/MediaUploader";
 import { PriorityList } from "@/components/ui/PriorityList";
 import { useAuth } from "@/lib/useAuth";
 import { useProducts } from "@/lib/useProducts";
-import { createLogVisit } from "@/lib/services/logVisitService";
+import {
+  createLogVisit,
+  getLogVisitById,
+  updateLogVisit,
+} from "@/lib/services/logVisitService";
 import type {
+  LogVisit,
   LogVisitInput,
   MediaItem,
   PriorityItem,
@@ -97,8 +102,11 @@ function validateForm(
 
 export default function LogVisitPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { userData } = useAuth();
   const { products, loading: productsLoading } = useProducts();
+  const visitId = searchParams.get("visitId")?.trim() || null;
+  const isEditing = Boolean(visitId);
 
   const [firmName, setFirmName] = useState("");
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
@@ -114,6 +122,71 @@ export default function LogVisitPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [existingVisit, setExistingVisit] = useState<LogVisit | null>(null);
+  const [visitError, setVisitError] = useState<string | null>(null);
+  const [visitLoading, setVisitLoading] = useState(false);
+
+  const resetForm = () => {
+    setFirmName("");
+    setLocation(null);
+    setLocationError("");
+    setMedia([]);
+    setMonthlyPriorities([]);
+    setAnnualPriorities([]);
+    setRelatedFirms([]);
+    setErrors({});
+    setSubmitError(null);
+  };
+
+  useEffect(() => {
+    if (!visitId) {
+      setExistingVisit(null);
+      setVisitError(null);
+      resetForm();
+      return;
+    }
+
+    let active = true;
+    setExistingVisit(null);
+    resetForm();
+    setVisitLoading(true);
+    setVisitError(null);
+
+    getLogVisitById(visitId)
+      .then((visit) => {
+        if (!active) return;
+        setExistingVisit(visit);
+        if (!visit) {
+          setVisitError("The selected visit could not be found.");
+        }
+      })
+      .catch((error) => {
+        if (!active) return;
+        setVisitError(
+          error instanceof Error ? error.message : "Failed to load visit.",
+        );
+      })
+      .finally(() => {
+        if (active) {
+          setVisitLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [visitId]);
+
+  useEffect(() => {
+    if (!existingVisit) return;
+
+    setFirmName(existingVisit.firmName);
+    setLocation(existingVisit.location);
+    setMedia(existingVisit.media);
+    setMonthlyPriorities(existingVisit.priorities.monthly);
+    setAnnualPriorities(existingVisit.priorities.annually);
+    setRelatedFirms(existingVisit.relatedFirms);
+  }, [existingVisit]);
 
   const handleSave = async (status: "draft" | "submitted") => {
     const isFullSubmit = status === "submitted";
@@ -149,7 +222,11 @@ export default function LogVisitPage() {
     };
 
     try {
-      await createLogVisit(input, userData.uid, userData.name);
+      if (visitId) {
+        await updateLogVisit(visitId, input, userData.uid, userData.name);
+      } else {
+        await createLogVisit(input, userData.uid, userData.name);
+      }
       router.push("/salesperson/visits");
     } catch (err) {
       setSubmitError(
@@ -161,23 +238,35 @@ export default function LogVisitPage() {
     }
   };
 
-  if (productsLoading) {
+  if (productsLoading || visitLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-textSecondary">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-accent" />
-          <p className="text-sm">Loading products…</p>
+          <p className="text-sm">
+            {visitLoading ? "Loading visit…" : "Loading products…"}
+          </p>
         </div>
       </div>
     );
   }
+
+  if (visitError) {
+    return (
+      <div className="rounded-lg bg-red-50 p-4 text-red-700">{visitError}</div>
+    );
+  }
+
+  const formResetKey =
+    existingVisit?.id ?? (visitId ? `loading-${visitId}` : "new");
+  const saveLabel = isEditing ? "Update" : "Save";
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 px-0.5 pb-28 sm:px-6">
       {/* ── Back nav ── */}
       <button
         type="button"
-        onClick={() => router.back()}
+        onClick={() => router.push("/salesperson/visits")}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-textSecondary transition hover:text-textPrimary"
       >
         <svg
@@ -194,6 +283,24 @@ export default function LogVisitPage() {
         </svg>
         Back to Visits
       </button>
+
+      <div className="rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-textSecondary">
+              {isEditing ? "Edit Visit" : "Log Visit"}
+            </p>
+            <h1 className="text-lg font-semibold text-textPrimary">
+              {isEditing
+                ? (existingVisit?.firmName ?? "Loading visit")
+                : "New visit log"}
+            </h1>
+          </div>
+          <span className="ml-auto rounded-full bg-page px-3 py-1 text-xs font-medium text-textSecondary">
+            {isEditing ? "Update an existing record" : "Create a new record"}
+          </span>
+        </div>
+      </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
         {/* ── 1. Visit Details ── */}
@@ -238,6 +345,8 @@ export default function LogVisitPage() {
         <FormSection step={3} title="Monthly Priorities" badge="Min 5 items">
           <PriorityList
             products={products}
+            initialItems={existingVisit?.priorities.monthly ?? []}
+            resetKey={formResetKey}
             onChange={setMonthlyPriorities}
             minItems={MIN_ITEMS}
             required
@@ -249,6 +358,8 @@ export default function LogVisitPage() {
         <FormSection step={4} title="Annual Priorities" badge="Min 5 items">
           <PriorityList
             products={products}
+            initialItems={existingVisit?.priorities.annually ?? []}
+            resetKey={formResetKey}
             onChange={setAnnualPriorities}
             minItems={MIN_ITEMS}
             required
@@ -261,6 +372,8 @@ export default function LogVisitPage() {
           <FormSection step={5} title="Related Firms" badge="Optional">
             <RelatedFirmsSection
               products={products}
+              initialFirms={existingVisit?.relatedFirms ?? []}
+              resetKey={formResetKey}
               onChange={setRelatedFirms}
               errors={errors.relatedFirms}
             />
@@ -299,7 +412,7 @@ export default function LogVisitPage() {
             isLoading={isSubmitting}
             className="flex-1"
           >
-            Save Draft
+            {saveLabel} Draft
           </Button>
           <Button
             type="button"
@@ -307,7 +420,7 @@ export default function LogVisitPage() {
             isLoading={isSubmitting}
             className="flex-1"
           >
-            Submit Visit
+            {saveLabel} Visit
           </Button>
         </div>
       </div>

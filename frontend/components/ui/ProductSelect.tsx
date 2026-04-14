@@ -2,8 +2,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
 import type { Product } from "@/types/product";
+import { MOCK_PRODUCTS } from "@/lib/mockProducts";
 
 type ProductSelectProps = {
   id: string;
@@ -32,6 +32,7 @@ export function ProductSelect({
   const [query, setQuery] = useState(productName);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const availableProducts = products.length > 0 ? products : MOCK_PRODUCTS;
 
   // Sync input text when the parent updates productName (e.g. on reset)
   useEffect(() => {
@@ -50,11 +51,12 @@ export function ProductSelect({
     return () => document.removeEventListener("mousedown", handler);
   }, [productName]);
 
-  const filtered = query.trim()
-    ? products.filter((p) =>
-        p.name.toLowerCase().includes(query.trim().toLowerCase()),
+  const trimmedQuery = query.trim().toLowerCase();
+  const filtered = trimmedQuery
+    ? availableProducts.filter((p) =>
+        p.name.toLowerCase().includes(trimmedQuery),
       )
-    : products;
+    : availableProducts;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -160,11 +162,11 @@ export function ProductSelect({
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : trimmedQuery ? (
             <div className="px-3 py-3 text-sm text-textSecondary sm:px-4">
-              No results for &quot;{query}&quot;
+              <p>No results for &quot;{query}&quot;</p>
             </div>
-          )}
+          ) : null}
         </div>
       )}
 

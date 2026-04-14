@@ -1,7 +1,7 @@
 // File: frontend/app/(dashboard)/salesperson/visits/log/_components/RelatedFirmsSection.tsx
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Product } from "@/types/product";
 import type { PriorityItem, RelatedFirm } from "@/types/visit";
@@ -16,6 +16,8 @@ type FirmErrors = {
 
 type RelatedFirmsSectionProps = {
   products: Product[];
+  initialFirms?: RelatedFirm[];
+  resetKey?: string;
   onChange: (firms: RelatedFirm[]) => void;
   errors?: Record<number, FirmErrors>;
 };
@@ -43,14 +45,31 @@ function toExternal(firm: InternalFirm): RelatedFirm {
   };
 }
 
+function toInternal(firms: RelatedFirm[] = []): InternalFirm[] {
+  return firms.map((firm) => ({
+    _key: crypto.randomUUID(),
+    name: firm.name,
+    monthly: firm.priorities.monthly,
+    annually: firm.priorities.annually,
+  }));
+}
+
 export function RelatedFirmsSection({
   products,
+  initialFirms = [],
+  resetKey,
   onChange,
   errors = {},
 }: RelatedFirmsSectionProps) {
-  const [firms, setFirms] = useState<InternalFirm[]>([]);
+  const [firms, setFirms] = useState<InternalFirm[]>(() =>
+    toInternal(initialFirms),
+  );
   const firmsRef = useRef(firms);
   firmsRef.current = firms;
+
+  useEffect(() => {
+    setFirms(toInternal(initialFirms));
+  }, [resetKey]);
 
   const notify = useCallback(
     (next: InternalFirm[]) => onChange(next.map(toExternal)),
