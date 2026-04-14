@@ -123,18 +123,7 @@ export default function DashboardVisitsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="rounded-2xl border border-border bg-linear-to-r from-surface to-page p-5 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-textSecondary">
-          Field Intelligence
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-textPrimary">
-          Visit Logs Overview
-        </h1>
-        <p className="mt-1 text-sm text-textSecondary">
-          Review recent salesperson visits, inspect captured details, and filter
-          by rep.
-        </p>
-      </div>
+      
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="border-accent/20 bg-accent/5">
