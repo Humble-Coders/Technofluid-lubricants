@@ -92,7 +92,9 @@ export function ProductSelect({
           role="combobox"
           aria-expanded={isOpen}
           aria-autocomplete="list"
-          className={`w-full rounded-xl border bg-surface py-2.5 pl-8 pr-3 text-sm text-textPrimary outline-none transition placeholder:text-textSecondary/60 focus:ring-4 focus:ring-accent/20 sm:pl-9 sm:pr-4 ${
+          className={`w-full rounded-xl border bg-surface py-2.5 pl-8 text-sm text-textPrimary outline-none transition placeholder:text-textSecondary/60 focus:ring-4 focus:ring-accent/20 sm:pl-9 ${
+            value ? "pr-10 sm:pr-11" : "pr-3 sm:pr-4"
+          } ${
             error
               ? "border-danger focus:border-danger"
               : value
@@ -145,20 +147,41 @@ export function ProductSelect({
                     e.preventDefault(); // keep focus on input
                     handlePick(product);
                   }}
-                  className={`flex cursor-pointer items-center justify-between px-3 py-2.5 text-sm transition hover:bg-page sm:px-4 ${
+                  className={`flex min-w-0 cursor-pointer items-center justify-between gap-2 px-3 py-2.5 text-sm transition hover:bg-page sm:px-4 ${
                     product.id === value
                       ? "bg-accent/5 text-accent"
                       : "text-textPrimary"
                   }`}
                 >
-                  <span className={product.id === value ? "font-semibold" : ""}>
+                  <span
+                    className={`block min-w-0 flex-1 truncate ${
+                      product.id === value ? "font-semibold" : ""
+                    }`}
+                    title={product.name}
+                  >
                     {product.name}
                   </span>
-                  {product.unit && (
-                    <span className="ml-3 shrink-0 text-xs text-textSecondary">
-                      {product.unit}
-                    </span>
-                  )}
+                  <div className="ml-3 flex shrink-0 items-center gap-2">
+                    {product.unit && (
+                      <span className="text-xs text-textSecondary">
+                        {product.unit}
+                      </span>
+                    )}
+                    {product.id === value && (
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4 text-success"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

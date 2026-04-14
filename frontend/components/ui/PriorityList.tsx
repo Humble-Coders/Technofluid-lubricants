@@ -13,7 +13,7 @@ type InternalRow = {
   _key: string;
   productId: string;
   productName: string;
-  quantity: number;
+  quantity: string;
 };
 
 type PriorityListProps = {
@@ -35,12 +35,16 @@ function makeEmptyRow(): InternalRow {
     _key: crypto.randomUUID(),
     productId: "",
     productName: "",
-    quantity: 1,
+    quantity: "1",
   };
 }
 
 function toExternal({ _key: _, ...item }: InternalRow): PriorityItem {
-  return item;
+  const parsed = parseInt(item.quantity, 10);
+  return {
+    ...item,
+    quantity: Number.isNaN(parsed) ? 0 : parsed,
+  };
 }
 
 function toInternal(items: PriorityItem[] = []): InternalRow[] {
@@ -48,7 +52,7 @@ function toInternal(items: PriorityItem[] = []): InternalRow[] {
     _key: crypto.randomUUID(),
     productId: item.productId,
     productName: item.productName,
-    quantity: item.quantity,
+    quantity: String(item.quantity),
   }));
 }
 
@@ -65,11 +69,13 @@ export function PriorityList({
   const [rows, setRows] = useState<InternalRow[]>(() =>
     toInternal(initialItems),
   );
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
 
   useEffect(() => {
     setRows(toInternal(initialItems));
+    setDuplicateError(null);
   }, [resetKey]);
 
   const notify = useCallback(
@@ -78,18 +84,33 @@ export function PriorityList({
   );
 
   const addRow = () => {
+    setDuplicateError(null);
     const next = [...rowsRef.current, makeEmptyRow()];
     setRows(next);
     notify(next);
   };
 
   const removeRow = (index: number) => {
+    setDuplicateError(null);
     const next = rowsRef.current.filter((_, i) => i !== index);
     setRows(next);
     notify(next);
   };
 
   const updateProduct = (index: number, pid: string, pname: string) => {
+    if (
+      pid &&
+      rowsRef.current.some(
+        (row, rowIndex) => rowIndex !== index && row.productId === pid,
+      )
+    ) {
+      setDuplicateError(
+        "This product is already added. Choose a different product.",
+      );
+      return;
+    }
+
+    setDuplicateError(null);
     const next = rowsRef.current.map((r, i) =>
       i === index ? { ...r, productId: pid, productName: pname } : r,
     );
@@ -98,10 +119,9 @@ export function PriorityList({
   };
 
   const updateQuantity = (index: number, raw: string) => {
-    const parsed = parseInt(raw, 10);
-    const quantity = isNaN(parsed) || parsed < 1 ? 1 : parsed;
+    setDuplicateError(null);
     const next = rowsRef.current.map((r, i) =>
-      i === index ? { ...r, quantity } : r,
+      i === index ? { ...r, quantity: raw } : r,
     );
     setRows(next);
     notify(next);
@@ -159,6 +179,11 @@ export function PriorityList({
       {error && (
         <p className="text-xs font-medium text-danger" role="alert">
           {error}
+        </p>
+      )}
+      {duplicateError && (
+        <p className="text-xs font-medium text-danger" role="alert">
+          {duplicateError}
         </p>
       )}
 
@@ -223,8 +248,10 @@ export function PriorityList({
                   id={`qty-${row._key}`}
                   type="number"
                   min={1}
+                  step={1}
                   value={row.quantity}
                   onChange={(e) => updateQuantity(index, e.target.value)}
+                  onFocus={(e) => e.currentTarget.select()}
                   className="h-8 w-7 rounded-lg border border-border bg-page px-1 py-1 text-center text-xs font-semibold text-textPrimary outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20 sm:h-10 sm:w-12 sm:rounded-xl sm:px-2.5 sm:py-2 sm:text-sm"
                 />
               </div>
