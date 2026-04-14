@@ -237,7 +237,7 @@ export function PriorityList({
               </div>
 
               {/* Quantity */}
-              <div className="flex w-12 shrink-0 items-center gap-1 self-center sm:w-18 sm:gap-1.5">
+              <div className="flex w-15 shrink-0 items-center gap-1 self-center sm:w-22 sm:gap-1.5">
                 <label
                   htmlFor={`qty-${row._key}`}
                   className="whitespace-nowrap text-[11px] font-medium text-textSecondary sm:text-xs"
@@ -252,7 +252,7 @@ export function PriorityList({
                   value={row.quantity}
                   onChange={(e) => updateQuantity(index, e.target.value)}
                   onFocus={(e) => e.currentTarget.select()}
-                  className="h-8 w-7 rounded-lg border border-border bg-page px-1 py-1 text-center text-xs font-semibold text-textPrimary outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20 sm:h-10 sm:w-12 sm:rounded-xl sm:px-2.5 sm:py-2 sm:text-sm"
+                  className="h-8 w-9 rounded-lg border border-border bg-page px-1 py-1 text-center text-xs font-semibold text-textPrimary outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20 sm:h-10 sm:w-14 sm:rounded-xl sm:px-2.5 sm:py-2 sm:text-sm"
                 />
               </div>
 

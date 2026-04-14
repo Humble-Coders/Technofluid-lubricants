@@ -147,17 +147,16 @@ export function ProductSelect({
                     e.preventDefault(); // keep focus on input
                     handlePick(product);
                   }}
-                  className={`flex min-w-0 cursor-pointer items-center justify-between gap-2 px-3 py-2.5 text-sm transition hover:bg-page sm:px-4 ${
+                  className={`flex min-w-0 cursor-pointer items-start justify-between gap-2 px-3 py-2.5 text-sm transition hover:bg-page sm:px-4 ${
                     product.id === value
                       ? "bg-accent/5 text-accent"
                       : "text-textPrimary"
                   }`}
                 >
                   <span
-                    className={`block min-w-0 flex-1 truncate ${
+                    className={`block min-w-0 flex-1 whitespace-normal wrap-break-word leading-5 ${
                       product.id === value ? "font-semibold" : ""
                     }`}
-                    title={product.name}
                   >
                     {product.name}
                   </span>
