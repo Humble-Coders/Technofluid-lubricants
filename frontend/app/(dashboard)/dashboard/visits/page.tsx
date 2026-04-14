@@ -123,8 +123,6 @@ export default function DashboardVisitsPage() {
 
   return (
     <section className="space-y-6">
-      
-
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="border-accent/20 bg-accent/5">
           <p className="text-sm font-medium text-textSecondary">Total Visits</p>
