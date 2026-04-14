@@ -59,7 +59,7 @@ export function VisitsTable({
           <TH>Priorities</TH>
           <TH>Related Firms</TH>
           <TH>Date</TH>
-          <TH></TH>
+          <TH>Action</TH>
         </tr>
       </TableHead>
       <TableBody>
