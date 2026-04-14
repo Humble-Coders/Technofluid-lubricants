@@ -225,6 +225,21 @@ export function subscribeLogVisitsBySalesperson(
   );
 }
 
+export function subscribeAllLogVisits(
+  onChange: (rows: LogVisit[]) => void,
+  onError?: (error: Error) => void,
+): Unsubscribe {
+  return onSnapshot(
+    collection(db, COLLECTIONS.VISITS),
+    (querySnap) => onChange(querySnap.docs.map(mapLogVisit)),
+    (error) => {
+      if (onError) {
+        onError(error);
+      }
+    },
+  );
+}
+
 /**
  * Persists a new log visit document to the visits Firestore collection.
  * Returns the generated document ID.

@@ -14,6 +14,7 @@ const titleMap: Record<string, string> = {
   "/dashboard/salespersons": "Salespersons",
   "/dashboard/distributors": "Distributors",
   "/dashboard/orders": "Orders",
+  "/dashboard/visits": "Visits",
   "/dashboard/coupons": "Coupons",
 };
 

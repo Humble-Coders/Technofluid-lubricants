@@ -346,6 +346,12 @@ Supervisors module:
 - app/(dashboard)/admin/supervisors/\_components/SupervisorsStats.tsx: stats cards
 - app/(dashboard)/admin/supervisors/\_components/SupervisorsTable.tsx: table and action rendering
 
+Visits module:
+
+- app/(dashboard)/dashboard/visits/page.tsx: admin visits monitoring page with filters and full-screen detail view
+- lib/useAdminLogVisits.ts: all-visits subscription hook for admin
+- lib/services/logVisitService.ts: shared read/subscribe helpers for visit logs
+
 ## 4.3 Shared Layout Components
 
 - components/layout/AdminShell.tsx: top-level admin layout container
@@ -379,6 +385,7 @@ Hooks:
 - lib/useDistributors.ts: distributor state lifecycle through distributorService
 - lib/useOrders.ts: order state lifecycle through orderService
 - lib/useCoupons.ts: coupons lifecycle (currently direct firestore in hook)
+- lib/useAdminLogVisits.ts: admin visit-log subscription state lifecycle
 
 API wrappers:
 
@@ -389,6 +396,7 @@ Services:
 - lib/services/userService.ts: users collection access and mutations
 - lib/services/distributorService.ts: distributors collection access and mutations
 - lib/services/orderService.ts: orders collection access and subscriptions
+- lib/services/logVisitService.ts: visit media upload + log visit CRUD/subscriptions
 
 ## 4.6 Domain Types
 
@@ -459,8 +467,8 @@ app/(dashboard)/salesperson/visits/log/page.tsx   (orchestrator, owns all form s
 4. User selects files → `MediaUploader` calls `uploadVisitMedia` immediately → stores MediaItem[] in page state.
 5. User builds priority lists in `PriorityList` components → each calls `onChange` with `PriorityItem[]` → page state updated.
 6. User optionally adds related firms via `RelatedFirmsSection` → calls `onChange` with `RelatedFirm[]` → page state updated.
-7. On "Save Draft": firmName validated only; `createLogVisit` called with `status: "draft"`.
-8. On "Submit Visit": full validation runs (min 5 items per required list, productId + quantity > 0, firm names); `createLogVisit` called with `status: "submitted"`.
+7. On "Save Draft": firmName validated only; `createLogVisit` is used for new record or `updateLogVisit` for edit mode (`visitId` present).
+8. On "Submit Visit": full validation runs (min 5 items per required list, productId + quantity > 0, firm names); create/update path is selected the same way.
 9. On success: router navigates to /salesperson/visits.
 
 ### Media lifecycle
@@ -472,12 +480,45 @@ app/(dashboard)/salesperson/visits/log/page.tsx   (orchestrator, owns all form s
 ### Key files
 
 - app/(dashboard)/salesperson/visits/log/page.tsx: main form, validation, submit
-- app/(dashboard)/salesperson/visits/log/_components/GeolocationCapture.tsx: geolocation UI
-- app/(dashboard)/salesperson/visits/log/_components/RelatedFirmsSection.tsx: related firms list
+- app/(dashboard)/salesperson/visits/log/\_components/GeolocationCapture.tsx: geolocation UI
+- app/(dashboard)/salesperson/visits/log/\_components/RelatedFirmsSection.tsx: related firms list
 - components/ui/ProductSelect.tsx: searchable combobox backed by products collection
 - components/ui/PriorityList.tsx: dynamic add/remove rows with ProductSelect + quantity
 - components/ui/MediaUploader.tsx: multi-file upload with Storage integration and preview grid
-- lib/services/logVisitService.ts: uploadVisitMedia, deleteVisitMedia, createLogVisit
+- lib/services/logVisitService.ts: uploadVisitMedia, deleteVisitMedia, createLogVisit, updateLogVisit
+
+## 3.13 Admin Visits Monitoring Flow
+
+Route: /dashboard/visits
+
+Entry: Admin opens the "Visits" tab from sidebar.
+
+### Data flow
+
+1. `DashboardVisitsPage` checks role via `useAuth`; non-admin users are redirected.
+2. `useAdminLogVisits` subscribes to all logs using `subscribeAllLogVisits`.
+3. Page builds salesperson filter options from live data.
+4. Admin filters by salesperson and query (firm/salesperson/status).
+5. Table shows recent visits and opens full-screen detail view on row click.
+
+### Detail view fields
+
+- Salesperson
+- Status
+- Logged timestamp
+- Location coordinates
+- Monthly priorities
+- Annual priorities
+- Related firms
+- Media links
+
+### Key files
+
+- app/(dashboard)/dashboard/visits/page.tsx: admin visits table/filter/detail UI
+- components/layout/Sidebar.tsx: admin Visits navigation tab
+- components/layout/AdminShell.tsx: page title mapping for `/dashboard/visits`
+- lib/useAdminLogVisits.ts: all-visit subscription hook
+- lib/services/logVisitService.ts: visit-log mapping and `subscribeAllLogVisits`
 
 ## 7) Recommended Next Steps
 

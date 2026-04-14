@@ -95,6 +95,28 @@ const navItems = [
     ),
   },
   {
+    href: "/dashboard/visits",
+    label: "Visits",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 4h18" />
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <rect x="3" y="6" width="18" height="15" rx="2" />
+        <path d="M8 11h8" />
+        <path d="M8 15h5" />
+      </svg>
+    ),
+  },
+  {
     href: "/dashboard/coupons",
     label: "Coupons",
     icon: (
