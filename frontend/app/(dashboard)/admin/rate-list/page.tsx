@@ -6,10 +6,8 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Table, TableBody, TD, TH, TableHead } from "@/components/ui/table";
 
-import { useDistributors } from "@/lib/useDistributors";
 import { useProducts } from "@/lib/useProducts";
 import { useRateList } from "@/lib/useRateList";
 import {
@@ -25,18 +23,14 @@ type ModalTarget = {
 };
 
 export default function AdminRateListPage() {
-  const [selectedDistributorId, setSelectedDistributorId] = useState("");
   const [search, setSearch] = useState("");
   const [modalTarget, setModalTarget] = useState<ModalTarget | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const { distributors, loading: distLoading } = useDistributors();
   const { products, loading: productsLoading } = useProducts();
-  const { entries, loading: rateLoading } = useRateList(
-    selectedDistributorId || null,
-  );
+  const { entries, loading: rateLoading } = useRateList();
 
-  const isLoading = distLoading || productsLoading || (!!selectedDistributorId && rateLoading);
+  const isLoading = productsLoading || rateLoading;
 
   const rateMap = useMemo(
     () => new Map(entries.map((e) => [e.productId, e])),
@@ -50,32 +44,8 @@ export default function AdminRateListPage() {
       : products;
   }, [products, search]);
 
-  const customCount = useMemo(
-    () => filteredProducts.filter((p) => rateMap.has(p.id)).length,
-    [filteredProducts, rateMap],
-  );
-
-  const distributorOptions = useMemo(
-    () => [
-      { label: "Select a distributor…", value: "" },
-      ...distributors.map((d) => ({ label: d.name, value: d.id })),
-    ],
-    [distributors],
-  );
-
-  const handleSave = async (
-    product: Product,
-    price: number,
-    unit: string,
-  ) => {
-    if (!selectedDistributorId) return;
-    await upsertRateEntry(
-      selectedDistributorId,
-      product.id,
-      product.name,
-      price,
-      unit,
-    );
+  const handleSave = async (product: Product, price: number, unit: string) => {
+    await upsertRateEntry(product.id, product.name, price, unit);
   };
 
   const handleDelete = async (entryId: string) => {
@@ -89,57 +59,36 @@ export default function AdminRateListPage() {
 
   return (
     <section className="space-y-5">
-      {/* Distributor selector */}
       <Card>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Select
-            id="distributor-select"
-            label="Distributor"
-            options={distributorOptions}
-            value={selectedDistributorId}
-            onChange={(e) => {
-              setSelectedDistributorId(e.target.value);
-              setSearch("");
-            }}
+        <div>
+          <Input
+            id="rate-search"
+            label="Search Products"
+            placeholder="Filter by product name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
-          {selectedDistributorId && (
-            <Input
-              id="rate-search"
-              label="Search Products"
-              placeholder="Filter by product name"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          )}
         </div>
       </Card>
 
       {/* Stats */}
-      {selectedDistributorId && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="p-4">
-            <CardTitle>Total Products</CardTitle>
-            <CardValue>{products.length}</CardValue>
-          </Card>
-          <Card className="p-4">
-            <CardTitle>Custom Rates Set</CardTitle>
-            <CardValue>{entries.length}</CardValue>
-          </Card>
-          <Card className="p-4">
-            <CardTitle>Using Base Price</CardTitle>
-            <CardValue>{Math.max(0, products.length - entries.length)}</CardValue>
-          </Card>
-        </div>
-      )}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card className="p-4">
+          <CardTitle>Total Products</CardTitle>
+          <CardValue>{products.length}</CardValue>
+        </Card>
+        <Card className="p-4">
+          <CardTitle>Custom Rates Set</CardTitle>
+          <CardValue>{entries.length}</CardValue>
+        </Card>
+        <Card className="p-4">
+          <CardTitle>Using Base Price</CardTitle>
+          <CardValue>{Math.max(0, products.length - entries.length)}</CardValue>
+        </Card>
+      </div>
 
       {/* Table */}
-      {!selectedDistributorId ? (
-        <Card>
-          <p className="py-6 text-center text-sm text-textSecondary">
-            Select a distributor above to view and manage their rate list.
-          </p>
-        </Card>
-      ) : isLoading ? (
+      {isLoading ? (
         <Card>
           <p className="py-6 text-center text-sm text-textSecondary">
             Loading…

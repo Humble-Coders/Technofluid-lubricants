@@ -18,6 +18,30 @@ import { COLLECTIONS } from "@/lib/constants";
 import { db } from "@/lib/firebase";
 import type { RateListEntry } from "@/types/product";
 
+const GLOBAL_RATE_LIST_ID = "global";
+
+function normalizeGlobalEntries(entries: RateListEntry[]): RateListEntry[] {
+  const byProduct = new Map<string, RateListEntry>();
+
+  for (const entry of entries) {
+    const existing = byProduct.get(entry.productId);
+    if (!existing) {
+      byProduct.set(entry.productId, entry);
+      continue;
+    }
+
+    // Prefer explicit global entries over legacy distributor-specific rows.
+    if (
+      existing.distributorId !== GLOBAL_RATE_LIST_ID &&
+      entry.distributorId === GLOBAL_RATE_LIST_ID
+    ) {
+      byProduct.set(entry.productId, entry);
+    }
+  }
+
+  return Array.from(byProduct.values());
+}
+
 function mapRateListEntry(docSnap: QueryDocumentSnapshot): RateListEntry {
   const data = docSnap.data();
 
@@ -33,7 +57,6 @@ function mapRateListEntry(docSnap: QueryDocumentSnapshot): RateListEntry {
 }
 
 export async function upsertRateEntry(
-  distributorId: string,
   productId: string,
   productName: string,
   price: number,
@@ -41,7 +64,6 @@ export async function upsertRateEntry(
 ): Promise<void> {
   const q = query(
     collection(db, COLLECTIONS.RATE_LISTS),
-    where("distributorId", "==", distributorId),
     where("productId", "==", productId),
   );
 
@@ -55,7 +77,7 @@ export async function upsertRateEntry(
     });
   } else {
     await addDoc(collection(db, COLLECTIONS.RATE_LISTS), {
-      distributorId,
+      distributorId: GLOBAL_RATE_LIST_ID,
       productId,
       productName,
       price,
@@ -69,17 +91,14 @@ export async function deleteRateEntry(entryId: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTIONS.RATE_LISTS, entryId));
 }
 
-export function subscribeRateListByDistributor(
-  distributorId: string,
+export function subscribeGlobalRateList(
   onChange: (entries: RateListEntry[]) => void,
   onError?: (error: Error) => void,
 ): Unsubscribe {
   return onSnapshot(
-    query(
-      collection(db, COLLECTIONS.RATE_LISTS),
-      where("distributorId", "==", distributorId),
-    ),
-    (querySnap) => onChange(querySnap.docs.map(mapRateListEntry)),
+    query(collection(db, COLLECTIONS.RATE_LISTS)),
+    (querySnap) =>
+      onChange(normalizeGlobalEntries(querySnap.docs.map(mapRateListEntry))),
     (error) => {
       if (onError) {
         onError(error);

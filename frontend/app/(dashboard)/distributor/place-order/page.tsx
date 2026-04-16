@@ -19,19 +19,19 @@ export default function PlaceOrderPage() {
   const router = useRouter();
   const { userData } = useAuth();
   const { products, loading: productsLoading } = useProducts();
-  const { entries: rateEntries, loading: rateLoading } = useRateList(
-    userData?.uid ?? null,
-  );
+  const { entries: rateEntries, loading: rateLoading } = useRateList();
 
   const [items, setItems] = useState<OrderItem[]>([]);
-  const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
+  const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(
+    null,
+  );
   const [appliedCouponId, setAppliedCouponId] = useState<string | null>(null);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Build distributor-specific price map
+  // Build global special-rate price map
   const rateMap: Record<string, number> = {};
   for (const entry of rateEntries) {
     rateMap[entry.productId] = entry.price;
@@ -41,7 +41,11 @@ export default function PlaceOrderPage() {
   const finalTotal = Math.max(0, rawTotal - discountAmount);
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleCouponApply = (code: string, couponId: string, discount: number) => {
+  const handleCouponApply = (
+    code: string,
+    couponId: string,
+    discount: number,
+  ) => {
     setAppliedCouponCode(code);
     setAppliedCouponId(couponId);
     setDiscountAmount(discount);

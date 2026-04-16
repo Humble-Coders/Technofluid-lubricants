@@ -5,17 +5,15 @@ import { useState } from "react";
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/lib/useAuth";
 import { useProducts } from "@/lib/useProducts";
 import { useRateList } from "@/lib/useRateList";
 import { RateListTable } from "./_components/RateListTable";
 
 export default function RateListPage() {
-  const { userData } = useAuth();
   const [search, setSearch] = useState("");
 
   const { products, loading: productsLoading } = useProducts();
-  const { entries, loading: rateLoading } = useRateList(userData?.uid ?? null);
+  const { entries, loading: rateLoading } = useRateList();
 
   const isLoading = productsLoading || rateLoading;
 
