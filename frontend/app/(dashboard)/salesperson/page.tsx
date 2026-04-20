@@ -1,12 +1,15 @@
 // File: frontend/app/(dashboard)/salesperson/page.tsx
 "use client";
 
+import { Timestamp } from "firebase/firestore";
+
 import { useAuth } from "@/lib/useAuth";
 import { useSalespersonDistributors } from "@/lib/useSalespersonDistributors";
 import { useSalespersonOrders } from "@/lib/useSalespersonOrders";
-import { useVisits } from "@/lib/useVisits";
+import { useLogVisits } from "@/lib/useLogVisits";
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { LogVisit } from "@/types/visit";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -15,10 +18,30 @@ function getGreeting() {
   return "Good evening";
 }
 
-function leadBadgeClass(leadType: string) {
-  if (leadType === "hot") return "bg-danger/10 text-danger";
-  if (leadType === "warm") return "bg-warning/10 text-warning";
-  return "bg-info/10 text-info";
+function toMillis(value: LogVisit["createdAt"]): number {
+  if (!value) return 0;
+  if (value instanceof Timestamp) return value.toDate().getTime();
+  return new Date(value as string | Date).getTime();
+}
+
+function formatDate(value: LogVisit["createdAt"]): string {
+  if (!value) return "Date not available";
+  const date =
+    value instanceof Timestamp
+      ? value.toDate()
+      : new Date(value as string | Date);
+
+  if (Number.isNaN(date.getTime())) return "Date not available";
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatLocation(location: LogVisit["location"]): string {
+  if (!location) return "Location not captured";
+  return `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`;
 }
 
 export default function SalespersonDashboardPage() {
@@ -29,7 +52,9 @@ export default function SalespersonDashboardPage() {
   const { orders, loading: ordLoading } = useSalespersonOrders(
     userData?.uid ?? null,
   );
-  const { visits, loading: visitsLoading } = useVisits(userData?.uid ?? null);
+  const { visits, loading: visitsLoading } = useLogVisits(
+    userData?.uid ?? null,
+  );
 
   const isLoading = distLoading || ordLoading || visitsLoading;
 
@@ -65,9 +90,11 @@ export default function SalespersonDashboardPage() {
 
   const recentOrders = [...orders]
     .sort((a, b) => ((b.createdAt ?? "") > (a.createdAt ?? "") ? 1 : -1))
-    .slice(0, 5);
+    .slice(0, 3);
 
-  const recentVisits = visits.slice(0, 5);
+  const recentVisits = [...visits]
+    .sort((a, b) => toMillis(b.createdAt) - toMillis(a.createdAt))
+    .slice(0, 3);
 
   return (
     <section className="space-y-6">
@@ -163,25 +190,36 @@ export default function SalespersonDashboardPage() {
               recentVisits.map((visit) => (
                 <div
                   key={visit.id}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-page px-3 py-2.5"
+                  className="rounded-xl border border-border bg-page px-3 py-2.5"
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-textPrimary">
-                      {visit.distributorName}
-                    </p>
-                    {visit.notes ? (
-                      <p className="truncate text-xs text-textSecondary">
-                        {visit.notes.length > 55
-                          ? visit.notes.slice(0, 55) + "…"
-                          : visit.notes}
+                  <div className="min-w-0 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-textPrimary">
+                        {visit.firmName || "Unnamed firm"}
                       </p>
-                    ) : null}
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${
+                          visit.status === "submitted"
+                            ? "bg-success/10 text-success"
+                            : "bg-warning/10 text-warning"
+                        }`}
+                      >
+                        {visit.status}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-textSecondary">
+                      {formatDate(visit.createdAt)} •{" "}
+                      {formatLocation(visit.location)}
+                    </p>
+
+                    <p className="text-xs text-textSecondary">
+                      {visit.priorities.monthly.length} monthly,{" "}
+                      {visit.priorities.annually.length} annual •{" "}
+                      {visit.relatedFirms.length} related firms •{" "}
+                      {visit.media.length} media
+                    </p>
                   </div>
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${leadBadgeClass(visit.leadType)}`}
-                  >
-                    {visit.leadType}
-                  </span>
                 </div>
               ))
             )}

@@ -392,15 +392,69 @@ export default function DashboardVisitsPage() {
                   {selectedVisit.relatedFirms.map((firm, index) => (
                     <div
                       key={`${firm.name}-${index}`}
-                      className="rounded-lg border border-border bg-surface p-3"
+                      className="space-y-3 rounded-lg border border-border bg-surface p-3"
                     >
                       <p className="text-sm font-semibold text-textPrimary">
                         {firm.name}
                       </p>
-                      <p className="mt-1 text-xs text-textSecondary">
+                      <p className="text-xs text-textSecondary">
                         {firm.priorities.monthly.length} monthly,{" "}
                         {firm.priorities.annually.length} annual items
                       </p>
+
+                      <div className="space-y-1.5">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-textSecondary">
+                          Monthly
+                        </p>
+                        {firm.priorities.monthly.length === 0 ? (
+                          <p className="text-xs text-textSecondary">
+                            No monthly items.
+                          </p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {firm.priorities.monthly.map((item) => (
+                              <li
+                                key={`rf-m-${firm.name}-${item.productId}-${item.productName}`}
+                                className="flex items-center justify-between rounded-md border border-border bg-page px-2.5 py-1 text-xs text-textPrimary"
+                              >
+                                <span className="truncate pr-2">
+                                  {item.productName}
+                                </span>
+                                <span className="shrink-0 text-textSecondary">
+                                  x {item.quantity}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-textSecondary">
+                          Annual
+                        </p>
+                        {firm.priorities.annually.length === 0 ? (
+                          <p className="text-xs text-textSecondary">
+                            No annual items.
+                          </p>
+                        ) : (
+                          <ul className="space-y-1">
+                            {firm.priorities.annually.map((item) => (
+                              <li
+                                key={`rf-a-${firm.name}-${item.productId}-${item.productName}`}
+                                className="flex items-center justify-between rounded-md border border-border bg-page px-2.5 py-1 text-xs text-textPrimary"
+                              >
+                                <span className="truncate pr-2">
+                                  {item.productName}
+                                </span>
+                                <span className="shrink-0 text-textSecondary">
+                                  x {item.quantity}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
