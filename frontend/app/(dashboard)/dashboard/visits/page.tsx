@@ -102,7 +102,7 @@ export default function DashboardVisitsPage() {
       }
 
       return (
-        visit.firmName.toLowerCase().includes(query) ||
+        (visit.firmName?.toLowerCase().includes(query) ?? false) ||
         visit.salespersonName.toLowerCase().includes(query) ||
         visit.status.toLowerCase().includes(query)
       );

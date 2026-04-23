@@ -117,5 +117,16 @@ service cloud.firestore {
       // Only admin manages rate lists
       allow write: if isAdmin();
     }
+
+    // ─── Firms ────────────────────────────────────────────────────────────────
+
+    match /firms/{firmId} {
+      // All staff can read firms
+      allow read: if isStaff();
+      // Salespersons can create and update firms (for visit logging)
+      allow create: if isSalesperson();
+      allow update: if isSalesperson();
+      allow delete: if isAdmin();
+    }
   }
 }

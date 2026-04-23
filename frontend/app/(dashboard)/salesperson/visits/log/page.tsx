@@ -24,18 +24,22 @@ import type {
   RelatedFirm,
 } from "@/types/visit";
 import { RelatedFirmsSection } from "./_components/RelatedFirmsSection";
+import { FirmLookup } from "./_components/FirmLookup";
+import { createOrUpdateFirm } from "@/lib/services/firmService";
 
 const MIN_ITEMS = 5;
 
 // ─── Validation ──────────────────────────────────────────────────────────────
 
 type FirmErrors = {
+  gstNumber?: string;
   name?: string;
   monthly?: string;
   annually?: string;
 };
 
 type FormErrors = {
+  gstNumber?: string;
   firmName?: string;
   monthly?: string;
   annually?: string;
@@ -56,7 +60,9 @@ function validatePriorityList(
 }
 
 function validateForm(
+  gstNumber: string,
   firmName: string,
+  hasGst: boolean,
   monthly: PriorityItem[],
   annually: PriorityItem[],
   relatedFirms: RelatedFirm[],
@@ -64,7 +70,11 @@ function validateForm(
 ): FormErrors {
   const errs: FormErrors = {};
 
-  if (!firmName.trim()) errs.firmName = "Firm name is required.";
+  if (hasGst) {
+    if (!gstNumber.trim()) errs.gstNumber = "GST Number is required.";
+  } else {
+    if (!firmName.trim()) errs.firmName = "Firm name is required.";
+  }
 
   if (isFullSubmit) {
     const me = validatePriorityList(monthly, "Monthly priorities", true);
@@ -76,7 +86,11 @@ function validateForm(
     const fe: Record<number, FirmErrors> = {};
     relatedFirms.forEach((firm, i) => {
       const r: FirmErrors = {};
-      if (!firm.name.trim()) r.name = "Firm name is required.";
+      if (firm.hasGst) {
+        if (!firm.gstNumber?.trim()) r.gstNumber = "GST Number is required.";
+      } else {
+        if (!firm.name?.trim()) r.name = "Firm name is required.";
+      }
       const m = validatePriorityList(
         firm.priorities.monthly,
         "Monthly priorities",
@@ -107,7 +121,10 @@ export default function LogVisitPage() {
   const visitId = searchParams.get("visitId")?.trim() || null;
   const isEditing = Boolean(visitId);
 
+  const [gstNumber, setGstNumber] = useState("");
   const [firmName, setFirmName] = useState("");
+  const [address, setAddress] = useState("");
+  const [hasGst, setHasGst] = useState(true);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     null,
   );
@@ -125,7 +142,10 @@ export default function LogVisitPage() {
   const [visitLoading, setVisitLoading] = useState(false);
 
   const resetForm = () => {
+    setGstNumber("");
     setFirmName("");
+    setAddress("");
+    setHasGst(true);
     setLocation(null);
     setMedia([]);
     setMonthlyPriorities([]);
@@ -177,7 +197,10 @@ export default function LogVisitPage() {
   useEffect(() => {
     if (!existingVisit) return;
 
-    setFirmName(existingVisit.firmName);
+    setGstNumber(existingVisit.gstNumber || "");
+    setFirmName(existingVisit.firmName || "");
+    setAddress(existingVisit.address || "");
+    setHasGst(existingVisit.hasGst ?? true);
     setLocation(existingVisit.location);
     setMedia(existingVisit.media);
     setMonthlyPriorities(existingVisit.priorities.monthly);
@@ -188,7 +211,9 @@ export default function LogVisitPage() {
   const handleSave = async (status: "draft" | "submitted") => {
     const isFullSubmit = status === "submitted";
     const validationErrors = validateForm(
+      gstNumber,
       firmName,
+      hasGst,
       monthlyPriorities,
       annualPriorities,
       relatedFirms,
@@ -210,7 +235,10 @@ export default function LogVisitPage() {
     setSubmitError(null);
 
     const input: LogVisitInput = {
-      firmName: firmName.trim(),
+      gstNumber: hasGst ? gstNumber.trim() : undefined,
+      firmName: !hasGst ? firmName.trim() : undefined,
+      address: address.trim() || undefined,
+      hasGst,
       status,
       location,
       media,
@@ -219,6 +247,17 @@ export default function LogVisitPage() {
     };
 
     try {
+      // Save/update firm in firms collection if GST mode
+      if (hasGst && gstNumber.trim() && location) {
+        await createOrUpdateFirm(
+          gstNumber.trim(),
+          firmName.trim(),
+          address.trim(),
+          location,
+          { monthly: monthlyPriorities, annually: annualPriorities },
+        );
+      }
+
       if (visitId) {
         await updateLogVisit(visitId, input, userData.uid, userData.name);
       } else {
@@ -303,18 +342,79 @@ export default function LogVisitPage() {
         {/* ── 1. Visit Details ── */}
         <FormSection step={1} title="Visit Details">
           <div className="space-y-5">
-            <Input
-              id="firm-name"
-              label="Firm Name"
-              placeholder="Enter the firm name"
-              value={firmName}
-              onChange={(e) => {
-                setFirmName(e.target.value);
-                if (errors.firmName)
-                  setErrors((p) => ({ ...p, firmName: undefined }));
-              }}
-              error={errors.firmName}
-            />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <span className="text-sm font-medium text-textSecondary">
+                    No GST
+                  </span>
+                  <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-border transition-colors"
+                    style={{
+                      backgroundColor: !hasGst ? "var(--color-accent)" : "var(--color-border)"
+                    }}>
+                    <div className="absolute h-4 w-4 rounded-full bg-white transition-transform"
+                      style={{
+                        transform: !hasGst ? "translateX(17px)" : "translateX(2px)"
+                      }} />
+                    <input
+                      type="checkbox"
+                      checked={!hasGst}
+                      onChange={(e) => {
+                        setHasGst(!e.target.checked);
+                        setErrors((p) => ({
+                          ...p,
+                          gstNumber: undefined,
+                          firmName: undefined,
+                        }));
+                      }}
+                      className="sr-only"
+                    />
+                  </div>
+                </label>
+              </div>
+              {hasGst ? (
+                <FirmLookup
+                  gstNumber={gstNumber}
+                  firmName={firmName}
+                  address={address}
+                  location={location}
+                  onGstChange={setGstNumber}
+                  onNameChange={setFirmName}
+                  onAddressChange={setAddress}
+                  onPrioritiesLoaded={(priorities) => {
+                    setMonthlyPriorities(priorities.monthly);
+                    setAnnualPriorities(priorities.annually);
+                  }}
+                  error={errors.gstNumber}
+                />
+              ) : (
+                <>
+                  <Input
+                    id="firm-name-manual"
+                    label="Name"
+                    placeholder="Enter the firm name"
+                    value={firmName}
+                    onChange={(e) => {
+                      setFirmName(e.target.value);
+                      if (errors.firmName)
+                        setErrors((p) => ({ ...p, firmName: undefined }));
+                    }}
+                    error={errors.firmName}
+                  />
+                  <Input
+                    id="address"
+                    label="Address"
+                    placeholder="Enter the address"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      if (errors.firmName)
+                        setErrors((p) => ({ ...p, firmName: undefined }));
+                    }}
+                  />
+                </>
+              )}
+            </div>
             <div className="rounded-xl border border-border bg-page px-4 py-3 text-sm text-textSecondary">
               Location is captured automatically when you take a photo or video.
             </div>

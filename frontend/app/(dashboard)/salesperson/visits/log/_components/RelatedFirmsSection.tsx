@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { PriorityList } from "@/components/ui/PriorityList";
 
 type FirmErrors = {
+  gstNumber?: string;
   name?: string;
   monthly?: string;
   annually?: string;
@@ -24,7 +25,10 @@ type RelatedFirmsSectionProps = {
 
 type InternalFirm = {
   _key: string;
+  gstNumber: string;
   name: string;
+  address: string;
+  hasGst: boolean;
   monthly: PriorityItem[];
   annually: PriorityItem[];
 };
@@ -32,7 +36,10 @@ type InternalFirm = {
 function makeEmptyFirm(): InternalFirm {
   return {
     _key: crypto.randomUUID(),
+    gstNumber: "",
     name: "",
+    address: "",
+    hasGst: true,
     monthly: [],
     annually: [],
   };
@@ -40,7 +47,10 @@ function makeEmptyFirm(): InternalFirm {
 
 function toExternal(firm: InternalFirm): RelatedFirm {
   return {
-    name: firm.name,
+    gstNumber: firm.hasGst ? firm.gstNumber : undefined,
+    name: !firm.hasGst ? firm.name : undefined,
+    address: firm.address || undefined,
+    hasGst: firm.hasGst,
     priorities: { monthly: firm.monthly, annually: firm.annually },
   };
 }
@@ -48,7 +58,10 @@ function toExternal(firm: InternalFirm): RelatedFirm {
 function toInternal(firms: RelatedFirm[] = []): InternalFirm[] {
   return firms.map((firm) => ({
     _key: crypto.randomUUID(),
-    name: firm.name,
+    gstNumber: firm.gstNumber || "",
+    name: firm.name || "",
+    address: firm.address || "",
+    hasGst: firm.hasGst ?? true,
     monthly: firm.priorities.monthly,
     annually: firm.priorities.annually,
   }));
@@ -88,9 +101,33 @@ export function RelatedFirmsSection({
     notify(next);
   };
 
+  const updateGstNumber = (index: number, gstNumber: string) => {
+    const next = firmsRef.current.map((f, i) =>
+      i === index ? { ...f, gstNumber } : f,
+    );
+    setFirms(next);
+    notify(next);
+  };
+
   const updateName = (index: number, name: string) => {
     const next = firmsRef.current.map((f, i) =>
       i === index ? { ...f, name } : f,
+    );
+    setFirms(next);
+    notify(next);
+  };
+
+  const updateAddress = (index: number, address: string) => {
+    const next = firmsRef.current.map((f, i) =>
+      i === index ? { ...f, address } : f,
+    );
+    setFirms(next);
+    notify(next);
+  };
+
+  const updateHasGst = (index: number, hasGst: boolean) => {
+    const next = firmsRef.current.map((f, i) =>
+      i === index ? { ...f, hasGst } : f,
     );
     setFirms(next);
     notify(next);
@@ -151,7 +188,10 @@ export function RelatedFirmsSection({
               index={index}
               products={products}
               errors={errors[index]}
+              onGstNumberChange={(gstNumber) => updateGstNumber(index, gstNumber)}
               onNameChange={(name) => updateName(index, name)}
+              onAddressChange={(address) => updateAddress(index, address)}
+              onHasGstChange={(hasGst) => updateHasGst(index, hasGst)}
               onMonthlyChange={updateMonthly}
               onAnnuallyChange={updateAnnually}
               onRemove={() => removeFirm(index)}
@@ -193,7 +233,10 @@ type FirmCardProps = {
   index: number;
   products: Product[];
   errors?: FirmErrors;
+  onGstNumberChange: (gstNumber: string) => void;
   onNameChange: (name: string) => void;
+  onAddressChange: (address: string) => void;
+  onHasGstChange: (hasGst: boolean) => void;
   onMonthlyChange: (index: number, items: PriorityItem[]) => void;
   onAnnuallyChange: (index: number, items: PriorityItem[]) => void;
   onRemove: () => void;
@@ -204,7 +247,10 @@ function FirmCard({
   index,
   products,
   errors,
+  onGstNumberChange,
   onNameChange,
+  onAddressChange,
+  onHasGstChange,
   onMonthlyChange,
   onAnnuallyChange,
   onRemove,
@@ -221,22 +267,64 @@ function FirmCard({
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-page p-4">
-      {/* Firm name header */}
-      <div className="flex items-start gap-2">
-        <div className="flex-1">
-          <Input
-            id={`firm-name-${firm._key}`}
-            label={`Firm ${index + 1}`}
-            placeholder="Enter firm name"
-            value={firm.name}
-            onChange={(e) => onNameChange(e.target.value)}
-            error={errors?.name}
-          />
+      {/* Firm GST and Name */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-textPrimary">
+            Firm {index + 1} - GST Number
+          </label>
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <span className="text-sm font-medium text-textSecondary">
+              No GST
+            </span>
+            <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-border transition-colors"
+              style={{
+                backgroundColor: !firm.hasGst ? "var(--color-accent)" : "var(--color-border)"
+              }}>
+              <div className="absolute h-4 w-4 rounded-full bg-white transition-transform"
+                style={{
+                  transform: !firm.hasGst ? "translateX(17px)" : "translateX(2px)"
+                }} />
+              <input
+                type="checkbox"
+                checked={!firm.hasGst}
+                onChange={(e) => onHasGstChange(!e.target.checked)}
+                className="sr-only"
+              />
+            </div>
+          </label>
         </div>
+        <Input
+          id={`firm-gst-${firm._key}`}
+          label=""
+          placeholder="Enter GST number"
+          value={firm.gstNumber}
+          disabled={!firm.hasGst}
+          onChange={(e) => onGstNumberChange(e.target.value)}
+          error={errors?.gstNumber}
+        />
+      </div>
+      <Input
+        id={`firm-name-${firm._key}`}
+        label="Name"
+        placeholder="Enter the firm name"
+        value={firm.name}
+        disabled={firm.hasGst}
+        onChange={(e) => onNameChange(e.target.value)}
+        error={errors?.name}
+      />
+      <Input
+        id={`firm-address-${firm._key}`}
+        label="Address"
+        placeholder="Enter the address"
+        value={firm.address}
+        onChange={(e) => onAddressChange(e.target.value)}
+      />
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={onRemove}
-          className="mt-7 shrink-0 rounded-lg p-2 text-danger/60 transition hover:bg-danger/10 hover:text-danger"
+          className="shrink-0 rounded-lg p-2 text-danger/60 transition hover:bg-danger/10 hover:text-danger"
           aria-label={`Remove firm ${index + 1}`}
         >
           <svg

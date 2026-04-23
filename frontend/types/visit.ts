@@ -51,7 +51,10 @@ export type PrioritySet = {
 };
 
 export type RelatedFirm = {
-  name: string;
+  gstNumber?: string;
+  name?: string;
+  address?: string;
+  hasGst: boolean;
   priorities: {
     monthly: PriorityItem[];
     annually: PriorityItem[];
@@ -64,7 +67,10 @@ export type LogVisit = {
   id: string;
   salespersonId: string;
   salespersonName: string;
-  firmName: string;
+  gstNumber?: string;
+  firmName?: string;
+  address?: string;
+  hasGst: boolean;
   status: VisitStatus;
   location: { lat: number; lng: number } | null;
   media: MediaItem[];
@@ -75,7 +81,10 @@ export type LogVisit = {
 };
 
 export type LogVisitInput = {
-  firmName: string;
+  gstNumber?: string;
+  firmName?: string;
+  address?: string;
+  hasGst: boolean;
   status: VisitStatus;
   location: { lat: number; lng: number } | null;
   media: MediaItem[];
