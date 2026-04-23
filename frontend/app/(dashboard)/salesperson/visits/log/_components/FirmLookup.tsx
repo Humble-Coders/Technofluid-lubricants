@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { lookupGstNumber } from "@/lib/services/gstService";
 import {
   getFirmByGst,
-  getBranchByGstAndLocation,
+  getBranchByGstAndAddress,
   getAutoFillPriorities,
   type Firm,
 } from "@/lib/services/firmService";
@@ -30,7 +30,9 @@ type FirmLookupProps = {
   onNameChange: (name: string) => void;
   onAddressChange: (address: string) => void;
   onPrioritiesLoaded?: (priorities: PrioritySet) => void;
+  onPrioritiesReset?: () => void;
   error?: string;
+  addressError?: string;
 };
 
 export function FirmLookup({
@@ -42,13 +44,16 @@ export function FirmLookup({
   onNameChange,
   onAddressChange,
   onPrioritiesLoaded,
+  onPrioritiesReset,
   error,
+  addressError,
 }: FirmLookupProps) {
   const [addresses, setAddresses] = useState<string[]>([]);
   const [showAddNewAddress, setShowAddNewAddress] = useState(false);
   const [newAddress, setNewAddress] = useState("");
   const [showBranchDialog, setShowBranchDialog] = useState(false);
   const [isLoadingBranch, setIsLoadingBranch] = useState(false);
+  const [isLoadingLookup, setIsLoadingLookup] = useState(false);
 
   useEffect(() => {
     if (gstNumber.trim()) {
@@ -63,15 +68,24 @@ export function FirmLookup({
     }
 
     try {
+      const addressSet = new Set<string>();
+
+      // Add current address if set
+      if (address?.trim()) {
+        addressSet.add(address.trim());
+      }
+
+      // Add addresses from firm history
       const firm = await getFirmByGst(gst);
       if (firm?.history && Array.isArray(firm.history)) {
-        const uniqueAddresses = Array.from(
-          new Set(firm.history.map((h) => h.address).filter(Boolean)),
-        );
-        setAddresses(uniqueAddresses);
-      } else {
-        setAddresses([]);
+        firm.history.forEach((h) => {
+          if (h.address?.trim()) {
+            addressSet.add(h.address.trim());
+          }
+        });
       }
+
+      setAddresses(Array.from(addressSet));
     } catch (err) {
       console.error("Error loading addresses:", err);
       setAddresses([]);
@@ -87,24 +101,29 @@ export function FirmLookup({
 
   const handleAddNewAddress = () => {
     if (newAddress.trim()) {
-      onAddressChange(newAddress.trim());
+      const trimmedAddress = newAddress.trim();
+      // Add the new address to the addresses list if not already there
+      if (!addresses.includes(trimmedAddress)) {
+        setAddresses([trimmedAddress, ...addresses]);
+      }
+      onAddressChange(trimmedAddress);
       setShowAddNewAddress(false);
       setNewAddress("");
     }
   };
 
-  const checkBranchAndLoadPriorities = async (addr?: string) => {
-    if (!gstNumber.trim() || !location) return;
+  const checkBranchAndLoadPriorities = async (addr: string) => {
+    if (!gstNumber.trim() || !addr.trim()) return;
 
     setIsLoadingBranch(true);
     try {
-      const exists = await getBranchByGstAndLocation(gstNumber.trim(), location);
+      const exists = await getBranchByGstAndAddress(gstNumber.trim(), addr);
       if (exists) {
         setShowBranchDialog(true);
       } else {
         const priorities = await getAutoFillPriorities(
           gstNumber.trim(),
-          location,
+          addr,
         );
         if (priorities && onPrioritiesLoaded) {
           onPrioritiesLoaded(priorities);
@@ -118,9 +137,11 @@ export function FirmLookup({
   };
 
   const handleSameBranch = async () => {
-    const priorities = await getAutoFillPriorities(gstNumber.trim(), location!);
+    const priorities = await getAutoFillPriorities(gstNumber.trim(), address);
     if (priorities && onPrioritiesLoaded) {
       onPrioritiesLoaded(priorities);
+      // Trigger reset to update the form display
+      onPrioritiesReset?.();
     }
     setShowBranchDialog(false);
   };
@@ -129,33 +150,63 @@ export function FirmLookup({
     setShowBranchDialog(false);
   };
 
+  const handleLookupGst = async () => {
+    if (!gstNumber.trim()) return;
+
+    setIsLoadingLookup(true);
+    try {
+      // Try mock data first
+      const mockResult = await lookupGstNumber(gstNumber.trim());
+      if (mockResult) {
+        onNameChange(mockResult.firmName);
+      } else {
+        // Fall back to Firestore
+        const firmData = await getFirmByGst(gstNumber.trim());
+        if (firmData) {
+          onNameChange(firmData.currentName);
+        }
+      }
+
+      // Get addresses from Firestore
+      await loadAddressesForGst(gstNumber.trim());
+    } catch (err) {
+      console.error("Error fetching GST details:", err);
+    } finally {
+      setIsLoadingLookup(false);
+    }
+  };
+
   return (
     <div className="space-y-3">
-      {/* GST Textbox */}
-      <Input
-        id="gst-number"
-        label="GST Number"
-        placeholder="Enter GST number"
-        value={gstNumber}
-        onChange={(e) => {
-          onGstChange(e.target.value);
-        }}
-        onBlur={async () => {
-          if (gstNumber.trim()) {
-            try {
-              const result = await lookupGstNumber(gstNumber.trim());
-              if (result) {
-                onNameChange(result.firmName);
-                onAddressChange("");
-                await loadAddressesForGst(gstNumber.trim());
+      {/* GST Textbox with Lookup Button */}
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <Input
+            id="gst-number"
+            label="GST Number"
+            placeholder="Enter GST number"
+            value={gstNumber}
+            onChange={(e) => {
+              onGstChange(e.target.value);
+            }}
+            onBlur={async () => {
+              if (gstNumber.trim()) {
+                await handleLookupGst();
               }
-            } catch (err) {
-              console.error("Error fetching GST details:", err);
-            }
-          }
-        }}
-        error={error}
-      />
+            }}
+            error={error}
+          />
+        </div>
+        <Button
+          type="button"
+          onClick={handleLookupGst}
+          isLoading={isLoadingLookup}
+          disabled={!gstNumber.trim()}
+          className="shrink-0 mt-7"
+        >
+          Lookup
+        </Button>
+      </div>
 
       {/* Firm Name Display */}
       {firmName && (
@@ -170,6 +221,7 @@ export function FirmLookup({
         <div className="space-y-2">
           <label className="block text-sm font-medium text-textPrimary">
             Address
+            <span className="text-danger">*</span>
           </label>
           {!showAddNewAddress ? (
             <div className="flex gap-2">
@@ -216,6 +268,9 @@ export function FirmLookup({
                 Cancel
               </Button>
             </div>
+          )}
+          {addressError && (
+            <div className="text-sm text-danger">{addressError}</div>
           )}
         </div>
       )}

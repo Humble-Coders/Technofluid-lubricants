@@ -48,19 +48,16 @@ export async function getFirmByGst(gstNumber: string): Promise<Firm | null> {
   }
 }
 
-export async function getBranchByGstAndLocation(
+export async function getBranchByGstAndAddress(
   gstNumber: string,
-  location: { lat: number; lng: number },
-  tolerance: number = 0.001,
+  address: string,
 ): Promise<boolean> {
   try {
     const firm = await getFirmByGst(gstNumber);
     if (!firm) return false;
 
     return firm.history.some(
-      (entry) =>
-        Math.abs(entry.location.lat - location.lat) < tolerance &&
-        Math.abs(entry.location.lng - location.lng) < tolerance,
+      (entry) => entry.address.trim().toLowerCase() === address.trim().toLowerCase(),
     );
   } catch (error) {
     console.error("Error checking branch:", error);
@@ -70,17 +67,14 @@ export async function getBranchByGstAndLocation(
 
 export async function getAutoFillPriorities(
   gstNumber: string,
-  location: { lat: number; lng: number },
-  tolerance: number = 0.001,
+  address: string,
 ): Promise<PrioritySet | null> {
   try {
     const firm = await getFirmByGst(gstNumber);
     if (!firm) return null;
 
     const matchingHistory = firm.history.find(
-      (entry) =>
-        Math.abs(entry.location.lat - location.lat) < tolerance &&
-        Math.abs(entry.location.lng - location.lng) < tolerance,
+      (entry) => entry.address.trim().toLowerCase() === address.trim().toLowerCase(),
     );
 
     return matchingHistory?.priorities || firm.defaultPriorities || null;

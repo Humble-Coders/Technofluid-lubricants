@@ -24,7 +24,7 @@ export function useAdminLogVisits() {
     const unsubscribe = subscribeAllLogVisits(
       (rows) => {
         const normalized = rows
-          .filter((row) => row.firmName.trim().length > 0)
+          .filter((row) => (row.firmName ?? "").trim().length > 0)
           .sort(
             (left, right) =>
               toMillis(right.createdAt) - toMillis(left.createdAt),

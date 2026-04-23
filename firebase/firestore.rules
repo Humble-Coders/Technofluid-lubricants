@@ -87,7 +87,8 @@ service cloud.firestore {
       allow create: if isSalesperson();
       allow update: if isAdmin() || isSupervisor()
                     || (isSalesperson() && resource.data.salespersonId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin()
+                    || (isSalesperson() && resource.data.salespersonId == request.auth.uid);
     }
 
     // ─── Products ─────────────────────────────────────────────────────────────

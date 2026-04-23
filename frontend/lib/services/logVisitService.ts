@@ -9,6 +9,7 @@ import {
   serverTimestamp,
   setDoc,
   updateDoc,
+  deleteDoc,
   where,
   type QueryDocumentSnapshot,
   type Unsubscribe,
@@ -34,6 +35,26 @@ import type {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function removeUndefined(obj: unknown): unknown {
+  if (obj === undefined || obj === null) return obj;
+  if (Array.isArray(obj)) {
+    return obj
+      .map(removeUndefined)
+      .filter((item) => item !== undefined);
+  }
+  if (typeof obj === "object") {
+    const cleaned: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const cleaned_value = removeUndefined(value);
+      if (cleaned_value !== undefined) {
+        cleaned[key] = cleaned_value;
+      }
+    }
+    return cleaned;
+  }
+  return obj;
 }
 
 function normalizeLocation(
@@ -119,7 +140,10 @@ function mapLogVisit(docSnap: QueryDocumentSnapshot): LogVisit {
     id: docSnap.id,
     salespersonId: String(data.salespersonId ?? ""),
     salespersonName: String(data.salespersonName ?? ""),
-    firmName: String(data.firmName ?? ""),
+    gstNumber: data.gstNumber ? String(data.gstNumber) : undefined,
+    firmName: data.firmName ? String(data.firmName) : undefined,
+    address: data.address ? String(data.address) : undefined,
+    hasGst: Boolean(data.hasGst ?? false),
     status: normalizeStatus(data.status),
     location: normalizeLocation(data.location),
     media: Array.isArray(data.media) ? (data.media as MediaItem[]) : [],
@@ -138,7 +162,10 @@ function buildLogVisitData(
   return {
     salespersonId,
     salespersonName,
+    gstNumber: input.gstNumber,
     firmName: input.firmName,
+    address: input.address,
+    hasGst: input.hasGst,
     status: input.status,
     location: input.location,
     media: input.media,
@@ -251,18 +278,13 @@ export async function createLogVisit(
 ): Promise<string> {
   const visitRef = doc(collection(db, COLLECTIONS.VISITS));
 
-  await setDoc(visitRef, {
-    salespersonId,
-    salespersonName,
-    firmName: input.firmName,
-    status: input.status,
-    location: input.location,
-    media: input.media,
-    priorities: input.priorities,
-    relatedFirms: input.relatedFirms,
+  const data = removeUndefined({
+    ...buildLogVisitData(input, salespersonId, salespersonName),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+
+  await setDoc(visitRef, data);
 
   return visitRef.id;
 }
@@ -275,8 +297,15 @@ export async function updateLogVisit(
 ): Promise<void> {
   const visitRef = doc(db, COLLECTIONS.VISITS, visitId);
 
-  await updateDoc(visitRef, {
+  const data = removeUndefined({
     ...buildLogVisitData(input, salespersonId, salespersonName),
     updatedAt: serverTimestamp(),
   });
+
+  await updateDoc(visitRef, data);
+}
+
+export async function deleteVisitInFirestore(visitId: string): Promise<void> {
+  const visitRef = doc(db, COLLECTIONS.VISITS, visitId);
+  await deleteDoc(visitRef);
 }

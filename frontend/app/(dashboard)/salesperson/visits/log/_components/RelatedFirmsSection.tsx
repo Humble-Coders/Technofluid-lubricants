@@ -6,7 +6,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Product } from "@/types/product";
 import type { PriorityItem, RelatedFirm } from "@/types/visit";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { PriorityList } from "@/components/ui/PriorityList";
+import { lookupGstNumber } from "@/lib/services/gstService";
+import { getFirmByGst } from "@/lib/services/firmService";
+import type { PrioritySet } from "@/types/visit";
 
 type FirmErrors = {
   gstNumber?: string;
@@ -255,6 +259,9 @@ function FirmCard({
   onAnnuallyChange,
   onRemove,
 }: FirmCardProps) {
+  const [addresses, setAddresses] = useState<string[]>([]);
+  const [isLoadingLookup, setIsLoadingLookup] = useState(false);
+
   const handleMonthly = useCallback(
     (items: PriorityItem[]) => onMonthlyChange(index, items),
     [index, onMonthlyChange],
@@ -264,6 +271,85 @@ function FirmCard({
     (items: PriorityItem[]) => onAnnuallyChange(index, items),
     [index, onAnnuallyChange],
   );
+
+  const loadAddressesForGst = useCallback(
+    async (gst: string) => {
+      if (!gst.trim()) {
+        setAddresses([]);
+        return;
+      }
+
+      try {
+        const addressSet = new Set<string>();
+
+        // Add current address if set
+        if (firm.address?.trim()) {
+          addressSet.add(firm.address.trim());
+        }
+
+        // Add addresses from firm history
+        const firmData = await getFirmByGst(gst);
+        if (firmData?.history && Array.isArray(firmData.history)) {
+          firmData.history.forEach((h) => {
+            if (h.address?.trim()) {
+              addressSet.add(h.address.trim());
+            }
+          });
+        }
+
+        setAddresses(Array.from(addressSet));
+      } catch (err) {
+        console.error("Error loading addresses:", err);
+        setAddresses([]);
+      }
+    },
+    [firm.address],
+  );
+
+  const loadPrioritiesForAddress = async (address: string) => {
+    if (!firm.gstNumber.trim() || !address.trim()) return;
+
+    try {
+      const firmData = await getFirmByGst(firm.gstNumber.trim());
+      if (firmData?.history) {
+        const matchingEntry = firmData.history.find(
+          (h) => h.address.trim().toLowerCase() === address.trim().toLowerCase(),
+        );
+        if (matchingEntry && matchingEntry.priorities) {
+          onMonthlyChange(index, matchingEntry.priorities.monthly);
+          onAnnuallyChange(index, matchingEntry.priorities.annually);
+        }
+      }
+    } catch (err) {
+      console.error("Error loading priorities:", err);
+    }
+  };
+
+  const handleLookupGst = async () => {
+    if (!firm.gstNumber.trim()) return;
+
+    setIsLoadingLookup(true);
+    try {
+      // Try mock data first
+      const mockResult = await lookupGstNumber(firm.gstNumber.trim());
+      if (mockResult) {
+        onNameChange(mockResult.firmName);
+      } else {
+        // Fall back to Firestore
+        const firmData = await getFirmByGst(firm.gstNumber.trim());
+        if (firmData) {
+          onNameChange(firmData.currentName);
+        }
+      }
+
+      // Get addresses from Firestore
+      await loadAddressesForGst(firm.gstNumber.trim());
+    } catch (err) {
+      console.error("Error fetching GST details:", err);
+    } finally {
+      setIsLoadingLookup(false);
+    }
+  };
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-page p-4">
@@ -294,32 +380,106 @@ function FirmCard({
             </div>
           </label>
         </div>
-        <Input
-          id={`firm-gst-${firm._key}`}
-          label=""
-          placeholder="Enter GST number"
-          value={firm.gstNumber}
-          disabled={!firm.hasGst}
-          onChange={(e) => onGstNumberChange(e.target.value)}
-          error={errors?.gstNumber}
-        />
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Input
+              id={`firm-gst-${firm._key}`}
+              label=""
+              placeholder="Enter GST number"
+              value={firm.gstNumber}
+              disabled={!firm.hasGst}
+              onChange={(e) => onGstNumberChange(e.target.value)}
+              onBlur={async () => {
+                if (firm.hasGst && firm.gstNumber.trim()) {
+                  await handleLookupGst();
+                }
+              }}
+              error={errors?.gstNumber}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={handleLookupGst}
+            isLoading={isLoadingLookup}
+            disabled={!firm.hasGst || !firm.gstNumber.trim()}
+            className="shrink-0 mt-7"
+          >
+            Lookup
+          </Button>
+        </div>
       </div>
-      <Input
-        id={`firm-name-${firm._key}`}
-        label="Name"
-        placeholder="Enter the firm name"
-        value={firm.name}
-        disabled={firm.hasGst}
-        onChange={(e) => onNameChange(e.target.value)}
-        error={errors?.name}
-      />
-      <Input
-        id={`firm-address-${firm._key}`}
-        label="Address"
-        placeholder="Enter the address"
-        value={firm.address}
-        onChange={(e) => onAddressChange(e.target.value)}
-      />
+
+      {firm.hasGst && firm.name && (
+        <div className="rounded-lg border border-border bg-page px-3 py-2">
+          <p className="text-xs font-medium text-textSecondary">Firm Name</p>
+          <p className="text-sm text-textPrimary">{firm.name}</p>
+        </div>
+      )}
+
+      {firm.hasGst && firm.gstNumber && (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-textPrimary">
+            Address
+          </label>
+          {addresses.length > 0 ? (
+            <select
+              value={firm.address}
+              onChange={(e) => {
+                onAddressChange(e.target.value);
+                if (e.target.value) {
+                  loadPrioritiesForAddress(e.target.value);
+                }
+              }}
+              className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-textPrimary shadow-sm outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20"
+            >
+              <option value="">Select address</option>
+              {addresses.map((addr) => (
+                <option key={addr} value={addr}>
+                  {addr}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <Input
+              id={`firm-address-${firm._key}`}
+              label=""
+              placeholder="Enter the address"
+              value={firm.address}
+              onChange={(e) => onAddressChange(e.target.value)}
+            />
+          )}
+        </div>
+      )}
+
+      {!firm.hasGst && (
+        <>
+          <Input
+            id={`firm-name-${firm._key}`}
+            label="Name"
+            placeholder="Enter the firm name"
+            value={firm.name}
+            onChange={(e) => onNameChange(e.target.value)}
+            error={errors?.name}
+          />
+          <Input
+            id={`firm-address-${firm._key}`}
+            label="Address"
+            placeholder="Enter the address"
+            value={firm.address}
+            onChange={(e) => onAddressChange(e.target.value)}
+          />
+        </>
+      )}
+
+      {firm.hasGst && !addresses.length && (
+        <Input
+          id={`firm-address-${firm._key}`}
+          label="Address"
+          placeholder="Enter the address"
+          value={firm.address}
+          onChange={(e) => onAddressChange(e.target.value)}
+        />
+      )}
       <div className="flex justify-end">
         <button
           type="button"
@@ -355,6 +515,7 @@ function FirmCard({
         </p>
         <PriorityList
           products={products}
+          initialItems={firm.monthly}
           onChange={handleMonthly}
           minItems={5}
           required
@@ -372,6 +533,7 @@ function FirmCard({
         </p>
         <PriorityList
           products={products}
+          initialItems={firm.annually}
           onChange={handleAnnually}
           minItems={5}
           required={false}

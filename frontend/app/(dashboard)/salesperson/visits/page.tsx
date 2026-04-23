@@ -11,6 +11,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/useAuth";
 import { useLogVisits } from "@/lib/useLogVisits";
+import { deleteVisitInFirestore, deleteVisitMedia } from "@/lib/services/logVisitService";
+import { getLogVisitById } from "@/lib/services/logVisitService";
 import { VisitsTable } from "./_components/VisitsTable";
 
 export default function SalespersonVisitsPage() {
@@ -18,6 +20,8 @@ export default function SalespersonVisitsPage() {
   const { userData } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     visits,
     loading: visitsLoading,
@@ -46,6 +50,36 @@ export default function SalespersonVisitsPage() {
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
+
+  const handleDeleteVisit = async (visitId: string) => {
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      // Get visit to delete associated media
+      const visit = await getLogVisitById(visitId);
+      if (visit?.media && visit.media.length > 0) {
+        // Delete all media files from Storage
+        try {
+          await Promise.all(
+            visit.media.map((item) => deleteVisitMedia(item.storagePath)),
+          );
+        } catch (mediaErr) {
+          console.warn("Some media files could not be deleted:", mediaErr);
+        }
+      }
+
+      // Delete visit document from Firestore
+      console.log("Deleting visit:", visitId);
+      await deleteVisitInFirestore(visitId);
+      console.log("Visit deleted successfully");
+      setIsDeleting(false);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete visit";
+      console.error("Delete error:", errorMessage, err);
+      setDeleteError(errorMessage);
+      setIsDeleting(false);
+    }
+  };
 
   if (error) {
     return (
@@ -90,6 +124,12 @@ export default function SalespersonVisitsPage() {
         </Button>
       </div>
 
+      {deleteError && (
+        <div className="rounded-lg bg-red-50 p-4 text-red-700">
+          {deleteError}
+        </div>
+      )}
+
       <Card>
         <div className="mb-4">
           <Input
@@ -106,10 +146,11 @@ export default function SalespersonVisitsPage() {
 
         <VisitsTable
           visits={paginatedVisits}
-          loading={visitsLoading}
+          loading={visitsLoading || isDeleting}
           onVisitClick={(visitId) => {
             router.push(`/salesperson/visits/log?visitId=${visitId}`);
           }}
+          onDeleteClick={handleDeleteVisit}
         />
         {totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between text-sm text-textSecondary">

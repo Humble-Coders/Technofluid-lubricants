@@ -41,6 +41,8 @@ type FirmErrors = {
 type FormErrors = {
   gstNumber?: string;
   firmName?: string;
+  address?: string;
+  media?: string;
   monthly?: string;
   annually?: string;
   relatedFirms?: Record<number, FirmErrors>;
@@ -63,6 +65,8 @@ function validateForm(
   gstNumber: string,
   firmName: string,
   hasGst: boolean,
+  address: string,
+  media: MediaItem[],
   monthly: PriorityItem[],
   annually: PriorityItem[],
   relatedFirms: RelatedFirm[],
@@ -72,8 +76,13 @@ function validateForm(
 
   if (hasGst) {
     if (!gstNumber.trim()) errs.gstNumber = "GST Number is required.";
+    if (!address.trim()) errs.address = "Address is required.";
   } else {
     if (!firmName.trim()) errs.firmName = "Firm name is required.";
+  }
+
+  if (media.length === 0) {
+    errs.media = "At least 1 media (image/video) is required.";
   }
 
   if (isFullSubmit) {
@@ -140,6 +149,7 @@ export default function LogVisitPage() {
   const [existingVisit, setExistingVisit] = useState<LogVisit | null>(null);
   const [visitError, setVisitError] = useState<string | null>(null);
   const [visitLoading, setVisitLoading] = useState(false);
+  const [prioritiesResetKey, setPrioritiesResetKey] = useState(0);
 
   const resetForm = () => {
     setGstNumber("");
@@ -214,6 +224,8 @@ export default function LogVisitPage() {
       gstNumber,
       firmName,
       hasGst,
+      address,
+      media,
       monthlyPriorities,
       annualPriorities,
       relatedFirms,
@@ -236,7 +248,7 @@ export default function LogVisitPage() {
 
     const input: LogVisitInput = {
       gstNumber: hasGst ? gstNumber.trim() : undefined,
-      firmName: !hasGst ? firmName.trim() : undefined,
+      firmName: firmName.trim() || undefined,
       address: address.trim() || undefined,
       hasGst,
       status,
@@ -248,12 +260,12 @@ export default function LogVisitPage() {
 
     try {
       // Save/update firm in firms collection if GST mode
-      if (hasGst && gstNumber.trim() && location) {
+      if (hasGst && gstNumber.trim() && firmName.trim()) {
         await createOrUpdateFirm(
           gstNumber.trim(),
           firmName.trim(),
           address.trim(),
-          location,
+          location || { lat: 0, lng: 0 },
           { monthly: monthlyPriorities, annually: annualPriorities },
         );
       }
@@ -294,7 +306,8 @@ export default function LogVisitPage() {
   }
 
   const formResetKey =
-    existingVisit?.id ?? (visitId ? `loading-${visitId}` : "new");
+    (existingVisit?.id ?? (visitId ? `loading-${visitId}` : "new")) +
+    `-reset-${prioritiesResetKey}`;
   const saveLabel = isEditing ? "Update" : "Save";
 
   return (
@@ -385,7 +398,11 @@ export default function LogVisitPage() {
                     setMonthlyPriorities(priorities.monthly);
                     setAnnualPriorities(priorities.annually);
                   }}
+                  onPrioritiesReset={() => {
+                    setPrioritiesResetKey((prev) => prev + 1);
+                  }}
                   error={errors.gstNumber}
+                  addressError={errors.address}
                 />
               ) : (
                 <>
@@ -422,14 +439,19 @@ export default function LogVisitPage() {
         </FormSection>
 
         {/* ── 2. Media ── */}
-        <FormSection step={2} title="Media" badge="Optional">
+        <FormSection step={2} title="Media" badge="Min 1 item">
           {userData?.uid ? (
-            <MediaUploader
-              items={media}
-              uploaderId={userData.uid}
-              onChange={setMedia}
-              onLocationCaptured={setLocation}
-            />
+            <>
+              <MediaUploader
+                items={media}
+                uploaderId={userData.uid}
+                onChange={setMedia}
+                onLocationCaptured={setLocation}
+              />
+              {errors.media && (
+                <div className="mt-3 text-sm text-danger">{errors.media}</div>
+              )}
+            </>
           ) : null}
         </FormSection>
 
@@ -437,7 +459,7 @@ export default function LogVisitPage() {
         <FormSection step={3} title="Monthly Priorities" badge="Min 5 items">
           <PriorityList
             products={products}
-            initialItems={existingVisit?.priorities.monthly ?? []}
+            initialItems={monthlyPriorities.length > 0 ? monthlyPriorities : existingVisit?.priorities.monthly ?? []}
             resetKey={formResetKey}
             onChange={setMonthlyPriorities}
             minItems={MIN_ITEMS}
@@ -450,7 +472,7 @@ export default function LogVisitPage() {
         <FormSection step={4} title="Annual Priorities" badge="Min 5 items">
           <PriorityList
             products={products}
-            initialItems={existingVisit?.priorities.annually ?? []}
+            initialItems={annualPriorities.length > 0 ? annualPriorities : existingVisit?.priorities.annually ?? []}
             resetKey={formResetKey}
             onChange={setAnnualPriorities}
             minItems={MIN_ITEMS}

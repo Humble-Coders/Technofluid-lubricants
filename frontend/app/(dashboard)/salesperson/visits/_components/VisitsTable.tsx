@@ -9,11 +9,25 @@ function formatDate(
   value: LogVisit["createdAt"] | LogVisit["updatedAt"],
 ): string {
   if (!value) return "-";
-  const date =
-    value instanceof Timestamp
-      ? value.toDate()
-      : new Date(value as string | Date);
-  return date.toLocaleDateString();
+  try {
+    const date =
+      value instanceof Timestamp
+        ? value.toDate()
+        : new Date(value as string | Date);
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    });
+  } catch {
+    return "-";
+  }
 }
 
 function formatLocation(location: LogVisit["location"]): string {
@@ -35,12 +49,14 @@ type VisitsTableProps = {
   visits: LogVisit[];
   loading?: boolean;
   onVisitClick?: (visitId: string) => void;
+  onDeleteClick?: (visitId: string) => void;
 };
 
 export function VisitsTable({
   visits,
   loading = false,
   onVisitClick,
+  onDeleteClick,
 }: VisitsTableProps) {
   if (loading) {
     return (
@@ -88,7 +104,9 @@ export function VisitsTable({
               tabIndex={onVisitClick ? 0 : -1}
               role={onVisitClick ? "button" : undefined}
             >
-              <TD className="font-medium">{visit.firmName}</TD>
+              <TD className="font-medium">
+                {visit.firmName || "No Firm Name"}
+              </TD>
               <TD>
                 <span
                   className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusClass(visit.status)}`}
@@ -110,10 +128,35 @@ export function VisitsTable({
                 {visit.relatedFirms.length}
               </TD>
               <TD className="text-sm text-textSecondary">
-                {formatDate(visit.createdAt)}
+                {formatDate(visit.createdAt || visit.updatedAt)}
               </TD>
-              <TD className="text-right text-sm font-medium text-accent">
-                {onVisitClick ? "View / Edit" : ""}
+              <TD className="text-right">
+                <div className="flex justify-end gap-2">
+                  {onVisitClick && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onVisitClick(visit.id);
+                      }}
+                      className="text-sm font-medium text-accent hover:underline"
+                    >
+                      View / Edit
+                    </button>
+                  )}
+                  {onDeleteClick && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Are you sure you want to delete this visit?")) {
+                          onDeleteClick(visit.id);
+                        }
+                      }}
+                      className="text-sm font-medium text-danger hover:underline"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </TD>
             </tr>
           ))
