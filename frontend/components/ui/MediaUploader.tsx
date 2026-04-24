@@ -38,6 +38,8 @@ export function MediaUploader({
   onChange,
   onLocationCaptured,
 }: MediaUploaderProps) {
+  // Camera facing mode state
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -175,7 +177,7 @@ export function MediaUploader({
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: { ideal: "environment" },
+            facingMode: { ideal: facingMode },
           },
           audio: false,
         });
@@ -211,7 +213,7 @@ export function MediaUploader({
     return () => {
       active = false;
     };
-  }, [cameraMode, isCameraOpen]);
+  }, [cameraMode, isCameraOpen, facingMode]);
 
   const openCameraCapture = async () => {
     if (isFetchingLocation) return;
@@ -279,6 +281,9 @@ export function MediaUploader({
     }
   };
 
+  // Store captured blob for confirmation
+  const [pendingCaptureBlob, setPendingCaptureBlob] = useState<Blob | null>(null);
+
   const capturePhoto = async () => {
     if (!streamRef.current || !videoRef.current) return;
 
@@ -309,10 +314,12 @@ export function MediaUploader({
       if (currentUrl) URL.revokeObjectURL(currentUrl);
       return URL.createObjectURL(blob);
     });
-
-    await uploadCaptureBlob(blob);
-    closeCamera();
+    setPendingCaptureBlob(blob);
+    // Do not upload or close yet; wait for user confirmation
   };
+
+  // For video, store blob for confirmation
+  const [pendingVideoBlob, setPendingVideoBlob] = useState<Blob | null>(null);
 
   const startVideoRecording = () => {
     if (!streamRef.current || isRecording) return;
@@ -358,9 +365,8 @@ export function MediaUploader({
           if (currentUrl) URL.revokeObjectURL(currentUrl);
           return URL.createObjectURL(recordedBlob);
         });
-
-        await uploadCaptureBlob(recordedBlob);
-        closeCamera();
+        setPendingVideoBlob(recordedBlob);
+        // Do not upload or close yet; wait for user confirmation
       };
 
       discardRecordingRef.current = false;
@@ -377,6 +383,33 @@ export function MediaUploader({
     discardRecordingRef.current = false;
     recorderRef.current.stop();
     setIsRecording(false);
+  };
+
+  // Confirm and retake handlers
+  const handleDone = async () => {
+    if (pendingCaptureBlob) {
+      await uploadCaptureBlob(pendingCaptureBlob);
+      setPendingCaptureBlob(null);
+      closeCamera();
+    } else if (pendingVideoBlob) {
+      await uploadCaptureBlob(pendingVideoBlob);
+      setPendingVideoBlob(null);
+      closeCamera();
+    }
+  };
+
+  const handleRetake = () => {
+    setCameraPreviewUrl((currentUrl) => {
+      if (currentUrl) URL.revokeObjectURL(currentUrl);
+      return null;
+    });
+    setCapturedPreviewType(null);
+    setPendingCaptureBlob(null);
+    setPendingVideoBlob(null);
+  };
+
+  const handleReverseCamera = () => {
+    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
   };
 
   const handleRemove = async (index: number) => {
@@ -407,6 +440,7 @@ export function MediaUploader({
         </div>
       ) : null}
 
+
       {isCameraOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-textPrimary/70 p-3 backdrop-blur-sm sm:items-center">
           <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl">
@@ -429,6 +463,20 @@ export function MediaUploader({
             </div>
 
             <div className="relative bg-black">
+              {/* Reverse camera button */}
+              {!cameraPreviewUrl && (
+                <button
+                  type="button"
+                  onClick={handleReverseCamera}
+                  className="absolute right-3 top-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white border border-white/30 hover:bg-black/80"
+                  style={{ pointerEvents: isStartingCamera ? 'none' : undefined }}
+                  disabled={isStartingCamera}
+                  aria-label="Reverse camera"
+                >
+                  Reverse Camera
+                </button>
+              )}
+
               {cameraPreviewUrl ? (
                 <div className="relative aspect-video w-full bg-black">
                   {capturedPreviewType === "image" ? (
@@ -477,32 +525,54 @@ export function MediaUploader({
             </div>
 
             <div className="space-y-3 border-t border-border px-4 py-4">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCameraMode("photo")}
-                  disabled={isRecording}
-                  className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${cameraMode === "photo" ? "bg-accent text-accentContrast" : "bg-page text-textPrimary hover:bg-surface"} disabled:cursor-not-allowed disabled:opacity-60`}
-                >
-                  Photo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCameraMode("video")}
-                  disabled={isRecording}
-                  className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${cameraMode === "video" ? "bg-accent text-accentContrast" : "bg-page text-textPrimary hover:bg-surface"} disabled:cursor-not-allowed disabled:opacity-60`}
-                >
-                  Video
-                </button>
-                <div className="ml-auto text-xs text-textSecondary">
-                  {cameraMode === "photo"
-                    ? "Tap capture to take a photo"
-                    : "Start and stop recording from this screen"}
+              {/* Camera mode and instructions */}
+              {!cameraPreviewUrl && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCameraMode("photo")}
+                    disabled={isRecording}
+                    className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${cameraMode === "photo" ? "bg-accent text-accentContrast" : "bg-page text-textPrimary hover:bg-surface"} disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    Photo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCameraMode("video")}
+                    disabled={isRecording}
+                    className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${cameraMode === "video" ? "bg-accent text-accentContrast" : "bg-page text-textPrimary hover:bg-surface"} disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    Video
+                  </button>
+                  <div className="ml-auto text-xs text-textSecondary">
+                    {cameraMode === "photo"
+                      ? "Tap capture to take a photo"
+                      : "Start and stop recording from this screen"}
+                  </div>
                 </div>
-              </div>
+              )}
 
+              {/* Capture/record or confirm/retake */}
               <div className="flex flex-wrap gap-3">
-                {cameraMode === "photo" ? (
+                {/* If preview is shown, show Done/Retake */}
+                {cameraPreviewUrl && (pendingCaptureBlob || pendingVideoBlob) ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleDone}
+                      className="inline-flex flex-1 items-center justify-center rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-accentContrast transition hover:opacity-95"
+                    >
+                      Done
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRetake}
+                      className="inline-flex flex-1 items-center justify-center rounded-xl bg-page px-4 py-3 text-sm font-semibold text-textPrimary border border-border transition hover:bg-surface"
+                    >
+                      Retake
+                    </button>
+                  </>
+                ) : cameraMode === "photo" ? (
                   <button
                     type="button"
                     onClick={capturePhoto}
