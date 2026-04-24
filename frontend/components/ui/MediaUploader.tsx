@@ -39,7 +39,9 @@ export function MediaUploader({
   onLocationCaptured,
 }: MediaUploaderProps) {
   // Camera facing mode state
-  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [facingMode, setFacingMode] = useState<"environment" | "user">(
+    "environment",
+  );
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -282,7 +284,9 @@ export function MediaUploader({
   };
 
   // Store captured blob for confirmation
-  const [pendingCaptureBlob, setPendingCaptureBlob] = useState<Blob | null>(null);
+  const [pendingCaptureBlob, setPendingCaptureBlob] = useState<Blob | null>(
+    null,
+  );
 
   const capturePhoto = async () => {
     if (!streamRef.current || !videoRef.current) return;
@@ -409,7 +413,7 @@ export function MediaUploader({
   };
 
   const handleReverseCamera = () => {
-    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
+    setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
   };
 
   const handleRemove = async (index: number) => {
@@ -440,7 +444,6 @@ export function MediaUploader({
         </div>
       ) : null}
 
-
       {isCameraOpen ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-textPrimary/70 p-3 backdrop-blur-sm sm:items-center">
           <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl">
@@ -469,7 +472,9 @@ export function MediaUploader({
                   type="button"
                   onClick={handleReverseCamera}
                   className="absolute right-3 top-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white border border-white/30 hover:bg-black/80"
-                  style={{ pointerEvents: isStartingCamera ? 'none' : undefined }}
+                  style={{
+                    pointerEvents: isStartingCamera ? "none" : undefined,
+                  }}
                   disabled={isStartingCamera}
                   aria-label="Reverse camera"
                 >
@@ -555,7 +560,8 @@ export function MediaUploader({
               {/* Capture/record or confirm/retake */}
               <div className="flex flex-wrap gap-3">
                 {/* If preview is shown, show Done/Retake */}
-                {cameraPreviewUrl && (pendingCaptureBlob || pendingVideoBlob) ? (
+                {cameraPreviewUrl &&
+                (pendingCaptureBlob || pendingVideoBlob) ? (
                   <>
                     <button
                       type="button"
