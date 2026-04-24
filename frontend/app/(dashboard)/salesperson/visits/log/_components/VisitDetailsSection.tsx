@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { FirmLookup } from "./FirmLookup";
 import { FormSection } from "./FormSection";
+import { useGstApiSettings } from "@/lib/hooks/useGstApiSettings";
 import type { FormErrors } from "../_hooks/useLogVisitValidation";
 import type { PriorityItem } from "@/types/visit";
 
@@ -36,41 +37,63 @@ export function VisitDetailsSection({
   onPrioritiesLoaded,
   onPrioritiesReset,
 }: VisitDetailsSectionProps) {
+  const { settings: gstApiSettings } = useGstApiSettings();
+  const apiEnabled = gstApiSettings.enabled;
+
   return (
     <FormSection step={1} title="Visit Details">
       <div className="space-y-5">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <span className="text-sm font-medium text-textSecondary">
-                No GST
-              </span>
-              <div
-                className="relative inline-flex h-5 w-9 items-center rounded-full bg-border transition-colors"
-                style={{
-                  backgroundColor: !hasGst
-                    ? "var(--color-accent)"
-                    : "var(--color-border)",
-                }}
-              >
+            {/* Toggle hidden when API is off */}
+            {apiEnabled && (
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <span className="text-sm font-medium text-textSecondary">
+                  No GST
+                </span>
                 <div
-                  className="absolute h-4 w-4 rounded-full bg-white transition-transform"
+                  className="relative inline-flex h-5 w-9 items-center rounded-full bg-border transition-colors"
                   style={{
-                    transform: !hasGst ? "translateX(17px)" : "translateX(2px)",
+                    backgroundColor: !hasGst
+                      ? "var(--color-accent)"
+                      : "var(--color-border)",
                   }}
-                />
-                <input
-                  type="checkbox"
-                  checked={!hasGst}
-                  onChange={(e) => {
-                    onHasGstChange(!e.target.checked);
-                  }}
-                  className="sr-only"
-                />
-              </div>
-            </label>
+                >
+                  <div
+                    className="absolute h-4 w-4 rounded-full bg-white transition-transform"
+                    style={{
+                      transform: !hasGst ? "translateX(17px)" : "translateX(2px)",
+                    }}
+                  />
+                  <input
+                    type="checkbox"
+                    checked={!hasGst}
+                    onChange={(e) => onHasGstChange(!e.target.checked)}
+                    className="sr-only"
+                  />
+                </div>
+              </label>
+            )}
           </div>
-          {hasGst ? (
+          {apiEnabled && !hasGst ? (
+            <>
+              <Input
+                id="firm-name-manual"
+                label="Name"
+                placeholder="Enter the firm name"
+                value={firmName}
+                onChange={(e) => onFirmNameChange(e.target.value)}
+                error={errors.firmName}
+              />
+              <Input
+                id="address"
+                label="Address"
+                placeholder="Enter the address"
+                value={address}
+                onChange={(e) => onAddressChange(e.target.value)}
+              />
+            </>
+          ) : (
             <FirmLookup
               gstNumber={gstNumber}
               firmName={firmName}
@@ -84,28 +107,6 @@ export function VisitDetailsSection({
               error={errors.gstNumber}
               addressError={errors.address}
             />
-          ) : (
-            <>
-              <Input
-                id="firm-name-manual"
-                label="Name"
-                placeholder="Enter the firm name"
-                value={firmName}
-                onChange={(e) => {
-                  onFirmNameChange(e.target.value);
-                }}
-                error={errors.firmName}
-              />
-              <Input
-                id="address"
-                label="Address"
-                placeholder="Enter the address"
-                value={address}
-                onChange={(e) => {
-                  onAddressChange(e.target.value);
-                }}
-              />
-            </>
           )}
         </div>
         <div className="rounded-xl border border-border bg-page px-4 py-3 text-sm text-textSecondary">

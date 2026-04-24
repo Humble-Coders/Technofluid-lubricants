@@ -119,6 +119,22 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ─── Admin Settings ───────────────────────────────────────────────────────
+
+    match /admin_settings/{docId} {
+      // All approved users read (salespersons need the GST API toggle in real-time)
+      allow read:  if isSignedIn() && isApproved();
+      // Only admin can change settings
+      allow write: if isAdmin();
+    }
+
+    // ─── GST Cache ────────────────────────────────────────────────────────────
+
+    match /gst_cache/{gstNumber} {
+      allow read:  if isStaff();
+      allow write: if isStaff();
+    }
+
     // ─── Firms ────────────────────────────────────────────────────────────────
 
     match /firms/{firmId} {

@@ -10,6 +10,7 @@ import {
 } from "@/lib/services/firmService";
 import { isValidGstFormat } from "@/lib/services/gstVerificationService";
 import { useGstVerification } from "@/lib/hooks/useGstVerification";
+import { useGstApiSettings } from "@/lib/hooks/useGstApiSettings";
 import type { PrioritySet } from "@/types/visit";
 
 type FirmLookupProps = {
@@ -44,7 +45,9 @@ export function FirmLookup({
   const [showBranchDialog, setShowBranchDialog] = useState(false);
   const [isLoadingBranch, setIsLoadingBranch] = useState(false);
 
+  const { settings: gstApiSettings, loading: settingsLoading } = useGstApiSettings();
   const { state: gstState, verify, reset: resetGst } = useGstVerification();
+  const [manualFallback, setManualFallback] = useState(false);
   const isLoading = gstState.status === "loading";
 
   // ─── Debounce: auto-verify once input reaches 15 chars ──────────────────────
@@ -64,7 +67,7 @@ export function FirmLookup({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gstNumber]);
 
   // ─── Load address history when GST is already set ────────────────────────────
@@ -120,7 +123,7 @@ export function FirmLookup({
     if (!newAddress.trim()) return;
     const trimmed = newAddress.trim();
     setAddresses((prev) =>
-      prev.includes(trimmed) ? prev : [trimmed, ...prev]
+      prev.includes(trimmed) ? prev : [trimmed, ...prev],
     );
     onAddressChange(trimmed);
     setShowAddNewAddress(false);
@@ -162,6 +165,84 @@ export function FirmLookup({
       ? "text-success"
       : "text-warning";
 
+  if (settingsLoading) {
+    return (
+      <div className="h-12 rounded-xl bg-border/30 animate-pulse" />
+    );
+  }
+
+  // Manual fallback — user chose to skip after a verification error
+  if (manualFallback) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between rounded-xl border border-border bg-page px-3 py-2">
+          <div className="flex items-center gap-2">
+            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-textSecondary" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            <p className="text-xs text-textSecondary">Entering firm details manually.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setManualFallback(false); resetGst(); }}
+            className="text-xs text-accent underline underline-offset-2 shrink-0"
+          >
+            Try GST again
+          </button>
+        </div>
+        <Input
+          id="firm-name-manual"
+          label="Firm Name"
+          placeholder="Enter firm name"
+          value={firmName}
+          onChange={(e) => onNameChange(e.target.value)}
+          error={error}
+        />
+        <Input
+          id="firm-address-manual"
+          label="Address"
+          placeholder="Enter address"
+          value={address}
+          onChange={(e) => onAddressChange(e.target.value)}
+          error={addressError}
+        />
+      </div>
+    );
+  }
+
+  // API is off — GST input disabled, name + address entered manually
+  if (!gstApiSettings.enabled) {
+    return (
+      <div className="space-y-3">
+        <Input
+          id="gst-number"
+          label="GST Number"
+          placeholder="e.g. 22AAAAA0000A1Z5"
+          value={gstNumber}
+          disabled
+          onChange={() => {}}
+        />
+        <Input
+          id="firm-name-manual"
+          label="Firm Name"
+          placeholder="Enter firm name"
+          value={firmName}
+          onChange={(e) => onNameChange(e.target.value)}
+          error={error}
+        />
+        <Input
+          id="firm-address-manual"
+          label="Address"
+          placeholder="Enter address"
+          value={address}
+          onChange={(e) => onAddressChange(e.target.value)}
+          error={addressError}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* GST Input */}
@@ -181,7 +262,9 @@ export function FirmLookup({
               if (trimmed && isValidGstFormat(trimmed)) handleVerify(trimmed);
             }}
             error={
-              gstState.status === "error" ? (gstState.error ?? undefined) : error
+              gstState.status === "error"
+                ? (gstState.error ?? undefined)
+                : error
             }
           />
         </div>
@@ -195,6 +278,17 @@ export function FirmLookup({
           Verify
         </Button>
       </div>
+
+      {/* Fallback link when verification fails */}
+      {gstState.status === "error" && (
+        <button
+          type="button"
+          onClick={() => setManualFallback(true)}
+          className="text-xs text-accent underline underline-offset-2"
+        >
+          Can't verify right now? Enter firm details manually instead
+        </button>
+      )}
 
       {/* Firm name + status badge */}
       {firmName && (
@@ -246,21 +340,24 @@ export function FirmLookup({
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
               />
-              <Button
-                type="button"
-                onClick={handleAddNewAddress}
-                className="shrink-0 mt-7"
-              >
-                Add
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setShowAddNewAddress(false)}
-                className="shrink-0 mt-7"
-              >
-                Cancel
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={handleAddNewAddress}
+                  className="h-9 px-3 text-sm"
+                >
+                  Add
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowAddNewAddress(false)}
+                  className="h-9 px-3 text-sm"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           )}
 
