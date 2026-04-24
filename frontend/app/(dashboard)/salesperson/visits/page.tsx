@@ -11,7 +11,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/useAuth";
 import { useLogVisits } from "@/lib/useLogVisits";
-import { deleteVisitInFirestore, deleteVisitMedia } from "@/lib/services/logVisitService";
+import {
+  deleteVisitInFirestore,
+  deleteVisitMedia,
+} from "@/lib/services/logVisitService";
 import { getLogVisitById } from "@/lib/services/logVisitService";
 import { VisitsTable } from "./_components/VisitsTable";
 
@@ -37,7 +40,7 @@ export default function SalespersonVisitsPage() {
 
     return visits.filter((visit) => {
       return (
-        visit.firmName.toLowerCase().includes(normalizedSearch) ||
+        (visit.firmName ?? "").toLowerCase().includes(normalizedSearch) ||
         visit.status.toLowerCase().includes(normalizedSearch) ||
         String(visit.location?.lat ?? "").includes(normalizedSearch) ||
         String(visit.location?.lng ?? "").includes(normalizedSearch)
@@ -74,7 +77,8 @@ export default function SalespersonVisitsPage() {
       console.log("Visit deleted successfully");
       setIsDeleting(false);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to delete visit";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete visit";
       console.error("Delete error:", errorMessage, err);
       setDeleteError(errorMessage);
       setIsDeleting(false);

@@ -37,12 +37,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function removeUndefined(obj: unknown): unknown {
+function removeUndefined<T>(obj: T): T {
   if (obj === undefined || obj === null) return obj;
   if (Array.isArray(obj)) {
-    return obj
-      .map(removeUndefined)
-      .filter((item) => item !== undefined);
+    return obj.map(removeUndefined).filter((item) => item !== undefined) as T;
   }
   if (typeof obj === "object") {
     const cleaned: Record<string, unknown> = {};
@@ -52,7 +50,7 @@ function removeUndefined(obj: unknown): unknown {
         cleaned[key] = cleaned_value;
       }
     }
-    return cleaned;
+    return cleaned as T;
   }
   return obj;
 }
@@ -115,8 +113,14 @@ function normalizeRelatedFirm(value: unknown): RelatedFirm | null {
   const name = String(value.name ?? "").trim();
   if (!name) return null;
 
+  const gstNumber = String(value.gstNumber ?? "").trim();
+  const hasGst =
+    typeof value.hasGst === "boolean" ? value.hasGst : gstNumber.length > 0;
+
   return {
+    gstNumber: gstNumber || undefined,
     name,
+    hasGst,
     priorities: normalizePrioritySet(value.priorities),
   };
 }
