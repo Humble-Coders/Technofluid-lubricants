@@ -21,7 +21,12 @@ function httpGet(
   path: string
 ): Promise<{ statusCode: number; body: string }> {
   return new Promise((resolve, reject) => {
-    const req = https.get({ hostname: host, path }, (res) => {
+    const options = {
+      hostname: host,
+      path,
+      headers: { Accept: "application/json" },
+    };
+    const req = https.get(options, (res) => {
       let body = "";
       res.on("data", (chunk: Buffer) => (body += chunk.toString()));
       res.on("end", () =>
@@ -51,12 +56,21 @@ function normalizeResponse(raw: AppyFlowResponse): GstVerifiedData {
     throw new HttpsError("not-found", "GST details not found in API response.");
   }
 
+  // lgnm (legal name) is always present in a valid taxpayer record.
+  // If it's missing the API returned an incomplete/echo response.
+  if (!t.lgnm) {
+    throw new HttpsError(
+      "not-found",
+      "GST number not found or no taxpayer data available."
+    );
+  }
+
   const addr = t.pradr?.addr;
 
   return {
     gstin: t.gstin ?? "",
-    legalName: t.lgnm ?? "",
-    tradeName: t.tradeNam ?? t.lgnm ?? "",
+    legalName: t.lgnm,
+    tradeName: t.tradeNam ?? t.lgnm,
     status: t.sts ?? "Unknown",
     registrationDate: t.rgdt ?? "",
     constitution: t.ctb ?? "",
@@ -73,6 +87,10 @@ export async function fetchGstFromApi(
   apiKey: string,
   attempt = 1
 ): Promise<GstVerifiedData> {
+  if (!apiKey) {
+    throw new HttpsError("internal", "AppyFlow API key is not configured.");
+  }
+
   const path = `${APPYFLOW_PATH}?key_secret=${encodeURIComponent(apiKey)}&gstNo=${encodeURIComponent(gstNumber)}`;
 
   let statusCode: number;
