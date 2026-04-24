@@ -9,6 +9,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { deleteCoupon as deleteCouponFromDb } from "@/lib/services/couponService";
 import type { CouponRow } from "@/app/(dashboard)/admin/_data/mockData";
 
 function mapCouponDoc(id: string, data: Record<string, unknown>): CouponRow {
@@ -58,6 +59,10 @@ export function useCoupons() {
     return () => unsubscribe();
   }, []);
 
+  const deleteCoupon = async (couponId: string): Promise<void> => {
+    await deleteCouponFromDb(couponId);
+  };
+
   const createCoupon = async (couponData: CouponRow): Promise<CouponRow> => {
     const docRef = await addDoc(collection(db, "coupons"), {
       code: couponData.code,
@@ -75,5 +80,5 @@ export function useCoupons() {
     return { ...couponData, id: docRef.id, usageCount: 0 };
   };
 
-  return { coupons, loading, error, createCoupon };
+  return { coupons, loading, error, createCoupon, deleteCoupon };
 }

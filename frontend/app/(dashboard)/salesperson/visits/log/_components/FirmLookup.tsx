@@ -1,25 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { lookupGstNumber } from "@/lib/services/gstService";
 import {
   getFirmByGst,
   getBranchByGstAndAddress,
   getAutoFillPriorities,
-  type Firm,
 } from "@/lib/services/firmService";
+import { isValidGstFormat } from "@/lib/services/gstVerificationService";
+import { useGstVerification } from "@/lib/hooks/useGstVerification";
 import type { PrioritySet } from "@/types/visit";
-
-// Mock GST list - will be fetched from DB in future
-const AVAILABLE_GSTS = [
-  "27ABCDE1234F1Z0",
-  "18AABCD1234G1Z5",
-  "29ABCDE1234H1Z9",
-  "33ABCDE1234I1Z2",
-  "24AABCD1234J1Z8",
-];
 
 type FirmLookupProps = {
   gstNumber: string;
@@ -39,7 +30,6 @@ export function FirmLookup({
   gstNumber,
   firmName,
   address,
-  location,
   onGstChange,
   onNameChange,
   onAddressChange,
@@ -53,44 +43,71 @@ export function FirmLookup({
   const [newAddress, setNewAddress] = useState("");
   const [showBranchDialog, setShowBranchDialog] = useState(false);
   const [isLoadingBranch, setIsLoadingBranch] = useState(false);
-  const [isLoadingLookup, setIsLoadingLookup] = useState(false);
+
+  const { state: gstState, verify, reset: resetGst } = useGstVerification();
+  const isLoading = gstState.status === "loading";
+
+  // ─── Debounce: auto-verify once input reaches 15 chars ──────────────────────
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (gstNumber.trim()) {
-      loadAddressesForGst(gstNumber.trim());
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    const trimmed = gstNumber.trim().toUpperCase();
+    if (trimmed.length !== 15 || !isValidGstFormat(trimmed)) return;
+
+    debounceRef.current = setTimeout(() => {
+      handleVerify(trimmed);
+    }, 800);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gstNumber]);
 
-  const loadAddressesForGst = async (gst: string) => {
-    if (!gst.trim()) {
-      setAddresses([]);
-      return;
-    }
+  // ─── Load address history when GST is already set ────────────────────────────
 
+  useEffect(() => {
+    if (gstNumber.trim()) loadAddressesForGst(gstNumber.trim());
+    else setAddresses([]);
+  }, [gstNumber]);
+
+  // ─── Sync name from successful verification ──────────────────────────────────
+
+  useEffect(() => {
+    if (gstState.status === "success" && gstState.data) {
+      const { legalName, tradeName } = gstState.data;
+      onNameChange(tradeName || legalName);
+    }
+  }, [gstState.status]);
+
+  // ─── Handlers ────────────────────────────────────────────────────────────────
+
+  async function loadAddressesForGst(gst: string) {
     try {
-      const addressSet = new Set<string>();
-
-      // Add current address if set
-      if (address?.trim()) {
-        addressSet.add(address.trim());
-      }
-
-      // Add addresses from firm history
       const firm = await getFirmByGst(gst);
-      if (firm?.history && Array.isArray(firm.history)) {
-        firm.history.forEach((h) => {
-          if (h.address?.trim()) {
-            addressSet.add(h.address.trim());
-          }
-        });
-      }
+      if (!firm?.history) return;
 
-      setAddresses(Array.from(addressSet));
-    } catch (err) {
-      console.error("Error loading addresses:", err);
+      const seen = new Set<string>(address ? [address.trim()] : []);
+      firm.history.forEach((h) => {
+        if (h.address?.trim()) seen.add(h.address.trim());
+      });
+      setAddresses(Array.from(seen));
+    } catch {
       setAddresses([]);
     }
-  };
+  }
+
+  async function handleVerify(gst: string) {
+    resetGst();
+    const data = await verify(gst);
+    if (data) {
+      onNameChange(data.tradeName || data.legalName);
+      await loadAddressesForGst(gst);
+    }
+  }
 
   const handleAddressSelect = (addr: string) => {
     onAddressChange(addr);
@@ -100,19 +117,17 @@ export function FirmLookup({
   };
 
   const handleAddNewAddress = () => {
-    if (newAddress.trim()) {
-      const trimmedAddress = newAddress.trim();
-      // Add the new address to the addresses list if not already there
-      if (!addresses.includes(trimmedAddress)) {
-        setAddresses([trimmedAddress, ...addresses]);
-      }
-      onAddressChange(trimmedAddress);
-      setShowAddNewAddress(false);
-      setNewAddress("");
-    }
+    if (!newAddress.trim()) return;
+    const trimmed = newAddress.trim();
+    setAddresses((prev) =>
+      prev.includes(trimmed) ? prev : [trimmed, ...prev]
+    );
+    onAddressChange(trimmed);
+    setShowAddNewAddress(false);
+    setNewAddress("");
   };
 
-  const checkBranchAndLoadPriorities = async (addr: string) => {
+  async function checkBranchAndLoadPriorities(addr: string) {
     if (!gstNumber.trim() || !addr.trim()) return;
 
     setIsLoadingBranch(true);
@@ -121,128 +136,107 @@ export function FirmLookup({
       if (exists) {
         setShowBranchDialog(true);
       } else {
-        const priorities = await getAutoFillPriorities(
-          gstNumber.trim(),
-          addr,
-        );
-        if (priorities && onPrioritiesLoaded) {
-          onPrioritiesLoaded(priorities);
-        }
+        const priorities = await getAutoFillPriorities(gstNumber.trim(), addr);
+        if (priorities && onPrioritiesLoaded) onPrioritiesLoaded(priorities);
       }
-    } catch (err) {
-      console.error("Error checking branch:", err);
+    } catch {
+      // non-fatal: user can still fill priorities manually
     } finally {
       setIsLoadingBranch(false);
     }
-  };
+  }
 
   const handleSameBranch = async () => {
     const priorities = await getAutoFillPriorities(gstNumber.trim(), address);
     if (priorities && onPrioritiesLoaded) {
       onPrioritiesLoaded(priorities);
-      // Trigger reset to update the form display
       onPrioritiesReset?.();
     }
     setShowBranchDialog(false);
   };
 
-  const handleNewBranch = () => {
-    setShowBranchDialog(false);
-  };
+  // ─── Render ───────────────────────────────────────────────────────────────────
 
-  const handleLookupGst = async () => {
-    if (!gstNumber.trim()) return;
-
-    setIsLoadingLookup(true);
-    try {
-      // Try mock data first
-      const mockResult = await lookupGstNumber(gstNumber.trim());
-      if (mockResult) {
-        onNameChange(mockResult.firmName);
-      } else {
-        // Fall back to Firestore
-        const firmData = await getFirmByGst(gstNumber.trim());
-        if (firmData) {
-          onNameChange(firmData.currentName);
-        }
-      }
-
-      // Get addresses from Firestore
-      await loadAddressesForGst(gstNumber.trim());
-    } catch (err) {
-      console.error("Error fetching GST details:", err);
-    } finally {
-      setIsLoadingLookup(false);
-    }
-  };
+  const gstStatusColor =
+    gstState.data?.status?.toLowerCase() === "active"
+      ? "text-success"
+      : "text-warning";
 
   return (
     <div className="space-y-3">
-      {/* GST Textbox with Lookup Button */}
+      {/* GST Input */}
       <div className="flex gap-2">
         <div className="flex-1">
           <Input
             id="gst-number"
             label="GST Number"
-            placeholder="Enter GST number"
+            placeholder="e.g. 22AAAAA0000A1Z5"
             value={gstNumber}
             onChange={(e) => {
               onGstChange(e.target.value);
+              if (gstState.status !== "idle") resetGst();
             }}
-            onBlur={async () => {
-              if (gstNumber.trim()) {
-                await handleLookupGst();
-              }
+            onBlur={() => {
+              const trimmed = gstNumber.trim().toUpperCase();
+              if (trimmed && isValidGstFormat(trimmed)) handleVerify(trimmed);
             }}
-            error={error}
+            error={
+              gstState.status === "error" ? (gstState.error ?? undefined) : error
+            }
           />
         </div>
         <Button
           type="button"
-          onClick={handleLookupGst}
-          isLoading={isLoadingLookup}
-          disabled={!gstNumber.trim()}
+          onClick={() => handleVerify(gstNumber.trim().toUpperCase())}
+          isLoading={isLoading}
+          disabled={!gstNumber.trim() || !isValidGstFormat(gstNumber)}
           className="shrink-0 mt-7"
         >
-          Lookup
+          Verify
         </Button>
       </div>
 
-      {/* Firm Name Display */}
+      {/* Firm name + status badge */}
       {firmName && (
         <div className="rounded-lg border border-border bg-page px-3 py-2">
           <p className="text-xs font-medium text-textSecondary">Firm Name</p>
           <p className="text-sm text-textPrimary">{firmName}</p>
+          {gstState.data?.status && (
+            <p className={`mt-0.5 text-xs font-semibold ${gstStatusColor}`}>
+              {gstState.data.status}
+              {gstState.data.registrationDate
+                ? ` · Registered ${gstState.data.registrationDate}`
+                : ""}
+            </p>
+          )}
         </div>
       )}
 
-      {/* Address Dropdown */}
+      {/* Address picker */}
       {gstNumber && (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-textPrimary">
-            Address
-            <span className="text-danger">*</span>
+            Address <span className="text-danger">*</span>
           </label>
+
           {!showAddNewAddress ? (
-            <div className="flex gap-2">
-              <select
-                value={address}
-                onChange={(e) =>
-                  e.target.value === "add-new"
-                    ? setShowAddNewAddress(true)
-                    : handleAddressSelect(e.target.value)
-                }
-                className="flex-1 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-textPrimary shadow-sm outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20"
-              >
-                <option value="">Select address</option>
-                {addresses.map((addr) => (
-                  <option key={addr} value={addr}>
-                    {addr}
-                  </option>
-                ))}
-                <option value="add-new">+ Add New</option>
-              </select>
-            </div>
+            <select
+              value={address}
+              onChange={(e) =>
+                e.target.value === "add-new"
+                  ? setShowAddNewAddress(true)
+                  : handleAddressSelect(e.target.value)
+              }
+              className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-textPrimary shadow-sm outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20"
+            >
+              <option value="">Select address</option>
+              {addresses.map((addr) => (
+                <option key={addr} value={addr}>
+                  {addr}
+                </option>
+              ))}
+              <option value="add-new">+ Add New</option>
+            </select>
           ) : (
             <div className="flex gap-2">
               <Input
@@ -269,13 +263,14 @@ export function FirmLookup({
               </Button>
             </div>
           )}
+
           {addressError && (
-            <div className="text-sm text-danger">{addressError}</div>
+            <p className="text-sm text-danger">{addressError}</p>
           )}
         </div>
       )}
 
-      {/* Branch Dialog */}
+      {/* Branch dialog */}
       {showBranchDialog && (
         <div className="rounded-lg border border-accent/30 bg-accent/5 p-4 space-y-3">
           <p className="text-sm font-medium text-textPrimary">
@@ -293,7 +288,7 @@ export function FirmLookup({
             </Button>
             <Button
               type="button"
-              onClick={handleNewBranch}
+              onClick={() => setShowBranchDialog(false)}
               className="flex-1"
             >
               New Branch

@@ -7,6 +7,8 @@ import { Modal } from "@/components/ui/modal";
 type DeleteConfirmModalProps = {
   open: boolean;
   name: string;
+  title?: string;
+  description?: string;
   onClose: () => void;
   onConfirm: () => Promise<void>;
 };
@@ -14,6 +16,8 @@ type DeleteConfirmModalProps = {
 export function DeleteConfirmModal({
   open,
   name,
+  title = "Delete",
+  description,
   onClose,
   onConfirm,
 }: DeleteConfirmModalProps) {
@@ -36,7 +40,7 @@ export function DeleteConfirmModal({
   return (
     <Modal
       isOpen={open}
-      title="Delete User"
+      title={title}
       onClose={onClose}
       mode="dialog"
       footer={
@@ -57,10 +61,13 @@ export function DeleteConfirmModal({
           </div>
         )}
         <p className="text-sm text-textSecondary">
-          Are you sure you want to delete{" "}
-          <span className="font-semibold text-textPrimary">{name}</span>? This
-          will remove them from both authentication and the database. This action
-          cannot be undone.
+          {description ?? (
+            <>
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-textPrimary">{name}</span>?
+              This action cannot be undone.
+            </>
+          )}
         </p>
       </div>
     </Modal>

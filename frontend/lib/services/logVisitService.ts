@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   where,
+  Timestamp,
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
@@ -24,6 +25,7 @@ import {
 import { COLLECTIONS } from "@/lib/constants";
 import { db, storage } from "@/lib/firebase";
 import type {
+  FirestoreDateValue,
   LogVisit,
   LogVisitInput,
   MediaItem,
@@ -37,21 +39,33 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  // Only recurse into plain objects — skip class instances (FieldValue,
+  // Timestamp, Date, etc.) so Firestore sentinel values are never destroyed.
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
+}
+
 function removeUndefined<T>(obj: T): T {
   if (obj === undefined || obj === null) return obj;
   if (Array.isArray(obj)) {
     return obj.map(removeUndefined).filter((item) => item !== undefined) as T;
   }
-  if (typeof obj === "object") {
+  if (isPlainObject(obj)) {
     const cleaned: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
-      const cleaned_value = removeUndefined(value);
-      if (cleaned_value !== undefined) {
-        cleaned[key] = cleaned_value;
+      const cleanedValue = removeUndefined(value);
+      if (cleanedValue !== undefined) {
+        cleaned[key] = cleanedValue;
       }
     }
     return cleaned as T;
   }
+  // Class instances (FieldValue, Timestamp, Date, …) pass through unchanged.
   return obj;
 }
 
@@ -137,6 +151,15 @@ function normalizeStatus(value: unknown): VisitStatus {
   return value === "submitted" ? "submitted" : "draft";
 }
 
+function normalizeTimestamp(value: unknown): FirestoreDateValue {
+  if (!value) return null;
+  if (value instanceof Timestamp) return value;
+  if (value instanceof Date) return value;
+  if (typeof value === "string" && value) return value;
+  // Anything else (empty map {}, corrupted FieldValue remnant, etc.) → null
+  return null;
+}
+
 function mapLogVisit(docSnap: QueryDocumentSnapshot): LogVisit {
   const data = docSnap.data();
 
@@ -153,8 +176,8 @@ function mapLogVisit(docSnap: QueryDocumentSnapshot): LogVisit {
     media: Array.isArray(data.media) ? (data.media as MediaItem[]) : [],
     priorities: normalizePrioritySet(data.priorities),
     relatedFirms: normalizeRelatedFirms(data.relatedFirms),
-    createdAt: data.createdAt ?? null,
-    updatedAt: data.updatedAt ?? null,
+    createdAt: normalizeTimestamp(data.createdAt),
+    updatedAt: normalizeTimestamp(data.updatedAt),
   };
 }
 

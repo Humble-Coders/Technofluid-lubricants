@@ -7,8 +7,9 @@ import type { PriorityItem } from "@/types/visit";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PriorityList } from "@/components/ui/PriorityList";
-import { lookupGstNumber } from "@/lib/services/gstService";
-import { getFirmByGst, getAutoFillPriorities, type Firm } from "@/lib/services/firmService";
+import { getFirmByGst, getAutoFillPriorities } from "@/lib/services/firmService";
+import { isValidGstFormat } from "@/lib/services/gstVerificationService";
+import { useGstVerification } from "@/lib/hooks/useGstVerification";
 
 import type { FirmErrors, InternalFirm } from "./relatedFirms.types";
 
@@ -42,12 +43,13 @@ export function RelatedFirmCard({
   onRemove,
 }: RelatedFirmCardProps) {
   const [addresses, setAddresses] = useState<string[]>([]);
-  const [isLoadingLookup, setIsLoadingLookup] = useState(false);
   const [showAddNewAddress, setShowAddNewAddress] = useState(false);
   const [newAddress, setNewAddress] = useState("");
-  const [firmDataCache, setFirmDataCache] = useState<Firm | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const autoFilledGstRef = useRef<string>("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { state: gstState, verify, reset: resetGst } = useGstVerification();
 
   const handleMonthly = useCallback(
     (items: PriorityItem[]) => onMonthlyChange(index, items),
@@ -59,56 +61,56 @@ export function RelatedFirmCard({
     [index, onAnnuallyChange],
   );
 
+  // Load address history from Firestore when GST changes
   useEffect(() => {
     if (!firm.hasGst || !firm.gstNumber.trim()) {
       setAddresses([]);
-      setFirmDataCache(null);
       autoFilledGstRef.current = "";
       return;
     }
 
-    if (autoFilledGstRef.current === firm.gstNumber.trim()) {
-      return;
-    }
+    const gst = firm.gstNumber.trim();
+    if (autoFilledGstRef.current === gst) return;
 
     let cancelled = false;
 
-    const autoFill = async () => {
-      try {
-        const firmData = await getFirmByGst(firm.gstNumber.trim());
-
-        if (cancelled) return;
-
-        if (firmData?.history && firmData.history.length > 0) {
-          autoFilledGstRef.current = firm.gstNumber.trim();
-          setFirmDataCache(firmData);
-
-          const addressSet = new Set<string>();
-          firmData.history.forEach((h) => {
-            if (h.address?.trim()) {
-              addressSet.add(h.address.trim());
-            }
-          });
-          setAddresses(Array.from(addressSet));
-
-          // Don't auto-select address - let user manually select from dropdown
-        } else {
-          setAddresses([]);
-          setFirmDataCache(null);
-        }
-      } catch (err) {
-        console.error("Error auto-filling firm data:", err);
+    getFirmByGst(gst).then((firmData) => {
+      if (cancelled) return;
+      if (firmData?.history?.length) {
+        autoFilledGstRef.current = gst;
+        const seen = new Set<string>();
+        firmData.history.forEach((h) => {
+          if (h.address?.trim()) seen.add(h.address.trim());
+        });
+        setAddresses(Array.from(seen));
+      } else {
         setAddresses([]);
-        setFirmDataCache(null);
       }
-    };
+    }).catch(() => setAddresses([]));
 
-    autoFill();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [firm.gstNumber, firm.hasGst]);
+
+  // Debounce: auto-verify once a valid 15-char GST is typed
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!firm.hasGst) return;
+
+    const trimmed = firm.gstNumber.trim().toUpperCase();
+    if (trimmed.length !== 15 || !isValidGstFormat(trimmed)) return;
+
+    debounceRef.current = setTimeout(() => handleVerify(trimmed), 800);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firm.gstNumber, firm.hasGst]);
+
+  // Sync firm name from verified GST data
+  useEffect(() => {
+    if (gstState.status === "success" && gstState.data) {
+      onNameChange(gstState.data.tradeName || gstState.data.legalName);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gstState.status]);
 
   // Sync local state with parent state
   useEffect(() => {
@@ -151,26 +153,15 @@ export function RelatedFirmCard({
     }
   };
 
-  const handleLookupGst = async () => {
-    if (!firm.gstNumber.trim()) return;
-
-    setIsLoadingLookup(true);
-    try {
-      const mockResult = await lookupGstNumber(firm.gstNumber.trim());
-      if (mockResult) {
-        onNameChange(mockResult.firmName);
-      } else {
-        const firmData = await getFirmByGst(firm.gstNumber.trim());
-        if (firmData) {
-          onNameChange(firmData.currentName);
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching GST details:", err);
-    } finally {
-      setIsLoadingLookup(false);
+  async function handleVerify(gst: string) {
+    resetGst();
+    const data = await verify(gst);
+    if (data) {
+      onNameChange(data.tradeName || data.legalName);
+      // refresh address list after successful verification
+      autoFilledGstRef.current = "";
     }
-  };
+  }
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-page p-4">
@@ -216,23 +207,35 @@ export function RelatedFirmCard({
               placeholder="Enter GST number"
               value={firm.gstNumber}
               disabled={!firm.hasGst}
-              onChange={(e) => onGstNumberChange(e.target.value)}
-              onBlur={async () => {
-                if (firm.hasGst && firm.gstNumber.trim()) {
-                  await handleLookupGst();
+              onChange={(e) => {
+                onGstNumberChange(e.target.value);
+                if (gstState.status !== "idle") resetGst();
+              }}
+              onBlur={() => {
+                const trimmed = firm.gstNumber.trim().toUpperCase();
+                if (firm.hasGst && trimmed && isValidGstFormat(trimmed)) {
+                  handleVerify(trimmed);
                 }
               }}
-              error={errors?.gstNumber}
+              error={
+                gstState.status === "error"
+                  ? (gstState.error ?? undefined)
+                  : errors?.gstNumber
+              }
             />
           </div>
           <Button
             type="button"
-            onClick={handleLookupGst}
-            isLoading={isLoadingLookup}
-            disabled={!firm.hasGst || !firm.gstNumber.trim()}
+            onClick={() => handleVerify(firm.gstNumber.trim().toUpperCase())}
+            isLoading={gstState.status === "loading"}
+            disabled={
+              !firm.hasGst ||
+              !firm.gstNumber.trim() ||
+              !isValidGstFormat(firm.gstNumber)
+            }
             className="shrink-0 mt-7"
           >
-            Lookup
+            Verify
           </Button>
         </div>
       </div>

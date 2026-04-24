@@ -1,17 +1,13 @@
 import {
-  collection,
   doc,
   getDoc,
   setDoc,
   updateDoc,
-  query,
-  where,
-  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { COLLECTIONS } from "@/lib/constants";
 import type { PrioritySet } from "@/types/visit";
+import type { GstVerifiedData } from "@/types/gst";
 
 export type FirmHistoryEntry = {
   firmName: string;
@@ -22,6 +18,7 @@ export type FirmHistoryEntry = {
 };
 
 export type Firm = {
+  // ── core ──────────────────────────────────────────────────────────────────
   gstNumber: string;
   currentName: string;
   currentAddress: string;
@@ -30,6 +27,16 @@ export type Firm = {
   history: FirmHistoryEntry[];
   createdAt: any;
   updatedAt: any;
+  // ── from AppyFlow GST verification ────────────────────────────────────────
+  legalName?: string;
+  tradeName?: string;
+  gstStatus?: string;
+  registrationDate?: string;
+  constitution?: string;
+  registeredAddress?: string;
+  state?: string;
+  pincode?: string;
+  gstVerifiedAt?: any;
 };
 
 const FIRMS_COLLECTION = "firms";
@@ -143,4 +150,27 @@ export async function createOrUpdateFirm(
     console.error("Error creating/updating firm:", error);
     throw error;
   }
+}
+
+// Saves (or merges) AppyFlow-verified GST details into the firm document.
+// Uses merge so existing priorities/history are never overwritten.
+export async function saveFirmGstData(data: GstVerifiedData): Promise<void> {
+  const docRef = doc(db, FIRMS_COLLECTION, data.gstin);
+  await setDoc(
+    docRef,
+    {
+      gstNumber: data.gstin,
+      legalName: data.legalName,
+      tradeName: data.tradeName,
+      gstStatus: data.status,
+      registrationDate: data.registrationDate,
+      constitution: data.constitution,
+      registeredAddress: data.address,
+      state: data.state,
+      pincode: data.pincode,
+      gstVerifiedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
 }

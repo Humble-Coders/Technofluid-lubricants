@@ -26,6 +26,8 @@ function isExpired(validTill: string): boolean {
 type CouponsTableProps = {
   coupons: CouponRow[];
   loading?: boolean;
+  deletingId?: string | null;
+  onDelete?: (coupon: CouponRow) => void;
 };
 
 function SkeletonRow() {
@@ -40,7 +42,12 @@ function SkeletonRow() {
   );
 }
 
-export function CouponsTable({ coupons, loading = false }: CouponsTableProps) {
+export function CouponsTable({
+  coupons,
+  loading = false,
+  deletingId,
+  onDelete,
+}: CouponsTableProps) {
   return (
     <Table>
       <TableHead>
@@ -52,6 +59,7 @@ export function CouponsTable({ coupons, loading = false }: CouponsTableProps) {
           <TH>Usage</TH>
           <TH>Status</TH>
           <TH>Valid Till</TH>
+          {onDelete && <TH>{""}</TH>}
         </tr>
       </TableHead>
       <TableBody>
@@ -63,7 +71,7 @@ export function CouponsTable({ coupons, loading = false }: CouponsTableProps) {
           </>
         ) : coupons.length === 0 ? (
           <tr>
-            <td colSpan={7} className="px-4 py-12 text-center">
+            <td colSpan={onDelete ? 8 : 7} className="px-4 py-12 text-center">
               <p className="text-sm font-medium text-textPrimary">
                 No coupons found
               </p>
@@ -144,6 +152,33 @@ export function CouponsTable({ coupons, loading = false }: CouponsTableProps) {
                     )}
                   </span>
                 </TD>
+                {onDelete && (
+                  <TD>
+                    <button
+                      type="button"
+                      disabled={deletingId === coupon.id}
+                      onClick={() => onDelete(coupon)}
+                      className="rounded-lg p-1.5 text-danger/60 transition hover:bg-danger/10 hover:text-danger disabled:opacity-40"
+                      aria-label={`Delete coupon ${coupon.code}`}
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-1 14H6L5 6" />
+                        <path d="M10 11v6M14 11v6" />
+                        <path d="M9 6V4h6v2" />
+                      </svg>
+                    </button>
+                  </TD>
+                )}
               </tr>
             );
           })

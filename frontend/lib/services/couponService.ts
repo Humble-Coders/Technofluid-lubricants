@@ -1,6 +1,7 @@
 // File: frontend/lib/services/couponService.ts
 import {
   collection,
+  deleteDoc,
   doc,
   getDocs,
   increment,
@@ -97,4 +98,8 @@ export async function incrementCouponUsage(couponId: string): Promise<void> {
   await updateDoc(doc(db, COLLECTIONS.COUPONS, couponId), {
     usageCount: increment(1),
   });
+}
+
+export async function deleteCoupon(couponId: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTIONS.COUPONS, couponId));
 }

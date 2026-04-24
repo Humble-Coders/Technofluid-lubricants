@@ -1,6 +1,7 @@
 {
   "projects": {
-    "blaze": "hs-website-21095"
+    "blaze": "hs-website-21095",
+    "default": "hs-website-21095"
   },
   "targets": {},
   "etags": {}

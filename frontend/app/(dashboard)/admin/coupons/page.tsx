@@ -13,14 +13,17 @@ import { useCoupons } from "@/lib/useCoupons";
 import { CouponsStats } from "./_components/CouponsStats";
 import { CouponsTable } from "./_components/CouponsTable";
 import { CreateCouponModal } from "./_components/CreateCouponModal";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 export default function CouponsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [typeFilter, setTypeFilter] = useState<"all" | "global" | "targeted">("all");
+  const [deleteTarget, setDeleteTarget] = useState<CouponRow | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const { coupons, loading, createCoupon } = useCoupons();
+  const { coupons, loading, createCoupon, deleteCoupon } = useCoupons();
 
   const filteredCoupons = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -38,6 +41,17 @@ export default function CouponsPage() {
       setIsOpen(false);
     } catch (err) {
       console.error("Failed to create coupon:", err);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeletingId(deleteTarget.id);
+    try {
+      await deleteCoupon(deleteTarget.id);
+    } finally {
+      setDeletingId(null);
+      setDeleteTarget(null);
     }
   };
 
@@ -87,12 +101,30 @@ export default function CouponsPage() {
         <Button onClick={() => setIsOpen(true)}>Create Coupon</Button>
       </div>
 
-      <CouponsTable coupons={filteredCoupons} loading={loading} />
+      <CouponsTable
+        coupons={filteredCoupons}
+        loading={loading}
+        deletingId={deletingId}
+        onDelete={setDeleteTarget}
+      />
 
       <CreateCouponModal
         open={isOpen}
         onClose={() => setIsOpen(false)}
         onCreate={handleCreate}
+      />
+
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        name={deleteTarget?.code ?? ""}
+        title="Delete Coupon"
+        description={
+          deleteTarget
+            ? `Are you sure you want to delete coupon "${deleteTarget.code}"? This cannot be undone.`
+            : ""
+        }
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
       />
     </section>
   );
