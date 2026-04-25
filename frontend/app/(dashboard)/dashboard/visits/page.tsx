@@ -310,6 +310,26 @@ export default function DashboardVisitsPage() {
                     : "-"}
                 </p>
               </div>
+              {selectedVisit.hasGst && selectedVisit.gstNumber && (
+                <div className="rounded-xl border border-border bg-page p-4">
+                  <p className="text-xs font-medium text-textSecondary">
+                    GST Number
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-textPrimary font-mono">
+                    {selectedVisit.gstNumber}
+                  </p>
+                </div>
+              )}
+              {selectedVisit.address && (
+                <div className="rounded-xl border border-border bg-page p-4">
+                  <p className="text-xs font-medium text-textSecondary">
+                    Address
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-textPrimary">
+                    {selectedVisit.address}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">

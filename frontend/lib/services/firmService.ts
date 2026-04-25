@@ -1,6 +1,10 @@
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
+  orderBy,
+  query,
   setDoc,
   updateDoc,
   serverTimestamp,
@@ -148,6 +152,20 @@ export async function createOrUpdateFirm(
     }
   } catch (error) {
     console.error("Error creating/updating firm:", error);
+    throw error;
+  }
+}
+
+export async function getAllFirms(): Promise<Firm[]> {
+  try {
+    const q = query(
+      collection(db, FIRMS_COLLECTION),
+      orderBy("updatedAt", "desc"),
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ ...d.data(), gstNumber: d.id }) as Firm);
+  } catch (error) {
+    console.error("Error fetching all firms:", error);
     throw error;
   }
 }

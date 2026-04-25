@@ -44,17 +44,22 @@ export function FirmLookup({
   const [newAddress, setNewAddress] = useState("");
   const [showBranchDialog, setShowBranchDialog] = useState(false);
   const [isLoadingBranch, setIsLoadingBranch] = useState(false);
+  const [dbLookupStatus, setDbLookupStatus] = useState<
+    "idle" | "loading" | "found" | "not-found"
+  >("idle");
 
-  const { settings: gstApiSettings, loading: settingsLoading } = useGstApiSettings();
+  const { settings: gstApiSettings, loading: settingsLoading } =
+    useGstApiSettings();
   const { state: gstState, verify, reset: resetGst } = useGstVerification();
   const [manualFallback, setManualFallback] = useState(false);
   const isLoading = gstState.status === "loading";
 
-  // ─── Debounce: auto-verify once input reaches 15 chars ──────────────────────
+  // ─── Debounce: auto-verify via API when enabled ──────────────────────────────
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (!gstApiSettings.enabled) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     const trimmed = gstNumber.trim().toUpperCase();
@@ -68,16 +73,39 @@ export function FirmLookup({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gstNumber]);
+  }, [gstNumber, gstApiSettings.enabled]);
 
-  // ─── Load address history when GST is already set ────────────────────────────
+  // ─── DB lookup: auto-fill name when API is off ───────────────────────────────
+
+  useEffect(() => {
+    if (gstApiSettings.enabled || settingsLoading) return;
+    const trimmed = gstNumber.trim().toUpperCase();
+    if (!trimmed || trimmed.length !== 15 || !isValidGstFormat(trimmed)) {
+      setDbLookupStatus("idle");
+      return;
+    }
+    setDbLookupStatus("loading");
+    getFirmByGst(trimmed)
+      .then((firm) => {
+        if (firm) {
+          onNameChange(firm.tradeName || firm.currentName);
+          setDbLookupStatus("found");
+        } else {
+          setDbLookupStatus("not-found");
+        }
+      })
+      .catch(() => setDbLookupStatus("idle"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gstNumber, gstApiSettings.enabled, settingsLoading]);
+
+  // ─── Load address history when GST changes ───────────────────────────────────
 
   useEffect(() => {
     if (gstNumber.trim()) loadAddressesForGst(gstNumber.trim());
     else setAddresses([]);
   }, [gstNumber]);
 
-  // ─── Sync name from successful verification ──────────────────────────────────
+  // ─── Sync name from successful API verification ──────────────────────────────
 
   useEffect(() => {
     if (gstState.status === "success" && gstState.data) {
@@ -166,9 +194,7 @@ export function FirmLookup({
       : "text-warning";
 
   if (settingsLoading) {
-    return (
-      <div className="h-12 rounded-xl bg-border/30 animate-pulse" />
-    );
+    return <div className="h-12 rounded-xl bg-border/30 animate-pulse" />;
   }
 
   // Manual fallback — user chose to skip after a verification error
@@ -177,15 +203,26 @@ export function FirmLookup({
       <div className="space-y-3">
         <div className="flex items-center justify-between rounded-xl border border-border bg-page px-3 py-2">
           <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-textSecondary" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4 shrink-0 text-textSecondary"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <circle cx="12" cy="12" r="10" />
               <path d="M12 8v4M12 16h.01" />
             </svg>
-            <p className="text-xs text-textSecondary">Entering firm details manually.</p>
+            <p className="text-xs text-textSecondary">
+              Entering firm details manually.
+            </p>
           </div>
           <button
             type="button"
-            onClick={() => { setManualFallback(false); resetGst(); }}
+            onClick={() => {
+              setManualFallback(false);
+              resetGst();
+            }}
             className="text-xs text-accent underline underline-offset-2 shrink-0"
           >
             Try GST again
@@ -211,43 +248,11 @@ export function FirmLookup({
     );
   }
 
-  // API is off — GST input disabled, name + address entered manually
-  if (!gstApiSettings.enabled) {
-    return (
-      <div className="space-y-3">
-        <Input
-          id="gst-number"
-          label="GST Number"
-          placeholder="e.g. 22AAAAA0000A1Z5"
-          value={gstNumber}
-          disabled
-          onChange={() => {}}
-        />
-        <Input
-          id="firm-name-manual"
-          label="Firm Name"
-          placeholder="Enter firm name"
-          value={firmName}
-          onChange={(e) => onNameChange(e.target.value)}
-          error={error}
-        />
-        <Input
-          id="firm-address-manual"
-          label="Address"
-          placeholder="Enter address"
-          value={address}
-          onChange={(e) => onAddressChange(e.target.value)}
-          error={addressError}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
       {/* GST Input */}
-      <div className="flex gap-2">
-        <div className="flex-1">
+      <div className={gstApiSettings.enabled ? "flex gap-2" : undefined}>
+        <div className={gstApiSettings.enabled ? "flex-1" : undefined}>
           <Input
             id="gst-number"
             label="GST Number"
@@ -258,6 +263,7 @@ export function FirmLookup({
               if (gstState.status !== "idle") resetGst();
             }}
             onBlur={() => {
+              if (!gstApiSettings.enabled) return;
               const trimmed = gstNumber.trim().toUpperCase();
               if (trimmed && isValidGstFormat(trimmed)) handleVerify(trimmed);
             }}
@@ -268,42 +274,69 @@ export function FirmLookup({
             }
           />
         </div>
-        <Button
-          type="button"
-          onClick={() => handleVerify(gstNumber.trim().toUpperCase())}
-          isLoading={isLoading}
-          disabled={!gstNumber.trim() || !isValidGstFormat(gstNumber)}
-          className="shrink-0 mt-7"
-        >
-          Verify
-        </Button>
+        {gstApiSettings.enabled && (
+          <Button
+            type="button"
+            onClick={() => handleVerify(gstNumber.trim().toUpperCase())}
+            isLoading={isLoading}
+            disabled={!gstNumber.trim() || !isValidGstFormat(gstNumber)}
+            className="shrink-0 mt-7"
+          >
+            Verify
+          </Button>
+        )}
       </div>
 
-      {/* Fallback link when verification fails */}
-      {gstState.status === "error" && (
+      {/* DB lookup status (API off only) */}
+      {!gstApiSettings.enabled && dbLookupStatus === "loading" && (
+        <p className="text-xs text-textSecondary animate-pulse">
+          Checking database...
+        </p>
+      )}
+      {!gstApiSettings.enabled && dbLookupStatus === "found" && (
+        <p className="text-xs text-success">Firm found in database.</p>
+      )}
+      {!gstApiSettings.enabled && dbLookupStatus === "not-found" && (
+        <p className="text-xs text-textSecondary">
+          Not found in database — enter details manually.
+        </p>
+      )}
+
+      {/* Fallback link when API verification fails */}
+      {gstApiSettings.enabled && gstState.status === "error" && (
         <button
           type="button"
           onClick={() => setManualFallback(true)}
           className="text-xs text-accent underline underline-offset-2"
         >
-          Can't verify right now? Enter firm details manually instead
+          Can&apos;t verify right now? Enter firm details manually instead
         </button>
       )}
 
-      {/* Firm name + status badge */}
-      {firmName && (
-        <div className="rounded-lg border border-border bg-page px-3 py-2">
-          <p className="text-xs font-medium text-textSecondary">Firm Name</p>
-          <p className="text-sm text-textPrimary">{firmName}</p>
-          {gstState.data?.status && (
-            <p className={`mt-0.5 text-xs font-semibold ${gstStatusColor}`}>
-              {gstState.data.status}
-              {gstState.data.registrationDate
-                ? ` · Registered ${gstState.data.registrationDate}`
-                : ""}
-            </p>
-          )}
-        </div>
+      {/* Firm name — read-only card when API verified; editable input when API off */}
+      {gstApiSettings.enabled ? (
+        firmName ? (
+          <div className="rounded-lg border border-border bg-page px-3 py-2">
+            <p className="text-xs font-medium text-textSecondary">Firm Name</p>
+            <p className="text-sm text-textPrimary">{firmName}</p>
+            {gstState.data?.status && (
+              <p className={`mt-0.5 text-xs font-semibold ${gstStatusColor}`}>
+                {gstState.data.status}
+                {gstState.data.registrationDate
+                  ? ` · Registered ${gstState.data.registrationDate}`
+                  : ""}
+              </p>
+            )}
+          </div>
+        ) : null
+      ) : (
+        <Input
+          id="firm-name-db"
+          label="Firm Name"
+          placeholder="Enter firm name"
+          value={firmName}
+          onChange={(e) => onNameChange(e.target.value)}
+        />
       )}
 
       {/* Address picker */}
@@ -348,7 +381,6 @@ export function FirmLookup({
                 >
                   Add
                 </Button>
-
                 <Button
                   type="button"
                   variant="secondary"

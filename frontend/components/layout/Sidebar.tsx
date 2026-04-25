@@ -117,6 +117,26 @@ const navItems = [
     ),
   },
   {
+    href: "/dashboard/firms",
+    label: "Firms",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 21h18" />
+        <path d="M5 21V7l7-4 7 4v14" />
+        <path d="M9 21v-4h6v4" />
+        <path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01" />
+      </svg>
+    ),
+  },
+  {
     href: "/dashboard/coupons",
     label: "Coupons",
     icon: (
