@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { createStaffSchema } from "@/lib/validation/formSchemas";
+import { GstDistributorLookup } from "./GstDistributorLookup";
 
 export type CreateDistributorFormInput = {
   name: string;
   phone: string;
   email: string;
+  gstNumber?: string;
+  address?: string;
 };
 
 type CreateDistributorModalProps = {
@@ -31,12 +34,16 @@ export function CreateDistributorModal({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
+  const [address, setAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const reset = () => {
     setName("");
     setPhone("");
     setEmail("");
+    setGstNumber("");
+    setAddress("");
     setErrors({});
   };
 
@@ -60,8 +67,11 @@ export function CreateDistributorModal({
 
     setIsLoading(true);
     try {
-      await onCreate(payload);
-
+      await onCreate({
+        ...payload,
+        gstNumber: gstNumber.trim() || undefined,
+        address: address.trim() || undefined,
+      });
       reset();
       onClose();
     } catch (error) {
@@ -123,6 +133,16 @@ export function CreateDistributorModal({
           }}
           className="md:col-span-2"
           error={errors.email}
+        />
+
+        <GstDistributorLookup
+          gstNumber={gstNumber}
+          firmName={name}
+          address={address}
+          onGstChange={setGstNumber}
+          onNameChange={setName}
+          onAddressChange={setAddress}
+          disabled={isLoading}
         />
       </div>
     </Modal>

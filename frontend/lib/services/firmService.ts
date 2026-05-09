@@ -170,6 +170,23 @@ export async function getAllFirms(): Promise<Firm[]> {
   }
 }
 
+// Saves basic distributor details to the firms cache when a distributor is created manually.
+// Uses merge so verified GST data / priorities are never overwritten.
+export async function saveDistributorFirmData(
+  gstNumber: string,
+  name: string,
+  address?: string,
+): Promise<void> {
+  const docRef = doc(db, FIRMS_COLLECTION, gstNumber.trim().toUpperCase());
+  const payload: Record<string, unknown> = {
+    gstNumber: gstNumber.trim().toUpperCase(),
+    updatedAt: serverTimestamp(),
+  };
+  if (name.trim()) payload.currentName = name.trim();
+  if (address?.trim()) payload.currentAddress = address.trim();
+  await setDoc(docRef, payload, { merge: true });
+}
+
 // Saves (or merges) AppyFlow-verified GST details into the firm document.
 // Uses merge so existing priorities/history are never overwritten.
 export async function saveFirmGstData(data: GstVerifiedData): Promise<void> {

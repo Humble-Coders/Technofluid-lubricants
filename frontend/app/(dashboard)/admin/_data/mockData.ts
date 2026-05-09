@@ -32,6 +32,9 @@ export type DistributorRow = {
   phone?: string;
   email?: string;
   address?: string;
+  gstNumber?: string;
+  serviceArea?: string;
+  productCategories?: string[];
   createdBy: string;
   status: ApprovalStatus;
   contactInfo: string;

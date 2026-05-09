@@ -11,6 +11,14 @@ import { useAuth } from "@/lib/useAuth";
 import { USER_ROLES } from "@/lib/constants";
 import { getAllFirms, type Firm } from "@/lib/services/firmService";
 
+type FlatRow = {
+  gstNumber: string;
+  firmName: string;
+  address: string;
+  updatedAt: unknown;
+  firm: Firm;
+};
+
 function formatTimestamp(value: unknown): string {
   if (!value) return "-";
   if (value instanceof Timestamp) return value.toDate().toLocaleString();
@@ -43,18 +51,39 @@ export default function AdminFirmsPage() {
       .finally(() => setFirmsLoading(false));
   }, [isAdmin]);
 
-  const filtered = firms.filter((firm) => {
+  const allRows: FlatRow[] = firms.flatMap((firm) =>
+    firm.history?.length > 0
+      ? firm.history.map((entry) => ({
+          gstNumber: firm.gstNumber,
+          firmName: entry.firmName || firm.currentName || firm.tradeName || "",
+          address: entry.address,
+          updatedAt: entry.updatedAt,
+          firm,
+        }))
+      : [
+          {
+            gstNumber: firm.gstNumber,
+            firmName: firm.currentName || firm.tradeName || "",
+            address: firm.currentAddress || "",
+            updatedAt: firm.updatedAt,
+            firm,
+          },
+        ],
+  );
+
+  const filteredRows = allRows.filter((row) => {
     const q = search.trim().toLowerCase();
     if (!q) return true;
     return (
-      firm.gstNumber?.toLowerCase().includes(q) ||
-      firm.currentName?.toLowerCase().includes(q) ||
-      firm.tradeName?.toLowerCase().includes(q) ||
-      firm.legalName?.toLowerCase().includes(q) ||
-      firm.state?.toLowerCase().includes(q) ||
-      firm.currentAddress?.toLowerCase().includes(q)
+      row.gstNumber?.toLowerCase().includes(q) ||
+      row.firmName?.toLowerCase().includes(q) ||
+      row.address?.toLowerCase().includes(q)
     );
   });
+
+  const filteredFirms = Array.from(
+    new Map(filteredRows.map((r) => [r.gstNumber, r.firm])).values(),
+  );
 
   if (loading || !isAdmin) return null;
 
@@ -70,15 +99,18 @@ export default function AdminFirmsPage() {
         <Card className="border-accent/20 bg-accent/5">
           <p className="text-sm font-medium text-textSecondary">Total Firms</p>
           <p className="mt-1 text-3xl font-bold text-textPrimary">
-            {filtered.length}
+            {filteredFirms.length}
           </p>
-          <p className="mt-1 text-xs text-textSecondary">in database</p>
+          <p className="mt-1 text-xs text-textSecondary">
+            {filteredRows.length} location
+            {filteredRows.length !== 1 ? "s" : ""} total
+          </p>
         </Card>
         <Card className="border-success/25 bg-success/5">
           <p className="text-sm font-medium text-textSecondary">Active GST</p>
           <p className="mt-1 text-3xl font-bold text-success">
             {
-              filtered.filter(
+              filteredFirms.filter(
                 (f) => f.gstStatus?.toLowerCase() === "active",
               ).length
             }
@@ -90,7 +122,7 @@ export default function AdminFirmsPage() {
             GST Verified
           </p>
           <p className="mt-1 text-3xl font-bold text-textPrimary">
-            {filtered.filter((f) => f.gstVerifiedAt).length}
+            {filteredFirms.filter((f) => f.gstVerifiedAt).length}
           </p>
           <p className="mt-1 text-xs text-textSecondary">via GST API</p>
         </Card>
@@ -118,7 +150,7 @@ export default function AdminFirmsPage() {
         <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3">
           <h2 className="text-sm font-semibold text-textPrimary">All Firms</h2>
           <span className="rounded-full border border-border bg-page px-3 py-1 text-xs font-medium text-textSecondary">
-            {filtered.length} firm{filtered.length !== 1 ? "s" : ""}
+            {filteredRows.length} entr{filteredRows.length !== 1 ? "ies" : "y"}
           </span>
         </div>
         {firmsLoading ? (
@@ -131,48 +163,34 @@ export default function AdminFirmsPage() {
               <tr>
                 <TH>GST Number</TH>
                 <TH>Firm Name</TH>
-                <TH>State</TH>
-                <TH>GST Status</TH>
                 <TH>Address</TH>
-                <TH>Locations</TH>
                 <TH>Last Updated</TH>
               </tr>
             </TableHead>
             <TableBody>
-              {filtered.length === 0 ? (
+              {filteredRows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={4}
                     className="px-4 py-8 text-center text-sm text-textSecondary"
                   >
                     No firms match your search.
                   </td>
                 </tr>
               ) : (
-                filtered.map((firm) => (
+                filteredRows.map((row, i) => (
                   <tr
-                    key={firm.gstNumber}
+                    key={`${row.gstNumber}-${i}`}
                     className="cursor-pointer transition hover:bg-page/80"
-                    onClick={() => setSelectedFirm(firm)}
+                    onClick={() => setSelectedFirm(row.firm)}
                   >
-                    <TD className="font-mono text-xs">{firm.gstNumber}</TD>
-                    <TD className="font-medium">
-                      {firm.tradeName || firm.currentName || "-"}
+                    <TD className="font-mono text-xs">{row.gstNumber}</TD>
+                    <TD className="font-medium">{row.firmName || "-"}</TD>
+                    <TD className="max-w-[260px] truncate text-sm text-textSecondary">
+                      {row.address || "-"}
                     </TD>
-                    <TD>{firm.state || "-"}</TD>
-                    <TD>
-                      <span
-                        className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(firm.gstStatus)}`}
-                      >
-                        {firm.gstStatus || "Unknown"}
-                      </span>
-                    </TD>
-                    <TD className="max-w-[200px] truncate text-sm text-textSecondary">
-                      {firm.currentAddress || "-"}
-                    </TD>
-                    <TD>{firm.history?.length ?? 0}</TD>
                     <TD className="whitespace-nowrap text-sm text-textSecondary">
-                      {formatTimestamp(firm.updatedAt)}
+                      {formatTimestamp(row.updatedAt)}
                     </TD>
                   </tr>
                 ))

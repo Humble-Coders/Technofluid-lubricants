@@ -13,6 +13,7 @@ import {
   approveDistributorRequest,
   createDistributorInFirestore,
   deleteDistributorDoc,
+  deleteDistributorAllDocs,
   subscribeDistributors,
   updateDistributor,
 } from "@/lib/services/distributorService";
@@ -32,6 +33,10 @@ export function useDistributors() {
             name: row.name,
             phone: row.phone || "",
             email: row.email || "",
+            address: row.address || "",
+            gstNumber: row.gstNumber || "",
+            serviceArea: row.serviceArea,
+            productCategories: row.productCategories,
             createdBy: row.createdBy,
             status: row.status === "approved" ? "approved" : "pending",
             contactInfo: row.contactInfo || row.phone || "",
@@ -104,7 +109,14 @@ export function useDistributors() {
 
   const handleUpdateDistributor = async (
     id: string,
-    fields: { name?: string; phone?: string },
+    fields: {
+      name?: string;
+      phone?: string;
+      gstNumber?: string;
+      address?: string;
+      serviceArea?: string;
+      productCategories?: string[];
+    },
   ) => {
     try {
       await updateDistributor(id, fields);
@@ -118,10 +130,12 @@ export function useDistributors() {
     try {
       const distributor = distributors.find((d) => d.id === id);
       if (distributor?.authCreated === false) {
-        // No auth user exists — just remove the Firestore doc.
+        // No auth user — only Firestore doc exists.
         await deleteDistributorDoc(id);
       } else {
+        // Delete Firebase Auth user via Cloud Function, then clean up both Firestore docs.
         await deleteUser({ uid: id });
+        await deleteDistributorAllDocs(id);
       }
     } catch (err) {
       console.error("Error deleting distributor:", err);

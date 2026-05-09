@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,22 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useDistributors } from "@/lib/useDistributors";
 import { useSalespersons } from "@/lib/useSalespersons";
-import { createDistributor as createDistributorAction } from "@/lib/actions/createDistributor";
 import type { DistributorRow } from "../_data/mockData";
-import {
-  CreateDistributorModal,
-  type CreateDistributorFormInput,
-} from "./_components/CreateDistributorModal";
 import { DistributorsStats } from "./_components/DistributorsStats";
 import { DistributorsTable } from "./_components/DistributorsTable";
-import { EditDistributorModal } from "./_components/EditDistributorModal";
+import { EditDistributorModal, type EditDistributorFields } from "./_components/EditDistributorModal";
 
 export default function DistributorsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "pending" | "approved"
   >("all");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<DistributorRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DistributorRow | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -69,19 +65,7 @@ export default function DistributorsPage() {
     }
   };
 
-  const handleCreate = async (distributorData: CreateDistributorFormInput) => {
-    try {
-      await createDistributorAction(distributorData);
-      setIsCreateOpen(false);
-    } catch (err) {
-      console.error("Failed to create distributor:", err);
-    }
-  };
-
-  const handleEdit = async (
-    id: string,
-    fields: { name?: string; phone?: string },
-  ) => {
+  const handleEdit = async (id: string, fields: EditDistributorFields) => {
     try {
       await updateDistributor(id, fields);
       setErrorMessage(null);
@@ -115,7 +99,7 @@ export default function DistributorsPage() {
       <DistributorsStats distributors={distributors} />
 
       <div className="flex justify-end">
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <Button onClick={() => router.push("/admin/distributors/create")}>
           Create Distributor
         </Button>
       </div>
@@ -155,12 +139,6 @@ export default function DistributorsPage() {
         onDelete={(d) => setDeleteTarget(d)}
       />
 
-      <CreateDistributorModal
-        open={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onCreate={handleCreate}
-      />
-
       {editTarget && (
         <EditDistributorModal
           open={!!editTarget}
@@ -168,6 +146,10 @@ export default function DistributorsPage() {
             id: editTarget.id,
             name: editTarget.name,
             phone: editTarget.phone ?? "",
+            gstNumber: editTarget.gstNumber ?? "",
+            address: editTarget.address ?? "",
+            serviceArea: editTarget.serviceArea ?? "",
+            productCategories: editTarget.productCategories ?? [],
           }}
           onClose={() => setEditTarget(null)}
           onSave={handleEdit}

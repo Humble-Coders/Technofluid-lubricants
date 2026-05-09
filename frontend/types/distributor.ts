@@ -13,6 +13,9 @@ export type Distributor = {
   email?: string;
   phone?: string;
   address?: string;
+  gstNumber?: string;
+  serviceArea?: string;
+  productCategories?: string[];
   status: DistributorStatus;
   isActive: boolean;
   createdBy: string;
@@ -31,4 +34,8 @@ export type CreateDistributorInput = {
   email: string;
   phone: string;
   createdBy: string;
+  gstNumber?: string;
+  address?: string;
+  serviceArea?: string;
+  productCategories?: string[];
 };

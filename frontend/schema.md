@@ -1,6 +1,6 @@
 # Technofluid Lubricants Schema Reference (Current)
 
-Last verified: 2026-04-13
+Last verified: 2026-05-08
 
 This document reflects the schema and callable contracts currently implemented in this repository across:
 
@@ -26,6 +26,10 @@ Defined in frontend/lib/constants.ts:
   - coupons
   - rate_lists
 
+Additional collections (not in COLLECTIONS constant, accessed by string literal):
+
+- firms (keyed by GSTIN — used by log visit and distributor create flows)
+
 Additional domain enums/types:
 
 - Order status (frontend type): pending | processing | approved | rejected | cancelled | delivered | string
@@ -33,6 +37,8 @@ Additional domain enums/types:
 - Coupon status: active | inactive
 - Coupon discount type: percentage | flat
 - Visit lead type: hot | warm | cold
+- Visit status: draft | submitted
+- Media type: image | video
 
 ## 2) Firestore Collections
 
@@ -95,32 +101,42 @@ Path: distributors/{distributorId}
 
 Primary writers:
 
-- frontend/app/(auth)/signup/page.tsx (for distributor signup)
+- frontend/app/(auth)/signup/page.tsx (for distributor self-signup)
 - frontend/lib/services/distributorService.ts#createDistributorInFirestore (salesperson-created placeholder)
+- frontend/lib/actions/createDistributor.ts + updateDistributor (admin-created via admin portal)
 - firebase/functions/src/users/createUserCallable.ts (admin-created, auth-backed)
 - firebase/functions/src/users/approveDistributorCallable.ts (migrates placeholder to auth uid)
 
 Current practical shape:
 
-- name: string
+- name: string — firm/account name (used as Firebase Auth display name on admin-created accounts)
 - email: string
 - phone: string
-- address: string (optional in read models, not written by active writers)
+- address: string (optional) — autofilled from GSTIN lookup if available
+- gstNumber: string (optional) — GSTIN of the distributor firm
+- serviceArea: string (optional) — free-text geographic area the distributor covers (e.g. "Mumbai", "Delhi NCR")
+- productCategories: string[] (optional) — product categories this distributor is authorized to sell (derived from products.category values)
 - status: "pending" | "approved" | "rejected"
 - isActive: boolean
 - createdBy: string | null
 - approvedBy: string | null
 - approvedAt: Timestamp | null
 - lastLoginAt: Timestamp | null
-- contactInfo: string
+- contactInfo: string (mirrors phone; used for display/search)
 - authCreated: boolean (false for salesperson-created placeholder docs; true/absent for admin/auth-backed docs)
 - createdAt: Timestamp
 - updatedAt: Timestamp
 
+Conflict rule (enforced by frontend before write):
+
+- No two distributors may share the same serviceArea AND have overlapping productCategories.
+- Checked via distributorService.ts#checkAreaCategoryConflict before admin-created submissions.
+
 Important lifecycle:
 
 - Salesperson-created distributor records start with authCreated: false and doc id != auth uid.
-- approveDistributorCallable creates Firebase Auth user, writes users/{authUid} and distributors/{authUid}, then deletes old placeholder distributor doc if ids differ.
+- approveDistributorCallable creates Firebase Auth user, writes users/{authUid} and distributors/{authUid} as approved, then deletes old placeholder distributor doc if ids differ.
+- Admin-created flow: createUserByAdminCallable creates auth user + base Firestore doc (status=approved), then frontend updateDistributor patches in gstNumber, address, serviceArea, productCategories.
 
 ## 2.3 orders
 
@@ -177,27 +193,34 @@ Shape:
 
 ### 2.4.2 Log Visit (full field visit)
 
-Primary writer:
+Primary writers:
 
 - frontend/lib/services/logVisitService.ts#createLogVisit
+- frontend/lib/services/logVisitService.ts#updateLogVisit
 
 Shape:
 
 - salespersonId: string
 - salespersonName: string
-- firmName: string
+- hasGst: boolean — whether the main firm was entered via GSTIN lookup (true) or manual name entry (false)
+- gstNumber: string (optional) — present when hasGst is true
+- firmName: string (optional) — name of the visited firm; required on submit
+- address: string (optional) — firm address; autofilled from GSTIN lookup or entered manually
 - status: "draft" | "submitted"
-- location: { lat: number, lng: number } | null
+- location: { lat: number, lng: number } | null — captured from device when media is uploaded
 - media: Array of:
   - url: string
-  - storagePath: string (mandatory, used for Storage deletion)
+  - storagePath: string (mandatory — used for Storage deletion)
   - type: "image" | "video"
   - createdAt: string (ISO 8601)
 - priorities:
-  - monthly: Array of { productId, productName, quantity } (min 5 on submit)
-  - annually: Array of { productId, productName, quantity } (min 5 on submit)
+  - monthly: Array of { productId: string, productName: string, quantity: number } (min 5 on submit)
+  - annually: Array of { productId: string, productName: string, quantity: number } (min 5 on submit)
 - relatedFirms: Array of:
-  - name: string
+  - hasGst: boolean
+  - gstNumber: string (optional) — present when relatedFirm.hasGst is true
+  - name: string (optional) — required on submit
+  - address: string (optional)
   - priorities:
     - monthly: Array of { productId, productName, quantity } (min 5 on submit)
     - annually: Array of { productId, productName, quantity } (optional; min 5 if present)
@@ -214,7 +237,12 @@ Validation rules enforced on "submitted" status only:
 - priorities.monthly min 5 items; each item: productId non-empty, quantity > 0
 - priorities.annually min 5 items; each item: productId non-empty, quantity > 0
 - Each relatedFirm: name required, monthly min 5 items
-- Draft saves bypass priority/firm validation (firmName still required)
+- Draft saves bypass priority/firm validation (firmName still required for draft too)
+
+Side effect on save:
+
+- If hasGst is true and gstNumber + firmName are set, logVisitService calls firmService.ts#createOrUpdateFirm to upsert the firms collection with latest name, address, location, and priorities.
+- Same side effect applies for each relatedFirm where hasGst is true.
 
 ## 2.5 products
 
@@ -223,13 +251,13 @@ Path: products/{productId}
 Current frontend read model (active products query):
 
 - name: string
-- description?: string
+- description: string (optional)
 - basePrice: number
 - unit: string
-- category?: string
+- category: string (optional) — used as the distributor productCategories source; distinct values become the selectable categories in the create distributor flow
 - isActive: boolean
-- createdAt?: Timestamp | Date | string | null
-- updatedAt?: Timestamp | Date | string | null
+- createdAt: Timestamp | Date | string | null (optional)
+- updatedAt: Timestamp | Date | string | null (optional)
 
 Writers are expected to be admin-only per rules; no frontend write service exists yet.
 
@@ -283,6 +311,55 @@ Current practical shape:
 - effectiveDate: Timestamp (set on create)
 - updatedAt: Timestamp (set on update path only)
 
+## 2.8 firms
+
+Path: firms/{gstNumber}  (document ID = GSTIN, e.g. "22AAAAA0000A1Z5")
+
+Primary writers:
+
+- frontend/lib/services/firmService.ts#createOrUpdateFirm — called on every Log Visit save when hasGst is true
+- frontend/lib/services/firmService.ts#saveFirmGstData — called after AppyFlow GST API verification to merge verified data
+
+Read sources:
+
+- frontend/lib/services/firmService.ts#getFirmByGst — used by FirmLookup and GstDistributorLookup to autofill name + address
+- frontend/lib/services/firmService.ts#getBranchByGstAndAddress — branch duplicate check in FirmLookup
+- frontend/lib/services/firmService.ts#getAutoFillPriorities — auto-populates priority lists from visit history
+
+Current practical shape:
+
+Core fields (written by createOrUpdateFirm):
+
+- gstNumber: string — mirrors the document ID
+- currentName: string — most recent firm/trade name from a visit save
+- currentAddress: string — most recent address
+- currentLocation: { lat: number, lng: number } — most recent device location at time of visit
+- defaultPriorities: { monthly: PriorityItem[], annually: PriorityItem[] } — latest priority set for autofill
+- history: Array of FirmHistoryEntry:
+  - firmName: string
+  - address: string
+  - location: { lat: number, lng: number }
+  - priorities: { monthly: PriorityItem[], annually: PriorityItem[] }
+  - updatedAt: Date (client-side new Date(), not serverTimestamp)
+- createdAt: Timestamp
+- updatedAt: Timestamp
+
+GST verification fields (written by saveFirmGstData via merge, all optional):
+
+- legalName: string — from AppyFlow API response
+- tradeName: string — trade name if different from legal name
+- gstStatus: string — e.g. "Active"
+- registrationDate: string
+- constitution: string
+- registeredAddress: string
+- state: string
+- pincode: string
+- gstVerifiedAt: Timestamp
+
+Note on duplicate history entries:
+
+- createOrUpdateFirm deduplicates by firmName + address + location (within 0.001 degree tolerance) before appending. Identical branches on the same visit do not create a second history entry.
+
 ## 3) Callable Cloud Function Contracts
 
 Exports from firebase/functions/src/index.ts:
@@ -309,6 +386,7 @@ Behavior:
 - Creates Firebase Auth user
 - Creates users/{newUid} with status="approved"
 - If role == "distributor", also creates distributors/{newUid} with status="approved"
+- After function returns, frontend patches additional fields (gstNumber, address, serviceArea, productCategories) via updateDistributor
 
 Response:
 
@@ -394,16 +472,32 @@ Notable constraints:
 - coupons write: admin only
 - rate_lists write: admin only
 
+Not yet covered by rules:
+
+- firms collection has no explicit rules entry; inherits default deny in production.
+
 ## 5) Current Drift and Risks
 
 1. Stale callable wrappers:
    - approveUser and rejectUser wrappers exist but backend exports do not.
+
 2. Status handling drift:
    - orders status is effectively free-form string in type/service, while some UI assumes a narrow subset.
+
 3. Direct Firestore access outside services:
    - auth login/signup and useAuth/useCoupons still access collections directly.
+
 4. Optional user fields not consistently written:
    - supervisorId exists in User type but has no active writer path.
+
+5. firms collection not covered by Firestore security rules:
+   - createOrUpdateFirm and saveFirmGstData write directly from the client. Rules must be added before production to restrict writes to authenticated staff only.
+
+6. history.updatedAt written as client-side new Date():
+   - firmService.ts#createOrUpdateFirm writes history entries with new Date() instead of serverTimestamp(). This can cause drift if client clocks are skewed.
+
+7. Distributor conflict check is frontend-only:
+   - checkAreaCategoryConflict runs in the browser before submission. There is no Firestore rule or cloud function enforcing the uniqueness constraint server-side. A race condition between two concurrent admin sessions could bypass it.
 
 ## 6) Change Checklist
 
