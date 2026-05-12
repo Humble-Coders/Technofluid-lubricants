@@ -156,6 +156,57 @@ export async function createOrUpdateFirm(
   }
 }
 
+// Creates/updates a firm that has no GST number.
+// Uses a normalised name as the document ID so repeated visits accumulate history.
+export async function saveNoGstFirm(
+  name: string,
+  address: string,
+  location: { lat: number; lng: number },
+  priorities: PrioritySet,
+): Promise<void> {
+  try {
+    const docId = `noGST_${name.trim().toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+    const docRef = doc(db, FIRMS_COLLECTION, docId);
+    const existing = await getDoc(docRef);
+
+    const entry: FirmHistoryEntry = {
+      firmName: name.trim(),
+      address: address.trim(),
+      location,
+      priorities,
+      updatedAt: new Date(),
+    };
+
+    if (existing.exists()) {
+      const firm = existing.data() as Firm;
+      const history = firm.history || [];
+      history.push(entry);
+      await updateDoc(docRef, {
+        currentName: name.trim(),
+        currentAddress: address.trim(),
+        currentLocation: location,
+        defaultPriorities: priorities,
+        history,
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await setDoc(docRef, {
+        gstNumber: "",
+        currentName: name.trim(),
+        currentAddress: address.trim(),
+        currentLocation: location,
+        defaultPriorities: priorities,
+        history: [entry],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
+  } catch (error) {
+    console.error("Error saving no-GST firm:", error);
+    throw error;
+  }
+}
+
 export async function getAllFirms(): Promise<Firm[]> {
   try {
     const q = query(

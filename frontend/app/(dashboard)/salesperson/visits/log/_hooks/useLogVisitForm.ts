@@ -54,7 +54,7 @@ export function useLogVisitForm(initialVisit?: LogVisit | null) {
   }, []);
 
   const validateAndGetInput = useCallback(
-    (isFullSubmit: boolean): LogVisitInput | null => {
+    (isFullSubmit: boolean, apiEnabled: boolean = true): LogVisitInput | null => {
       const validationErrors = validateForm(
         gstNumber,
         firmName,
@@ -65,6 +65,7 @@ export function useLogVisitForm(initialVisit?: LogVisit | null) {
         annualPriorities,
         relatedFirms,
         isFullSubmit,
+        apiEnabled,
       );
 
       if (Object.keys(validationErrors).length > 0) {

@@ -74,6 +74,23 @@ export function RelatedFirmsSection({
     notify(next);
   };
 
+  const autofillFirm = useCallback(
+    (
+      index: number,
+      name: string,
+      address: string,
+      monthly: PriorityItem[],
+      annually: PriorityItem[],
+    ) => {
+      const next = firmsRef.current.map((f, i) =>
+        i === index ? { ...f, name, address, monthly, annually } : f,
+      );
+      setFirms(next);
+      notify(next);
+    },
+    [notify],
+  );
+
   const updateHasGst = (index: number, hasGst: boolean) => {
     const next = firmsRef.current.map((f, i) =>
       i === index ? { ...f, hasGst } : f,
@@ -157,6 +174,9 @@ export function RelatedFirmsSection({
               onMonthlyChange={updateMonthly}
               onAnnuallyChange={updateAnnually}
               onPrioritiesChange={updatePriorities}
+              onAutofillFirm={(name, address, monthly, annually) =>
+                autofillFirm(index, name, address, monthly, annually)
+              }
               onRemove={() => removeFirm(index)}
             />
           ))}

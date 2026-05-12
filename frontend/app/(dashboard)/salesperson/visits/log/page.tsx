@@ -12,8 +12,9 @@ import {
   updateLogVisit,
 } from "@/lib/services/logVisitService";
 import type { LogVisit } from "@/types/visit";
-import { createOrUpdateFirm } from "@/lib/services/firmService";
+import { createOrUpdateFirm, saveNoGstFirm } from "@/lib/services/firmService";
 import { useLogVisitForm } from "./_hooks/useLogVisitForm";
+import { useGstApiSettings } from "@/lib/hooks/useGstApiSettings";
 import { RelatedFirmsSection } from "./_components/RelatedFirmsSection";
 import { VisitDetailsSection } from "./_components/VisitDetailsSection";
 import { MediaSection } from "./_components/MediaSection";
@@ -34,6 +35,7 @@ export default function LogVisitPage() {
   const isEditing = Boolean(visitId);
 
   const form = useLogVisitForm();
+  const { settings: gstApiSettings } = useGstApiSettings();
   const [existingVisit, setExistingVisit] = useState<LogVisit | null>(null);
   const [visitError, setVisitError] = useState<string | null>(null);
   const [visitLoading, setVisitLoading] = useState(false);
@@ -85,7 +87,7 @@ export default function LogVisitPage() {
 
   const handleSave = async (status: "draft" | "submitted") => {
     const isFullSubmit = status === "submitted";
-    const input = form.validateAndGetInput(isFullSubmit);
+    const input = form.validateAndGetInput(isFullSubmit, gstApiSettings.enabled);
 
     if (!input) {
       requestAnimationFrame(() => {
@@ -101,8 +103,10 @@ export default function LogVisitPage() {
     form.setSubmitError(null);
 
     try {
-      // Save/update firm in firms collection if GST mode
-      if (form.hasGst && form.gstNumber.trim() && form.firmName.trim()) {
+      const apiEnabled = gstApiSettings.enabled;
+
+      // Save main firm
+      if (apiEnabled && form.hasGst && form.gstNumber.trim() && form.firmName.trim()) {
         await createOrUpdateFirm(
           form.gstNumber.trim(),
           form.firmName.trim(),
@@ -110,11 +114,19 @@ export default function LogVisitPage() {
           form.location || { lat: 0, lng: 0 },
           { monthly: form.monthlyPriorities, annually: form.annualPriorities },
         );
+      } else if (!apiEnabled && form.firmName.trim()) {
+        await saveNoGstFirm(
+          form.firmName.trim(),
+          form.address.trim(),
+          form.location || { lat: 0, lng: 0 },
+          { monthly: form.monthlyPriorities, annually: form.annualPriorities },
+        );
       }
 
-      // Save related firms with GST to firms collection
+      // Save related firms
       for (const relatedFirm of form.relatedFirms) {
         if (
+          apiEnabled &&
           relatedFirm.hasGst &&
           relatedFirm.gstNumber?.trim() &&
           relatedFirm.name?.trim() &&
@@ -124,6 +136,13 @@ export default function LogVisitPage() {
             relatedFirm.gstNumber.trim(),
             relatedFirm.name.trim(),
             relatedFirm.address.trim(),
+            form.location || { lat: 0, lng: 0 },
+            relatedFirm.priorities,
+          );
+        } else if (!apiEnabled && relatedFirm.name?.trim()) {
+          await saveNoGstFirm(
+            relatedFirm.name.trim(),
+            relatedFirm.address?.trim() ?? "",
             form.location || { lat: 0, lng: 0 },
             relatedFirm.priorities,
           );

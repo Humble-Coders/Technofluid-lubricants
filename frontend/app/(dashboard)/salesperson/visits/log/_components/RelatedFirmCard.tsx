@@ -10,6 +10,8 @@ import { PriorityList } from "@/components/ui/PriorityList";
 import {
   getFirmByGst,
   getAutoFillPriorities,
+  getAllFirms,
+  type Firm,
 } from "@/lib/services/firmService";
 import { isValidGstFormat } from "@/lib/services/gstVerificationService";
 import { useGstVerification } from "@/lib/hooks/useGstVerification";
@@ -33,6 +35,12 @@ type RelatedFirmCardProps = {
     monthly: PriorityItem[],
     annually: PriorityItem[],
   ) => void;
+  onAutofillFirm: (
+    name: string,
+    address: string,
+    monthly: PriorityItem[],
+    annually: PriorityItem[],
+  ) => void;
   onRemove: () => void;
 };
 
@@ -48,6 +56,7 @@ export function RelatedFirmCard({
   onMonthlyChange,
   onAnnuallyChange,
   onPrioritiesChange,
+  onAutofillFirm,
   onRemove,
 }: RelatedFirmCardProps) {
   const [addresses, setAddresses] = useState<string[]>([]);
@@ -56,6 +65,13 @@ export function RelatedFirmCard({
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const autoFilledGstRef = useRef<string>("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Name autocomplete (used when API is off)
+  const [allFirms, setAllFirms] = useState<Firm[]>([]);
+  const [firmsLoaded, setFirmsLoaded] = useState(false);
+  const [nameSuggestions, setNameSuggestions] = useState<Firm[]>([]);
+  const [showNameSuggestions, setShowNameSuggestions] = useState(false);
+  const justSelectedRef = useRef(false);
 
   const { settings: gstApiSettings } = useGstApiSettings();
   const { state: gstState, verify, reset: resetGst } = useGstVerification();
@@ -180,6 +196,58 @@ export function RelatedFirmCard({
   }
 
   const apiEnabled = gstApiSettings.enabled && !manualFallback;
+
+  // Load all firms once when name field is focused while API is off
+  const handleNameFocus = async () => {
+    if (apiEnabled || firmsLoaded) return;
+    setFirmsLoaded(true);
+    try {
+      const firms = await getAllFirms();
+      setAllFirms(firms);
+    } catch {
+      // silently fail — autocomplete is best-effort
+    }
+  };
+
+  // Filter name suggestions as user types
+  useEffect(() => {
+    if (apiEnabled) {
+      setNameSuggestions([]);
+      setShowNameSuggestions(false);
+      return;
+    }
+    // Skip one cycle after a selection so the dropdown doesn't reappear
+    if (justSelectedRef.current) {
+      justSelectedRef.current = false;
+      return;
+    }
+    const q = firm.name.trim().toLowerCase();
+    if (!q || allFirms.length === 0) {
+      setNameSuggestions([]);
+      setShowNameSuggestions(false);
+      return;
+    }
+    const matches = allFirms
+      .filter((f) =>
+        (f.tradeName || f.legalName || f.currentName || "")
+          .toLowerCase()
+          .includes(q),
+      )
+      .slice(0, 8);
+    setNameSuggestions(matches);
+    setShowNameSuggestions(matches.length > 0);
+  }, [firm.name, allFirms, apiEnabled]);
+
+  const handleNameSuggestionSelect = (f: Firm) => {
+    justSelectedRef.current = true;
+    onAutofillFirm(
+      f.tradeName || f.legalName || f.currentName || "",
+      f.currentAddress || "",
+      f.defaultPriorities?.monthly ?? [],
+      f.defaultPriorities?.annually ?? [],
+    );
+    setShowNameSuggestions(false);
+  };
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-page p-4">
@@ -361,14 +429,43 @@ export function RelatedFirmCard({
       {/* Manual name + address: when no GST, API off, or manual fallback */}
       {(!firm.hasGst || !apiEnabled) && (
         <>
-          <Input
-            id={`firm-name-${firm._key}`}
-            label="Name"
-            placeholder="Enter the firm name"
-            value={firm.name}
-            onChange={(e) => onNameChange(e.target.value)}
-            error={errors?.name}
-          />
+          <div className="relative">
+            <Input
+              id={`firm-name-${firm._key}`}
+              label="Name"
+              placeholder="Enter the firm name"
+              value={firm.name}
+              onChange={(e) => onNameChange(e.target.value)}
+              onFocus={handleNameFocus}
+              onBlur={() =>
+                setTimeout(() => setShowNameSuggestions(false), 150)
+              }
+              error={errors?.name}
+            />
+            {showNameSuggestions && (
+              <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-surface shadow-lg">
+                {nameSuggestions.map((f) => {
+                  const displayName =
+                    f.tradeName || f.legalName || f.currentName || "";
+                  return (
+                    <button
+                      key={f.gstNumber}
+                      type="button"
+                      onMouseDown={() => handleNameSuggestionSelect(f)}
+                      className="w-full px-4 py-2.5 text-left text-sm text-textPrimary hover:bg-accent/10 first:rounded-t-xl last:rounded-b-xl"
+                    >
+                      <div className="font-medium">{displayName}</div>
+                      {f.currentAddress && (
+                        <div className="truncate text-xs text-textSecondary">
+                          {f.currentAddress}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <Input
             id={`firm-address-${firm._key}`}
             label="Address"

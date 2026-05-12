@@ -47,10 +47,11 @@ export function validateForm(
   annually: PriorityItem[],
   relatedFirms: RelatedFirm[],
   isFullSubmit: boolean,
+  apiEnabled: boolean = true,
 ): FormErrors {
   const errs: FormErrors = {};
 
-  if (hasGst) {
+  if (hasGst && apiEnabled) {
     if (!gstNumber.trim()) errs.gstNumber = "GST Number is required.";
     if (!address.trim()) errs.address = "Address is required.";
   } else {
@@ -71,7 +72,7 @@ export function validateForm(
     const fe: Record<number, FirmErrors> = {};
     relatedFirms.forEach((firm, i) => {
       const r: FirmErrors = {};
-      if (firm.hasGst) {
+      if (firm.hasGst && apiEnabled) {
         if (!firm.gstNumber?.trim()) r.gstNumber = "GST Number is required.";
       } else {
         if (!firm.name?.trim()) r.name = "Firm name is required.";
