@@ -1,11 +1,19 @@
 // File: frontend/types/distributor.ts
 import type { Timestamp } from "firebase/firestore";
 
-import { USER_STATUS } from "@/lib/constants";
+import { DISTRIBUTOR_TYPES, USER_STATUS } from "@/lib/constants";
 
 export type DistributorStatus = (typeof USER_STATUS)[keyof typeof USER_STATUS];
+export type DistributorType = (typeof DISTRIBUTOR_TYPES)[keyof typeof DISTRIBUTOR_TYPES];
 
 export type FirestoreDateValue = Timestamp | Date | string | null;
+
+/** Structured geographic distribution area */
+export type Territory = {
+  states: string[];
+  districts: string[];
+  cities: string[];
+};
 
 export type Distributor = {
   uid: string;
@@ -16,6 +24,12 @@ export type Distributor = {
   gstNumber?: string;
   serviceArea?: string;
   productCategories?: string[];
+  /** Structured geographic territory (replaces/augments serviceArea) */
+  territory?: Territory;
+  /** Automotive | Industrial | Combined */
+  distributorType?: DistributorType;
+  /** GSTIN of the linked firm in the firms collection */
+  linkedFirmId?: string;
   status: DistributorStatus;
   isActive: boolean;
   createdBy: string;
@@ -38,4 +52,7 @@ export type CreateDistributorInput = {
   address?: string;
   serviceArea?: string;
   productCategories?: string[];
+  distributorType?: DistributorType;
+  territory?: Territory;
+  linkedFirmId?: string;
 };

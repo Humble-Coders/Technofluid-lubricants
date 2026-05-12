@@ -22,6 +22,12 @@ export const COLLECTIONS = {
   RATE_LISTS: "rate_lists",
 } as const;
 
+export const DISTRIBUTOR_TYPES = {
+  AUTOMOTIVE: "Automotive",
+  INDUSTRIAL: "Industrial",
+  COMBINED: "Combined",
+} as const;
+
 export const ROLE_ROUTES: Record<string, string> = {
   [USER_ROLES.ADMIN]: "/dashboard",
   [USER_ROLES.SALESPERSON]: "/dashboard",

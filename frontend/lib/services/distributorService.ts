@@ -17,7 +17,7 @@ import {
 
 import { COLLECTIONS, USER_STATUS } from "@/lib/constants";
 import { db } from "@/lib/firebase";
-import type { CreateDistributorInput, Distributor } from "@/types/distributor";
+import type { CreateDistributorInput, Distributor, Territory, DistributorType } from "@/types/distributor";
 
 function mapDistributor(docSnap: QueryDocumentSnapshot): Distributor {
   const data = docSnap.data();
@@ -42,6 +42,9 @@ function mapDistributor(docSnap: QueryDocumentSnapshot): Distributor {
     updatedAt: data.updatedAt ?? null,
     // absent on admin-created docs (cloud fn doesn't write it) → treat as true
     authCreated: data.authCreated !== false,
+    distributorType: data.distributorType ?? undefined,
+    territory: data.territory ?? undefined,
+    linkedFirmId: data.linkedFirmId ? String(data.linkedFirmId) : undefined,
   };
 }
 
@@ -74,6 +77,9 @@ export async function updateDistributor(
     address?: string;
     serviceArea?: string;
     productCategories?: string[];
+    distributorType?: DistributorType;
+    territory?: Territory;
+    linkedFirmId?: string;
   },
 ) {
   const distributorRef = doc(db, COLLECTIONS.DISTRIBUTORS, uid);
@@ -87,6 +93,9 @@ export async function updateDistributor(
   if (fields.address !== undefined) payload.address = fields.address;
   if (fields.serviceArea !== undefined) payload.serviceArea = fields.serviceArea;
   if (fields.productCategories !== undefined) payload.productCategories = fields.productCategories;
+  if (fields.distributorType !== undefined) payload.distributorType = fields.distributorType;
+  if (fields.territory !== undefined) payload.territory = fields.territory;
+  if (fields.linkedFirmId !== undefined) payload.linkedFirmId = fields.linkedFirmId;
   await setDoc(distributorRef, payload, { merge: true });
 }
 
@@ -127,6 +136,9 @@ export async function createDistributorInFirestore(
     ...(input.address ? { address: input.address } : {}),
     ...(input.serviceArea ? { serviceArea: input.serviceArea } : {}),
     ...(input.productCategories?.length ? { productCategories: input.productCategories } : {}),
+    ...(input.distributorType ? { distributorType: input.distributorType } : {}),
+    ...(input.territory?.states.length ? { territory: input.territory } : {}),
+    ...(input.linkedFirmId ? { linkedFirmId: input.linkedFirmId } : {}),
     status: USER_STATUS.PENDING,
     isActive: true,
     createdBy: input.createdBy,

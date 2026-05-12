@@ -7,32 +7,50 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useProducts";
 import { createDistributor } from "@/lib/actions/createDistributor";
+import type { DistributorType, Territory } from "@/types/distributor";
 import { DistributorIdentitySection } from "./_components/DistributorIdentitySection";
 import { DistributorContactSection } from "./_components/DistributorContactSection";
+import { DistributorTypeSection } from "./_components/DistributorTypeSection";
 import { DistributorCoverageSection } from "./_components/DistributorCoverageSection";
+import { DistributorTerritorySection } from "./_components/DistributorTerritorySection";
 
 type FormErrors = {
   firmName?: string;
   phone?: string;
   email?: string;
+  distributorType?: string;
   serviceArea?: string;
   productCategories?: string;
 };
+
+const EMPTY_TERRITORY: Territory = { states: [], districts: [], cities: [] };
 
 export default function CreateDistributorPage() {
   const router = useRouter();
   const { products } = useProducts();
 
+  // Identity
   const [gstNumber, setGstNumber] = useState("");
   const [firmName, setFirmName] = useState("");
   const [address, setAddress] = useState("");
+  const [linkedFirmId, setLinkedFirmId] = useState<string | null>(null);
+
+  // Account
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+
+  // Type
+  const [distributorType, setDistributorType] = useState<DistributorType | "">("");
+
+  // Coverage
   const [serviceArea, setServiceArea] = useState("");
   const [productCategories, setProductCategories] = useState<string[]>([]);
+  const [hasConflict, setHasConflict] = useState(false);
+
+  // Territory
+  const [territory, setTerritory] = useState<Territory>(EMPTY_TERRITORY);
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [hasConflict, setHasConflict] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -63,6 +81,10 @@ export default function CreateDistributorPage() {
       next.email = "Enter a valid email address.";
     }
 
+    if (!distributorType) {
+      next.distributorType = "Select a distributor type.";
+    }
+
     if (!serviceArea.trim()) next.serviceArea = "Service area is required.";
 
     if (productCategories.length === 0) {
@@ -89,11 +111,17 @@ export default function CreateDistributorPage() {
         address: address.trim() || undefined,
         serviceArea: serviceArea.trim(),
         productCategories,
+        distributorType: distributorType || undefined,
+        territory:
+          territory.states.length > 0 ? territory : undefined,
+        linkedFirmId: linkedFirmId ?? undefined,
       });
       router.push("/admin/distributors");
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Failed to create distributor. Please try again.",
+        err instanceof Error
+          ? err.message
+          : "Failed to create distributor. Please try again.",
       );
       setIsSubmitting(false);
     }
@@ -130,6 +158,7 @@ export default function CreateDistributorPage() {
             setErrors((p) => ({ ...p, firmName: undefined }));
           }}
           onAddressChange={setAddress}
+          onLinkedFirmIdChange={setLinkedFirmId}
           errors={{ firmName: errors.firmName }}
           disabled={isSubmitting}
         />
@@ -150,7 +179,20 @@ export default function CreateDistributorPage() {
           disabled={isSubmitting}
         />
 
-        {/* Step 3 — Coverage (full width) */}
+        {/* Step 3 — Distributor Type (full width) */}
+        <div className="xl:col-span-2">
+          <DistributorTypeSection
+            value={distributorType}
+            onChange={(t) => {
+              setDistributorType(t);
+              setErrors((p) => ({ ...p, distributorType: undefined }));
+            }}
+            error={errors.distributorType}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {/* Step 4 — Coverage (full width) */}
         <div className="xl:col-span-2">
           <DistributorCoverageSection
             serviceArea={serviceArea}
@@ -166,6 +208,15 @@ export default function CreateDistributorPage() {
             }}
             onConflictChange={setHasConflict}
             errors={errors}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {/* Step 5 — Territory (full width) */}
+        <div className="xl:col-span-2">
+          <DistributorTerritorySection
+            value={territory}
+            onChange={setTerritory}
             disabled={isSubmitting}
           />
         </div>

@@ -5,6 +5,7 @@ import { auth, db } from "@/lib/firebase";
 import { COLLECTIONS } from "@/lib/constants";
 import { createUserByAdmin } from "@/lib/api/admin";
 import { saveDistributorFirmData } from "@/lib/services/firmService";
+import type { DistributorType, Territory } from "@/types/distributor";
 
 type CreateDistributorInput = {
   name: string;
@@ -14,6 +15,9 @@ type CreateDistributorInput = {
   address?: string;
   serviceArea?: string;
   productCategories?: string[];
+  distributorType?: DistributorType;
+  territory?: Territory;
+  linkedFirmId?: string;
 };
 
 export async function createDistributor(input: CreateDistributorInput) {
@@ -44,6 +48,9 @@ export async function createDistributor(input: CreateDistributorInput) {
         ...(input.productCategories?.length
           ? { productCategories: input.productCategories }
           : {}),
+        ...(input.distributorType ? { distributorType: input.distributorType } : {}),
+        ...(input.territory?.states.length ? { territory: input.territory } : {}),
+        ...(input.linkedFirmId ? { linkedFirmId: input.linkedFirmId } : {}),
         updatedAt: serverTimestamp(),
       },
       { merge: true },

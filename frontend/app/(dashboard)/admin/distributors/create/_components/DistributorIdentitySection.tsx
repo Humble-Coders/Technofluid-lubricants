@@ -10,6 +10,7 @@ type DistributorIdentitySectionProps = {
   onGstChange: (v: string) => void;
   onNameChange: (v: string) => void;
   onAddressChange: (v: string) => void;
+  onLinkedFirmIdChange: (id: string | null) => void;
   errors: { gstNumber?: string; firmName?: string; address?: string };
   disabled?: boolean;
 };
@@ -21,6 +22,7 @@ export function DistributorIdentitySection({
   onGstChange,
   onNameChange,
   onAddressChange,
+  onLinkedFirmIdChange,
   errors,
   disabled,
 }: DistributorIdentitySectionProps) {
@@ -33,6 +35,7 @@ export function DistributorIdentitySection({
         onGstChange={onGstChange}
         onNameChange={onNameChange}
         onAddressChange={onAddressChange}
+        onLinkedFirmIdChange={onLinkedFirmIdChange}
         gstError={errors.gstNumber}
         nameError={errors.firmName}
         addressError={errors.address}
