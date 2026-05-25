@@ -33,8 +33,9 @@ export type DistributorRow = {
   email?: string;
   address?: string;
   gstNumber?: string;
-  serviceArea?: string;
-  productCategories?: string[];
+  distributorType?: string;
+  territory?: { states: string[]; districts: string[]; cities: string[] };
+  assignedProducts?: { productId: string; productName: string; category: string }[];
   createdBy: string;
   status: ApprovalStatus;
   contactInfo: string;
@@ -56,7 +57,7 @@ export type CouponRow = {
   code: string;
   type: CouponType;
   targetRole?: CouponTargetRole;
-  targetNames?: string[];
+  targetIds?: string[];
   discountType: "percentage" | "flat";
   discountValue: number;
   usageLimit: number; // 0 = unlimited
@@ -191,7 +192,7 @@ export const couponsSeed: CouponRow[] = [
     code: "DISTRO25",
     type: "targeted",
     targetRole: "distributor",
-    targetNames: ["Metro Oils Supply", "Prime Lubes Co."],
+    targetIds: [],
     discountType: "flat",
     discountValue: 25,
     usageLimit: 50,

@@ -1,28 +1,32 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { checkAreaCategoryConflict } from "@/lib/services/distributorService";
-import { useServiceAreas } from "@/lib/useServiceAreas";
+import { checkTerritoryProductConflict } from "@/lib/services/distributorService";
+import { DISTRIBUTOR_TYPE_CATEGORIES } from "@/lib/constants";
+import { ALL_STATES, getCitiesForStates } from "@/lib/data/territories";
+import type { AssignedProduct, DistributorType, Territory } from "@/types/distributor";
+import type { Product } from "@/types/product";
 import { CreateFormSection } from "./CreateFormSection";
-import { ServiceAreaCombobox } from "../../_components/ServiceAreaCombobox";
 
 type DistributorCoverageSectionProps = {
-  serviceArea: string;
-  productCategories: string[];
-  availableCategories: string[];
-  onServiceAreaChange: (v: string) => void;
-  onCategoriesChange: (categories: string[]) => void;
+  distributorType: DistributorType | "";
+  territory: Territory;
+  onTerritoryChange: (t: Territory) => void;
+  assignedProducts: AssignedProduct[];
+  availableProducts: Product[];
+  onProductsChange: (products: AssignedProduct[]) => void;
   onConflictChange: (conflicting: boolean) => void;
-  errors: { serviceArea?: string; productCategories?: string };
+  errors: { territory?: string; assignedProducts?: string };
   disabled?: boolean;
 };
 
 export function DistributorCoverageSection({
-  serviceArea,
-  productCategories,
-  availableCategories,
-  onServiceAreaChange,
-  onCategoriesChange,
+  distributorType,
+  territory,
+  onTerritoryChange,
+  assignedProducts,
+  availableProducts,
+  onProductsChange,
   onConflictChange,
   errors,
   disabled,
@@ -30,13 +34,69 @@ export function DistributorCoverageSection({
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const existingServiceAreas = useServiceAreas();
+  const [stateSearch, setStateSearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+
+  const allowedCategories = distributorType
+    ? DISTRIBUTOR_TYPE_CATEGORIES[distributorType] ?? null
+    : null;
+
+  const filteredProducts = distributorType
+    ? allowedCategories === null
+      ? availableProducts
+      : availableProducts.filter((p) => p.category && allowedCategories.includes(p.category))
+    : [];
+
+  const availableCities = getCitiesForStates(territory.states);
+
+  const filteredStates = stateSearch.trim()
+    ? ALL_STATES.filter((s) => s.toLowerCase().includes(stateSearch.trim().toLowerCase()))
+    : ALL_STATES;
+
+  const filteredCities = citySearch.trim()
+    ? availableCities.filter((c) => c.toLowerCase().includes(citySearch.trim().toLowerCase()))
+    : availableCities;
+
+  const toggleState = (state: string) => {
+    const newStates = territory.states.includes(state)
+      ? territory.states.filter((s) => s !== state)
+      : [...territory.states, state];
+    const citiesForNewStates = getCitiesForStates(newStates);
+    const newCities = territory.cities.filter((c) => citiesForNewStates.includes(c));
+    onTerritoryChange({ ...territory, states: newStates, cities: newCities });
+    setStateSearch("");
+  };
+
+  const toggleCity = (city: string) => {
+    const newCities = territory.cities.includes(city)
+      ? territory.cities.filter((c) => c !== city)
+      : [...territory.cities, city];
+    onTerritoryChange({ ...territory, cities: newCities });
+    setCitySearch("");
+  };
+
+  const clearTerritory = () => {
+    onTerritoryChange({ states: [], districts: [], cities: [] });
+    setStateSearch("");
+    setCitySearch("");
+  };
+
+  const toggleProduct = (product: Product) => {
+    const exists = assignedProducts.some((p) => p.productId === product.id);
+    if (exists) {
+      onProductsChange(assignedProducts.filter((p) => p.productId !== product.id));
+    } else {
+      onProductsChange([
+        ...assignedProducts,
+        { productId: product.id, productName: product.name, category: product.category ?? "" },
+      ]);
+    }
+  };
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    const trimmedArea = serviceArea.trim();
-    if (!trimmedArea || productCategories.length === 0) {
+    if (!territory.states.length || !assignedProducts.length) {
       setConflictWarning(null);
       onConflictChange(false);
       return;
@@ -45,11 +105,12 @@ export function DistributorCoverageSection({
     setIsChecking(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const result = await checkAreaCategoryConflict(trimmedArea, productCategories);
+        const productIds = assignedProducts.map((p) => p.productId);
+        const result = await checkTerritoryProductConflict(territory, productIds);
         if (result.conflicting) {
           const msg = result.distributorName
-            ? `"${result.distributorName}" already covers these categories in this area.`
-            : "Another distributor already covers these categories in this area.";
+            ? `"${result.distributorName}" already covers this territory for one or more of these products.`
+            : "Another distributor already covers this territory for one or more of these products.";
           setConflictWarning(msg);
           onConflictChange(true);
         } else {
@@ -68,67 +129,234 @@ export function DistributorCoverageSection({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serviceArea, productCategories]);
+  }, [territory.states, assignedProducts]);
 
-  const toggleCategory = (cat: string) => {
-    const updated = productCategories.includes(cat)
-      ? productCategories.filter((c) => c !== cat)
-      : [...productCategories, cat];
-    onCategoriesChange(updated);
-  };
+  const hasTerritory = territory.states.length > 0 || territory.cities.length > 0;
+  const showConflictSuccess =
+    !conflictWarning && !isChecking && territory.states.length > 0 && assignedProducts.length > 0;
 
   return (
-    <CreateFormSection step={3} title="Service Coverage">
-      <div className="space-y-5">
-        <ServiceAreaCombobox
-          value={serviceArea}
-          options={existingServiceAreas}
-          onChange={onServiceAreaChange}
-          error={errors.serviceArea}
-          disabled={disabled}
-        />
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-textPrimary">
-            Product Categories{" "}
-            <span className="text-danger">*</span>
-          </label>
-          {availableCategories.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {availableCategories.map((cat) => (
-                <label
-                  key={cat}
-                  className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 transition-colors ${
-                    productCategories.includes(cat)
-                      ? "border-accent bg-accent/10"
-                      : "border-border bg-page hover:border-accent/50"
-                  } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={productCategories.includes(cat)}
-                    onChange={() => !disabled && toggleCategory(cat)}
-                    disabled={disabled}
-                    className="h-4 w-4 shrink-0 rounded border-border accent-[color:var(--color-accent)]"
-                  />
-                  <span className="text-sm text-textPrimary">{cat}</span>
-                </label>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-textSecondary">
-              No product categories found. Add products first.
+    <CreateFormSection step={4} title="Distribution Coverage">
+      <div className="space-y-6">
+        {/* ── Geographic Territory ── */}
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-textPrimary">
+              Geographic Territory <span className="text-danger">*</span>
             </p>
+            <p className="mt-0.5 text-xs text-textSecondary">
+              Select the states this distributor will serve. Optionally narrow down to specific cities.
+            </p>
+          </div>
+
+          {hasTerritory && (
+            <div className="flex flex-wrap items-center gap-2">
+              {territory.states.map((s) => (
+                <span
+                  key={s}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
+                >
+                  {s}
+                  {!disabled && (
+                    <button
+                      type="button"
+                      onClick={() => toggleState(s)}
+                      className="text-accent/70 hover:text-accent"
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))}
+              {territory.cities.map((c) => (
+                <span
+                  key={c}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-xs text-textSecondary"
+                >
+                  {c}
+                  {!disabled && (
+                    <button
+                      type="button"
+                      onClick={() => toggleCity(c)}
+                      className="hover:text-textPrimary"
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))}
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={clearTerritory}
+                  className="text-xs text-danger/70 hover:text-danger"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
           )}
-          {errors.productCategories && (
-            <p className="text-sm text-danger">{errors.productCategories}</p>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-textSecondary">
+              States{territory.states.length > 0 && ` · ${territory.states.length} selected`}
+            </label>
+            <input
+              type="text"
+              placeholder="Search states..."
+              value={stateSearch}
+              onChange={(e) => setStateSearch(e.target.value)}
+              disabled={disabled}
+              className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-textPrimary placeholder:text-textSecondary/70 outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+            {stateSearch.trim() && (
+              <div className="max-h-48 overflow-y-auto rounded-xl border border-border bg-page p-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {filteredStates.map((state) => {
+                    const selected = territory.states.includes(state);
+                    return (
+                      <button
+                        key={state}
+                        type="button"
+                        onClick={() => !disabled && toggleState(state)}
+                        disabled={disabled}
+                        className={`rounded-lg px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed ${
+                          selected
+                            ? "bg-accent text-accentContrast font-medium"
+                            : "bg-surface border border-border text-textSecondary hover:border-accent/50 hover:text-textPrimary"
+                        }`}
+                      >
+                        {state}
+                      </button>
+                    );
+                  })}
+                  {filteredStates.length === 0 && (
+                    <p className="px-2 py-1 text-xs text-textSecondary">No states match your search.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {territory.states.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-textSecondary">
+                Cities{" "}
+                <span className="font-normal">(optional — defaults to entire state)</span>
+                {territory.cities.length > 0 && ` · ${territory.cities.length} selected`}
+              </label>
+              <input
+                type="text"
+                placeholder="Search cities..."
+                value={citySearch}
+                onChange={(e) => setCitySearch(e.target.value)}
+                disabled={disabled}
+                className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-textPrimary placeholder:text-textSecondary/70 outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+              {citySearch.trim() && (
+                <div className="max-h-40 overflow-y-auto rounded-xl border border-border bg-page p-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {filteredCities.map((city) => {
+                      const selected = territory.cities.includes(city);
+                      return (
+                        <button
+                          key={city}
+                          type="button"
+                          onClick={() => !disabled && toggleCity(city)}
+                          disabled={disabled}
+                          className={`rounded-lg px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed ${
+                            selected
+                              ? "bg-accent text-accentContrast font-medium"
+                              : "bg-surface border border-border text-textSecondary hover:border-accent/50 hover:text-textPrimary"
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      );
+                    })}
+                    {filteredCities.length === 0 && (
+                      <p className="px-2 py-1 text-xs text-textSecondary">No cities match your search.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {errors.territory && (
+            <p className="text-sm text-danger">{errors.territory}</p>
           )}
         </div>
 
+        <div className="border-t border-border" />
+
+        {/* ── Assigned Products ── */}
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-medium text-textPrimary">
+              Assigned Products <span className="text-danger">*</span>
+            </p>
+            <p className="mt-0.5 text-xs text-textSecondary">
+              {distributorType
+                ? "Select the products this distributor is authorized to sell."
+                : "Select a distributor type first to see available products."}
+            </p>
+          </div>
+
+          {!distributorType && (
+            <div className="rounded-xl border border-border bg-page px-4 py-6 text-center">
+              <p className="text-sm text-textSecondary">
+                Select a distributor type in Step 3 to see available products.
+              </p>
+            </div>
+          )}
+
+          {distributorType && filteredProducts.length === 0 && (
+            <p className="text-sm text-textSecondary">
+              No products found for this distributor type. Add products first.
+            </p>
+          )}
+
+          {distributorType && filteredProducts.length > 0 && (
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product) => {
+                const isSelected = assignedProducts.some((p) => p.productId === product.id);
+                return (
+                  <label
+                    key={product.id}
+                    className={`flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 transition-colors ${
+                      isSelected
+                        ? "border-accent bg-accent/10"
+                        : "border-border bg-page hover:border-accent/50"
+                    } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => !disabled && toggleProduct(product)}
+                      disabled={disabled}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-[color:var(--color-accent)]"
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-textPrimary">{product.name}</p>
+                      {product.category && (
+                        <p className="text-xs text-textSecondary">{product.category}</p>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+
+          {errors.assignedProducts && (
+            <p className="text-sm text-danger">{errors.assignedProducts}</p>
+          )}
+        </div>
+
+        {/* ── Conflict feedback ── */}
         {isChecking && (
-          <p className="text-xs text-textSecondary animate-pulse">
-            Checking for conflicts...
-          </p>
+          <p className="text-xs text-textSecondary animate-pulse">Checking for conflicts...</p>
         )}
 
         {conflictWarning && !isChecking && (
@@ -148,7 +376,7 @@ export function DistributorCoverageSection({
           </div>
         )}
 
-        {!conflictWarning && !isChecking && serviceArea.trim() && productCategories.length > 0 && (
+        {showConflictSuccess && (
           <div className="flex items-center gap-2 rounded-xl border border-success/30 bg-success/5 px-4 py-3">
             <svg
               viewBox="0 0 24 24"

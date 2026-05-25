@@ -46,7 +46,7 @@ const globalCouponSchema = baseCouponSchema.extend({
 const targetedCouponSchema = baseCouponSchema.extend({
   type: z.literal("targeted"),
   targetRole: z.enum(["salesperson", "distributor"]),
-  targetNames: z
+  targetIds: z
     .array(z.string().trim().min(1))
     .min(1, "Select at least one target."),
 });

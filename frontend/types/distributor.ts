@@ -15,6 +15,13 @@ export type Territory = {
   cities: string[];
 };
 
+/** A single product assigned to a distributor */
+export type AssignedProduct = {
+  productId: string;
+  productName: string;
+  category: string;
+};
+
 export type Distributor = {
   uid: string;
   name: string;
@@ -22,10 +29,12 @@ export type Distributor = {
   phone?: string;
   address?: string;
   gstNumber?: string;
+  /** @deprecated Use territory instead */
   serviceArea?: string;
+  /** @deprecated Use assignedProducts instead */
   productCategories?: string[];
-  /** Structured geographic territory (replaces/augments serviceArea) */
   territory?: Territory;
+  assignedProducts?: AssignedProduct[];
   /** Automotive | Industrial | Combined */
   distributorType?: DistributorType;
   /** GSTIN of the linked firm in the firms collection */
@@ -41,6 +50,7 @@ export type Distributor = {
   updatedAt?: FirestoreDateValue;
   /** false when created by a salesperson (no auth user yet); true/absent for admin-created */
   authCreated?: boolean;
+  deleted?: boolean;
 };
 
 export type CreateDistributorInput = {
@@ -50,8 +60,7 @@ export type CreateDistributorInput = {
   createdBy: string;
   gstNumber?: string;
   address?: string;
-  serviceArea?: string;
-  productCategories?: string[];
+  assignedProducts?: AssignedProduct[];
   distributorType?: DistributorType;
   territory?: Territory;
   linkedFirmId?: string;

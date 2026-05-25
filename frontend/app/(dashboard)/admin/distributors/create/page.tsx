@@ -6,27 +6,33 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useProducts";
+import { useAuth } from "@/lib/useAuth";
 import { createDistributor } from "@/lib/actions/createDistributor";
-import type { DistributorType, Territory } from "@/types/distributor";
+import { ALL_STATES } from "@/lib/data/territories";
+import type { AssignedProduct, DistributorType, Territory } from "@/types/distributor";
 import { DistributorIdentitySection } from "./_components/DistributorIdentitySection";
 import { DistributorContactSection } from "./_components/DistributorContactSection";
 import { DistributorTypeSection } from "./_components/DistributorTypeSection";
 import { DistributorCoverageSection } from "./_components/DistributorCoverageSection";
-import { DistributorTerritorySection } from "./_components/DistributorTerritorySection";
+
+function toTitleCase(str: string): string {
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
 
 type FormErrors = {
   firmName?: string;
   phone?: string;
   email?: string;
   distributorType?: string;
-  serviceArea?: string;
-  productCategories?: string;
+  territory?: string;
+  assignedProducts?: string;
 };
 
 const EMPTY_TERRITORY: Territory = { states: [], districts: [], cities: [] };
 
 export default function CreateDistributorPage() {
   const router = useRouter();
+  const { userData } = useAuth();
   const { products } = useProducts();
 
   // Identity
@@ -43,24 +49,31 @@ export default function CreateDistributorPage() {
   const [distributorType, setDistributorType] = useState<DistributorType | "">("");
 
   // Coverage
-  const [serviceArea, setServiceArea] = useState("");
-  const [productCategories, setProductCategories] = useState<string[]>([]);
-  const [hasConflict, setHasConflict] = useState(false);
-
-  // Territory
   const [territory, setTerritory] = useState<Territory>(EMPTY_TERRITORY);
+  const [assignedProducts, setAssignedProducts] = useState<AssignedProduct[]>([]);
+  const [hasConflict, setHasConflict] = useState(false);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const availableCategories = useMemo(() => {
-    const seen = new Set<string>();
-    products.forEach((p) => {
-      if (p.category) seen.add(p.category);
-    });
-    return Array.from(seen).sort();
-  }, [products]);
+  const availableProducts = useMemo(
+    () => products.filter((p) => p.isActive),
+    [products],
+  );
+
+  const handleAutoFillState = (state: string) => {
+    const normalized = state.trim();
+    const matched = ALL_STATES.find(
+      (s) => s.toLowerCase() === normalized.toLowerCase(),
+    );
+    if (matched) {
+      setTerritory((prev) => ({
+        ...prev,
+        states: prev.states.includes(matched) ? prev.states : [...prev.states, matched],
+      }));
+    }
+  };
 
   const validate = (): boolean => {
     const next: FormErrors = {};
@@ -85,10 +98,12 @@ export default function CreateDistributorPage() {
       next.distributorType = "Select a distributor type.";
     }
 
-    if (!serviceArea.trim()) next.serviceArea = "Service area is required.";
+    if (territory.states.length === 0) {
+      next.territory = "Select at least one state.";
+    }
 
-    if (productCategories.length === 0) {
-      next.productCategories = "Select at least one product category.";
+    if (assignedProducts.length === 0) {
+      next.assignedProducts = "Select at least one product.";
     }
 
     setErrors(next);
@@ -104,16 +119,15 @@ export default function CreateDistributorPage() {
 
     try {
       await createDistributor({
-        name: firmName.trim(),
+        name: toTitleCase(firmName.trim()),
         email: email.trim(),
         phone: phone.trim(),
+        createdBy: userData?.name ?? "",
         gstNumber: gstNumber.trim() || undefined,
         address: address.trim() || undefined,
-        serviceArea: serviceArea.trim(),
-        productCategories,
+        assignedProducts,
         distributorType: distributorType || undefined,
-        territory:
-          territory.states.length > 0 ? territory : undefined,
+        territory,
         linkedFirmId: linkedFirmId ?? undefined,
       });
       router.push("/admin/distributors");
@@ -159,6 +173,7 @@ export default function CreateDistributorPage() {
           }}
           onAddressChange={setAddress}
           onLinkedFirmIdChange={setLinkedFirmId}
+          onAutoFillState={handleAutoFillState}
           errors={{ firmName: errors.firmName }}
           disabled={isSubmitting}
         />
@@ -185,6 +200,7 @@ export default function CreateDistributorPage() {
             value={distributorType}
             onChange={(t) => {
               setDistributorType(t);
+              setAssignedProducts([]);
               setErrors((p) => ({ ...p, distributorType: undefined }));
             }}
             error={errors.distributorType}
@@ -192,31 +208,23 @@ export default function CreateDistributorPage() {
           />
         </div>
 
-        {/* Step 4 — Coverage (full width) */}
+        {/* Step 4 — Coverage: territory + products (full width) */}
         <div className="xl:col-span-2">
           <DistributorCoverageSection
-            serviceArea={serviceArea}
-            productCategories={productCategories}
-            availableCategories={availableCategories}
-            onServiceAreaChange={(v) => {
-              setServiceArea(v);
-              setErrors((p) => ({ ...p, serviceArea: undefined }));
+            distributorType={distributorType}
+            territory={territory}
+            onTerritoryChange={(t) => {
+              setTerritory(t);
+              setErrors((p) => ({ ...p, territory: undefined }));
             }}
-            onCategoriesChange={(cats) => {
-              setProductCategories(cats);
-              setErrors((p) => ({ ...p, productCategories: undefined }));
+            assignedProducts={assignedProducts}
+            availableProducts={availableProducts}
+            onProductsChange={(prods) => {
+              setAssignedProducts(prods);
+              setErrors((p) => ({ ...p, assignedProducts: undefined }));
             }}
             onConflictChange={setHasConflict}
             errors={errors}
-            disabled={isSubmitting}
-          />
-        </div>
-
-        {/* Step 5 — Territory (full width) */}
-        <div className="xl:col-span-2">
-          <DistributorTerritorySection
-            value={territory}
-            onChange={setTerritory}
             disabled={isSubmitting}
           />
         </div>

@@ -70,14 +70,17 @@ export const approveDistributorCallable = onCall(
     const now = admin.firestore.FieldValue.serverTimestamp();
     const batch = admin.firestore().batch();
 
+    const distName: string = distributorData.name ?? "";
+
     // users/{authUid}
     batch.set(admin.firestore().collection("users").doc(authUid), {
       email: distributorData.email,
-      name: distributorData.name ?? "",
+      name: distName,
       phone: distributorData.phone ?? "",
       role: "distributor",
       status: "approved",
       isActive: true,
+      deleted: false,
       createdBy: distributorData.createdBy ?? null,
       approvedBy: request.auth.uid,
       approvedAt: now,
@@ -88,12 +91,13 @@ export const approveDistributorCallable = onCall(
     // distributors/{authUid}
     batch.set(admin.firestore().collection("distributors").doc(authUid), {
       email: distributorData.email,
-      name: distributorData.name ?? "",
+      name: distName,
+      nameLower: distName.toLowerCase().trim(),
       phone: distributorData.phone ?? "",
-      contactInfo: distributorData.contactInfo ?? distributorData.phone ?? "",
       status: "approved",
       isActive: true,
       authCreated: true,
+      deleted: false,
       createdBy: distributorData.createdBy ?? null,
       approvedBy: request.auth.uid,
       approvedAt: now,

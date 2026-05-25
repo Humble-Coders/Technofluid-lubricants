@@ -16,8 +16,7 @@ export type User = {
   role: UserRole;
   status: UserStatus;
   isActive: boolean;
-  distributorCount?: number;
-  ordersCount?: number;
+  deleted?: boolean;
   createdBy?: string | null;
   supervisorId?: string | null;
   approvedBy?: string | null;

@@ -4,6 +4,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  getCountFromServer,
   onSnapshot,
   query,
   serverTimestamp,
@@ -29,8 +30,6 @@ function mapUser(docSnap: QueryDocumentSnapshot): User {
     role: (data.role as UserRole) ?? USER_ROLES.SALESPERSON,
     status: (data.status as User["status"]) ?? USER_STATUS.PENDING,
     isActive: Boolean(data.isActive ?? false),
-    distributorCount: Number(data.distributorCount ?? 0),
-    ordersCount: Number(data.ordersCount ?? 0),
     createdBy: data.createdBy ? String(data.createdBy) : null,
     approvedBy: data.approvedBy ? String(data.approvedBy) : null,
     approvedAt: data.approvedAt ?? null,
@@ -55,8 +54,6 @@ export async function getUserById(uid: string): Promise<User | null> {
     role: (snap.data().role as UserRole) ?? USER_ROLES.SALESPERSON,
     status: (snap.data().status as User["status"]) ?? USER_STATUS.PENDING,
     isActive: Boolean(snap.data().isActive ?? false),
-    distributorCount: Number(snap.data().distributorCount ?? 0),
-    ordersCount: Number(snap.data().ordersCount ?? 0),
     createdBy: snap.data().createdBy ? String(snap.data().createdBy) : null,
     approvedBy: snap.data().approvedBy ? String(snap.data().approvedBy) : null,
     approvedAt: snap.data().approvedAt ?? null,
@@ -68,7 +65,7 @@ export async function getUserById(uid: string): Promise<User | null> {
 
 export async function getAllUsers(): Promise<User[]> {
   const snap = await getDocs(collection(db, COLLECTIONS.USERS));
-  return snap.docs.map(mapUser);
+  return snap.docs.map(mapUser).filter((u) => !u.deleted);
 }
 
 export function subscribeUsersByRole(
@@ -76,12 +73,11 @@ export function subscribeUsersByRole(
   onChange: (users: User[]) => void,
   onError?: (error: Error) => void,
 ): Unsubscribe {
-  const usersRef = collection(db, COLLECTIONS.USERS);
-  const roleQuery = query(usersRef, where("role", "==", role));
-
+  // Filter `deleted` client-side to avoid requiring a composite Firestore index.
   return onSnapshot(
-    roleQuery,
-    (querySnap) => onChange(querySnap.docs.map(mapUser)),
+    query(collection(db, COLLECTIONS.USERS), where("role", "==", role)),
+    (querySnap) =>
+      onChange(querySnap.docs.map(mapUser).filter((u) => !u.deleted)),
     (error) => {
       if (onError) {
         onError(error);
@@ -123,8 +119,7 @@ export async function createUserInFirestore(
     role: input.role,
     status: USER_STATUS.PENDING,
     isActive: true,
-    distributorCount: 0,
-    ordersCount: 0,
+    deleted: false,
     createdBy: input.createdBy ?? null,
     approvedBy: null,
     approvedAt: null,
@@ -141,8 +136,6 @@ export async function createUserInFirestore(
     role: input.role,
     status: USER_STATUS.PENDING,
     isActive: true,
-    distributorCount: 0,
-    ordersCount: 0,
     createdBy: input.createdBy ?? null,
     approvedBy: null,
     approvedAt: null,
@@ -150,4 +143,18 @@ export async function createUserInFirestore(
     createdAt: null,
     updatedAt: null,
   };
+}
+
+export async function getUserOrdersCount(uid: string): Promise<number> {
+  const snap = await getCountFromServer(
+    query(collection(db, COLLECTIONS.ORDERS), where("salespersonId", "==", uid)),
+  );
+  return snap.data().count;
+}
+
+export async function getUserDistributorsCount(uid: string): Promise<number> {
+  const snap = await getCountFromServer(
+    query(collection(db, COLLECTIONS.DISTRIBUTORS), where("createdBy", "==", uid)),
+  );
+  return snap.data().count;
 }

@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   where,
+  writeBatch,
   Timestamp,
   type QueryDocumentSnapshot,
   type Unsubscribe,
@@ -34,6 +35,8 @@ import type {
   RelatedFirm,
   VisitStatus,
 } from "@/types/visit";
+
+const MEDIA_SUBCOLLECTION = "media";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -160,11 +163,14 @@ function normalizeTimestamp(value: unknown): FirestoreDateValue {
   return null;
 }
 
+// Maps a visit document snapshot — media is always [] here.
+// Call getVisitMedia separately to load media from the subcollection.
 function mapLogVisit(docSnap: QueryDocumentSnapshot): LogVisit {
   const data = docSnap.data();
 
   return {
     id: docSnap.id,
+    visitType: (data.visitType as "legacy" | "field") ?? "field",
     salespersonId: String(data.salespersonId ?? ""),
     salespersonName: String(data.salespersonName ?? ""),
     gstNumber: data.gstNumber ? String(data.gstNumber) : undefined,
@@ -173,7 +179,7 @@ function mapLogVisit(docSnap: QueryDocumentSnapshot): LogVisit {
     hasGst: Boolean(data.hasGst ?? false),
     status: normalizeStatus(data.status),
     location: normalizeLocation(data.location),
-    media: Array.isArray(data.media) ? (data.media as MediaItem[]) : [],
+    media: [], // media lives in visits/{id}/media subcollection
     priorities: normalizePrioritySet(data.priorities),
     relatedFirms: normalizeRelatedFirms(data.relatedFirms),
     createdAt: normalizeTimestamp(data.createdAt),
@@ -181,12 +187,14 @@ function mapLogVisit(docSnap: QueryDocumentSnapshot): LogVisit {
   };
 }
 
+// Builds the main visit document payload — excludes media (stored in subcollection).
 function buildLogVisitData(
   input: LogVisitInput,
   salespersonId: string,
   salespersonName: string,
 ) {
   return {
+    visitType: "field" as const,
     salespersonId,
     salespersonName,
     gstNumber: input.gstNumber,
@@ -195,7 +203,6 @@ function buildLogVisitData(
     hasGst: input.hasGst,
     status: input.status,
     location: input.location,
-    media: input.media,
     priorities: input.priorities,
     relatedFirms: input.relatedFirms,
   };
@@ -203,7 +210,7 @@ function buildLogVisitData(
 
 /**
  * Uploads a single file to Firebase Storage under visits/{uploaderId}/media/.
- * Returns a complete MediaItem ready to persist in Firestore.
+ * Returns a complete MediaItem ready to be written to the media subcollection.
  */
 export async function uploadVisitMedia(
   file: File,
@@ -234,6 +241,27 @@ export async function deleteVisitMedia(storagePath: string): Promise<void> {
   await deleteObject(storageRef);
 }
 
+/**
+ * Reads all media items from the visits/{visitId}/media subcollection.
+ */
+export async function getVisitMedia(visitId: string): Promise<MediaItem[]> {
+  const snap = await getDocs(
+    collection(db, COLLECTIONS.VISITS, visitId, MEDIA_SUBCOLLECTION),
+  );
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      url: String(data.url ?? ""),
+      storagePath: String(data.storagePath ?? ""),
+      type: (data.type === "video" ? "video" : "image") as "image" | "video",
+      createdAt:
+        typeof data.createdAt === "string"
+          ? data.createdAt
+          : new Date().toISOString(),
+    };
+  });
+}
+
 export async function getLogVisitById(
   visitId: string,
 ): Promise<LogVisit | null> {
@@ -244,7 +272,9 @@ export async function getLogVisitById(
     return null;
   }
 
-  return mapLogVisit(snap);
+  const visit = mapLogVisit(snap);
+  visit.media = await getVisitMedia(visitId);
+  return visit;
 }
 
 export async function getLogVisitsBySalesperson(
@@ -257,7 +287,7 @@ export async function getLogVisitsBySalesperson(
     ),
   );
 
-  return snap.docs.map(mapLogVisit);
+  return snap.docs.map(mapLogVisit).filter((v) => v.visitType !== "legacy");
 }
 
 export function subscribeLogVisitsBySalesperson(
@@ -270,7 +300,8 @@ export function subscribeLogVisitsBySalesperson(
       collection(db, COLLECTIONS.VISITS),
       where("salespersonId", "==", salespersonId),
     ),
-    (querySnap) => onChange(querySnap.docs.map(mapLogVisit)),
+    (querySnap) =>
+      onChange(querySnap.docs.map(mapLogVisit).filter((v) => v.visitType !== "legacy")),
     (error) => {
       if (onError) {
         onError(error);
@@ -285,7 +316,8 @@ export function subscribeAllLogVisits(
 ): Unsubscribe {
   return onSnapshot(
     collection(db, COLLECTIONS.VISITS),
-    (querySnap) => onChange(querySnap.docs.map(mapLogVisit)),
+    (querySnap) =>
+      onChange(querySnap.docs.map(mapLogVisit).filter((v) => v.visitType !== "legacy")),
     (error) => {
       if (onError) {
         onError(error);
@@ -295,8 +327,8 @@ export function subscribeAllLogVisits(
 }
 
 /**
- * Persists a new log visit document to the visits Firestore collection.
- * Returns the generated document ID.
+ * Persists a new log visit document and writes each media item to the
+ * visits/{visitId}/media subcollection in a single batch.
  */
 export async function createLogVisit(
   input: LogVisitInput,
@@ -304,18 +336,40 @@ export async function createLogVisit(
   salespersonName: string,
 ): Promise<string> {
   const visitRef = doc(collection(db, COLLECTIONS.VISITS));
+  const mediaCollRef = collection(
+    db,
+    COLLECTIONS.VISITS,
+    visitRef.id,
+    MEDIA_SUBCOLLECTION,
+  );
 
-  const data = removeUndefined({
+  const mainData = removeUndefined({
     ...buildLogVisitData(input, salespersonId, salespersonName),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
 
-  await setDoc(visitRef, data);
+  const batch = writeBatch(db);
+  batch.set(visitRef, mainData);
 
+  input.media.forEach((item) => {
+    const mediaRef = doc(mediaCollRef);
+    batch.set(mediaRef, {
+      url: item.url,
+      storagePath: item.storagePath,
+      type: item.type,
+      createdAt: item.createdAt,
+    });
+  });
+
+  await batch.commit();
   return visitRef.id;
 }
 
+/**
+ * Updates the main visit document and fully syncs the media subcollection:
+ * existing media docs are deleted and replaced with the current input.media list.
+ */
 export async function updateLogVisit(
   visitId: string,
   input: LogVisitInput,
@@ -323,13 +377,38 @@ export async function updateLogVisit(
   salespersonName: string,
 ): Promise<void> {
   const visitRef = doc(db, COLLECTIONS.VISITS, visitId);
+  const mediaCollRef = collection(
+    db,
+    COLLECTIONS.VISITS,
+    visitId,
+    MEDIA_SUBCOLLECTION,
+  );
 
-  const data = removeUndefined({
+  const existingMediaSnap = await getDocs(mediaCollRef);
+
+  const mainData = removeUndefined({
     ...buildLogVisitData(input, salespersonId, salespersonName),
     updatedAt: serverTimestamp(),
   });
 
-  await updateDoc(visitRef, data);
+  const batch = writeBatch(db);
+  batch.update(visitRef, mainData);
+
+  // Delete stale media docs.
+  existingMediaSnap.docs.forEach((d) => batch.delete(d.ref));
+
+  // Write current media set.
+  input.media.forEach((item) => {
+    const mediaRef = doc(mediaCollRef);
+    batch.set(mediaRef, {
+      url: item.url,
+      storagePath: item.storagePath,
+      type: item.type,
+      createdAt: item.createdAt,
+    });
+  });
+
+  await batch.commit();
 }
 
 export async function deleteVisitInFirestore(visitId: string): Promise<void> {

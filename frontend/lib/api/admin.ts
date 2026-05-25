@@ -129,6 +129,32 @@ type ApproveDistributorResponse = {
   email: string;
 };
 
+type TerritoryConflictRequest = {
+  distributorId?: string;
+  states: string[];
+  assignedProductIds: string[];
+};
+
+type TerritoryConflictResponse = {
+  conflict: boolean;
+  conflictingDistributorId?: string;
+};
+
+export async function checkTerritoryConflict(
+  payload: TerritoryConflictRequest,
+): Promise<TerritoryConflictResponse> {
+  try {
+    const callable = httpsCallable<
+      TerritoryConflictRequest,
+      TerritoryConflictResponse
+    >(functions, "checkTerritoryConflict");
+    const result = await callable(payload);
+    return result.data;
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
 export async function approveDistributorByAdmin(
   distributorId: string,
 ): Promise<ApproveDistributorResponse> {

@@ -17,7 +17,9 @@ import {
 
 import { COLLECTIONS, USER_STATUS } from "@/lib/constants";
 import { db } from "@/lib/firebase";
-import type { CreateDistributorInput, Distributor, Territory, DistributorType } from "@/types/distributor";
+import { checkTerritoryConflict } from "@/lib/api/admin";
+import { saveDistributorFirmData, saveDistributorFirmDataNoGst } from "@/lib/services/firmService";
+import type { AssignedProduct, CreateDistributorInput, Distributor, Territory, DistributorType } from "@/types/distributor";
 
 function mapDistributor(docSnap: QueryDocumentSnapshot): Distributor {
   const data = docSnap.data();
@@ -31,25 +33,28 @@ function mapDistributor(docSnap: QueryDocumentSnapshot): Distributor {
     gstNumber: data.gstNumber ? String(data.gstNumber) : undefined,
     serviceArea: data.serviceArea ? String(data.serviceArea) : undefined,
     productCategories: Array.isArray(data.productCategories) ? data.productCategories : [],
+    assignedProducts: Array.isArray(data.assignedProducts) ? data.assignedProducts : [],
     status: (data.status as Distributor["status"]) ?? USER_STATUS.PENDING,
     isActive: Boolean(data.isActive ?? false),
     createdBy: String(data.createdBy ?? ""),
     approvedBy: data.approvedBy ? String(data.approvedBy) : null,
     approvedAt: data.approvedAt ?? null,
     lastLoginAt: data.lastLoginAt ?? null,
-    contactInfo: String(data.contactInfo ?? data.phone ?? ""),
+    contactInfo: String(data.phone ?? data.contactInfo ?? ""),
     createdAt: data.createdAt ?? null,
     updatedAt: data.updatedAt ?? null,
-    // absent on admin-created docs (cloud fn doesn't write it) → treat as true
     authCreated: data.authCreated !== false,
     distributorType: data.distributorType ?? undefined,
     territory: data.territory ?? undefined,
     linkedFirmId: data.linkedFirmId ? String(data.linkedFirmId) : undefined,
+    deleted: data.deleted === true,
   };
 }
 
 export async function getAllDistributors(): Promise<Distributor[]> {
-  const snap = await getDocs(collection(db, COLLECTIONS.DISTRIBUTORS));
+  const snap = await getDocs(
+    query(collection(db, COLLECTIONS.DISTRIBUTORS), where("deleted", "!=", true)),
+  );
   return snap.docs.map(mapDistributor);
 }
 
@@ -58,7 +63,7 @@ export function subscribeDistributors(
   onError?: (error: Error) => void,
 ): Unsubscribe {
   return onSnapshot(
-    collection(db, COLLECTIONS.DISTRIBUTORS),
+    query(collection(db, COLLECTIONS.DISTRIBUTORS), where("deleted", "!=", true)),
     (querySnap) => onChange(querySnap.docs.map(mapDistributor)),
     (error) => {
       if (onError) {
@@ -75,8 +80,7 @@ export async function updateDistributor(
     phone?: string;
     gstNumber?: string;
     address?: string;
-    serviceArea?: string;
-    productCategories?: string[];
+    assignedProducts?: AssignedProduct[];
     distributorType?: DistributorType;
     territory?: Territory;
     linkedFirmId?: string;
@@ -84,15 +88,16 @@ export async function updateDistributor(
 ) {
   const distributorRef = doc(db, COLLECTIONS.DISTRIBUTORS, uid);
   const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
-  if (fields.name !== undefined) payload.name = fields.name;
+  if (fields.name !== undefined) {
+    payload.name = fields.name;
+    payload.nameLower = fields.name.toLowerCase().trim();
+  }
   if (fields.phone !== undefined) {
     payload.phone = fields.phone;
-    payload.contactInfo = fields.phone;
   }
   if (fields.gstNumber !== undefined) payload.gstNumber = fields.gstNumber;
   if (fields.address !== undefined) payload.address = fields.address;
-  if (fields.serviceArea !== undefined) payload.serviceArea = fields.serviceArea;
-  if (fields.productCategories !== undefined) payload.productCategories = fields.productCategories;
+  if (fields.assignedProducts !== undefined) payload.assignedProducts = fields.assignedProducts;
   if (fields.distributorType !== undefined) payload.distributorType = fields.distributorType;
   if (fields.territory !== undefined) payload.territory = fields.territory;
   if (fields.linkedFirmId !== undefined) payload.linkedFirmId = fields.linkedFirmId;
@@ -102,7 +107,6 @@ export async function updateDistributor(
 export async function approveDistributor(uid: string, approvedBy?: string) {
   const batch = writeBatch(db);
 
-  // Update distributors collection
   const distributorRef = doc(db, COLLECTIONS.DISTRIBUTORS, uid);
   batch.update(distributorRef, {
     status: USER_STATUS.APPROVED,
@@ -111,7 +115,6 @@ export async function approveDistributor(uid: string, approvedBy?: string) {
     updatedAt: serverTimestamp(),
   });
 
-  // Also update users collection so the login check passes
   const userRef = doc(db, COLLECTIONS.USERS, uid);
   batch.update(userRef, {
     status: USER_STATUS.APPROVED,
@@ -130,26 +133,32 @@ export async function createDistributorInFirestore(
 
   await setDoc(distributorRef, {
     name: input.name,
+    nameLower: input.name.toLowerCase().trim(),
     phone: input.phone,
     email: input.email,
     ...(input.gstNumber ? { gstNumber: input.gstNumber } : {}),
     ...(input.address ? { address: input.address } : {}),
-    ...(input.serviceArea ? { serviceArea: input.serviceArea } : {}),
-    ...(input.productCategories?.length ? { productCategories: input.productCategories } : {}),
+    ...(input.assignedProducts?.length ? { assignedProducts: input.assignedProducts } : {}),
     ...(input.distributorType ? { distributorType: input.distributorType } : {}),
     ...(input.territory?.states.length ? { territory: input.territory } : {}),
     ...(input.linkedFirmId ? { linkedFirmId: input.linkedFirmId } : {}),
     status: USER_STATUS.PENDING,
     isActive: true,
+    deleted: false,
     createdBy: input.createdBy,
     approvedBy: null,
     approvedAt: null,
     lastLoginAt: null,
-    contactInfo: input.phone,
     authCreated: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+
+  if (input.gstNumber) {
+    saveDistributorFirmData(input.gstNumber, input.name, input.address).catch(() => {});
+  } else {
+    saveDistributorFirmDataNoGst(input.name, input.address).catch(() => {});
+  }
 
   return {
     uid: distributorRef.id,
@@ -158,6 +167,7 @@ export async function createDistributorInFirestore(
     email: input.email,
     status: USER_STATUS.PENDING,
     isActive: true,
+    deleted: false,
     createdBy: input.createdBy,
     approvedBy: null,
     approvedAt: null,
@@ -176,6 +186,7 @@ export async function getDistributorByGst(
     query(
       collection(db, COLLECTIONS.DISTRIBUTORS),
       where("gstNumber", "==", normalized),
+      where("deleted", "!=", true),
     ),
   );
   if (snap.empty) return null;
@@ -192,20 +203,32 @@ export async function getDistributorsBySalesperson(
   const q = query(
     collection(db, COLLECTIONS.DISTRIBUTORS),
     where("createdBy", "==", salespersonId),
+    where("deleted", "!=", true),
   );
 
   const snap = await getDocs(q);
   return snap.docs.map(mapDistributor);
 }
 
-export async function deleteDistributorDoc(uid: string) {
-  await deleteDoc(doc(db, COLLECTIONS.DISTRIBUTORS, uid));
+// Soft-deletes a single distributor document (no Auth user exists for this record).
+export async function deleteDistributorDoc(uid: string, deletedBy?: string) {
+  await updateDoc(doc(db, COLLECTIONS.DISTRIBUTORS, uid), {
+    deleted: true,
+    deletedAt: serverTimestamp(),
+    ...(deletedBy ? { deletedBy } : {}),
+  });
 }
 
-export async function deleteDistributorAllDocs(uid: string) {
+// Soft-deletes both the distributor and user documents in a single batch.
+export async function deleteDistributorAllDocs(uid: string, deletedBy?: string) {
+  const softDelete = {
+    deleted: true,
+    deletedAt: serverTimestamp(),
+    ...(deletedBy ? { deletedBy } : {}),
+  };
   const batch = writeBatch(db);
-  batch.delete(doc(db, COLLECTIONS.DISTRIBUTORS, uid));
-  batch.delete(doc(db, COLLECTIONS.USERS, uid));
+  batch.update(doc(db, COLLECTIONS.DISTRIBUTORS, uid), softDelete);
+  batch.update(doc(db, COLLECTIONS.USERS, uid), softDelete);
   await batch.commit();
 }
 
@@ -218,32 +241,23 @@ export async function approveDistributorRequest(uid: string, approvedBy?: string
   });
 }
 
-export async function checkAreaCategoryConflict(
-  serviceArea: string,
-  productCategories: string[],
+// Delegates conflict checking to the checkTerritoryConflict Cloud Function.
+export async function checkTerritoryProductConflict(
+  territory: Territory,
+  assignedProductIds: string[],
   excludeUid?: string,
 ): Promise<{ conflicting: boolean; distributorName?: string }> {
-  const normalizedArea = serviceArea.trim().toLowerCase();
-  const snap = await getDocs(collection(db, COLLECTIONS.DISTRIBUTORS));
-
-  for (const docSnap of snap.docs) {
-    if (excludeUid && docSnap.id === excludeUid) continue;
-    const data = docSnap.data();
-    const docArea = (data.serviceArea ?? "").trim().toLowerCase();
-    if (!docArea || docArea !== normalizedArea) continue;
-
-    const docCategories: string[] = Array.isArray(data.productCategories)
-      ? data.productCategories
-      : [];
-    const hasOverlap = productCategories.some((cat) =>
-      docCategories.includes(cat),
-    );
-    if (hasOverlap) {
-      return { conflicting: true, distributorName: String(data.name ?? "") };
-    }
+  if (!territory.states.length || !assignedProductIds.length) {
+    return { conflicting: false };
   }
 
-  return { conflicting: false };
+  const result = await checkTerritoryConflict({
+    distributorId: excludeUid,
+    states: territory.states,
+    assignedProductIds,
+  });
+
+  return { conflicting: result.conflict };
 }
 
 export function subscribeDistributorsBySalesperson(
@@ -255,6 +269,7 @@ export function subscribeDistributorsBySalesperson(
     query(
       collection(db, COLLECTIONS.DISTRIBUTORS),
       where("createdBy", "==", salespersonId),
+      where("deleted", "!=", true),
     ),
     (querySnap) => onChange(querySnap.docs.map(mapDistributor)),
     (error) => {

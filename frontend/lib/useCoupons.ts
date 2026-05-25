@@ -18,7 +18,11 @@ function mapCouponDoc(id: string, data: Record<string, unknown>): CouponRow {
     code: String(data.code ?? ""),
     type: (data.type as CouponRow["type"]) ?? "global",
     targetRole: data.targetRole as CouponRow["targetRole"],
-    targetNames: Array.isArray(data.targetNames) ? data.targetNames : [],
+    targetIds: Array.isArray(data.targetIds)
+      ? data.targetIds
+      : Array.isArray(data.targetNames)
+        ? data.targetNames
+        : [],
     discountType: (data.discountType as CouponRow["discountType"]) ?? "percentage",
     discountValue: Number(data.discountValue ?? 0),
     usageLimit: Number(data.usageLimit ?? 0),
@@ -68,7 +72,7 @@ export function useCoupons() {
       code: couponData.code,
       type: couponData.type,
       targetRole: couponData.targetRole ?? null,
-      targetNames: couponData.targetNames ?? [],
+      targetIds: couponData.targetIds ?? [],
       discountType: couponData.discountType,
       discountValue: couponData.discountValue,
       usageLimit: couponData.usageLimit,

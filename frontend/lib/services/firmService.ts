@@ -25,10 +25,15 @@ export type Firm = {
   // ── core ──────────────────────────────────────────────────────────────────
   gstNumber: string;
   currentName: string;
+  currentNameLower: string;
   currentAddress: string;
   currentLocation: { lat: number; lng: number };
   defaultPriorities: PrioritySet;
+  // history is loaded from the subcollection firms/{id}/history.
+  // getAllFirms returns [] here; getFirmByGst loads from subcollection.
   history: FirmHistoryEntry[];
+  // present only on noGST documents; undefined on GST-keyed docs.
+  normalizedName?: string;
   createdAt: any;
   updatedAt: any;
   // ── from AppyFlow GST verification ────────────────────────────────────────
@@ -44,15 +49,33 @@ export type Firm = {
 };
 
 const FIRMS_COLLECTION = "firms";
+const HISTORY_SUBCOLLECTION = "history";
 
+// Generates a URL-safe random string of `len` characters using Web Crypto.
+function nanoId(len = 10): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const bytes = crypto.getRandomValues(new Uint8Array(len));
+  return Array.from(bytes, (b) => chars[b % chars.length]).join("");
+}
+
+// Reads all history entries from the subcollection firms/{firmId}/history.
+export async function getFirmHistory(firmId: string): Promise<FirmHistoryEntry[]> {
+  const snap = await getDocs(
+    collection(db, FIRMS_COLLECTION, firmId, HISTORY_SUBCOLLECTION),
+  );
+  return snap.docs.map((d) => d.data() as FirmHistoryEntry);
+}
+
+// getFirmByGst loads the main firm doc and populates history from the subcollection.
 export async function getFirmByGst(gstNumber: string): Promise<Firm | null> {
   try {
-    if (!gstNumber || !gstNumber.trim()) {
-      return null;
-    }
+    if (!gstNumber || !gstNumber.trim()) return null;
     const docRef = doc(db, FIRMS_COLLECTION, gstNumber.trim());
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? (docSnap.data() as Firm) : null;
+    if (!docSnap.exists()) return null;
+    const history = await getFirmHistory(gstNumber.trim());
+    return { ...(docSnap.data() as Firm), history };
   } catch (error) {
     console.error("Error fetching firm:", error);
     return null;
@@ -64,10 +87,13 @@ export async function getBranchByGstAndAddress(
   address: string,
 ): Promise<boolean> {
   try {
-    const firm = await getFirmByGst(gstNumber);
-    if (!firm) return false;
+    const trimmed = gstNumber.trim();
+    const docRef = doc(db, FIRMS_COLLECTION, trimmed);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return false;
 
-    return firm.history.some(
+    const history = await getFirmHistory(trimmed);
+    return history.some(
       (entry) => entry.address.trim().toLowerCase() === address.trim().toLowerCase(),
     );
   } catch (error) {
@@ -81,14 +107,18 @@ export async function getAutoFillPriorities(
   address: string,
 ): Promise<PrioritySet | null> {
   try {
-    const firm = await getFirmByGst(gstNumber);
-    if (!firm) return null;
+    const trimmed = gstNumber.trim();
+    const docRef = doc(db, FIRMS_COLLECTION, trimmed);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return null;
 
-    const matchingHistory = firm.history.find(
+    const firm = docSnap.data() as Firm;
+    const history = await getFirmHistory(trimmed);
+    const matchingHistory = history.find(
       (entry) => entry.address.trim().toLowerCase() === address.trim().toLowerCase(),
     );
 
-    return matchingHistory?.priorities || firm.defaultPriorities || null;
+    return matchingHistory?.priorities ?? firm.defaultPriorities ?? null;
   } catch (error) {
     console.error("Error getting auto-fill priorities:", error);
     throw error;
@@ -106,46 +136,46 @@ export async function createOrUpdateFirm(
     const docRef = doc(db, FIRMS_COLLECTION, gstNumber);
     const existingFirm = await getDoc(docRef);
 
-    const newHistoryEntry: FirmHistoryEntry = {
-      firmName,
-      address,
-      location,
-      priorities,
-      updatedAt: new Date(),
-    };
+    // Dedup check in subcollection before writing a new history entry.
+    const history = await getFirmHistory(gstNumber);
+    const isDuplicate = history.some(
+      (entry) =>
+        entry.firmName === firmName &&
+        entry.address === address &&
+        Math.abs(entry.location.lat - location.lat) < 0.001 &&
+        Math.abs(entry.location.lng - location.lng) < 0.001,
+    );
+
+    if (!isDuplicate) {
+      const historyRef = doc(
+        collection(db, FIRMS_COLLECTION, gstNumber, HISTORY_SUBCOLLECTION),
+      );
+      await setDoc(historyRef, {
+        firmName,
+        address,
+        location,
+        priorities,
+        updatedAt: serverTimestamp(),
+      });
+    }
 
     if (existingFirm.exists()) {
-      const firm = existingFirm.data() as Firm;
-      const history = firm.history || [];
-
-      const isDuplicate = history.some(
-        (entry) =>
-          entry.firmName === firmName &&
-          entry.address === address &&
-          Math.abs(entry.location.lat - location.lat) < 0.001 &&
-          Math.abs(entry.location.lng - location.lng) < 0.001,
-      );
-
-      if (!isDuplicate) {
-        history.push(newHistoryEntry);
-      }
-
       await updateDoc(docRef, {
         currentName: firmName,
+        currentNameLower: firmName.toLowerCase().trim(),
         currentAddress: address,
         currentLocation: location,
         defaultPriorities: priorities,
-        history,
         updatedAt: serverTimestamp(),
       });
     } else {
       await setDoc(docRef, {
         gstNumber,
         currentName: firmName,
+        currentNameLower: firmName.toLowerCase().trim(),
         currentAddress: address,
         currentLocation: location,
         defaultPriorities: priorities,
-        history: [newHistoryEntry],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -156,8 +186,9 @@ export async function createOrUpdateFirm(
   }
 }
 
-// Creates/updates a firm that has no GST number.
-// Uses a normalised name as the document ID so repeated visits accumulate history.
+// Creates/updates a no-GST firm.
+// Legacy noGST_ name-based IDs may still exist in DB.
+// New docs use noGST_<nanoId(10)> and store normalizedName for querying.
 export async function saveNoGstFirm(
   name: string,
   address: string,
@@ -165,42 +196,32 @@ export async function saveNoGstFirm(
   priorities: PrioritySet,
 ): Promise<void> {
   try {
-    const docId = `noGST_${name.trim().toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+    const normalizedName = name.trim().toUpperCase().replace(/[^A-Z0-9]/g, "_");
+    const docId = `noGST_${nanoId(10)}`;
     const docRef = doc(db, FIRMS_COLLECTION, docId);
-    const existing = await getDoc(docRef);
 
-    const entry: FirmHistoryEntry = {
+    const historyRef = doc(
+      collection(db, FIRMS_COLLECTION, docId, HISTORY_SUBCOLLECTION),
+    );
+    await setDoc(historyRef, {
       firmName: name.trim(),
       address: address.trim(),
       location,
       priorities,
-      updatedAt: new Date(),
-    };
+      updatedAt: serverTimestamp(),
+    });
 
-    if (existing.exists()) {
-      const firm = existing.data() as Firm;
-      const history = firm.history || [];
-      history.push(entry);
-      await updateDoc(docRef, {
-        currentName: name.trim(),
-        currentAddress: address.trim(),
-        currentLocation: location,
-        defaultPriorities: priorities,
-        history,
-        updatedAt: serverTimestamp(),
-      });
-    } else {
-      await setDoc(docRef, {
-        gstNumber: "",
-        currentName: name.trim(),
-        currentAddress: address.trim(),
-        currentLocation: location,
-        defaultPriorities: priorities,
-        history: [entry],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-    }
+    await setDoc(docRef, {
+      gstNumber: "",
+      normalizedName,
+      currentName: name.trim(),
+      currentNameLower: name.trim().toLowerCase(),
+      currentAddress: address.trim(),
+      currentLocation: location,
+      defaultPriorities: priorities,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
   } catch (error) {
     console.error("Error saving no-GST firm:", error);
     throw error;
@@ -214,7 +235,15 @@ export async function getAllFirms(): Promise<Firm[]> {
       orderBy("updatedAt", "desc"),
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ ...d.data(), gstNumber: d.id }) as Firm);
+    return snapshot.docs.map((d) => {
+      const data = d.data();
+      return {
+        ...data,
+        gstNumber: d.id,
+        // history lives in the subcollection; provide legacy array as fallback for old docs.
+        history: Array.isArray(data.history) ? (data.history as FirmHistoryEntry[]) : [],
+      } as Firm;
+    });
   } catch (error) {
     console.error("Error fetching all firms:", error);
     throw error;
@@ -233,7 +262,31 @@ export async function saveDistributorFirmData(
     gstNumber: gstNumber.trim().toUpperCase(),
     updatedAt: serverTimestamp(),
   };
-  if (name.trim()) payload.currentName = name.trim();
+  if (name.trim()) {
+    payload.currentName = name.trim();
+    payload.currentNameLower = name.trim().toLowerCase();
+  }
+  if (address?.trim()) payload.currentAddress = address.trim();
+  await setDoc(docRef, payload, { merge: true });
+}
+
+// Saves a distributor firm without a GST number to the firms collection.
+// Uses a random noGST_<nanoId(10)> document ID and stores normalizedName for querying.
+// Legacy noGST_ name-based IDs may still exist in DB.
+export async function saveDistributorFirmDataNoGst(
+  name: string,
+  address?: string,
+): Promise<void> {
+  const normalizedName = name.trim().toUpperCase().replace(/[^A-Z0-9]/g, "_");
+  const docId = `noGST_${nanoId(10)}`;
+  const docRef = doc(db, FIRMS_COLLECTION, docId);
+  const payload: Record<string, unknown> = {
+    gstNumber: "",
+    normalizedName,
+    currentName: name.trim(),
+    currentNameLower: name.trim().toLowerCase(),
+    updatedAt: serverTimestamp(),
+  };
   if (address?.trim()) payload.currentAddress = address.trim();
   await setDoc(docRef, payload, { merge: true });
 }
@@ -257,6 +310,6 @@ export async function saveFirmGstData(data: GstVerifiedData): Promise<void> {
       gstVerifiedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     },
-    { merge: true }
+    { merge: true },
   );
 }

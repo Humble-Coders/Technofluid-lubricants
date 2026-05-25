@@ -20,7 +20,12 @@ function mapCoupon(id: string, data: Record<string, unknown>): Coupon {
     code: String(data.code ?? ""),
     type: (data.type as Coupon["type"]) ?? "global",
     targetRole: data.targetRole as Coupon["targetRole"],
-    targetNames: Array.isArray(data.targetNames) ? data.targetNames : [],
+    // Read targetIds (new field); fall back to legacy targetNames for old docs.
+    targetIds: Array.isArray(data.targetIds)
+      ? data.targetIds
+      : Array.isArray(data.targetNames)
+        ? data.targetNames
+        : [],
     discountType: (data.discountType as Coupon["discountType"]) ?? "percentage",
     discountValue: Number(data.discountValue ?? 0),
     usageLimit: Number(data.usageLimit ?? 0),
@@ -32,7 +37,7 @@ function mapCoupon(id: string, data: Record<string, unknown>): Coupon {
 
 export async function validateCoupon(
   code: string,
-  userName: string,
+  userId: string,
   userRole: "salesperson" | "distributor",
   orderTotal: number,
 ): Promise<CouponValidationResult> {
@@ -64,7 +69,7 @@ export async function validateCoupon(
     return { valid: false, error: "This coupon has reached its usage limit." };
   }
 
-  // Check targeted eligibility
+  // Check targeted eligibility — match against UIDs stored in targetIds.
   if (coupon.type === "targeted") {
     if (coupon.targetRole !== userRole) {
       return {
@@ -72,9 +77,7 @@ export async function validateCoupon(
         error: `This coupon is only for ${coupon.targetRole}s.`,
       };
     }
-    const isEligible = (coupon.targetNames ?? []).some(
-      (name) => name.toLowerCase() === userName.toLowerCase(),
-    );
+    const isEligible = (coupon.targetIds ?? []).includes(userId);
     if (!isEligible) {
       return {
         valid: false,
@@ -102,4 +105,41 @@ export async function incrementCouponUsage(couponId: string): Promise<void> {
 
 export async function deleteCoupon(couponId: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTIONS.COUPONS, couponId));
+}
+
+/**
+ * Run once manually from admin panel, then delete.
+ * Reads all targeted coupons, looks up users by name, and rewrites targetIds.
+ */
+export async function migrateCouponTargetNamesToIds(): Promise<void> {
+  const [couponsSnap, usersSnap] = await Promise.all([
+    getDocs(
+      query(collection(db, COLLECTIONS.COUPONS), where("type", "==", "targeted")),
+    ),
+    getDocs(collection(db, COLLECTIONS.USERS)),
+  ]);
+
+  // Build a case-insensitive name → uid map from the users collection.
+  const nameToUid: Record<string, string> = {};
+  usersSnap.docs.forEach((d) => {
+    const name = String(d.data().name ?? "").trim().toLowerCase();
+    if (name) nameToUid[name] = d.id;
+  });
+
+  const writes: Promise<void>[] = [];
+  for (const couponDoc of couponsSnap.docs) {
+    const data = couponDoc.data();
+    const names: string[] = Array.isArray(data.targetNames) ? data.targetNames : [];
+    if (names.length === 0) continue;
+
+    const ids = names
+      .map((n) => nameToUid[n.trim().toLowerCase()])
+      .filter((id): id is string => Boolean(id));
+
+    writes.push(
+      updateDoc(doc(db, COLLECTIONS.COUPONS, couponDoc.id), { targetIds: ids }),
+    );
+  }
+
+  await Promise.all(writes);
 }

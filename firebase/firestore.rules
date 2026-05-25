@@ -89,6 +89,16 @@ service cloud.firestore {
                     || (isSalesperson() && resource.data.salespersonId == request.auth.uid);
       allow delete: if isAdmin()
                     || (isSalesperson() && resource.data.salespersonId == request.auth.uid);
+
+      // Media subcollection: visits/{visitId}/media/{mediaId}
+      match /media/{mediaId} {
+        allow read:   if isStaff();
+        allow create: if isSalesperson();
+        allow update: if isAdmin() || isSupervisor()
+                      || (isSalesperson() && get(/databases/$(database)/documents/visits/$(visitId)).data.salespersonId == request.auth.uid);
+        allow delete: if isAdmin()
+                      || (isSalesperson() && get(/databases/$(database)/documents/visits/$(visitId)).data.salespersonId == request.auth.uid);
+      }
     }
 
     // ─── Products ─────────────────────────────────────────────────────────────
@@ -111,11 +121,21 @@ service cloud.firestore {
 
     // ─── Rate Lists ───────────────────────────────────────────────────────────
 
+    // Legacy flat collection — kept for the migrateRateLists() one-time migration.
     match /rate_lists/{entryId} {
-      // Distributor reads only their own rate entries; staff reads all
       allow read: if isStaff()
                   || (isDistributor() && resource.data.distributorId == request.auth.uid);
-      // Only admin manages rate lists
+      allow write: if isAdmin();
+    }
+
+    // New subcollection structure: rate_lists/{distributorId}/products/{productId}
+    match /rate_lists/{distributorId}/products/{productId} {
+      // Any approved signed-in user can read rate entries.
+      // Staff reads all; distributors read the global list and their own.
+      allow read: if isSignedIn() && isApproved()
+                  && (isStaff()
+                      || distributorId == "global"
+                      || distributorId == request.auth.uid);
       allow write: if isAdmin();
     }
 
@@ -144,6 +164,14 @@ service cloud.firestore {
       allow create: if isSalesperson();
       allow update: if isSalesperson();
       allow delete: if isAdmin();
+
+      // History subcollection: firms/{firmId}/history/{historyId}
+      match /history/{historyId} {
+        allow read:   if isStaff();
+        allow create: if isSalesperson();
+        allow update: if isSalesperson();
+        allow delete: if isAdmin();
+      }
     }
   }
 }

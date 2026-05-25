@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { validateCoupon } from "@/lib/services/couponService";
 
 type CouponInputProps = {
-  userName: string;
+  userId: string;
   userRole: "salesperson" | "distributor";
   orderTotal: number;
   onApply: (code: string, couponId: string, discountAmount: number) => void;
@@ -17,7 +17,7 @@ type CouponInputProps = {
 };
 
 export function CouponInput({
-  userName,
+  userId,
   userRole,
   orderTotal,
   onApply,
@@ -41,7 +41,7 @@ export function CouponInput({
     setSuccessMessage(null);
 
     try {
-      const result = await validateCoupon(trimmed, userName, userRole, orderTotal);
+      const result = await validateCoupon(trimmed, userId, userRole, orderTotal);
 
       if (!result.valid) {
         setError(result.error);

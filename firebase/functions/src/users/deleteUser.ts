@@ -27,13 +27,27 @@ export const deleteUser = onCall(
     const targetDoc = await admin.firestore().collection("users").doc(uid).get();
     const targetRole = targetDoc.data()?.role;
 
+    // Auth user is hard-deleted so the email can be reused.
     await admin.auth().deleteUser(uid);
-    await admin.firestore().collection("users").doc(uid).delete();
 
+    // Firestore documents are soft-deleted to preserve audit history.
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const softDelete = {
+      deleted: true,
+      deletedAt: now,
+      deletedBy: request.auth.uid,
+    };
+
+    const batch = admin.firestore().batch();
+    batch.update(admin.firestore().collection("users").doc(uid), softDelete);
     if (targetRole === "distributor") {
-      await admin.firestore().collection("distributors").doc(uid).delete();
+      batch.update(
+        admin.firestore().collection("distributors").doc(uid),
+        softDelete,
+      );
     }
+    await batch.commit();
 
     return { success: true };
-  }
+  },
 );

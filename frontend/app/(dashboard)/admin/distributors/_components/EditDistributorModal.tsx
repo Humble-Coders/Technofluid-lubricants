@@ -6,23 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { useProducts } from "@/lib/useProducts";
-import { useServiceAreas } from "@/lib/useServiceAreas";
+import { DISTRIBUTOR_TYPE_CATEGORIES } from "@/lib/constants";
 import { saveDistributorFirmData } from "@/lib/services/firmService";
 import { GstDistributorLookup } from "./GstDistributorLookup";
-import { ServiceAreaCombobox } from "./ServiceAreaCombobox";
+import type { AssignedProduct, DistributorType } from "@/types/distributor";
 
 export type EditDistributorFields = {
   name: string;
   phone: string;
   gstNumber?: string;
   address?: string;
-  serviceArea?: string;
-  productCategories?: string[];
+  assignedProducts?: AssignedProduct[];
 };
 
 type EditDistributorModalProps = {
   open: boolean;
-  initial: EditDistributorFields & { id: string };
+  initial: EditDistributorFields & {
+    id: string;
+    distributorType?: DistributorType;
+  };
   onClose: () => void;
   onSave: (id: string, fields: EditDistributorFields) => Promise<void>;
 };
@@ -37,23 +39,23 @@ export function EditDistributorModal({
   const [phone, setPhone] = useState(initial.phone);
   const [gstNumber, setGstNumber] = useState(initial.gstNumber ?? "");
   const [address, setAddress] = useState(initial.address ?? "");
-  const [serviceArea, setServiceArea] = useState(initial.serviceArea ?? "");
-  const [productCategories, setProductCategories] = useState<string[]>(
-    initial.productCategories ?? [],
+  const [assignedProducts, setAssignedProducts] = useState<AssignedProduct[]>(
+    initial.assignedProducts ?? [],
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
 
   const { products } = useProducts();
-  const existingServiceAreas = useServiceAreas();
 
-  const availableCategories = useMemo(() => {
-    const seen = new Set<string>();
-    products.forEach((p) => {
-      if (p.category) seen.add(p.category);
-    });
-    return Array.from(seen).sort();
-  }, [products]);
+  const allowedCategories = initial.distributorType
+    ? DISTRIBUTOR_TYPE_CATEGORIES[initial.distributorType] ?? null
+    : null;
+
+  const filteredProducts = useMemo(() => {
+    if (!initial.distributorType) return products.filter((p) => p.isActive);
+    if (allowedCategories === null) return products.filter((p) => p.isActive);
+    return products.filter((p) => p.isActive && p.category && allowedCategories.includes(p.category));
+  }, [products, initial.distributorType, allowedCategories]);
 
   useEffect(() => {
     if (open) {
@@ -61,8 +63,7 @@ export function EditDistributorModal({
       setPhone(initial.phone);
       setGstNumber(initial.gstNumber ?? "");
       setAddress(initial.address ?? "");
-      setServiceArea(initial.serviceArea ?? "");
-      setProductCategories(initial.productCategories ?? []);
+      setAssignedProducts(initial.assignedProducts ?? []);
       setErrors({});
     }
   }, [open, initial]);
@@ -80,10 +81,16 @@ export function EditDistributorModal({
     return Object.keys(next).length === 0;
   };
 
-  const toggleCategory = (cat: string) => {
-    setProductCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
-    );
+  const toggleProduct = (product: { id: string; name: string; category?: string }) => {
+    const exists = assignedProducts.some((p) => p.productId === product.id);
+    if (exists) {
+      setAssignedProducts((prev) => prev.filter((p) => p.productId !== product.id));
+    } else {
+      setAssignedProducts((prev) => [
+        ...prev,
+        { productId: product.id, productName: product.name, category: product.category ?? "" },
+      ]);
+    }
   };
 
   const handleSave = async () => {
@@ -96,8 +103,7 @@ export function EditDistributorModal({
         phone: phone.trim(),
         gstNumber: gstNumber.trim() || undefined,
         address: address.trim() || undefined,
-        serviceArea: serviceArea.trim() || undefined,
-        productCategories: productCategories.length > 0 ? productCategories : undefined,
+        assignedProducts: assignedProducts.length > 0 ? assignedProducts : undefined,
       };
 
       await onSave(initial.id, fields);
@@ -175,40 +181,45 @@ export function EditDistributorModal({
           disabled={isLoading}
         />
 
-        {/* Service area */}
-        <ServiceAreaCombobox
-          value={serviceArea}
-          options={existingServiceAreas}
-          onChange={setServiceArea}
-          disabled={isLoading}
-        />
-
-        {/* Product categories */}
-        {availableCategories.length > 0 && (
+        {/* Assigned products */}
+        {filteredProducts.length > 0 && (
           <div className="space-y-2">
             <label className="block text-sm font-medium text-textPrimary">
-              Product Categories
+              Assigned Products
+              {initial.distributorType && (
+                <span className="ml-1.5 text-xs font-normal text-textSecondary">
+                  ({initial.distributorType})
+                </span>
+              )}
             </label>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {availableCategories.map((cat) => (
-                <label
-                  key={cat}
-                  className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
-                    productCategories.includes(cat)
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-border bg-page text-textPrimary hover:border-accent/50"
-                  } ${isLoading ? "cursor-not-allowed opacity-60" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={productCategories.includes(cat)}
-                    onChange={() => !isLoading && toggleCategory(cat)}
-                    disabled={isLoading}
-                    className="h-4 w-4 shrink-0 rounded border-border accent-[color:var(--color-accent)]"
-                  />
-                  {cat}
-                </label>
-              ))}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {filteredProducts.map((product) => {
+                const isSelected = assignedProducts.some((p) => p.productId === product.id);
+                return (
+                  <label
+                    key={product.id}
+                    className={`flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
+                      isSelected
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-border bg-page text-textPrimary hover:border-accent/50"
+                    } ${isLoading ? "cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => !isLoading && toggleProduct(product)}
+                      disabled={isLoading}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-[color:var(--color-accent)]"
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate">{product.name}</p>
+                      {product.category && (
+                        <p className="text-xs text-textSecondary">{product.category}</p>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </div>
         )}

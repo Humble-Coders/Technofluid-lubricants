@@ -107,8 +107,8 @@ export function CouponsTable({
                       {coupon.targetRole === "salesperson"
                         ? "Salesperson"
                         : "Distributor"}
-                      {coupon.targetNames?.length
-                        ? ` (${coupon.targetNames.length})`
+                      {coupon.targetIds?.length
+                        ? ` (${coupon.targetIds.length})`
                         : ""}
                     </span>
                   ) : (

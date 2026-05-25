@@ -17,7 +17,7 @@ import {
   subscribeDistributors,
   updateDistributor,
 } from "@/lib/services/distributorService";
-import type { CreateDistributorInput } from "@/types/distributor";
+import type { CreateDistributorInput, DistributorType, Territory, AssignedProduct } from "@/types/distributor";
 
 export function useDistributors() {
   const [distributors, setDistributors] = useState<DistributorRow[]>([]);
@@ -35,11 +35,12 @@ export function useDistributors() {
             email: row.email || "",
             address: row.address || "",
             gstNumber: row.gstNumber || "",
-            serviceArea: row.serviceArea,
-            productCategories: row.productCategories,
+            distributorType: row.distributorType,
+            territory: row.territory,
+            assignedProducts: row.assignedProducts,
             createdBy: row.createdBy,
             status: row.status === "approved" ? "approved" : "pending",
-            contactInfo: row.contactInfo || row.phone || "",
+            contactInfo: row.phone || "",
             authCreated: row.authCreated,
           }));
 
@@ -114,8 +115,9 @@ export function useDistributors() {
       phone?: string;
       gstNumber?: string;
       address?: string;
-      serviceArea?: string;
-      productCategories?: string[];
+      assignedProducts?: AssignedProduct[];
+      distributorType?: DistributorType;
+      territory?: Territory;
     },
   ) => {
     try {

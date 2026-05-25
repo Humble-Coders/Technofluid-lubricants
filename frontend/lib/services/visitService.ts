@@ -23,6 +23,7 @@ function mapVisit(docSnap: QueryDocumentSnapshot): Visit {
 
   return {
     id: docSnap.id,
+    visitType: (data.visitType as "legacy" | "field") ?? "legacy",
     salespersonId: String(data.salespersonId ?? ""),
     distributorId: String(data.distributorId ?? ""),
     distributorName: String(data.distributorName ?? ""),
@@ -36,7 +37,7 @@ function mapVisit(docSnap: QueryDocumentSnapshot): Visit {
 
 export async function getAllVisits(): Promise<Visit[]> {
   const snap = await getDocs(collection(db, COLLECTIONS.VISITS));
-  return snap.docs.map(mapVisit);
+  return snap.docs.map(mapVisit).filter((v) => v.visitType !== "field");
 }
 
 export async function getVisitsBySalesperson(
@@ -48,7 +49,7 @@ export async function getVisitsBySalesperson(
   );
 
   const snap = await getDocs(q);
-  return snap.docs.map(mapVisit);
+  return snap.docs.map(mapVisit).filter((v) => v.visitType !== "field");
 }
 
 export function subscribeVisitsBySalesperson(
@@ -61,7 +62,8 @@ export function subscribeVisitsBySalesperson(
       collection(db, COLLECTIONS.VISITS),
       where("salespersonId", "==", salespersonId),
     ),
-    (querySnap) => onChange(querySnap.docs.map(mapVisit)),
+    (querySnap) =>
+      onChange(querySnap.docs.map(mapVisit).filter((v) => v.visitType !== "field")),
     (error) => {
       if (onError) {
         onError(error);
@@ -78,6 +80,7 @@ export async function createVisitInFirestore(
   const visitRef = doc(collection(db, COLLECTIONS.VISITS));
 
   await setDoc(visitRef, {
+    visitType: "legacy",
     salespersonId,
     distributorId: input.distributorId,
     distributorName,
@@ -90,6 +93,7 @@ export async function createVisitInFirestore(
 
   return {
     id: visitRef.id,
+    visitType: "legacy" as const,
     salespersonId,
     distributorId: input.distributorId,
     distributorName,

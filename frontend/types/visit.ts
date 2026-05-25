@@ -7,6 +7,7 @@ export type FirestoreDateValue = Timestamp | Date | string | null;
 
 export type Visit = {
   id: string;
+  visitType: "legacy" | "field";
   salespersonId: string;
   distributorId: string;
   distributorName: string;
@@ -65,6 +66,7 @@ export type VisitStatus = "draft" | "submitted";
 
 export type LogVisit = {
   id: string;
+  visitType: "legacy" | "field";
   salespersonId: string;
   salespersonName: string;
   gstNumber?: string;

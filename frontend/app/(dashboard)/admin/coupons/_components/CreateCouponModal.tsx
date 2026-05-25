@@ -30,7 +30,7 @@ type CouponFormErrors = {
   discountValue?: string;
   usageLimit?: string;
   validTill?: string;
-  targetNames?: string;
+  targetIds?: string;
 };
 
 export function CreateCouponModal({
@@ -44,7 +44,7 @@ export function CreateCouponModal({
   const [code, setCode] = useState("");
   const [type, setType] = useState<CouponType>("global");
   const [targetRole, setTargetRole] = useState<CouponTargetRole>("salesperson");
-  const [targetNames, setTargetNames] = useState<string[]>([]);
+  const [targetIds, setTargetIds] = useState<string[]>([]);
   const [targetSearch, setTargetSearch] = useState("");
   const [discountType, setDiscountType] = useState<"percentage" | "flat">("percentage");
   const [discountValue, setDiscountValue] = useState("");
@@ -70,13 +70,13 @@ export function CreateCouponModal({
     !code.trim() ||
     !discountValue.trim() ||
     !validTill ||
-    (isTargeted && targetNames.length === 0);
+    (isTargeted && targetIds.length === 0);
 
   const reset = () => {
     setCode("");
     setType("global");
     setTargetRole("salesperson");
-    setTargetNames([]);
+    setTargetIds([]);
     setTargetSearch("");
     setDiscountType("percentage");
     setDiscountValue("");
@@ -94,9 +94,9 @@ export function CreateCouponModal({
     setType(nextType);
     if (nextType === "global") {
       setTargetRole("salesperson");
-      setTargetNames([]);
+      setTargetIds([]);
       setTargetSearch("");
-      setErrors((prev) => ({ ...prev, targetNames: undefined }));
+      setErrors((prev) => ({ ...prev, targetIds: undefined }));
     }
   };
 
@@ -104,21 +104,21 @@ export function CreateCouponModal({
     const nextRole = value as CouponTargetRole;
     setTargetRole(nextRole);
     setTargetSearch("");
-    setTargetNames([]);
-    setErrors((prev) => ({ ...prev, targetNames: undefined }));
+    setTargetIds([]);
+    setErrors((prev) => ({ ...prev, targetIds: undefined }));
   };
 
-  const handleTargetToggle = (name: string) => {
-    setErrors((prev) => ({ ...prev, targetNames: undefined }));
-    setTargetNames((prev) =>
-      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name],
+  const handleTargetToggle = (id: string) => {
+    setErrors((prev) => ({ ...prev, targetIds: undefined }));
+    setTargetIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
   const handleSelectVisible = () => {
     if (filteredRoleOptions.length === 0) return;
-    setTargetNames((prev) =>
-      Array.from(new Set([...prev, ...filteredRoleOptions.map((o) => o.name)])),
+    setTargetIds((prev) =>
+      Array.from(new Set([...prev, ...filteredRoleOptions.map((o) => o.id)])),
     );
   };
 
@@ -130,7 +130,7 @@ export function CreateCouponModal({
       discountValue,
       usageLimit,
       validTill,
-      ...(isTargeted ? { targetRole, targetNames } : {}),
+      ...(isTargeted ? { targetRole, targetIds } : {}),
     });
 
     if (!parseResult.success) {
@@ -140,9 +140,9 @@ export function CreateCouponModal({
         discountValue: fieldErrors.discountValue?.[0],
         usageLimit: fieldErrors.usageLimit?.[0],
         validTill: fieldErrors.validTill?.[0],
-        targetNames:
-          "targetNames" in fieldErrors
-            ? fieldErrors.targetNames?.[0]
+        targetIds:
+          "targetIds" in fieldErrors
+            ? fieldErrors.targetIds?.[0]
             : undefined,
       });
       return;
@@ -155,7 +155,7 @@ export function CreateCouponModal({
       code: parsed.code.toUpperCase(),
       type: parsed.type,
       targetRole: parsed.type === "targeted" ? parsed.targetRole : undefined,
-      targetNames: parsed.type === "targeted" ? parsed.targetNames : undefined,
+      targetIds: parsed.type === "targeted" ? parsed.targetIds : undefined,
       discountType: parsed.discountType,
       discountValue: parsed.discountValue,
       usageLimit: parsed.usageLimit,
@@ -305,7 +305,7 @@ export function CreateCouponModal({
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-textSecondary">
-                    {targetNames.length} selected
+                    {targetIds.length} selected
                   </p>
                   <div className="flex gap-2">
                     <button
@@ -317,7 +317,7 @@ export function CreateCouponModal({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setTargetNames([])}
+                      onClick={() => setTargetIds([])}
                       className="text-xs font-semibold text-textSecondary hover:text-textPrimary"
                     >
                       Clear
@@ -338,8 +338,8 @@ export function CreateCouponModal({
                       >
                         <input
                           type="checkbox"
-                          checked={targetNames.includes(option.name)}
-                          onChange={() => handleTargetToggle(option.name)}
+                          checked={targetIds.includes(option.id)}
+                          onChange={() => handleTargetToggle(option.id)}
                           className="h-4 w-4 rounded border-border text-accent focus:ring-accent/30"
                         />
                         <span>{option.name}</span>
@@ -348,22 +348,25 @@ export function CreateCouponModal({
                   )}
                 </div>
 
-                {targetNames.length > 0 ? (
+                {targetIds.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {targetNames.map((name) => (
-                      <span
-                        key={name}
-                        className="rounded-full border border-border bg-page px-3 py-1 text-xs text-textPrimary"
-                      >
-                        {name}
-                      </span>
-                    ))}
+                    {targetIds.map((id) => {
+                      const option = roleOptions.find((o) => o.id === id);
+                      return option ? (
+                        <span
+                          key={id}
+                          className="rounded-full border border-border bg-page px-3 py-1 text-xs text-textPrimary"
+                        >
+                          {option.name}
+                        </span>
+                      ) : null;
+                    })}
                   </div>
                 ) : null}
 
-                {errors.targetNames ? (
+                {errors.targetIds ? (
                   <p className="text-xs font-medium text-danger" role="alert">
-                    {errors.targetNames}
+                    {errors.targetIds}
                   </p>
                 ) : null}
               </div>

@@ -4,17 +4,17 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { COLLECTIONS } from "@/lib/constants";
 import { createUserByAdmin } from "@/lib/api/admin";
-import { saveDistributorFirmData } from "@/lib/services/firmService";
-import type { DistributorType, Territory } from "@/types/distributor";
+import { saveDistributorFirmData, saveDistributorFirmDataNoGst } from "@/lib/services/firmService";
+import type { AssignedProduct, DistributorType, Territory } from "@/types/distributor";
 
 type CreateDistributorInput = {
   name: string;
   email: string;
   phone: string;
+  createdBy?: string;
   gstNumber?: string;
   address?: string;
-  serviceArea?: string;
-  productCategories?: string[];
+  assignedProducts?: AssignedProduct[];
   distributorType?: DistributorType;
   territory?: Territory;
   linkedFirmId?: string;
@@ -39,14 +39,15 @@ export async function createDistributor(input: CreateDistributorInput) {
       distributorRef,
       {
         name: input.name,
+        nameLower: input.name.toLowerCase().trim(),
         email: input.email,
         phone: input.phone,
-        contactInfo: input.phone,
+        deleted: false,
+        createdBy: input.createdBy ?? "",
         ...(input.gstNumber ? { gstNumber: input.gstNumber } : {}),
         ...(input.address ? { address: input.address } : {}),
-        ...(input.serviceArea ? { serviceArea: input.serviceArea } : {}),
-        ...(input.productCategories?.length
-          ? { productCategories: input.productCategories }
+        ...(input.assignedProducts?.length
+          ? { assignedProducts: input.assignedProducts }
           : {}),
         ...(input.distributorType ? { distributorType: input.distributorType } : {}),
         ...(input.territory?.states.length ? { territory: input.territory } : {}),
@@ -59,6 +60,8 @@ export async function createDistributor(input: CreateDistributorInput) {
 
   if (input.gstNumber) {
     saveDistributorFirmData(input.gstNumber, input.name, input.address).catch(() => {});
+  } else {
+    saveDistributorFirmDataNoGst(input.name, input.address).catch(() => {});
   }
 
   return { success: true, uid: data.uid };

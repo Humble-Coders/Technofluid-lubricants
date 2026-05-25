@@ -38,11 +38,16 @@ type GstDistributorLookupProps = {
   onNameChange: (v: string) => void;
   onAddressChange: (v: string) => void;
   onLinkedFirmIdChange?: (id: string | null) => void;
+  onAutoFillState?: (state: string) => void;
   gstError?: string;
   nameError?: string;
   addressError?: string;
   disabled?: boolean;
 };
+
+function toTitleCase(str: string): string {
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
 
 export function GstDistributorLookup({
   gstNumber,
@@ -52,6 +57,7 @@ export function GstDistributorLookup({
   onNameChange,
   onAddressChange,
   onLinkedFirmIdChange,
+  onAutoFillState,
   gstError,
   nameError,
   addressError,
@@ -146,6 +152,8 @@ export function GstDistributorLookup({
         });
         setAddresses(verified.address ? [verified.address] : []);
         setStatus("found-external");
+        // Auto-fill state from external GST data without requiring user action
+        if (verified.state) onAutoFillState?.(verified.state);
       } catch (err) {
         if (reqId !== reqIdRef.current) return;
         const msg =
@@ -169,7 +177,7 @@ export function GstDistributorLookup({
 
   const handleUseFirm = () => {
     if (!matchedFirm) return;
-    onNameChange(matchedFirm.name);
+    onNameChange(toTitleCase(matchedFirm.name));
     if (matchedFirm.address) onAddressChange(matchedFirm.address);
     onLinkedFirmIdChange?.(gstNumber.trim().toUpperCase());
     setFirmLinked(true);

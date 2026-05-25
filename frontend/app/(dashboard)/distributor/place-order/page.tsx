@@ -159,7 +159,7 @@ export default function PlaceOrderPage() {
             Apply Coupon
           </h3>
           <CouponInput
-            userName={userData?.name ?? ""}
+            userId={userData?.uid ?? ""}
             userRole="distributor"
             orderTotal={rawTotal}
             onApply={handleCouponApply}

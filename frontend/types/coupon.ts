@@ -10,7 +10,7 @@ export type Coupon = {
   code: string;
   type: CouponType;
   targetRole?: "salesperson" | "distributor";
-  targetNames?: string[];
+  targetIds?: string[];
   discountType: "percentage" | "flat";
   discountValue: number;
   usageLimit: number; // 0 = unlimited

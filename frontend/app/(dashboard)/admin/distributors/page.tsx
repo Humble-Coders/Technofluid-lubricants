@@ -14,6 +14,7 @@ import { useSalespersons } from "@/lib/useSalespersons";
 import type { DistributorRow } from "../_data/mockData";
 import { DistributorsStats } from "./_components/DistributorsStats";
 import { DistributorsTable } from "./_components/DistributorsTable";
+import type { DistributorType } from "@/types/distributor";
 import { EditDistributorModal, type EditDistributorFields } from "./_components/EditDistributorModal";
 
 export default function DistributorsPage() {
@@ -148,8 +149,8 @@ export default function DistributorsPage() {
             phone: editTarget.phone ?? "",
             gstNumber: editTarget.gstNumber ?? "",
             address: editTarget.address ?? "",
-            serviceArea: editTarget.serviceArea ?? "",
-            productCategories: editTarget.productCategories ?? [],
+            distributorType: editTarget.distributorType as DistributorType | undefined,
+            assignedProducts: editTarget.assignedProducts ?? [],
           }}
           onClose={() => setEditTarget(null)}
           onSave={handleEdit}

@@ -28,6 +28,13 @@ export const DISTRIBUTOR_TYPES = {
   COMBINED: "Combined",
 } as const;
 
+/** Maps each distributor type to the product categories it can carry. null = all categories (Combined). */
+export const DISTRIBUTOR_TYPE_CATEGORIES: Record<string, string[] | null> = {
+  Automotive: ["Automotive"],
+  Industrial: ["Industrial", "Metalworking", "Maintenance"],
+  Combined: null,
+} as const;
+
 export const ROLE_ROUTES: Record<string, string> = {
   [USER_ROLES.ADMIN]: "/dashboard",
   [USER_ROLES.SALESPERSON]: "/dashboard",
