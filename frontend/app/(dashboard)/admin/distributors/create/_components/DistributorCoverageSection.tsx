@@ -1,12 +1,258 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { checkTerritoryProductConflict } from "@/lib/services/distributorService";
 import { DISTRIBUTOR_TYPE_CATEGORIES } from "@/lib/constants";
-import { ALL_STATES, getCitiesForStates } from "@/lib/data/territories";
+import { useIndiaStates } from "@/lib/hooks/useIndiaStates";
 import type { AssignedProduct, DistributorType, Territory } from "@/types/distributor";
 import type { Product } from "@/types/product";
 import { CreateFormSection } from "./CreateFormSection";
+
+type ComboSelectProps = {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  disabled?: boolean;
+};
+
+function ComboSelect({ options, value, onChange, placeholder, disabled }: ComboSelectProps) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedLabel = options.find((o) => o.value === value)?.label ?? "";
+
+  const filtered = useMemo(
+    () =>
+      search.trim()
+        ? options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase()))
+        : options,
+    [options, search],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
+
+  const close = () => {
+    setOpen(false);
+    setSearch("");
+  };
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div
+        className={`flex w-full items-center rounded-xl border bg-surface px-3 py-2.5 text-sm transition-colors ${
+          disabled
+            ? "cursor-not-allowed border-border opacity-60"
+            : "border-border hover:border-accent/50"
+        }`}
+      >
+        <button
+          type="button"
+          className={`flex-1 text-left ${selectedLabel ? "text-textPrimary" : "text-textSecondary/70"}`}
+          onClick={() => { if (!disabled) setOpen((o) => !o); }}
+          disabled={disabled}
+        >
+          {selectedLabel || placeholder}
+        </button>
+        {value && !disabled && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onChange(""); close(); }}
+            className="ml-1.5 text-lg leading-none text-textSecondary/60 hover:text-textPrimary"
+            aria-label="Clear"
+          >
+            ×
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => { if (!disabled) setOpen((o) => !o); }}
+          disabled={disabled}
+          className="ml-1.5 text-textSecondary"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </div>
+
+      {open && !disabled && (
+        <div className="absolute z-20 mt-1 w-full rounded-xl border border-border bg-page shadow-lg">
+          <div className="p-2">
+            <input
+              autoFocus
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-textPrimary placeholder:text-textSecondary/70 outline-none focus:border-accent"
+              onKeyDown={(e) => e.key === "Escape" && close()}
+            />
+          </div>
+          <div className="max-h-52 overflow-y-auto px-2 pb-2">
+            {filtered.length === 0 ? (
+              <p className="px-2 py-2 text-xs text-textSecondary">No results.</p>
+            ) : (
+              filtered.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => { onChange(opt.value); close(); }}
+                  className={`w-full rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors ${
+                    opt.value === value
+                      ? "bg-accent font-medium text-accentContrast"
+                      : "text-textPrimary hover:bg-surface"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+type MultiComboSelectProps = {
+  options: { value: string; label: string }[];
+  values: string[];
+  onChange: (values: string[]) => void;
+  placeholder: string;
+  disabled?: boolean;
+};
+
+function MultiComboSelect({ options, values, onChange, placeholder, disabled }: MultiComboSelectProps) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const filtered = useMemo(
+    () =>
+      search.trim()
+        ? options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase()))
+        : options,
+    [options, search],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
+
+  const toggle = (val: string) => {
+    onChange(values.includes(val) ? values.filter((v) => v !== val) : [...values, val]);
+  };
+
+  const triggerLabel =
+    values.length === 0
+      ? placeholder
+      : `${values.length} ${values.length === 1 ? "city" : "cities"} selected`;
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div
+        className={`flex w-full items-center rounded-xl border bg-surface px-3 py-2.5 text-sm transition-colors ${
+          disabled
+            ? "cursor-not-allowed border-border opacity-60"
+            : "border-border hover:border-accent/50"
+        }`}
+      >
+        <button
+          type="button"
+          className={`flex-1 text-left ${values.length > 0 ? "text-textPrimary" : "text-textSecondary/70"}`}
+          onClick={() => { if (!disabled) setOpen((o) => !o); }}
+          disabled={disabled}
+        >
+          {triggerLabel}
+        </button>
+        {values.length > 0 && !disabled && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onChange([]); }}
+            className="ml-1.5 text-lg leading-none text-textSecondary/60 hover:text-textPrimary"
+            aria-label="Clear all"
+          >
+            ×
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => { if (!disabled) setOpen((o) => !o); }}
+          disabled={disabled}
+          className="ml-1.5 text-textSecondary"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </div>
+
+      {open && !disabled && (
+        <div className="absolute z-20 mt-1 w-full rounded-xl border border-border bg-page shadow-lg">
+          <div className="p-2">
+            <input
+              autoFocus
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search cities..."
+              className="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-textPrimary placeholder:text-textSecondary/70 outline-none focus:border-accent"
+              onKeyDown={(e) => e.key === "Escape" && (setOpen(false), setSearch(""))}
+            />
+          </div>
+          <div className="max-h-52 overflow-y-auto px-2 pb-2">
+            {filtered.length === 0 ? (
+              <p className="px-2 py-2 text-xs text-textSecondary">No results.</p>
+            ) : (
+              filtered.map((opt) => {
+                const selected = values.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => toggle(opt.value)}
+                    className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors ${
+                      selected ? "bg-accent/10 font-medium text-accent" : "text-textPrimary hover:bg-surface"
+                    }`}
+                  >
+                    <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${selected ? "border-accent bg-accent" : "border-border"}`}>
+                      {selected && (
+                        <svg viewBox="0 0 12 12" className="h-3 w-3 text-accentContrast" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="2 6 5 9 10 3" />
+                        </svg>
+                      )}
+                    </span>
+                    {opt.label}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type DistributorCoverageSectionProps = {
   distributorType: DistributorType | "";
@@ -16,7 +262,7 @@ type DistributorCoverageSectionProps = {
   availableProducts: Product[];
   onProductsChange: (products: AssignedProduct[]) => void;
   onConflictChange: (conflicting: boolean) => void;
-  errors: { territory?: string; assignedProducts?: string };
+  errors: { territory?: string; city?: string; assignedProducts?: string };
   disabled?: boolean;
 };
 
@@ -34,8 +280,38 @@ export function DistributorCoverageSection({
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [stateSearch, setStateSearch] = useState("");
-  const [citySearch, setCitySearch] = useState("");
+
+  const { states, getCitiesForState } = useIndiaStates();
+
+  const selectedStateName = territory.states[0] ?? "";
+
+  const selectedStateIso = useMemo(
+    () => states.find((s) => s.name === selectedStateName)?.isoCode ?? "",
+    [states, selectedStateName],
+  );
+
+  const cities = useMemo(
+    () => (selectedStateIso ? getCitiesForState(selectedStateIso) : []),
+    [selectedStateIso, getCitiesForState],
+  );
+
+  const stateOptions = useMemo(
+    () => states.map((s) => ({ value: s.name, label: s.name })),
+    [states],
+  );
+
+  const cityOptions = useMemo(
+    () => cities.map((c) => ({ value: c, label: c })),
+    [cities],
+  );
+
+  const handleStateChange = (stateName: string) => {
+    onTerritoryChange({ states: stateName ? [stateName] : [], districts: [], cities: [] });
+  };
+
+  const handleCityChange = (cityNames: string[]) => {
+    onTerritoryChange({ ...territory, cities: cityNames });
+  };
 
   const allowedCategories = distributorType
     ? DISTRIBUTOR_TYPE_CATEGORIES[distributorType] ?? null
@@ -46,52 +322,6 @@ export function DistributorCoverageSection({
       ? availableProducts
       : availableProducts.filter((p) => p.category && allowedCategories.includes(p.category))
     : [];
-
-  const availableCities = getCitiesForStates(territory.states);
-
-  const filteredStates = stateSearch.trim()
-    ? ALL_STATES.filter((s) => s.toLowerCase().includes(stateSearch.trim().toLowerCase()))
-    : ALL_STATES;
-
-  const filteredCities = citySearch.trim()
-    ? availableCities.filter((c) => c.toLowerCase().includes(citySearch.trim().toLowerCase()))
-    : availableCities;
-
-  const toggleState = (state: string) => {
-    const newStates = territory.states.includes(state)
-      ? territory.states.filter((s) => s !== state)
-      : [...territory.states, state];
-    const citiesForNewStates = getCitiesForStates(newStates);
-    const newCities = territory.cities.filter((c) => citiesForNewStates.includes(c));
-    onTerritoryChange({ ...territory, states: newStates, cities: newCities });
-    setStateSearch("");
-  };
-
-  const toggleCity = (city: string) => {
-    const newCities = territory.cities.includes(city)
-      ? territory.cities.filter((c) => c !== city)
-      : [...territory.cities, city];
-    onTerritoryChange({ ...territory, cities: newCities });
-    setCitySearch("");
-  };
-
-  const clearTerritory = () => {
-    onTerritoryChange({ states: [], districts: [], cities: [] });
-    setStateSearch("");
-    setCitySearch("");
-  };
-
-  const toggleProduct = (product: Product) => {
-    const exists = assignedProducts.some((p) => p.productId === product.id);
-    if (exists) {
-      onProductsChange(assignedProducts.filter((p) => p.productId !== product.id));
-    } else {
-      onProductsChange([
-        ...assignedProducts,
-        { productId: product.id, productName: product.name, category: product.category ?? "" },
-      ]);
-    }
-  };
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -131,9 +361,11 @@ export function DistributorCoverageSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [territory.states, territory.cities, assignedProducts]);
 
-  const hasTerritory = territory.states.length > 0 || territory.cities.length > 0;
   const showConflictSuccess =
-    !conflictWarning && !isChecking && territory.states.length > 0 && assignedProducts.length > 0;
+    !conflictWarning &&
+    !isChecking &&
+    territory.states.length > 0 &&
+    assignedProducts.length > 0;
 
   return (
     <CreateFormSection step={4} title="Distribution Coverage">
@@ -145,147 +377,65 @@ export function DistributorCoverageSection({
               Geographic Territory <span className="text-danger">*</span>
             </p>
             <p className="mt-0.5 text-xs text-textSecondary">
-              Select the states this distributor will serve. Optionally narrow down to specific cities.
+              Select the state and city this distributor will serve.
             </p>
           </div>
 
-          {hasTerritory && (
-            <div className="flex flex-wrap items-center gap-2">
-              {territory.states.map((s) => (
-                <span
-                  key={s}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
-                >
-                  {s}
-                  {!disabled && (
-                    <button
-                      type="button"
-                      onClick={() => toggleState(s)}
-                      className="text-accent/70 hover:text-accent"
-                    >
-                      ×
-                    </button>
-                  )}
-                </span>
-              ))}
-              {territory.cities.map((c) => (
-                <span
-                  key={c}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-xs text-textSecondary"
-                >
-                  {c}
-                  {!disabled && (
-                    <button
-                      type="button"
-                      onClick={() => toggleCity(c)}
-                      className="hover:text-textPrimary"
-                    >
-                      ×
-                    </button>
-                  )}
-                </span>
-              ))}
-              {!disabled && (
-                <button
-                  type="button"
-                  onClick={clearTerritory}
-                  className="text-xs text-danger/70 hover:text-danger"
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-textSecondary">
-              States{territory.states.length > 0 && ` · ${territory.states.length} selected`}
-            </label>
-            <input
-              type="text"
-              placeholder="Search states..."
-              value={stateSearch}
-              onChange={(e) => setStateSearch(e.target.value)}
-              disabled={disabled}
-              className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-textPrimary placeholder:text-textSecondary/70 outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-60"
-            />
-            {stateSearch.trim() && (
-              <div className="max-h-48 overflow-y-auto rounded-xl border border-border bg-page p-2">
-                <div className="flex flex-wrap gap-1.5">
-                  {filteredStates.map((state) => {
-                    const selected = territory.states.includes(state);
-                    return (
-                      <button
-                        key={state}
-                        type="button"
-                        onClick={() => !disabled && toggleState(state)}
-                        disabled={disabled}
-                        className={`rounded-lg px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed ${
-                          selected
-                            ? "bg-accent text-accentContrast font-medium"
-                            : "bg-surface border border-border text-textSecondary hover:border-accent/50 hover:text-textPrimary"
-                        }`}
-                      >
-                        {state}
-                      </button>
-                    );
-                  })}
-                  {filteredStates.length === 0 && (
-                    <p className="px-2 py-1 text-xs text-textSecondary">No states match your search.</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {territory.states.length > 0 && (
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-textSecondary">
-                Cities{" "}
-                <span className="font-normal">(optional — defaults to entire state)</span>
-                {territory.cities.length > 0 && ` · ${territory.cities.length} selected`}
+                State <span className="text-danger">*</span>
               </label>
-              <input
-                type="text"
-                placeholder="Search cities..."
-                value={citySearch}
-                onChange={(e) => setCitySearch(e.target.value)}
+              <ComboSelect
+                options={stateOptions}
+                value={selectedStateName}
+                onChange={handleStateChange}
+                placeholder="Select State"
                 disabled={disabled}
-                className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-textPrimary placeholder:text-textSecondary/70 outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-60"
               />
-              {citySearch.trim() && (
-                <div className="max-h-40 overflow-y-auto rounded-xl border border-border bg-page p-2">
-                  <div className="flex flex-wrap gap-1.5">
-                    {filteredCities.map((city) => {
-                      const selected = territory.cities.includes(city);
-                      return (
-                        <button
-                          key={city}
-                          type="button"
-                          onClick={() => !disabled && toggleCity(city)}
-                          disabled={disabled}
-                          className={`rounded-lg px-2.5 py-1 text-xs transition-colors disabled:cursor-not-allowed ${
-                            selected
-                              ? "bg-accent text-accentContrast font-medium"
-                              : "bg-surface border border-border text-textSecondary hover:border-accent/50 hover:text-textPrimary"
-                          }`}
-                        >
-                          {city}
-                        </button>
-                      );
-                    })}
-                    {filteredCities.length === 0 && (
-                      <p className="px-2 py-1 text-xs text-textSecondary">No cities match your search.</p>
-                    )}
-                  </div>
-                </div>
+              {errors.territory && (
+                <p className="text-sm text-danger">{errors.territory}</p>
               )}
             </div>
-          )}
 
-          {errors.territory && (
-            <p className="text-sm text-danger">{errors.territory}</p>
-          )}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-textSecondary">
+                City <span className="text-danger">*</span>
+              </label>
+              <MultiComboSelect
+                options={cityOptions}
+                values={territory.cities}
+                onChange={handleCityChange}
+                placeholder="Select City"
+                disabled={disabled || !selectedStateName}
+              />
+              {territory.cities.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {territory.cities.map((city) => (
+                    <span
+                      key={city}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs text-textSecondary"
+                    >
+                      {city}
+                      {!disabled && (
+                        <button
+                          type="button"
+                          onClick={() => handleCityChange(territory.cities.filter((c) => c !== city))}
+                          className="ml-0.5 text-textSecondary/60 hover:text-danger"
+                          aria-label={`Remove ${city}`}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {errors.city && (
+                <p className="text-sm text-danger">{errors.city}</p>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="border-t border-border" />
@@ -333,7 +483,11 @@ export function DistributorCoverageSection({
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => !disabled && toggleProduct(product)}
+                      onChange={() => !disabled && (
+                        isSelected
+                          ? onProductsChange(assignedProducts.filter((p) => p.productId !== product.id))
+                          : onProductsChange([...assignedProducts, { productId: product.id, productName: product.name, category: product.category ?? "" }])
+                      )}
                       disabled={disabled}
                       className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-[color:var(--color-accent)]"
                     />
@@ -356,7 +510,7 @@ export function DistributorCoverageSection({
 
         {/* ── Conflict feedback ── */}
         {isChecking && (
-          <p className="text-xs text-textSecondary animate-pulse">Checking for conflicts...</p>
+          <p className="animate-pulse text-xs text-textSecondary">Checking for conflicts...</p>
         )}
 
         {conflictWarning && !isChecking && (

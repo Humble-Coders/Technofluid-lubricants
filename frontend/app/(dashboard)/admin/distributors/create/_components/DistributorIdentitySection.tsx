@@ -12,6 +12,7 @@ type DistributorIdentitySectionProps = {
   onAddressChange: (v: string) => void;
   onLinkedFirmIdChange: (id: string | null) => void;
   onAutoFillState?: (state: string) => void;
+  onAutoFillCity?: (city: string) => void;
   errors: { gstNumber?: string; firmName?: string; address?: string };
   disabled?: boolean;
 };
@@ -25,6 +26,7 @@ export function DistributorIdentitySection({
   onAddressChange,
   onLinkedFirmIdChange,
   onAutoFillState,
+  onAutoFillCity,
   errors,
   disabled,
 }: DistributorIdentitySectionProps) {
@@ -39,6 +41,7 @@ export function DistributorIdentitySection({
         onAddressChange={onAddressChange}
         onLinkedFirmIdChange={onLinkedFirmIdChange}
         onAutoFillState={onAutoFillState}
+        onAutoFillCity={onAutoFillCity}
         autoFillAddress={false}
         gstError={errors.gstNumber}
         nameError={errors.firmName}

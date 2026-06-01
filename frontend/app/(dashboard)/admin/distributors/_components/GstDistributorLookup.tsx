@@ -39,6 +39,7 @@ type GstDistributorLookupProps = {
   onAddressChange: (v: string) => void;
   onLinkedFirmIdChange?: (id: string | null) => void;
   onAutoFillState?: (state: string) => void;
+  onAutoFillCity?: (city: string) => void;
   gstError?: string;
   nameError?: string;
   addressError?: string;
@@ -59,6 +60,7 @@ export function GstDistributorLookup({
   onAddressChange,
   onLinkedFirmIdChange,
   onAutoFillState,
+  onAutoFillCity,
   gstError,
   nameError,
   addressError,

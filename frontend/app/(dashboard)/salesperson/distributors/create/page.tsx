@@ -3,12 +3,12 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { State } from "country-state-city";
 
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/lib/useProducts";
 import { useAuth } from "@/lib/useAuth";
 import { createDistributorInFirestore } from "@/lib/services/distributorService";
-import { ALL_STATES } from "@/lib/data/territories";
 import type { AssignedProduct, DistributorType, Territory } from "@/types/distributor";
 import { DistributorIdentitySection } from "../../../admin/distributors/create/_components/DistributorIdentitySection";
 import { DistributorContactSection } from "../../../admin/distributors/create/_components/DistributorContactSection";
@@ -25,6 +25,7 @@ type FormErrors = {
   email?: string;
   distributorType?: string;
   territory?: string;
+  city?: string;
   assignedProducts?: string;
 };
 
@@ -58,16 +59,22 @@ export default function SalespersonCreateDistributorPage() {
     [products],
   );
 
-  const handleAutoFillState = (state: string) => {
-    const normalized = state.trim();
-    const matched = ALL_STATES.find(
-      (s) => s.toLowerCase() === normalized.toLowerCase(),
+  const handleAutoFillState = (stateName: string) => {
+    const normalized = stateName.trim().toLowerCase();
+    const matched = State.getStatesOfCountry("IN").find(
+      (s) => s.name.toLowerCase() === normalized,
     );
     if (matched) {
-      setTerritory((prev) => ({
-        ...prev,
-        states: prev.states.includes(matched) ? prev.states : [...prev.states, matched],
-      }));
+      setTerritory({ states: [matched.name], districts: [], cities: [] });
+      setErrors((p) => ({ ...p, territory: undefined, city: undefined }));
+    }
+  };
+
+  const handleAutoFillCity = (cityName: string) => {
+    const normalized = cityName.trim();
+    if (normalized) {
+      setTerritory((prev) => ({ ...prev, cities: [normalized] }));
+      setErrors((p) => ({ ...p, city: undefined }));
     }
   };
 
@@ -95,7 +102,9 @@ export default function SalespersonCreateDistributorPage() {
     }
 
     if (territory.states.length === 0) {
-      next.territory = "Select at least one state.";
+      next.territory = "Select a state.";
+    } else if (territory.cities.length === 0) {
+      next.city = "Select a city.";
     }
 
     if (assignedProducts.length === 0) {
@@ -169,6 +178,7 @@ export default function SalespersonCreateDistributorPage() {
           onAddressChange={setAddress}
           onLinkedFirmIdChange={setLinkedFirmId}
           onAutoFillState={handleAutoFillState}
+          onAutoFillCity={handleAutoFillCity}
           errors={{ firmName: errors.firmName }}
           disabled={isSubmitting}
         />
@@ -207,7 +217,7 @@ export default function SalespersonCreateDistributorPage() {
             territory={territory}
             onTerritoryChange={(t) => {
               setTerritory(t);
-              setErrors((p) => ({ ...p, territory: undefined }));
+              setErrors((p) => ({ ...p, territory: undefined, city: undefined }));
             }}
             assignedProducts={assignedProducts}
             availableProducts={availableProducts}
