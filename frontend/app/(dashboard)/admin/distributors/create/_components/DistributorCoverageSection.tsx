@@ -129,7 +129,7 @@ export function DistributorCoverageSection({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [territory.states, assignedProducts]);
+  }, [territory.states, territory.cities, assignedProducts]);
 
   const hasTerritory = territory.states.length > 0 || territory.cities.length > 0;
   const showConflictSuccess =

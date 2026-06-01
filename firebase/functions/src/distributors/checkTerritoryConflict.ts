@@ -4,6 +4,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 type ConflictRequest = {
   distributorId?: string;
   states: string[];
+  cities: string[];
   assignedProductIds: string[];
 };
 
@@ -28,7 +29,7 @@ export const checkTerritoryConflict = onCall(
       throw new HttpsError("unauthenticated", "unauthenticated");
     }
 
-    const { distributorId, states, assignedProductIds } =
+    const { distributorId, states, cities, assignedProductIds } =
       request.data as ConflictRequest;
 
     if (!Array.isArray(states) || states.length === 0) {
@@ -41,7 +42,7 @@ export const checkTerritoryConflict = onCall(
     const snap = await admin
       .firestore()
       .collection("distributors")
-      .where("status", "==", "approved")
+      .where("deleted", "!=", true)
       .get();
 
     for (const docSnap of snap.docs) {
@@ -53,6 +54,17 @@ export const checkTerritoryConflict = onCall(
       const docStates: string[] = data.territory?.states ?? [];
       const hasStateOverlap = docStates.some((s: string) => states.includes(s));
       if (!hasStateOverlap) continue;
+
+      // City check: empty city list means the entire state is covered.
+      // A conflict requires city overlap too — two distributors with non-overlapping
+      // cities in the same state can coexist.
+      const docCities: string[] = data.territory?.cities ?? [];
+      const incomingCities: string[] = Array.isArray(cities) ? cities : [];
+      const hasCityOverlap =
+        incomingCities.length === 0 ||   // incoming covers whole state
+        docCities.length === 0 ||         // existing covers whole state
+        docCities.some((c: string) => incomingCities.includes(c));
+      if (!hasCityOverlap) continue;
 
       const docProductIds: string[] = Array.isArray(data.assignedProducts)
         ? data.assignedProducts.map(

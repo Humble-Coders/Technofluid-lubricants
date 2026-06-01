@@ -160,16 +160,16 @@ service cloud.firestore {
     match /firms/{firmId} {
       // All staff can read firms
       allow read: if isStaff();
-      // Salespersons can create and update firms (for visit logging)
-      allow create: if isSalesperson();
-      allow update: if isSalesperson();
+      // Salespersons and admins can create and update firms
+      allow create: if isSalesperson() || isAdmin();
+      allow update: if isSalesperson() || isAdmin();
       allow delete: if isAdmin();
 
       // History subcollection: firms/{firmId}/history/{historyId}
       match /history/{historyId} {
         allow read:   if isStaff();
-        allow create: if isSalesperson();
-        allow update: if isSalesperson();
+        allow create: if isSalesperson() || isAdmin();
+        allow update: if isSalesperson() || isAdmin();
         allow delete: if isAdmin();
       }
     }

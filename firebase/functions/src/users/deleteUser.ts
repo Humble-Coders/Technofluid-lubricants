@@ -28,7 +28,12 @@ export const deleteUser = onCall(
     const targetRole = targetDoc.data()?.role;
 
     // Auth user is hard-deleted so the email can be reused.
-    await admin.auth().deleteUser(uid);
+    // Ignore user-not-found — auth may have been cleaned up already.
+    try {
+      await admin.auth().deleteUser(uid);
+    } catch (error: any) {
+      if (error.code !== "auth/user-not-found") throw error;
+    }
 
     // Firestore documents are soft-deleted to preserve audit history.
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -38,12 +43,15 @@ export const deleteUser = onCall(
       deletedBy: request.auth.uid,
     };
 
+    // Use set+merge so the write succeeds even if the doc was already deleted
+    // or never fully created.
     const batch = admin.firestore().batch();
-    batch.update(admin.firestore().collection("users").doc(uid), softDelete);
+    batch.set(admin.firestore().collection("users").doc(uid), softDelete, { merge: true });
     if (targetRole === "distributor") {
-      batch.update(
+      batch.set(
         admin.firestore().collection("distributors").doc(uid),
         softDelete,
+        { merge: true },
       );
     }
     await batch.commit();

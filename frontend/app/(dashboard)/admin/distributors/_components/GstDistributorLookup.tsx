@@ -43,6 +43,7 @@ type GstDistributorLookupProps = {
   nameError?: string;
   addressError?: string;
   disabled?: boolean;
+  autoFillAddress?: boolean;
 };
 
 function toTitleCase(str: string): string {
@@ -62,6 +63,7 @@ export function GstDistributorLookup({
   nameError,
   addressError,
   disabled,
+  autoFillAddress = true,
 }: GstDistributorLookupProps) {
   const [status, setStatus] = useState<LookupStatus>("idle");
   const [matchedFirm, setMatchedFirm] = useState<MatchedFirm | null>(null);
@@ -107,7 +109,7 @@ export function GstDistributorLookup({
             if (h.address?.trim()) seen.add(h.address.trim());
           });
           const addrs = Array.from(seen);
-          setAddresses(addrs);
+          if (autoFillAddress) setAddresses(addrs);
 
           setMatchedFirm({
             name,
@@ -131,7 +133,7 @@ export function GstDistributorLookup({
             address: distributor.address,
             source: "internal",
           });
-          if (distributor.address) setAddresses([distributor.address]);
+          if (autoFillAddress && distributor.address) setAddresses([distributor.address]);
           setStatus("found-internal");
           return;
         }
@@ -150,7 +152,7 @@ export function GstDistributorLookup({
           source: "external",
           raw: verified,
         });
-        setAddresses(verified.address ? [verified.address] : []);
+        if (autoFillAddress) setAddresses(verified.address ? [verified.address] : []);
         setStatus("found-external");
         // Auto-fill state from external GST data without requiring user action
         if (verified.state) onAutoFillState?.(verified.state);
@@ -178,7 +180,7 @@ export function GstDistributorLookup({
   const handleUseFirm = () => {
     if (!matchedFirm) return;
     onNameChange(toTitleCase(matchedFirm.name));
-    if (matchedFirm.address) onAddressChange(matchedFirm.address);
+    if (autoFillAddress && matchedFirm.address) onAddressChange(matchedFirm.address);
     onLinkedFirmIdChange?.(gstNumber.trim().toUpperCase());
     setFirmLinked(true);
   };

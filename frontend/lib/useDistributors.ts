@@ -135,9 +135,8 @@ export function useDistributors() {
         // No auth user — only Firestore doc exists.
         await deleteDistributorDoc(id);
       } else {
-        // Delete Firebase Auth user via Cloud Function, then clean up both Firestore docs.
+        // Cloud Function hard-deletes the Auth user and soft-deletes both Firestore docs.
         await deleteUser({ uid: id });
-        await deleteDistributorAllDocs(id);
       }
     } catch (err) {
       console.error("Error deleting distributor:", err);

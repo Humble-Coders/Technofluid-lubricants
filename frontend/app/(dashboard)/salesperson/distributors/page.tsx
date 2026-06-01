@@ -2,23 +2,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/useAuth";
 import { useSalespersonDistributors } from "@/lib/useSalespersonDistributors";
-import {
-  CreateDistributorModal,
-  type CreateDistributorFormInput,
-} from "./_components/CreateDistributorModal";
 import { DistributorsTable } from "./_components/DistributorsTable";
 
 export default function SalespersonDistributorsPage() {
   const { userData, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { distributors, createDistributor, loading, error } =
+  const { distributors, loading, error } =
     useSalespersonDistributors(userData?.uid ?? null);
 
   const filteredDistributors = useMemo(() => {
@@ -36,19 +33,6 @@ export default function SalespersonDistributorsPage() {
       );
     });
   }, [distributors, searchQuery]);
-
-  const handleCreate = async (distributorData: CreateDistributorFormInput) => {
-    try {
-      await createDistributor({
-        name: distributorData.name,
-        email: distributorData.email,
-        phone: distributorData.phone,
-      });
-      setIsCreateOpen(false);
-    } catch (err) {
-      console.error("Failed to create distributor:", err);
-    }
-  };
 
   if (authLoading) return null;
 
@@ -98,7 +82,7 @@ export default function SalespersonDistributorsPage() {
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <Button onClick={() => router.push("/salesperson/distributors/create")}>
           Create Distributor
         </Button>
       </div>
@@ -120,12 +104,6 @@ export default function SalespersonDistributorsPage() {
         />
       </Card>
 
-      {isCreateOpen && (
-        <CreateDistributorModal
-          onClose={() => setIsCreateOpen(false)}
-          onSubmit={handleCreate}
-        />
-      )}
     </section>
   );
 }

@@ -258,10 +258,12 @@ export async function saveDistributorFirmData(
   address?: string,
 ): Promise<void> {
   const docRef = doc(db, FIRMS_COLLECTION, gstNumber.trim().toUpperCase());
+  const existing = await getDoc(docRef);
   const payload: Record<string, unknown> = {
     gstNumber: gstNumber.trim().toUpperCase(),
     updatedAt: serverTimestamp(),
   };
+  if (!existing.exists()) payload.createdAt = serverTimestamp();
   if (name.trim()) {
     payload.currentName = name.trim();
     payload.currentNameLower = name.trim().toLowerCase();
@@ -285,6 +287,7 @@ export async function saveDistributorFirmDataNoGst(
     normalizedName,
     currentName: name.trim(),
     currentNameLower: name.trim().toLowerCase(),
+    createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
   if (address?.trim()) payload.currentAddress = address.trim();

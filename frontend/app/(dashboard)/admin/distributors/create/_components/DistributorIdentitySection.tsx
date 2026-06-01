@@ -39,6 +39,7 @@ export function DistributorIdentitySection({
         onAddressChange={onAddressChange}
         onLinkedFirmIdChange={onLinkedFirmIdChange}
         onAutoFillState={onAutoFillState}
+        autoFillAddress={false}
         gstError={errors.gstNumber}
         nameError={errors.firmName}
         addressError={errors.address}

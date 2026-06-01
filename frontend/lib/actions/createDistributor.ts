@@ -58,10 +58,14 @@ export async function createDistributor(input: CreateDistributorInput) {
     );
   }
 
-  if (input.gstNumber) {
-    saveDistributorFirmData(input.gstNumber, input.name, input.address).catch(() => {});
-  } else {
-    saveDistributorFirmDataNoGst(input.name, input.address).catch(() => {});
+  try {
+    if (input.gstNumber) {
+      await saveDistributorFirmData(input.gstNumber, input.name, input.address);
+    } else {
+      await saveDistributorFirmDataNoGst(input.name, input.address);
+    }
+  } catch (err) {
+    console.error("Failed to save firm data for distributor:", err);
   }
 
   return { success: true, uid: data.uid };

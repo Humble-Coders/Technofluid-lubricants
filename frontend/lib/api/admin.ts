@@ -132,6 +132,7 @@ type ApproveDistributorResponse = {
 type TerritoryConflictRequest = {
   distributorId?: string;
   states: string[];
+  cities: string[];
   assignedProductIds: string[];
 };
 
