@@ -17,6 +17,7 @@ const titleMap: Record<string, string> = {
   "/dashboard/visits": "Visits",
   "/dashboard/coupons": "Coupons",
   "/admin/settings": "Settings",
+  "/admin/products": "Import Products",
 };
 
 export function AdminShell({ children }: { children: ReactNode }) {
