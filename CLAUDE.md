@@ -98,7 +98,7 @@ Retire the shared `/dashboard/*` area. Every new page goes under its role segmen
 ## Deploy & infra
 
 - **Frontend:** Firebase Hosting. **Rules + Functions:** `firebase deploy`. **Any developer may deploy** — be deliberate; deploys hit the live project.
-- **Dedicated Technofluid Firebase project is REQUIRED.** The currently-configured project `hs-website-21095` is a **shared Humble Solutions placeholder — do not treat it as permanent and do not build assumptions on the shared DB.** Migrating to a dedicated project is a pre-launch TODO; until then, avoid destructive operations on collections you don't own.
+- **Dedicated Technofluid Firebase project:** `techno-fluid` (Firestore region `asia-south1`; default Storage bucket is `US-EAST1` — auto-provisioned, left as-is). This is the live project — no more shared-placeholder caveat.
 - **Secrets never live in this repo or in `CLAUDE.md`.** Firebase web config via `NEXT_PUBLIC_*` env vars; Function secrets (e.g. GST provider keys) via Firebase Functions params/config. Reference locations only.
 
 ## Quality gate (before a PR is "ready")

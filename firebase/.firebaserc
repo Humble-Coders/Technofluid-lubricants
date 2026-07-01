@@ -1,7 +1,6 @@
 {
   "projects": {
-    "blaze": "hs-website-21095",
-    "default": "hs-website-21095"
+    "default": "techno-fluid"
   },
   "targets": {},
   "etags": {}
