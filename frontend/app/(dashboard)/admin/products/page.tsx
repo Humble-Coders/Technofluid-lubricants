@@ -5,19 +5,20 @@ import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { importProducts } from "@/lib/api/admin";
 import {
   mapAndValidateRows,
   parseProductMasterFile,
   ProductMasterFileError,
   type ProductImportResult,
 } from "@/lib/services/productImport";
-import { upsertProducts } from "@/lib/services/productMasterService";
 import { ImportPreview } from "./_components/ImportPreview";
 
 type ImportSummary = {
   created: number;
   updated: number;
   skipped: number;
+  invalid: { rowNumber: number; reason: string }[];
 };
 
 export default function ImportProductsPage() {
@@ -60,8 +61,10 @@ export default function ImportProductsPage() {
 
     setIsImporting(true);
     try {
-      const { created, updated } = await upsertProducts(result.valid);
-      setSummary({ created, updated, skipped: result.invalid.length });
+      const { created, updated, skipped, invalid } = await importProducts(
+        result.valid,
+      );
+      setSummary({ created, updated, skipped, invalid });
     } catch (err) {
       setError(
         err instanceof Error
@@ -147,6 +150,15 @@ export default function ImportProductsPage() {
             Created: {summary.created} · Updated: {summary.updated} · Skipped
             (invalid): {summary.skipped}
           </p>
+          {summary.invalid.length > 0 && (
+            <ul className="mt-3 space-y-1 text-sm text-danger">
+              {summary.invalid.map((row) => (
+                <li key={row.rowNumber}>
+                  Row {row.rowNumber}: {row.reason}
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
       )}
     </div>

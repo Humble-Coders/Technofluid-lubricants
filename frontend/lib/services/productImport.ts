@@ -33,8 +33,10 @@ export class ProductMasterFileError extends Error {}
 
 type RawRow = Record<string, unknown>;
 
+export type ValidProductRow = ProductMaster & { rowNumber: number };
+
 export type RowValidationResult =
-  | { valid: true; product: ProductMaster; rowNumber: number }
+  | { valid: true; product: ValidProductRow; rowNumber: number }
   | { valid: false; reason: string; rowNumber: number; raw: RawRow };
 
 function slugify(input: string): string {
@@ -183,7 +185,7 @@ export function validateRow(
 
   seenSkus.add(sku);
 
-  const product: ProductMaster = {
+  const product: ValidProductRow = {
     sku,
     product: productName,
     productKey: slugify(productName),
@@ -198,19 +200,20 @@ export function validateRow(
     segment: rawSegment,
     active: true,
     deleted: false,
+    rowNumber,
   };
 
   return { valid: true, product, rowNumber };
 }
 
 export type ProductImportResult = {
-  valid: ProductMaster[];
+  valid: ValidProductRow[];
   invalid: { rowNumber: number; reason: string; raw: RawRow }[];
 };
 
 export function mapAndValidateRows(rawRows: RawRow[]): ProductImportResult {
   const seenSkus = new Set<string>();
-  const valid: ProductMaster[] = [];
+  const valid: ValidProductRow[] = [];
   const invalid: { rowNumber: number; reason: string; raw: RawRow }[] = [];
 
   rawRows.forEach((raw, index) => {

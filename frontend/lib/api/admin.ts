@@ -2,6 +2,7 @@
 import { httpsCallable, FunctionsError } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import type { UserRole } from "@/types/user";
+import type { ProductMaster } from "@/types/productMaster";
 
 export type CreateUserByAdminPayload = {
   email: string;
@@ -150,6 +151,45 @@ export async function checkTerritoryConflict(
       TerritoryConflictResponse
     >(functions, "checkTerritoryConflict");
     const result = await callable(payload);
+    return result.data;
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
+export type ImportProductsRow = Pick<
+  ProductMaster,
+  | "sku"
+  | "product"
+  | "productKey"
+  | "category"
+  | "orderableUnit"
+  | "packQty"
+  | "baseUnit"
+  | "pricePer"
+  | "dealerPrice"
+  | "distributorPrice"
+  | "gstPct"
+  | "segment"
+> & { rowNumber: number };
+
+export type ImportProductsResponse = {
+  created: number;
+  updated: number;
+  skipped: number;
+  invalid: { rowNumber: number; reason: string }[];
+  families: number;
+};
+
+export async function importProducts(
+  rows: ImportProductsRow[],
+): Promise<ImportProductsResponse> {
+  try {
+    const callable = httpsCallable<
+      { rows: ImportProductsRow[] },
+      ImportProductsResponse
+    >(functions, "importProducts");
+    const result = await callable({ rows });
     return result.data;
   } catch (error) {
     throw handleFirebaseError(error);

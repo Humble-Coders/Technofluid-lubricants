@@ -106,8 +106,17 @@ service cloud.firestore {
     match /products/{productId} {
       // All approved users can read the product catalogue
       allow read:  if isSignedIn() && isApproved();
-      // Only admin manages products
-      allow write: if isAdmin();
+      // Only the importProducts Cloud Function (Admin SDK) writes products.
+      allow write: if false;
+    }
+
+    // ─── Public Catalog ───────────────────────────────────────────────────────
+
+    match /public_catalog/{productKey} {
+      // Price-free projection for the public marketing site — fully public.
+      allow read:  if true;
+      // Only the importProducts Cloud Function (Admin SDK) writes this.
+      allow write: if false;
     }
 
     // ─── Coupons ──────────────────────────────────────────────────────────────
