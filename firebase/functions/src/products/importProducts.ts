@@ -5,136 +5,15 @@ import {
   buildPublicCatalogDoc,
   type PublicCatalogProduct,
 } from "./buildPublicCatalogDoc";
+import { validateProductRow, type ProductRowInput } from "./validateProductRow";
 
-const CATEGORY_VALUES = ["bulk_oil", "grease", "retail"];
-const BASE_UNITS = ["L", "kg", "piece"];
-const PRICE_PER_VALUES = [
-  "per litre",
-  "per kg",
-  "per case",
-  "per bucket",
-  "per piece",
-];
-const SEGMENT_VALUES = ["Automotive", "Industrial", "Both"];
+type ImportRow = ProductRowInput & { rowNumber: number };
 
-// Firestore document ids may not be empty, contain "/", or be "." / "..".
-const INVALID_ID_RE = /\/|^\.\.?$/;
-
-type ProductInput = {
-  rowNumber: number;
-  sku: string;
-  product: string;
-  productKey: string;
-  category: string;
-  orderableUnit: string;
-  packQty: number;
-  baseUnit: string;
-  pricePer: string;
-  dealerPrice: number;
-  distributorPrice: number;
-  gstPct: number;
-  segment: string;
-};
-
-type ValidatedRow = { rowNumber: number; product: ProductInput };
+type ValidatedRow = { rowNumber: number; product: ProductRowInput };
 type InvalidRow = { rowNumber: number; reason: string };
 
-function validateRow(
-  row: ProductInput,
-  seenSkus: Set<string>,
-): { valid: true; product: ProductInput } | { valid: false; reason: string } {
-  const sku = typeof row.sku === "string" ? row.sku.trim() : "";
-  if (!sku) return { valid: false, reason: "SKU is required" };
-  if (INVALID_ID_RE.test(sku) || sku.length > 1500) {
-    return { valid: false, reason: `SKU "${sku}" is not a valid document id` };
-  }
-  if (seenSkus.has(sku)) {
-    return { valid: false, reason: `Duplicate SKU "${sku}" in payload` };
-  }
-
-  const product = typeof row.product === "string" ? row.product.trim() : "";
-  if (!product) return { valid: false, reason: "Product name is required" };
-
-  if (!CATEGORY_VALUES.includes(row.category)) {
-    return { valid: false, reason: `Category "${row.category}" is invalid` };
-  }
-
-  const orderableUnit =
-    typeof row.orderableUnit === "string" ? row.orderableUnit.trim() : "";
-  if (!orderableUnit) {
-    return { valid: false, reason: "Orderable unit is required" };
-  }
-
-  if (
-    typeof row.packQty !== "number" ||
-    !Number.isFinite(row.packQty) ||
-    row.packQty <= 0
-  ) {
-    return { valid: false, reason: "Pack qty must be a number greater than 0" };
-  }
-
-  if (!BASE_UNITS.includes(row.baseUnit)) {
-    return { valid: false, reason: `Base unit "${row.baseUnit}" is invalid` };
-  }
-
-  if (!PRICE_PER_VALUES.includes(row.pricePer)) {
-    return { valid: false, reason: `Price per "${row.pricePer}" is invalid` };
-  }
-
-  if (
-    typeof row.dealerPrice !== "number" ||
-    !Number.isInteger(row.dealerPrice) ||
-    row.dealerPrice < 0
-  ) {
-    return { valid: false, reason: "Dealer price must be an integer ≥ 0 (paise)" };
-  }
-
-  if (
-    typeof row.distributorPrice !== "number" ||
-    !Number.isInteger(row.distributorPrice) ||
-    row.distributorPrice < 0
-  ) {
-    return {
-      valid: false,
-      reason: "Distributor price must be an integer ≥ 0 (paise)",
-    };
-  }
-
-  if (
-    typeof row.gstPct !== "number" ||
-    !Number.isFinite(row.gstPct) ||
-    row.gstPct < 0
-  ) {
-    return { valid: false, reason: "GST % must be a number ≥ 0" };
-  }
-
-  if (!SEGMENT_VALUES.includes(row.segment)) {
-    return { valid: false, reason: `Segment "${row.segment}" is invalid` };
-  }
-
-  const productKey =
-    typeof row.productKey === "string" ? row.productKey.trim() : "";
-  if (!productKey) {
-    return { valid: false, reason: "Product key is required" };
-  }
-
-  seenSkus.add(sku);
-
-  return {
-    valid: true,
-    product: {
-      ...row,
-      sku,
-      product,
-      orderableUnit,
-      productKey,
-    },
-  };
-}
-
 /**
- * Commits Firestore writes in chunks of ≤500 ops (batch limit), spanning
- * both the products and public_catalog writes for this import.
+ * Commits Firestore writes in chunks of ≤500 ops (batch limit).
  */
 async function commitInChunks(
   db: admin.firestore.Firestore,
@@ -165,7 +44,7 @@ export const importProducts = onCall(
       throw new HttpsError("permission-denied", "permission-denied");
     }
 
-    const rows = request.data?.rows as ProductInput[] | undefined;
+    const rows = request.data?.rows as ImportRow[] | undefined;
     if (!Array.isArray(rows)) {
       throw new HttpsError("invalid-argument", "rows must be an array");
     }
@@ -175,7 +54,7 @@ export const importProducts = onCall(
     const invalid: InvalidRow[] = [];
 
     for (const row of rows) {
-      const result = validateRow(row, seenSkus);
+      const result = validateProductRow(row, seenSkus);
       if (result.valid) {
         validated.push({ rowNumber: row.rowNumber, product: result.product });
       } else {
@@ -194,7 +73,29 @@ export const importProducts = onCall(
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     const productOps: ((batch: admin.firestore.WriteBatch) => void)[] = [];
-    const familyProducts = new Map<string, PublicCatalogProduct[]>();
+    const affectedProductKeys = new Set<string>();
+
+    // Full post-write product state, keyed by sku — the already-loaded
+    // existing docs merged with this batch's updates. Used below to rebuild
+    // public_catalog from every family's complete variant set (not just the
+    // batch), without any extra Firestore reads.
+    const mergedBySku = new Map<string, PublicCatalogProduct>(
+      existingSnap.docs.map((d) => {
+        const data = d.data();
+        return [
+          d.id,
+          {
+            productKey: data.productKey,
+            product: data.product,
+            category: data.category,
+            segment: data.segment,
+            orderableUnit: data.orderableUnit,
+            active: data.active ?? true,
+            deleted: data.deleted ?? false,
+          },
+        ];
+      }),
+    );
 
     for (const { product: row } of validated) {
       const existing = existingBySku.get(row.sku);
@@ -234,9 +135,7 @@ export const importProducts = onCall(
 
       const active = isNew ? true : (existing!.active ?? true);
       const deleted = isNew ? false : (existing!.deleted ?? false);
-
-      const family = familyProducts.get(row.productKey) ?? [];
-      family.push({
+      mergedBySku.set(row.sku, {
         productKey: row.productKey,
         product: row.product,
         category: row.category,
@@ -245,30 +144,47 @@ export const importProducts = onCall(
         active,
         deleted,
       });
-      familyProducts.set(row.productKey, family);
+
+      affectedProductKeys.add(row.productKey);
+      // A SKU's productKey may change on re-import; also rebuild the old family.
+      const previousProductKey = existing?.productKey as string | undefined;
+      if (previousProductKey && previousProductKey !== row.productKey) {
+        affectedProductKeys.add(previousProductKey);
+      }
     }
 
-    let families = 0;
+    await commitInChunks(db, productOps);
+
+    // Group the full merged product state by productKey, then rebuild
+    // public_catalog for each affected family from its complete current
+    // variant set — not just this batch — so a partial import never drops a
+    // family's other, not-reuploaded pack sizes.
+    const familyProducts = new Map<string, PublicCatalogProduct[]>();
+    for (const product of mergedBySku.values()) {
+      const family = familyProducts.get(product.productKey) ?? [];
+      family.push(product);
+      familyProducts.set(product.productKey, family);
+    }
+
     const catalogOps: ((batch: admin.firestore.WriteBatch) => void)[] = [];
-    for (const [productKey, familyRows] of familyProducts) {
+    for (const productKey of affectedProductKeys) {
       const ref = db.collection("public_catalog").doc(productKey);
-      const doc = buildPublicCatalogDoc(productKey, familyRows);
+      const doc = buildPublicCatalogDoc(productKey, familyProducts.get(productKey) ?? []);
       if (doc) {
-        families += 1;
         catalogOps.push((batch) => batch.set(ref, doc));
       } else {
         catalogOps.push((batch) => batch.delete(ref));
       }
     }
 
-    await commitInChunks(db, [...productOps, ...catalogOps]);
+    await commitInChunks(db, catalogOps);
 
     return {
       created,
       updated,
       skipped: invalid.length,
       invalid,
-      families,
+      families: affectedProductKeys.size,
     };
   },
 );

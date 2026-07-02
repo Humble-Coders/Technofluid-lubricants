@@ -196,6 +196,74 @@ export async function importProducts(
   }
 }
 
+export type UpdateProductFields = Partial<
+  Pick<
+    ProductMaster,
+    | "product"
+    | "category"
+    | "orderableUnit"
+    | "packQty"
+    | "baseUnit"
+    | "pricePer"
+    | "dealerPrice"
+    | "distributorPrice"
+    | "gstPct"
+    | "segment"
+    | "active"
+    | "deleted"
+  >
+>;
+
+export type UpdateProductPayload = {
+  sku: string;
+  fields: UpdateProductFields;
+};
+
+export type CreateProductPayload = Pick<
+  ProductMaster,
+  | "sku"
+  | "product"
+  | "category"
+  | "orderableUnit"
+  | "packQty"
+  | "baseUnit"
+  | "pricePer"
+  | "dealerPrice"
+  | "distributorPrice"
+  | "gstPct"
+  | "segment"
+>;
+
+export async function updateProduct(
+  payload: UpdateProductPayload,
+): Promise<MutationResponse> {
+  try {
+    const callable = httpsCallable<UpdateProductPayload, MutationResponse>(
+      functions,
+      "updateProduct",
+    );
+    const result = await callable(payload);
+    return result.data;
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
+export async function createProduct(
+  payload: CreateProductPayload,
+): Promise<MutationResponse & { sku: string }> {
+  try {
+    const callable = httpsCallable<
+      CreateProductPayload,
+      MutationResponse & { sku: string }
+    >(functions, "createProduct");
+    const result = await callable(payload);
+    return result.data;
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
 export async function approveDistributorByAdmin(
   distributorId: string,
 ): Promise<ApproveDistributorResponse> {
