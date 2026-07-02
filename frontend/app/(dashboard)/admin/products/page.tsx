@@ -1,166 +1,49 @@
 // File: frontend/app/(dashboard)/admin/products/page.tsx
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { importProducts } from "@/lib/api/admin";
-import {
-  mapAndValidateRows,
-  parseProductMasterFile,
-  ProductMasterFileError,
-  type ProductImportResult,
-} from "@/lib/services/productImport";
-import { ImportPreview } from "./_components/ImportPreview";
+import { ImportProductsTab } from "./_components/ImportProductsTab";
+import { ProductsTable } from "./_components/ProductsTable";
 
-type ImportSummary = {
-  created: number;
-  updated: number;
-  skipped: number;
-  invalid: { rowNumber: number; reason: string }[];
-};
+type Tab = "catalog" | "import";
 
-export default function ImportProductsPage() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<ProductImportResult | null>(null);
-  const [isParsing, setIsParsing] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [summary, setSummary] = useState<ImportSummary | null>(null);
+const TABS: { id: Tab; label: string }[] = [
+  { id: "catalog", label: "Catalog" },
+  { id: "import", label: "Import" },
+];
 
-  const handleFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setFileName(file.name);
-    setError(null);
-    setResult(null);
-    setSummary(null);
-    setIsParsing(true);
-
-    try {
-      const rawRows = await parseProductMasterFile(file);
-      setResult(mapAndValidateRows(rawRows));
-    } catch (err) {
-      setError(
-        err instanceof ProductMasterFileError
-          ? err.message
-          : "Something went wrong reading this file.",
-      );
-    } finally {
-      setIsParsing(false);
-    }
-  };
-
-  const handleConfirm = async () => {
-    if (!result || result.valid.length === 0) return;
-
-    setIsImporting(true);
-    try {
-      const { created, updated, skipped, invalid } = await importProducts(
-        result.valid,
-      );
-      setSummary({ created, updated, skipped, invalid });
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Import failed while writing to Firestore.",
-      );
-    } finally {
-      setIsImporting(false);
-    }
-  };
-
-  const handleReset = () => {
-    setFileName(null);
-    setError(null);
-    setResult(null);
-    setSummary(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+export default function ProductsPage() {
+  const [tab, setTab] = useState<Tab>("catalog");
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-textPrimary">
-          Import Products
-        </h1>
+        <h1 className="text-xl font-semibold text-textPrimary">Products</h1>
         <p className="mt-1 text-sm text-textSecondary">
-          Upload the product master .xlsx to preview and upsert the catalog
-          by SKU. Nothing is written until you confirm.
+          View, search, and edit the catalog directly, or bulk-upsert it from
+          the product master .xlsx.
         </p>
       </div>
 
-      <Card>
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx"
-            onChange={handleFileChange}
-            className="text-sm text-textPrimary file:mr-3 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-semibold file:text-accentContrast"
-          />
-          {fileName && (
-            <span className="text-sm text-textSecondary">{fileName}</span>
-          )}
-          {(result || error) && (
-            <Button variant="secondary" onClick={handleReset}>
-              Clear
-            </Button>
-          )}
-        </div>
-        {isParsing && (
-          <p className="mt-3 text-sm text-textSecondary">Parsing file...</p>
-        )}
-        {error && (
-          <p className="mt-3 rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
-            {error}
-          </p>
-        )}
-      </Card>
+      <div className="flex gap-2 border-b border-border">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={`px-4 py-2.5 text-sm font-semibold transition ${
+              tab === t.id
+                ? "border-b-2 border-accent text-accent"
+                : "text-textSecondary hover:text-textPrimary"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-      {result && !summary && (
-        <>
-          <ImportPreview result={result} />
-          {/* Spacer so the floating bar never covers the last table rows */}
-          <div className="h-20" />
-          <div className="fixed inset-x-0 bottom-0 z-50 flex justify-end border-t border-border bg-surface/95 px-6 py-4 shadow-lg backdrop-blur">
-            <Button
-              onClick={handleConfirm}
-              isLoading={isImporting}
-              disabled={result.valid.length === 0}
-            >
-              Confirm import ({result.valid.length} rows)
-            </Button>
-          </div>
-        </>
-      )}
-
-      {summary && (
-        <Card>
-          <h2 className="text-sm font-semibold text-textPrimary">
-            Import complete
-          </h2>
-          <p className="mt-2 text-sm text-textPrimary">
-            Created: {summary.created} · Updated: {summary.updated} · Skipped
-            (invalid): {summary.skipped}
-          </p>
-          {summary.invalid.length > 0 && (
-            <ul className="mt-3 space-y-1 text-sm text-danger">
-              {summary.invalid.map((row) => (
-                <li key={row.rowNumber}>
-                  Row {row.rowNumber}: {row.reason}
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      )}
+      {tab === "catalog" ? <ProductsTable /> : <ImportProductsTab />}
     </div>
   );
 }
