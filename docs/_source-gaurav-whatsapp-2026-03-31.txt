@@ -1,0 +1,612 @@
+TECHNOFLUID LUBRICANTS — website & catalogue content
+Source: Gaurav Verma, WhatsApp, 31 Mar 2026 (10:12–10:15 PM)
+This file is the verbatim source of truth for step-3 content prep. Do not edit to "improve" copy; edit only to correct transcription errors against the original message.
+
+=== COMPANY COPY ===
+
+BRAND LINE:
+TECHNOFLUID LUBRICANTS, a Brand of Lube Chem. Industries, India
+
+ABOUT:
+Our company Lube Chem. Industries is spirited JAS-ANS ISO 9001: 2015 certified Company, deals in massive range of products which feeds wide sum of small and large industries all over India, dealing in lubricants SINCE 1971. We formulate & manufacture vast range of Industrial Oils, Automotive Lubricants, Greases and other Specialty Oils that is Transformer Oils and Rubber Process Oils by the brand name TECHNOFLUID as per the international quality standards. Characteristics like remarkable lubrication ability, high flashpoint, low volatility, and low pour point possess our lubricants. We formulate products for every application.
+
+WHY CHOOSE US:
+With deep industry knowledge, advanced manufacturing capabilities, and a commitment to quality, TECHNOFLUID LUBRICANTS has built a strong reputation for:
+- Reliability and consistency
+- Customer trust
+- Technical excellence
+- Application-specific solutions
+We take pride in offering tailor-made lubrication solutions to meet every industrial and automotive need.
+
+OUR COMMITMENT:
+At TECHNOFLUID, we believe in continuous innovation and technological advancement, ensuring that our products not only meet but exceed industry expectations.
+
+=== INDUSTRIES WE SERVE ===
+(Final edited note from Gaurav: "Above is list of oil used in Industries (these all fall in 'Industries we Serve').")
+
+### Electric Arc Furnace (EAF) and Induction Furnace (IF) steel plants
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil (where required)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Slideway oil
+- Way lubricant
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- Compressor oil (ISO VG 32, 46, 68)
+- Turbine oil (for captive power units)
+- Quenching oil (fast / medium)
+- Rust preventive oil (RP oil)
+- Chain oil / conveyor oil
+- Open gear lubricant (for heavy drives)
+- Transformer oil (for induction furnace)
+- Heat transfer oil (if thermal systems used)
+- Spindle oil (for auxiliary equipment)
+
+### Mining
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Heavy-duty / high-performance hydraulic oil
+- Fire-resistant hydraulic oil (underground mining)
+- EP gear oil (ISO VG 150, 220, 320, 460, 680)
+- Open gear lubricant (high viscosity / asphaltic)
+- Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)
+- Transmission oil (TO-4 type)
+- UTTO (Universal Tractor Transmission Oil)
+- Final drive oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- Compressor oil (ISO VG 32, 46, 68)
+- Turbine oil (for power units)
+- Circulating oil
+- Chain oil / wire rope lubricant
+- Rock drill oil (pneumatic tools)
+- Slideway oil
+- Heat transfer oil
+- Rust preventive oil (RP oil)
+
+### Integrated Steel Plants
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- EP gear oil (ISO VG 150, 220, 320, 460, 680)
+- Open gear lubricant
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Rolling mill oil (hot rolling emulsions)
+- Cold rolling oil
+- Mold oil (continuous casting)
+- Quenching oil (fast / medium)
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- Slideway oil (way oil)
+- Chain oil / conveyor lubricant
+- Rust preventive oil (RP oil)
+- Wire rope lubricant
+- Heat transfer oil
+- Spindle oil
+
+### Earth Movers
+- Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Transmission oil (TO-4 type)
+- UTTO (Universal Tractor Transmission Oil)
+- Gear oil (EP – 80W-90, 85W-140, ISO grades)
+- Final drive oil
+- Axle oil
+- Grease (lithium, lithium complex)
+- Moly (MoS₂) grease
+- Calcium-based grease
+- Brake fluid
+- Coolant (antifreeze)
+- Compressor oil
+- Power steering oil
+- Multipurpose tractor oil (MTO)
+- Chain oil / linkage lubricant
+- Rust preventive oil (for storage)
+
+### Automobile plants
+- Water-soluble cutting oil (emulsion coolant)
+- Semi-synthetic cutting fluid
+- Neat cutting oil (straight cutting oil)
+- Grinding oil
+- Honing oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Slideway oil (way oil)
+- Spindle oil
+- EP gear oil (ISO VG 150, 220, 320)
+- Circulating oil
+- Grease (lithium, lithium complex)
+- Rust preventive oil (RP oil)
+- Stamping oil / forming oil
+- Drawing oil (deep drawing)
+- Rolling oil (for sheet processing)
+- Quenching oil (fast / medium)
+- Heat transfer oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Turbine oil
+- Chain oil / conveyor lubricant
+
+### Rolling Mills
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460, 680)
+- Open gear lubricant
+- Rolling mill oil (hot rolling emulsion)
+- Cold rolling oil
+- Circulating oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- Roll bearing oil / grease
+- Slideway oil (way oil)
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Rust preventive oil (RP oil)
+- Coolant oil (soluble oil)
+- Spindle oil
+- Compressor oil
+- Turbine oil
+- Heat transfer oil
+
+### Sponge iron (DRI) plants
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Open gear lubricant (kiln girth gear)
+- Circulating oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Compressor oil (ISO VG 32, 46, 68)
+- Turbine oil (for power units)
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Rust preventive oil (RP oil)
+- Heat transfer oil
+- Slideway oil (way oil)
+- Spindle oil
+
+### Alloy Steel and Special steel units
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- EP gear oil (ISO VG 150, 220, 320, 460, 680)
+- Open gear lubricant
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Quenching oil (fast / medium / martempering)
+- Polymer quenchants (water-based)
+- Rust preventive oil (RP oil)
+- Pickling inhibitor oil
+- Cold rolling oil
+- Drawing oil / forming oil
+- Stamping oil
+- Grinding oil
+- Honing oil
+- Slideway oil (way oil)
+- Spindle oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Heat transfer oil
+
+### Foundries
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Compressor oil (ISO VG 32, 46, 68)
+- Turbine oil (if captive power used)
+- Quenching oil (fast / medium)
+- Rust preventive oil (RP oil)
+- Die release oil / mold release oil
+- Core oil (for sand cores)
+- Heat transfer oil
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Slideway oil (way oil)
+- Spindle oil
+
+### Cold rolling and Processing Units
+- Cold rolling oil
+- Rolling oil (emulsion type)
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Rust preventive oil (RP oil)
+- Pickling oil / corrosion inhibitor oil
+- Skin pass rolling oil
+- Temper rolling oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Slideway oil (way oil)
+- Spindle oil
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Heat transfer oil
+
+### Cement Plants
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460, 680)
+- Open gear lubricant (kiln girth gear)
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Kiln support roller oil
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Rust preventive oil (RP oil)
+- Heat transfer oil
+- Slideway oil (way oil)
+- Spindle oil
+
+### Textile and Garment Industry
+- Spindle oil
+- Knitting oil
+- Weaving loom oil
+- Coning oil
+- Sewing machine oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320)
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Turbine oil
+- Heat transfer oil
+- Slideway oil (way oil)
+- Rust preventive oil (RP oil)
+- Antistatic oil
+- Softener oil (textile finishing)
+- Silicone oil (for fabric finishing)
+- Grease (lithium, lithium complex)
+- Chain oil / conveyor lubricant
+- Warping oil
+
+### Chemical and Petrochemical Units
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Refrigeration oil
+- Vacuum pump oil
+- Heat transfer oil
+- Thermic fluid oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Chain oil / conveyor lubricant
+- Rust preventive oil (RP oil)
+- Process oil (white oil / paraffinic / naphthenic)
+- Transformer oil
+- Insulating oil
+- Slideway oil (way oil)
+- Spindle oil
+
+### Food processing Units
+- Food-grade hydraulic oil (H1)
+- Food-grade gear oil (H1)
+- Food-grade compressor oil (H1)
+- Food-grade vacuum pump oil
+- Food-grade chain oil
+- Food-grade conveyor lubricant
+- Food-grade grease (H1)
+- Food-grade white oil (mineral oil)
+- Food-grade heat transfer oil
+- Food-grade release oil (mold release)
+- Food-grade rust preventive oil
+- Food-grade cutting oil (where applicable)
+- Food-grade spindle oil
+- Food-grade slideway oil (way oil)
+- Food-grade turbine oil
+
+### Pharmaceutical Units
+- Food-grade / pharma-grade white oil (liquid paraffin)
+- Food-grade hydraulic oil (H1)
+- Food-grade gear oil (H1)
+- Food-grade compressor oil (H1)
+- Food-grade vacuum pump oil
+- Food-grade chain oil
+- Food-grade conveyor lubricant
+- Food-grade grease (H1)
+- Food-grade heat transfer oil
+- Food-grade release oil (mold release)
+- Food-grade rust preventive oil
+- Food-grade spindle oil
+- Food-grade slideway oil (way oil)
+- Food-grade turbine oil
+- Process oil (white oil / highly refined mineral oil)
+
+### Paper Industry
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Vacuum pump oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- High-temperature grease
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Heat transfer oil
+- Rust preventive oil (RP oil)
+- Release oil / felt conditioning oil
+- Paper machine oil (PMO)
+- Yankee cylinder oil
+- Slideway oil (way oil)
+- Spindle oil
+
+### Stone Crusher
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Engine oil (HDEO – SAE 15W-40, 20W-40)
+- Open gear lubricant
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Rust preventive oil (RP oil)
+
+### Sugar Industry
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Open gear lubricant
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Chain oil / conveyor lubricant
+- Wire rope lubricant
+- Heat transfer oil
+- Rust preventive oil (RP oil)
+- Food-grade lubricant (H1)
+- Food-grade grease (H1)
+- Slideway oil (way oil)
+- Spindle oil
+
+### Agriculture and farming Sector
+- Engine oil (HDEO – SAE 15W-40, 20W-40)
+- Tractor engine oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- UTTO (Universal Tractor Transmission Oil)
+- Gear oil (EP – 80W-90, 85W-140)
+- Axle oil
+- Final drive oil
+- Brake oil (wet brake fluid)
+- Grease (lithium, lithium complex)
+- Moly (MoS₂) grease
+- Calcium-based grease
+- Multipurpose tractor oil (MTO)
+- Chain oil / bar oil (for chainsaw)
+- Rust preventive oil (RP oil)
+- Sprayer pump oil
+- Compressor oil
+- Coolant (antifreeze)
+
+### Marine and shipping Industry
+- Marine engine oil (trunk piston engine oil – TPEO)
+- Marine cylinder oil (crosshead engine oil)
+- System oil (marine system oil)
+- Auxiliary engine oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Gear oil (EP – marine gear oil)
+- Stern tube oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Refrigeration oil
+- Heat transfer oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- Wire rope lubricant
+- Chain oil / deck machinery lubricant
+- Rust preventive oil (RP oil)
+- Bilge oil / system oil blends
+
+### Printing Industry
+- Printing ink oil (mineral oil base)
+- Offset printing oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Gear oil (EP – ISO VG 150, 220, 320)
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Vacuum pump oil
+- Heatset web press oil
+- Release oil / anti-setoff spray oil
+- Silicone oil (for rollers)
+- Spindle oil
+- Slideway oil (way oil)
+- Chain oil / conveyor lubricant
+- Grease (lithium, lithium complex)
+- Food-grade lubricants (for packaging printing)
+- Rust preventive oil (RP oil)
+
+### Packaging Industry
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Gear oil (EP – ISO VG 150, 220, 320)
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Vacuum pump oil
+- Heat transfer oil
+- Chain oil / conveyor lubricant
+- Food-grade chain oil (H1)
+- Food-grade hydraulic oil (H1)
+- Food-grade gear oil (H1)
+- Food-grade grease (H1)
+- Grease (lithium, lithium complex)
+- Silicone oil (for sealing & release)
+- Release oil / mold release oil
+- Rust preventive oil (RP oil)
+- Spindle oil
+- Slideway oil (way oil)
+
+### Aviation Industry
+- Aviation turbine oil (jet engine oil)
+- Aircraft piston engine oil
+- Hydraulic oil (aviation grade, e.g., phosphate ester / mineral)
+- Synthetic hydraulic fluid (Skydrol type)
+- Gearbox oil (aviation gear oil)
+- Turbine oil
+- Compressor oil
+- Grease (aviation grade)
+- Instrument oil
+- Preservative oil (rust preventive)
+- De-icing fluid (glycol-based)
+- Heat transfer oil
+- Shock strut fluid (landing gear oil)
+- Propeller oil
+- Fire-resistant hydraulic oil
+
+### Power Generation
+- Turbine oil (steam turbine oil)
+- Gas turbine oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- Transformer oil (insulating oil)
+- Compressor oil (ISO VG 32, 46, 68)
+- Gear oil (EP – ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Heat transfer oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- High-temperature grease
+- Moly (MoS₂) grease
+- Vacuum pump oil
+- Rust preventive oil (RP oil)
+- Bearing oil
+- Insulating oil
+
+### Fertilizer Industry
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Turbine oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Refrigeration oil
+- Vacuum pump oil
+- Heat transfer oil
+- Thermic fluid oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- Moly (MoS₂) grease
+- High-temperature grease
+- Chain oil / conveyor lubricant
+- Rust preventive oil (RP oil)
+- Process oil
+- Transformer oil
+- Insulating oil
+- Slideway oil (way oil)
+- Spindle oil
+
+### Plastic and Polymer Industry
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Vacuum pump oil
+- Heat transfer oil
+- Thermic fluid oil
+- Mold release oil
+- Silicone oil
+- Process oil (paraffinic / naphthenic / white oil)
+- Plasticizer oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- High-temperature grease
+- Moly (MoS₂) grease
+- Chain oil / conveyor lubricant
+- Rust preventive oil (RP oil)
+- Slideway oil (way oil)
+- Spindle oil
+
+### Rubber Industry
+- Process oil (paraffinic / naphthenic / aromatic)
+- Rubber processing oil (RPO)
+- White oil (for non-staining applications)
+- Plasticizer oil
+- Mold release oil
+- Silicone oil
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Vacuum pump oil
+- Heat transfer oil
+- Thermic fluid oil
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- High-temperature grease
+- Moly (MoS₂) grease
+- Chain oil / conveyor lubricant
+- Rust preventive oil (RP oil)
+- Slideway oil (way oil)
+- Spindle oil
+
+### Glass Industry
+- Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)
+- Fire-resistant hydraulic oil
+- EP gear oil (ISO VG 150, 220, 320, 460)
+- Circulating oil
+- Compressor oil (ISO VG 32, 46, 68)
+- Vacuum pump oil
+- Heat transfer oil
+- Thermic fluid oil
+- Mold release oil
+- Machine oil (IS machine lubricant)
+- Grease (lithium, lithium complex)
+- Calcium sulfonate grease
+- High-temperature grease
+- Moly (MoS₂) grease
+- Chain oil / conveyor lubricant
+- Rust preventive oil (RP oil)
+- Slideway oil (way oil)
+- Spindle oil
+
+=== AUTOMOTIVE OILS ===
+(A product group, not an "industry we serve" — the automotive product range.)
+
+### Automotive Oils
+- Engine oil (petrol & diesel)
+- Gear oil (manual transmission oil)
+- Automatic transmission fluid (ATF)
+- CVT fluid
+- Dual clutch transmission fluid (DCT oil)
+- Differential oil
+- Final drive oil
+- Transfer case oil
+- Hydraulic oil (power steering fluid)
+- Brake fluid
+- Coolant (antifreeze)
+- Shock absorber oil
+- Fork oil (for two-wheelers)
+- Grease (wheel bearing, chassis)
+- Multipurpose grease
+- Chain lubricant (for bikes)
+- Rust preventive oil

@@ -1,0 +1,2820 @@
+{
+  "source": "Gaurav Verma WhatsApp, 31 Mar 2026",
+  "generatedFrom": {
+    "content": "docs/_source-gaurav-whatsapp-2026-03-31.txt",
+    "catalogue": "docs/catalogue-2026.json"
+  },
+  "summary": {
+    "industries": 28,
+    "totalTypeMentions": 526,
+    "linkedToSeries": 258,
+    "unlinked": 268,
+    "distinctUnlinkedTypes": 94
+  },
+  "industries": [
+    {
+      "name": "Electric Arc Furnace (EAF) and Induction Furnace (IF) steel plants",
+      "slug": "electric-arc-furnace-eaf-and-induction-furnace-if-steel-plants",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil (where required)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Slideway oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Way lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil (for captive power units)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Quenching oil (fast / medium)",
+          "series": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+          "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Chain oil / conveyor oil",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Open gear lubricant (for heavy drives)",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Transformer oil (for induction furnace)",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        },
+        {
+          "label": "Heat transfer oil (if thermal systems used)",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Spindle oil (for auxiliary equipment)",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Mining",
+      "slug": "mining",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Heavy-duty / high-performance hydraulic oil",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil (underground mining)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460, 680)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant (high viscosity / asphaltic)",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)",
+          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+        },
+        {
+          "label": "Transmission oil (TO-4 type)",
+          "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+          "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+        },
+        {
+          "label": "UTTO (Universal Tractor Transmission Oil)",
+          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+        },
+        {
+          "label": "Final drive oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil (for power units)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Chain oil / wire rope lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rock drill oil (pneumatic tools)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        }
+      ]
+    },
+    {
+      "name": "Integrated Steel Plants",
+      "slug": "integrated-steel-plants",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460, 680)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rolling mill oil (hot rolling emulsions)",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Cold rolling oil",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Mold oil (continuous casting)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Quenching oil (fast / medium)",
+          "series": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+          "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Earth Movers",
+      "slug": "earth-movers",
+      "types": [
+        {
+          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)",
+          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Transmission oil (TO-4 type)",
+          "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+          "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+        },
+        {
+          "label": "UTTO (Universal Tractor Transmission Oil)",
+          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+        },
+        {
+          "label": "Gear oil (EP – 80W-90, 85W-140, ISO grades)",
+          "series": "AUTOMOTIVE GEAR OILS – TECHNOFLUID EP SERIES",
+          "seriesSlug": "automotive-gear-oils-technofluid-ep-series"
+        },
+        {
+          "label": "Final drive oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Axle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Calcium-based grease",
+          "series": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
+          "seriesSlug": "grease-technofluid-calcium-base-grease"
+        },
+        {
+          "label": "Brake fluid",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Coolant (antifreeze)",
+          "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+          "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
+        },
+        {
+          "label": "Compressor oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Power steering oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Multipurpose tractor oil (MTO)",
+          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+        },
+        {
+          "label": "Chain oil / linkage lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (for storage)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        }
+      ]
+    },
+    {
+      "name": "Automobile plants",
+      "slug": "automobile-plants",
+      "types": [
+        {
+          "label": "Water-soluble cutting oil (emulsion coolant)",
+          "series": "METAL WORKING FLUID – TECHNOFLUID CUTTING OIL",
+          "seriesSlug": "metal-working-fluid-technofluid-cutting-oil"
+        },
+        {
+          "label": "Semi-synthetic cutting fluid",
+          "series": "SEMI SYNTHETIC CUTTING OIL – TECHNOFLUID SEMI SYNTHETIC CUTTING OIL",
+          "seriesSlug": "semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil"
+        },
+        {
+          "label": "Neat cutting oil (straight cutting oil)",
+          "series": "NEAT CUTTING OIL – TECHNOFLUID NEAT CUTTING OIL 55",
+          "seriesSlug": "neat-cutting-oil-technofluid-neat-cutting-oil-55"
+        },
+        {
+          "label": "Grinding oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Honing oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Stamping oil / forming oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Drawing oil (deep drawing)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rolling oil (for sheet processing)",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Quenching oil (fast / medium)",
+          "series": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+          "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32"
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        }
+      ]
+    },
+    {
+      "name": "Rolling Mills",
+      "slug": "rolling-mills",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460, 680)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Rolling mill oil (hot rolling emulsion)",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Cold rolling oil",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Roll bearing oil / grease",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Coolant oil (soluble oil)",
+          "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+          "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        }
+      ]
+    },
+    {
+      "name": "Sponge iron (DRI) plants",
+      "slug": "sponge-iron-dri-plants",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant (kiln girth gear)",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil (for power units)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Alloy Steel and Special steel units",
+      "slug": "alloy-steel-and-special-steel-units",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460, 680)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Quenching oil (fast / medium / martempering)",
+          "series": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+          "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32"
+        },
+        {
+          "label": "Polymer quenchants (water-based)",
+          "series": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+          "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Pickling inhibitor oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Cold rolling oil",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Drawing oil / forming oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Stamping oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grinding oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Honing oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        }
+      ]
+    },
+    {
+      "name": "Foundries",
+      "slug": "foundries",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil (if captive power used)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Quenching oil (fast / medium)",
+          "series": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+          "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Die release oil / mold release oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Core oil (for sand cores)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Cold rolling and Processing Units",
+      "slug": "cold-rolling-and-processing-units",
+      "types": [
+        {
+          "label": "Cold rolling oil",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Rolling oil (emulsion type)",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Pickling oil / corrosion inhibitor oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Skin pass rolling oil",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Temper rolling oil",
+          "series": "TECHNOFLUID ROLL PERFECT 22",
+          "seriesSlug": "technofluid-roll-perfect-22"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        }
+      ]
+    },
+    {
+      "name": "Cement Plants",
+      "slug": "cement-plants",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460, 680)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant (kiln girth gear)",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Kiln support roller oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Textile and Garment Industry",
+      "slug": "textile-and-garment-industry",
+      "types": [
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Knitting oil",
+          "series": "TEXTILE LUBRICANT – TECHNOFLUID KNITTING OIL",
+          "seriesSlug": "textile-lubricant-technofluid-knitting-oil"
+        },
+        {
+          "label": "Weaving loom oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Coning oil",
+          "series": "TEXTILE LUBRICANT – TECHNOFLUID CONING OIL",
+          "seriesSlug": "textile-lubricant-technofluid-coning-oil"
+        },
+        {
+          "label": "Sewing machine oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Antistatic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Softener oil (textile finishing)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Silicone oil (for fabric finishing)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Warping oil",
+          "series": "TEXTILE LUBRICANT – TECHNOFLUID WARPING OIL",
+          "seriesSlug": "textile-lubricant-technofluid-warping-oil"
+        }
+      ]
+    },
+    {
+      "name": "Chemical and Petrochemical Units",
+      "slug": "chemical-and-petrochemical-units",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Refrigeration oil",
+          "series": "REFRIGERATION OIL – TECHNOFLUID REFRIGERATION OIL (Grades 46 & 68)",
+          "seriesSlug": "refrigeration-oil-technofluid-refrigeration-oil-grades-46-68"
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Thermic fluid oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Process oil (white oil / paraffinic / naphthenic)",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Transformer oil",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        },
+        {
+          "label": "Insulating oil",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Food processing Units",
+      "slug": "food-processing-units",
+      "types": [
+        {
+          "label": "Food-grade hydraulic oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade gear oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade compressor oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade chain oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade conveyor lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade grease (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade white oil (mineral oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade heat transfer oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade release oil (mold release)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade rust preventive oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade cutting oil (where applicable)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade turbine oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Pharmaceutical Units",
+      "slug": "pharmaceutical-units",
+      "types": [
+        {
+          "label": "Food-grade / pharma-grade white oil (liquid paraffin)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade hydraulic oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade gear oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade compressor oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade chain oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade conveyor lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade grease (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade heat transfer oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade release oil (mold release)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade rust preventive oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Process oil (white oil / highly refined mineral oil)",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        }
+      ]
+    },
+    {
+      "name": "Paper Industry",
+      "slug": "paper-industry",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Release oil / felt conditioning oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Paper machine oil (PMO)",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Yankee cylinder oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Stone Crusher",
+      "slug": "stone-crusher",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40)",
+          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+        },
+        {
+          "label": "Open gear lubricant",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        }
+      ]
+    },
+    {
+      "name": "Sugar Industry",
+      "slug": "sugar-industry",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Open gear lubricant",
+          "series": "TECHNOFLUID GIRTH GEAR GREASE",
+          "seriesSlug": "technofluid-girth-gear-grease"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Food-grade lubricant (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade grease (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Agriculture and farming Sector",
+      "slug": "agriculture-and-farming-sector",
+      "types": [
+        {
+          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40)",
+          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+        },
+        {
+          "label": "Tractor engine oil",
+          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "UTTO (Universal Tractor Transmission Oil)",
+          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+        },
+        {
+          "label": "Gear oil (EP – 80W-90, 85W-140)",
+          "series": "AUTOMOTIVE GEAR OILS – TECHNOFLUID EP SERIES",
+          "seriesSlug": "automotive-gear-oils-technofluid-ep-series"
+        },
+        {
+          "label": "Axle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Final drive oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Brake oil (wet brake fluid)",
+          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Calcium-based grease",
+          "series": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
+          "seriesSlug": "grease-technofluid-calcium-base-grease"
+        },
+        {
+          "label": "Multipurpose tractor oil (MTO)",
+          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+        },
+        {
+          "label": "Chain oil / bar oil (for chainsaw)",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Sprayer pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Coolant (antifreeze)",
+          "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+          "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
+        }
+      ]
+    },
+    {
+      "name": "Marine and shipping Industry",
+      "slug": "marine-and-shipping-industry",
+      "types": [
+        {
+          "label": "Marine engine oil (trunk piston engine oil – TPEO)",
+          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+        },
+        {
+          "label": "Marine cylinder oil (crosshead engine oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "System oil (marine system oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Auxiliary engine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Gear oil (EP – marine gear oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Stern tube oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Refrigeration oil",
+          "series": "REFRIGERATION OIL – TECHNOFLUID REFRIGERATION OIL (Grades 46 & 68)",
+          "seriesSlug": "refrigeration-oil-technofluid-refrigeration-oil-grades-46-68"
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Wire rope lubricant",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / deck machinery lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Bilge oil / system oil blends",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Printing Industry",
+      "slug": "printing-industry",
+      "types": [
+        {
+          "label": "Printing ink oil (mineral oil base)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Offset printing oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Gear oil (EP – ISO VG 150, 220, 320)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heatset web press oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Release oil / anti-setoff spray oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Silicone oil (for rollers)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Food-grade lubricants (for packaging printing)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        }
+      ]
+    },
+    {
+      "name": "Packaging Industry",
+      "slug": "packaging-industry",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Gear oil (EP – ISO VG 150, 220, 320)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Food-grade chain oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade hydraulic oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade gear oil (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Food-grade grease (H1)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Silicone oil (for sealing & release)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Release oil / mold release oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Aviation Industry",
+      "slug": "aviation-industry",
+      "types": [
+        {
+          "label": "Aviation turbine oil (jet engine oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Aircraft piston engine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Hydraulic oil (aviation grade, e.g., phosphate ester / mineral)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Synthetic hydraulic fluid (Skydrol type)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Gearbox oil (aviation gear oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Grease (aviation grade)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Instrument oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Preservative oil (rust preventive)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "De-icing fluid (glycol-based)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Shock strut fluid (landing gear oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Propeller oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Power Generation",
+      "slug": "power-generation",
+      "types": [
+        {
+          "label": "Turbine oil (steam turbine oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Gas turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Transformer oil (insulating oil)",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Gear oil (EP – ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Bearing oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Insulating oil",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        }
+      ]
+    },
+    {
+      "name": "Fertilizer Industry",
+      "slug": "fertilizer-industry",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Turbine oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Refrigeration oil",
+          "series": "REFRIGERATION OIL – TECHNOFLUID REFRIGERATION OIL (Grades 46 & 68)",
+          "seriesSlug": "refrigeration-oil-technofluid-refrigeration-oil-grades-46-68"
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Thermic fluid oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Process oil",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Transformer oil",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        },
+        {
+          "label": "Insulating oil",
+          "series": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+          "seriesSlug": "insulating-oil-technofluid-transformer-oil"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Plastic and Polymer Industry",
+      "slug": "plastic-and-polymer-industry",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Thermic fluid oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Mold release oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Silicone oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Process oil (paraffinic / naphthenic / white oil)",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Plasticizer oil",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Rubber Industry",
+      "slug": "rubber-industry",
+      "types": [
+        {
+          "label": "Process oil (paraffinic / naphthenic / aromatic)",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Rubber processing oil (RPO)",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "White oil (for non-staining applications)",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Plasticizer oil",
+          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+          "seriesSlug": "process-oil-technofluid-pvc-oil"
+        },
+        {
+          "label": "Mold release oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Silicone oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Thermic fluid oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    },
+    {
+      "name": "Glass Industry",
+      "slug": "glass-industry",
+      "types": [
+        {
+          "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
+          "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+          "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+        },
+        {
+          "label": "Fire-resistant hydraulic oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "EP gear oil (ISO VG 150, 220, 320, 460)",
+          "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+          "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+        },
+        {
+          "label": "Circulating oil",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Compressor oil (ISO VG 32, 46, 68)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Vacuum pump oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Heat transfer oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Thermic fluid oil",
+          "series": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+          "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium"
+        },
+        {
+          "label": "Mold release oil",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Machine oil (IS machine lubricant)",
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+        },
+        {
+          "label": "Grease (lithium, lithium complex)",
+          "series": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+          "seriesSlug": "grease-technofluid-lithium-complex-grease"
+        },
+        {
+          "label": "Calcium sulfonate grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "High-temperature grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Moly (MoS₂) grease",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Chain oil / conveyor lubricant",
+          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+        },
+        {
+          "label": "Rust preventive oil (RP oil)",
+          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+        },
+        {
+          "label": "Slideway oil (way oil)",
+          "series": null,
+          "seriesSlug": null
+        },
+        {
+          "label": "Spindle oil",
+          "series": null,
+          "seriesSlug": null
+        }
+      ]
+    }
+  ],
+  "automotiveOils": {
+    "name": "Automotive Oils",
+    "slug": "automotive-oils",
+    "types": [
+      {
+        "label": "Engine oil (petrol & diesel)",
+        "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+        "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+      },
+      {
+        "label": "Gear oil (manual transmission oil)",
+        "series": "AUTOMOTIVE GEAR OILS – TECHNOFLUID EP SERIES",
+        "seriesSlug": "automotive-gear-oils-technofluid-ep-series"
+      },
+      {
+        "label": "Automatic transmission fluid (ATF)",
+        "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+        "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+      },
+      {
+        "label": "CVT fluid",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Dual clutch transmission fluid (DCT oil)",
+        "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+        "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+      },
+      {
+        "label": "Differential oil",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Final drive oil",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Transfer case oil",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Hydraulic oil (power steering fluid)",
+        "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+        "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460"
+      },
+      {
+        "label": "Brake fluid",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Coolant (antifreeze)",
+        "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+        "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
+      },
+      {
+        "label": "Shock absorber oil",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Fork oil (for two-wheelers)",
+        "series": null,
+        "seriesSlug": null
+      },
+      {
+        "label": "Grease (wheel bearing, chassis)",
+        "series": "TECHNOFLUID GREASE WR-2 (Water Resistant Grease)",
+        "seriesSlug": "technofluid-grease-wr-2-water-resistant-grease"
+      },
+      {
+        "label": "Multipurpose grease",
+        "series": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
+        "seriesSlug": "grease-technofluid-calcium-base-grease"
+      },
+      {
+        "label": "Chain lubricant (for bikes)",
+        "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+        "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+      },
+      {
+        "label": "Rust preventive oil",
+        "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+        "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
+      }
+    ]
+  }
+}
