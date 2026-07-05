@@ -13,6 +13,7 @@ import type { CompanyContent } from "@/types/content";
 const COMPANY = company as CompanyContent;
 
 const NAV_LINKS = [
+  { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
   { label: "Industries", href: "/industries" },
   { label: "About", href: "/about" },
