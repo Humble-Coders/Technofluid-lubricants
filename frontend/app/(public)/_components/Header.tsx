@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ASSETS } from "@/content/assets";
@@ -29,7 +28,7 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="transform-gpu sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
         <Link href="/" className="flex items-center">
           <Image
@@ -104,15 +103,12 @@ export default function Header() {
         </button>
       </nav>
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="overflow-hidden border-t border-border bg-white md:hidden"
-          >
+      <div
+        className="grid transition-[grid-template-rows] duration-200 ease-out md:hidden"
+        style={{ gridTemplateRows: menuOpen ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-border bg-white">
             <ul className="flex flex-col gap-1 px-4 pb-2 pt-3">
               {NAV_LINKS.map((link) => {
                 const active = isActiveLink(pathname, link.href);
@@ -144,9 +140,9 @@ export default function Header() {
                 Enquire
               </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

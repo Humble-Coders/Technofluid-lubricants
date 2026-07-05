@@ -1,13 +1,42 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useSyncExternalStore } from "react";
 import company from "@/content/company.json";
 import { BRAND } from "@/content/brand";
 import type { CompanyContent } from "@/types/content";
 
 const COMPANY = company as CompanyContent;
 
+const CARD_ANIMATION_QUERY = "(min-width: 640px)";
+
+function subscribeToCardAnimationQuery(callback: () => void) {
+  const mq = window.matchMedia(CARD_ANIMATION_QUERY);
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getCardAnimationSnapshot() {
+  return window.matchMedia(CARD_ANIMATION_QUERY).matches;
+}
+
+function getCardAnimationServerSnapshot() {
+  return false;
+}
+
+// Card entrance animation is desktop/tablet only — disabled below the `sm`
+// breakpoint, matching the grid-cols-2 switch, since it lagged on mobile.
+function useCardAnimationEnabled() {
+  return useSyncExternalStore(
+    subscribeToCardAnimationQuery,
+    getCardAnimationSnapshot,
+    getCardAnimationServerSnapshot,
+  );
+}
+
 export default function WhyChooseUs() {
+  const cardAnimationEnabled = useCardAnimationEnabled();
+
   return (
     <section className="relative overflow-hidden bg-[#F6F7F8] pb-20 pt-10 lg:pb-28 lg:pt-14">
       {/* Decorative geometric elements */}
@@ -103,8 +132,8 @@ export default function WhyChooseUs() {
           {COMPANY.whyChooseUs.points.map((point, i) => (
             <motion.div
               key={point}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={cardAnimationEnabled ? { opacity: 0, y: 24 } : false}
+              whileInView={cardAnimationEnabled ? { opacity: 1, y: 0 } : undefined}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.1 }}
               className="
