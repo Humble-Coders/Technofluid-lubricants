@@ -29,14 +29,26 @@ const fadeUp = {
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-[calc(100vh-70px)] flex-col overflow-hidden border-b border-border bg-white">
+    <section className="relative flex flex-col overflow-hidden border-b border-border bg-white lg:min-h-[calc(100vh-70px)]">
       <div className="relative flex flex-1 flex-col lg:flex-row">
         {/* Copy — left half */}
-        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-16 lg:w-1/2 lg:pl-20 lg:pr-12 lg:py-24 xl:pl-24">
+        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:pl-20 lg:pr-12 lg:py-24 xl:pl-24">
+          {/* Background image — mobile only, scoped to this column so its
+              foreground detail lands behind the copy, not the carousel below */}
+          <div aria-hidden className="absolute inset-0 lg:hidden">
+            <Image
+              src="/hero-mobile-bg.png"
+              alt=""
+              fill
+              priority
+              className="object-cover object-right-bottom opacity-20"
+            />
+          </div>
+
           {/* Bold ambient colour wash */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -left-32 -top-32 h-[560px] w-[560px] rounded-full opacity-[0.22] blur-3xl"
+            className="pointer-events-none absolute -left-32 -top-32 hidden h-[560px] w-[560px] transform-gpu rounded-full opacity-[0.22] blur-3xl lg:block"
             style={{
               background: `conic-gradient(from -40deg, ${BRAND.red} 0deg, ${BRAND.orange} 120deg, ${BRAND.peach} 220deg, transparent 320deg)`,
             }}
@@ -121,18 +133,18 @@ export default function Hero() {
 
             <motion.div
               variants={fadeUp}
-              className="mt-8 flex flex-wrap gap-4"
+              className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4"
             >
               <Link
                 href="/products"
                 style={{ backgroundColor: BRAND.orange }}
-                className="rounded-lg px-6 py-3 text-[13px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                className="rounded-lg px-6 py-3 text-center text-[13px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
               >
                 Explore products
               </Link>
               <Link
                 href="/contact"
-                className="rounded-lg border border-border px-6 py-3 text-[13px] font-semibold text-textPrimary transition-colors hover:bg-page"
+                className="rounded-lg border border-border px-6 py-3 text-center text-[13px] font-semibold text-textPrimary transition-colors hover:bg-page"
               >
                 Enquire
               </Link>
@@ -141,47 +153,47 @@ export default function Hero() {
             {/* Colourful trust strip */}
             <motion.div
               variants={fadeUp}
-              className="mt-10 flex flex-wrap gap-3"
+              className="mt-10 grid grid-cols-3 gap-3"
             >
               <div
-                className="rounded-xl px-4 py-3"
+                className="rounded-xl px-3 py-3 sm:px-4"
                 style={{ backgroundColor: `${BRAND.orange}14` }}
               >
                 <p
-                  className="text-[1.3rem] font-extrabold leading-none"
+                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
                   style={{ color: BRAND.orange }}
                 >
                   {COMPANY.since}
                 </p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-textSecondary">
+                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
                   Established
                 </p>
               </div>
               <div
-                className="rounded-xl px-4 py-3"
+                className="rounded-xl px-3 py-3 sm:px-4"
                 style={{ backgroundColor: `${BRAND.red}14` }}
               >
                 <p
-                  className="text-[1.3rem] font-extrabold leading-none"
+                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
                   style={{ color: BRAND.red }}
                 >
                   {INDUSTRIES_COUNT}
                 </p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-textSecondary">
+                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
                   Industries Served
                 </p>
               </div>
               <div
-                className="rounded-xl px-4 py-3"
+                className="rounded-xl px-3 py-3 sm:px-4"
                 style={{ backgroundColor: `${BRAND.charcoal}0D` }}
               >
                 <p
-                  className="text-[1.3rem] font-extrabold leading-none"
+                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
                   style={{ color: BRAND.charcoal }}
                 >
                   ISO 9001
                 </p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-textSecondary">
+                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
                   Certified Quality
                 </p>
               </div>

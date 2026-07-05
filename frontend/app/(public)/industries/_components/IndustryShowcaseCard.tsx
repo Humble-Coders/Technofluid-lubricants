@@ -64,7 +64,7 @@ export default function IndustryShowcaseCard({
 
         <div className="flex items-center justify-between border-t border-border pt-4">
           <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-textSecondary">
-            {industry.types.length} types matched
+            {industry.types.length} lubricant types
           </span>
           <span
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[14px] transition-transform group-hover:translate-x-1"

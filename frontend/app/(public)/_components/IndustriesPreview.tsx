@@ -9,7 +9,7 @@ import IndustriesCarousel from "./IndustriesCarousel";
 import IndustryCard from "./IndustryCard";
 
 const DATA = industriesData as IndustriesContent;
-const PREVIEW = DATA.industries.slice(0, 8);
+const PREVIEW = DATA.industries;
 const TOTAL = DATA.summary.industries;
 
 export default function IndustriesPreview() {

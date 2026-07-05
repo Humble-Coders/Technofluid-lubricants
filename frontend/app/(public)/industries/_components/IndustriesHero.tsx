@@ -76,7 +76,7 @@ export default function IndustriesHero() {
           className="mt-4 max-w-2xl text-[15px] leading-relaxed text-white/75"
         >
           From steel and mining to pharma and marine, {SUMMARY.industries}{" "}
-          industries rely on Technofluid lubricants matched to their exact
+          industries rely on Technofluid lubricants suited to their exact
           duty — filter by sector or search below to find yours.
         </motion.p>
 
@@ -100,7 +100,7 @@ export default function IndustriesHero() {
               {SUMMARY.linkedToSeries}+
             </p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/70">
-              Lubricant Types Matched
+              Lubricant Types
             </p>
           </div>
           <div className="rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm">

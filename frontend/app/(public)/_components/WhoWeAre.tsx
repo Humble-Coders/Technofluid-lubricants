@@ -65,7 +65,7 @@ export default function WhoWeAre() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative mx-auto flex aspect-square w-full max-w-[260px] items-center justify-center"
+          className="relative mx-auto hidden aspect-square w-full max-w-[260px] items-center justify-center lg:flex"
         >
           {/* Concentric measurement rings, centred on this badge */}
           <div
@@ -124,12 +124,27 @@ export default function WhoWeAre() {
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
         >
-          <p
-            className="text-[11px] font-bold uppercase tracking-[0.28em]"
-            style={{ color: BRAND.orange }}
-          >
-            Who We Are
-          </p>
+          {/* Eyebrow row — on mobile, pairs with an inline "Established" stat replacing the circular badge above */}
+          <div className="flex items-center justify-between gap-4 lg:block">
+            <p
+              className="text-[11px] font-bold uppercase tracking-[0.28em]"
+              style={{ color: BRAND.orange }}
+            >
+              Who We Are
+            </p>
+
+            <div className="flex items-baseline gap-1.5 lg:hidden">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-textSecondary">
+                Est.
+              </span>
+              <span
+                className="text-[16px] font-extrabold leading-none"
+                style={{ color: BRAND.orange }}
+              >
+                {COMPANY.since}
+              </span>
+            </div>
+          </div>
 
           <h2 className="mt-3 text-[1.9rem] font-extrabold leading-tight tracking-tight text-textPrimary sm:text-[2.2rem]">
             {COMPANY.brandLine}

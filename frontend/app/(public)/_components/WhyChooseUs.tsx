@@ -60,7 +60,7 @@ export default function WhyChooseUs() {
       {/* Rotating ring accent behind the heading */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-6 top-6 h-40 w-40 rounded-full opacity-[0.22] blur-2xl lg:left-10"
+        className="pointer-events-none absolute left-6 top-6 h-40 w-40 transform-gpu rounded-full opacity-[0.22] blur-2xl lg:left-10"
         style={{
           background: `conic-gradient(from 20deg, ${BRAND.red} 0deg, ${BRAND.orange} 150deg, ${BRAND.peach} 260deg, transparent 340deg)`,
         }}
@@ -110,6 +110,7 @@ export default function WhyChooseUs() {
               className="
                 group
                 relative
+                transform-gpu
                 overflow-hidden
                 rounded-3xl
                 border
