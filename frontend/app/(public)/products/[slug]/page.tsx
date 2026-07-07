@@ -154,7 +154,7 @@ export default async function ProductSeriesPage({
           />
         </svg>
 
-        <div className="relative mx-auto max-w-5xl px-6 pb-14 pt-10 lg:px-8">
+        <div className="relative mx-auto max-w-6xl px-6 pb-14 pt-10 lg:px-8">
           <Link
             href="/products"
             className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-textSecondary transition-colors hover:text-textPrimary"
@@ -216,7 +216,7 @@ export default async function ProductSeriesPage({
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 px-6 py-14 lg:grid-cols-[1fr_300px] lg:gap-14 lg:px-8">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-14 lg:grid-cols-[1fr_320px] lg:gap-16 lg:px-8">
         <div className="flex flex-col gap-8">
           {descriptionSection && (
             <section
@@ -286,19 +286,6 @@ export default async function ProductSeriesPage({
               </div>
             </section>
           ))}
-
-          {series.specTables.length > 0 && (
-            <section className="rounded-3xl border border-border bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="text-[13px] font-bold uppercase tracking-[0.15em] text-textPrimary">
-                Specifications
-              </h2>
-              <div className="mt-4 space-y-6">
-                {series.specTables.map((table, i) => (
-                  <SeriesSpecTable key={i} table={table} />
-                ))}
-              </div>
-            </section>
-          )}
         </div>
 
         <aside className="flex flex-col gap-5 lg:sticky lg:top-24 lg:self-start">
@@ -346,6 +333,21 @@ export default async function ProductSeriesPage({
           </div>
         </aside>
       </div>
+
+      {series.specTables.length > 0 && (
+        <div className="mx-auto max-w-6xl px-6 pb-14 lg:px-8">
+          <section className="rounded-3xl border border-border bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="text-[13px] font-bold uppercase tracking-[0.15em] text-textPrimary">
+              Specifications
+            </h2>
+            <div className="mt-4 space-y-6">
+              {series.specTables.map((table, i) => (
+                <SeriesSpecTable key={i} table={table} />
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
     </article>
   );
 }
