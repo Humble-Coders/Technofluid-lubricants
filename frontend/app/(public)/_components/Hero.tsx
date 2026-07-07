@@ -106,7 +106,7 @@ export default function Hero() {
 
             <motion.div variants={fadeUp}>
               <Image
-                src="/hero-logo.png"
+                src="/logo-no_bg.png"
                 alt={COMPANY.brandLine}
                 width={280}
                 height={72}
