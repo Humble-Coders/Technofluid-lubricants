@@ -335,9 +335,9 @@ export default async function ProductSeriesPage({
       </div>
 
       {series.specTables.length > 0 && (
-        <div className="mx-auto max-w-6xl px-6 pb-14 lg:px-8">
-          <section className="rounded-3xl border border-border bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-[13px] font-bold uppercase tracking-[0.15em] text-textPrimary">
+        <div className="mx-auto max-w-6xl px-3 pb-14 sm:px-6 lg:px-8">
+          <section className="rounded-3xl border border-border bg-white p-3 shadow-sm sm:p-6 lg:p-8">
+            <h2 className="px-1 text-[13px] font-bold uppercase tracking-[0.15em] text-textPrimary sm:px-0">
               Specifications
             </h2>
             <div className="mt-4 space-y-6">

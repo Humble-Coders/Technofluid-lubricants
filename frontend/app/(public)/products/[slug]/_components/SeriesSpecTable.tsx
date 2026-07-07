@@ -12,7 +12,7 @@ export default function SeriesSpecTable({ table }: { table: SpecTable }) {
             {headerRow.map((cell, i) => (
               <th
                 key={i}
-                className="whitespace-nowrap px-4 py-3 font-semibold text-textPrimary"
+                className="whitespace-nowrap px-2.5 py-2 font-semibold text-textPrimary sm:px-4 sm:py-3"
               >
                 {cell}
               </th>
@@ -26,7 +26,7 @@ export default function SeriesSpecTable({ table }: { table: SpecTable }) {
               className="border-t border-border odd:bg-white even:bg-black/[0.015]"
             >
               {row.map((cell, cellIndex) => (
-                <td key={cellIndex} className="px-4 py-3 text-textSecondary">
+                <td key={cellIndex} className="px-2.5 py-2 text-textSecondary sm:px-4 sm:py-3">
                   {cell}
                 </td>
               ))}
