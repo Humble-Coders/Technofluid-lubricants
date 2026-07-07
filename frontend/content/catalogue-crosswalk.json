@@ -1,0 +1,2003 @@
+{
+  "generatedFrom": {
+    "catalogue": "docs/catalogue-2026.json (36 series)",
+    "master": "docs/Technofluid-Product-Master-DRAFT.xlsx (320 SKUs / 199 families)"
+  },
+  "summary": {
+    "seriesTotal": 36,
+    "seriesMapped": 31,
+    "seriesAvailableOnRequest": 5,
+    "skusTotal": 320,
+    "skusMapped": 315,
+    "skusOrphan": 5,
+    "needsConfirmation": 6
+  },
+  "series": [
+    {
+      "seriesId": 1,
+      "catalogueTitle": "QUENCHING OIL \u2013 TECHNOFLUID Q 39 & QLP 32",
+      "commercialName": "Q 39 & QLP 32",
+      "productType": "Quenching Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 6,
+      "masterFamilies": [
+        {
+          "product": "Quenching Oil( Group 1)",
+          "skuCount": 3,
+          "skus": [
+            "QUEOILGRO-210LBARR",
+            "QUEOILGRO-26LCANE",
+            "QUEOILGRO-50LCANE"
+          ]
+        },
+        {
+          "product": "Quenching Oil( Group 2)",
+          "skuCount": 3,
+          "skus": [
+            "QUEOILGRO-210LBARR-2",
+            "QUEOILGRO-26LCANE-2",
+            "QUEOILGRO-50LCANE-2"
+          ]
+        }
+      ],
+      "needsConfirmation": true,
+      "confirmNote": "Master splits quenching into 'Group 1' & 'Group 2'; catalogue names them 'Q 39' (Group I) & 'QLP 32' (Group II). Confirm Q 39 = Group 1 and QLP 32 = Group 2."
+    },
+    {
+      "seriesId": 2,
+      "catalogueTitle": "HEAT TRANSFER FLUID \u2013 TECHNOFLUID HT 32 PREMIUM",
+      "commercialName": "HT 32 PREMIUM",
+      "productType": "Heat Transfer Fluid",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Thermic Fluid HT 32 premium",
+          "skuCount": 3,
+          "skus": [
+            "THEFLUHT-210LBARR",
+            "THEFLUHT-26LCANE",
+            "THEFLUHT-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 3,
+      "catalogueTitle": "REFRIGERATION OIL \u2013 TECHNOFLUID REFRIGERATION OIL (Grades 46 & 68)",
+      "commercialName": "REFRIGERATION OIL 46 & REFRIGERATION OIL 68",
+      "productType": "Refrigeration Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Refrigeration Oil",
+          "skuCount": 3,
+          "skus": [
+            "REFOIL-210LBARR",
+            "REFOIL-26LCANE",
+            "REFOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 4,
+      "catalogueTitle": "INDUSTRIAL GEAR OILS \u2013 TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+      "commercialName": "GEAR EP 100 / 150 / 220 / 320 / 460",
+      "productType": "Industrial Gear Oils",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 20,
+      "masterFamilies": [
+        {
+          "product": "10 Liter Bucket Gear EP 460",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB"
+          ]
+        },
+        {
+          "product": "10 liter Bucket Gear EP 150",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-2"
+          ]
+        },
+        {
+          "product": "10 liter Bucket Gear EP 220",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-3"
+          ]
+        },
+        {
+          "product": "10 liter Bucket Gear EP 320",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-4"
+          ]
+        },
+        {
+          "product": "Gear EP 150",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP150-20LBUCKE",
+            "GEAEP150-210LBARR",
+            "GEAEP150-26LCANE",
+            "GEAEP150-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear EP 220",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP220-20LBUCKE",
+            "GEAEP220-210LBARR",
+            "GEAEP220-26LCANE",
+            "GEAEP220-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear EP 320",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP320-20LBUCKE",
+            "GEAEP320-210LBARR",
+            "GEAEP320-26LCANE",
+            "GEAEP320-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear EP 460",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP460-20LBUCKE",
+            "GEAEP460-210LBARR",
+            "GEAEP460-26LCANE",
+            "GEAEP460-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 5,
+      "catalogueTitle": "HYDRAULIC OIL \u2013 TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+      "commercialName": "HYDRAULIC OIL 32 / 46 / 68 / 100 /150 / 220 / 320 / 460 AW",
+      "productType": "Hydraulic Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 10,
+      "masterFamilies": [
+        {
+          "product": "10 liter Bucket Hydraulic Oil-32/46/68",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-8"
+          ]
+        },
+        {
+          "product": "5 L Hydraulic Oil-68 (Yellow Color- Group 1)",
+          "skuCount": 1,
+          "skus": [
+            "5LHYD-4X5LITER-2"
+          ]
+        },
+        {
+          "product": "Hydraulic 32(Group I)",
+          "skuCount": 4,
+          "skus": [
+            "HYD32GRO-20LBUCKE",
+            "HYD32GRO-210LBARR",
+            "HYD32GRO-26LCANE",
+            "HYD32GRO-50LCANE"
+          ]
+        },
+        {
+          "product": "Hydraulic 46/68 (Group I)",
+          "skuCount": 4,
+          "skus": [
+            "HYD4668-20LBUCKE",
+            "HYD4668-210LBARR",
+            "HYD4668-26LCANE",
+            "HYD4668-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": true,
+      "confirmNote": "Master labels these hydraulic oils 'Group I' (vs the separate 'HLP / Group II'). Mapped 'Group I' -> the AW catalogue entry. Confirm AW = Group I."
+    },
+    {
+      "seriesId": 6,
+      "catalogueTitle": "HYDRAULIC OIL \u2013 TECHNOFLUID HYDRAULIC OIL HLP",
+      "commercialName": "HYDRAULIC OIL 32 / 46 / 68 / 100 /150  HLP",
+      "productType": "Hydraulic Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 10,
+      "masterFamilies": [
+        {
+          "product": "10 liter Bucket Hydraulic oil HLP-32/46/68",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-9"
+          ]
+        },
+        {
+          "product": "5 L Hydraulic Oil-68 (Water white Color- HLP)",
+          "skuCount": 1,
+          "skus": [
+            "5LHYD-4X5LITER"
+          ]
+        },
+        {
+          "product": "Hydraulic HLP 32 ( Group II)",
+          "skuCount": 4,
+          "skus": [
+            "HYDHLP32-20LBUCKE",
+            "HYDHLP32-210LBARR",
+            "HYDHLP32-26LCANE",
+            "HYDHLP32-50LCANE"
+          ]
+        },
+        {
+          "product": "Hydraulic HLP 46/68 (Group II)",
+          "skuCount": 4,
+          "skus": [
+            "HYDHLP46-20LBUCKE",
+            "HYDHLP46-210LBARR",
+            "HYDHLP46-26LCANE",
+            "HYDHLP46-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 7,
+      "catalogueTitle": "HYDRAULIC OIL \u2013 TECHNOFLUID HYDRAULIC OIL HVI",
+      "commercialName": "HYDRAULIC OIL 46 / 68 / 100  HVI",
+      "productType": "Hydraulic Oil",
+      "aspirational": true,
+      "status": "available-on-request",
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 8,
+      "catalogueTitle": "AGRICULTURAL GEAR OIL \u2013 TECHNOFLUID ROTAVATOR OIL (SAE 140)",
+      "commercialName": "ROTAVATOR OIL 140",
+      "productType": "Agricultural Gear Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 7,
+      "masterFamilies": [
+        {
+          "product": "1 liter Rotavator Gear 140",
+          "skuCount": 1,
+          "skus": [
+            "1LITROT-20X1LITE"
+          ]
+        },
+        {
+          "product": "3 liter Rotavator Oil",
+          "skuCount": 1,
+          "skus": [
+            "3LITROT-4X3LITER"
+          ]
+        },
+        {
+          "product": "3.5 liter Rotavator Oil",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE-7"
+          ]
+        },
+        {
+          "product": "5 liter Rotavator Oil",
+          "skuCount": 1,
+          "skus": [
+            "5LITROT-4X5LITER"
+          ]
+        },
+        {
+          "product": "rotavator oil",
+          "skuCount": 3,
+          "skus": [
+            "ROTOIL-210LBARR",
+            "ROTOIL-26LCANE",
+            "ROTOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 9,
+      "catalogueTitle": "CHAIN LUBRICANT \u2013 TECHNOFLUID CHAIN OIL",
+      "commercialName": "CHAIN OIL HT",
+      "productType": "Chain Lubricant",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Chain Oil",
+          "skuCount": 3,
+          "skus": [
+            "CHAOIL-210LBARR",
+            "CHAOIL-26LCANE",
+            "CHAOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 10,
+      "catalogueTitle": "PROCESS OIL \u2013 TECHNOFLUID PVC OIL",
+      "commercialName": "PVC OIL",
+      "productType": "Process Oil",
+      "aspirational": true,
+      "status": "available-on-request",
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 11,
+      "catalogueTitle": "RUST PREVENTIVE OIL \u2013 TECHNOFLUID RUST PREVENTIVE OIL 906",
+      "commercialName": "RUST PREVENTIVE OIL 906",
+      "productType": "Rust Preventive Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Rust preventive oil 906(solvent & Oil)",
+          "skuCount": 3,
+          "skus": [
+            "RUSPREOIL-210LBARR",
+            "RUSPREOIL-26LCANE",
+            "RUSPREOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 12,
+      "catalogueTitle": "INSULATING OIL \u2013 TECHNOFLUID TRANSFORMER OIL",
+      "commercialName": "TRANSFORMER OIL",
+      "productType": "Insulating Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 4,
+      "masterFamilies": [
+        {
+          "product": "Transformer Oil",
+          "skuCount": 4,
+          "skus": [
+            "TRAOIL-20LBUCKE",
+            "TRAOIL-210LBARR",
+            "TRAOIL-26LCANE",
+            "TRAOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 13,
+      "catalogueTitle": "METAL WORKING FLUID \u2013 TECHNOFLUID CUTTING OIL",
+      "commercialName": "CUTTING OIL (WATER SOLUBLE)",
+      "productType": "Metal Working Fluid",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 5,
+      "masterFamilies": [
+        {
+          "product": "1 liter Cutting Oil",
+          "skuCount": 1,
+          "skus": [
+            "1LITCUT-20X1LITE"
+          ]
+        },
+        {
+          "product": "5 liter Cutting Oil",
+          "skuCount": 1,
+          "skus": [
+            "5LITCUT-4X5LITER"
+          ]
+        },
+        {
+          "product": "Cutting oil",
+          "skuCount": 3,
+          "skus": [
+            "CUTOIL-210LBARR",
+            "CUTOIL-26LCANE",
+            "CUTOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 14,
+      "catalogueTitle": "NEAT CUTTING OIL \u2013 TECHNOFLUID NEAT CUTTING OIL 55",
+      "commercialName": "NEAT CUTTING OIL 55",
+      "productType": "Neat Cutting Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 6,
+      "masterFamilies": [
+        {
+          "product": "Neat Cutting oil",
+          "skuCount": 3,
+          "skus": [
+            "NEACUTOIL-210LBARR",
+            "NEACUTOIL-26LCANE",
+            "NEACUTOIL-50LCANE"
+          ]
+        },
+        {
+          "product": "Neat Cutting oil Megacut 150",
+          "skuCount": 3,
+          "skus": [
+            "NEACUTOIL-210LBARR-2",
+            "NEACUTOIL-26LCANE-2",
+            "NEACUTOIL-50LCANE-2"
+          ]
+        }
+      ],
+      "needsConfirmation": true,
+      "confirmNote": "Master has two neat-cutting families: 'Neat Cutting oil' and 'Neat Cutting oil Megacut 150'. Catalogue has one entry 'Neat Cutting Oil 55'. Confirm both belong here (i.e. '55' and 'Megacut 150' are the same series), or split them."
+    },
+    {
+      "seriesId": 15,
+      "catalogueTitle": "SEMI SYNTHETIC CUTTING OIL \u2013 TECHNOFLUID SEMI SYNTHETIC CUTTING OIL",
+      "commercialName": "SEMI SYNTHETIC CUTTING OIL",
+      "productType": "Semi Synthetic Cutting Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "semi synthetic cutting oil",
+          "skuCount": 3,
+          "skus": [
+            "SEMSYNCUT-210LBARR",
+            "SEMSYNCUT-26LCANE",
+            "SEMSYNCUT-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 16,
+      "catalogueTitle": "TEXTILE LUBRICANT \u2013 TECHNOFLUID KNITTING OIL",
+      "commercialName": "KNITTING OIL",
+      "productType": "Textile Lubricant",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 6,
+      "masterFamilies": [
+        {
+          "product": "Knitting oil 22/32 ( Non washable)",
+          "skuCount": 3,
+          "skus": [
+            "KNIOIL22-210LBARR",
+            "KNIOIL22-26LCANE",
+            "KNIOIL22-50LCANE"
+          ]
+        },
+        {
+          "product": "Knitting oil 22/32 ( water soluble)",
+          "skuCount": 3,
+          "skus": [
+            "KNIOIL22-210LBARR-2",
+            "KNIOIL22-26LCANE-2",
+            "KNIOIL22-50LCANE-2"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 17,
+      "catalogueTitle": "TEXTILE LUBRICANT \u2013 TECHNOFLUID CONING OIL",
+      "commercialName": "CONING OIL",
+      "productType": "Textile Lubricant",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Coning Oil 22/32",
+          "skuCount": 3,
+          "skus": [
+            "CONOIL22-210LBARR",
+            "CONOIL22-26LCANE",
+            "CONOIL22-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 18,
+      "catalogueTitle": "TEXTILE LUBRICANT \u2013 TECHNOFLUID WARPING OIL",
+      "commercialName": "WARPING OIL",
+      "productType": "Textile Lubricant",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Warping Oil",
+          "skuCount": 3,
+          "skus": [
+            "WAROIL-210LBARR",
+            "WAROIL-26LCANE",
+            "WAROIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 19,
+      "catalogueTitle": "ELECTRICAL MOTOR OIL \u2013 TECHNOFLUID SUBMERSIBLE MOTOR OIL",
+      "commercialName": "SUBMERSIBLE MOTOR OIL",
+      "productType": "Electrical Motor Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 3,
+      "masterFamilies": [
+        {
+          "product": "Submersible Motor Oil",
+          "skuCount": 3,
+          "skus": [
+            "SUBMOTOIL-210LBARR",
+            "SUBMOTOIL-26LCANE",
+            "SUBMOTOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 20,
+      "catalogueTitle": "LUBRICATING OILS \u2013 TECHNOFLUID LUBE SERIES",
+      "commercialName": "LUBE 20W-40 / 100 / 150 / 220 / 320 / 460",
+      "productType": "Lubricating Oils",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 16,
+      "masterFamilies": [
+        {
+          "product": "Lube 150",
+          "skuCount": 4,
+          "skus": [
+            "LUB150-20LBUCKE",
+            "LUB150-210LBARR",
+            "LUB150-26LCANE",
+            "LUB150-50LCANE"
+          ]
+        },
+        {
+          "product": "Lube 220",
+          "skuCount": 4,
+          "skus": [
+            "LUB220-20LBUCKE",
+            "LUB220-210LBARR",
+            "LUB220-26LCANE",
+            "LUB220-50LCANE"
+          ]
+        },
+        {
+          "product": "Lube 320",
+          "skuCount": 4,
+          "skus": [
+            "LUB320-20LBUCKE",
+            "LUB320-210LBARR",
+            "LUB320-26LCANE",
+            "LUB320-50LCANE"
+          ]
+        },
+        {
+          "product": "Lube 460",
+          "skuCount": 4,
+          "skus": [
+            "LUB460-20LBUCKE",
+            "LUB460-210LBARR",
+            "LUB460-26LCANE",
+            "LUB460-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 21,
+      "catalogueTitle": "TRANSMISSION FLUID \u2013 TECHNOFLUID TQ / ATF",
+      "commercialName": "ATF (TQ)",
+      "productType": "Transmission Fluid",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 7,
+      "masterFamilies": [
+        {
+          "product": "1 liter Transmission fluid",
+          "skuCount": 1,
+          "skus": [
+            "1LITTRA-20X1LITE"
+          ]
+        },
+        {
+          "product": "5 liter Transmission Fluid TQ",
+          "skuCount": 1,
+          "skus": [
+            "5LITTRA-4X5LITER"
+          ]
+        },
+        {
+          "product": "500 ml TQ",
+          "skuCount": 1,
+          "skus": [
+            "500MLTQ-35X500ML"
+          ]
+        },
+        {
+          "product": "Transmission Fluid SAE 30(TQ)",
+          "skuCount": 4,
+          "skus": [
+            "TRAFLUSAE-20LBUCKE",
+            "TRAFLUSAE-210LBARR",
+            "TRAFLUSAE-26LCANE",
+            "TRAFLUSAE-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 22,
+      "catalogueTitle": "WET BRAKE OIL \u2013 TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+      "commercialName": "UTTO ( WET BRAKE OIL )",
+      "productType": "Wet Brake Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 6,
+      "masterFamilies": [
+        {
+          "product": "10 liter Bucket Wet Brake Oil",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-13"
+          ]
+        },
+        {
+          "product": "5 liter Wet Brake Oil",
+          "skuCount": 1,
+          "skus": [
+            "5LITWET-4X5LITER"
+          ]
+        },
+        {
+          "product": "Wet Brake oil ( UTTO)",
+          "skuCount": 4,
+          "skus": [
+            "WETBRAOIL-20LBUCKE",
+            "WETBRAOIL-210LBARR",
+            "WETBRAOIL-26LCANE",
+            "WETBRAOIL-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 23,
+      "catalogueTitle": "ENGINE COOLANT / ANTIFREEZE \u2013 TECHNOFLUID COOLANT",
+      "commercialName": "COOLANT ( ANTIFREEZE )",
+      "productType": "Engine Coolant / Antifreeze",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 1,
+      "masterFamilies": [
+        {
+          "product": "1 liter coolant(Antifreeze Concentrated)",
+          "skuCount": 1,
+          "skus": [
+            "1LITCOO-20X1LITE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 24,
+      "catalogueTitle": "AUTOMOTIVE GEAR OILS \u2013 TECHNOFLUID EP SERIES",
+      "commercialName": "GEAR EP ( 90 GL4 / 140 GL4 / 75W90 GL4 / 75W90 GL5 / 80W90 GL4 / 80W90 GL5 / 85W140 GL4 )",
+      "productType": "Automotive Gear Oils",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 30,
+      "masterFamilies": [
+        {
+          "product": "1 Liter Gear Oil 75W 90 GL5 (SEMI SYNTHETIC)",
+          "skuCount": 1,
+          "skus": [
+            "1LITGEA-20X1LITE"
+          ]
+        },
+        {
+          "product": "1 liter 85w140 GL4",
+          "skuCount": 1,
+          "skus": [
+            "1LIT85W-20X1LITE"
+          ]
+        },
+        {
+          "product": "1 liter Gear Oil EP 140 GL4",
+          "skuCount": 1,
+          "skus": [
+            "1LITGEA-20X1LITE-2"
+          ]
+        },
+        {
+          "product": "1 liter Gear Oil EP-90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "1LITGEA-20X1LITE-3"
+          ]
+        },
+        {
+          "product": "10 liter Bucket Gear oil EP 80W90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-5"
+          ]
+        },
+        {
+          "product": "10 liter Bucket Gear oil EP 85w140 GL4",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-6"
+          ]
+        },
+        {
+          "product": "10 liter Bucket Gear oil EP-90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-7"
+          ]
+        },
+        {
+          "product": "2.5 liter engine oil 75w90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "25LIT-4X25LITE-2"
+          ]
+        },
+        {
+          "product": "2.5 liter engine oil 80w90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "25LIT-4X25LITE-3"
+          ]
+        },
+        {
+          "product": "5 liter EP-140",
+          "skuCount": 1,
+          "skus": [
+            "5LITEP-4X5LITER"
+          ]
+        },
+        {
+          "product": "5 liter GEAR OIL 80W90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "5LITGEA-4X5LITER"
+          ]
+        },
+        {
+          "product": "5 liter GEAR OIL 85W140 GL4",
+          "skuCount": 1,
+          "skus": [
+            "5LITGEA-4X5LITER-2"
+          ]
+        },
+        {
+          "product": "5 liter GEAR OIL EP-90 GL4",
+          "skuCount": 1,
+          "skus": [
+            "5LITGEA-4X5LITER-3"
+          ]
+        },
+        {
+          "product": "500 ml GEAR EP-90",
+          "skuCount": 1,
+          "skus": [
+            "500MLGEA-35X500ML"
+          ]
+        },
+        {
+          "product": "Gear EP 140 GL4",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP140-20LBUCKE",
+            "GEAEP140-210LBARR",
+            "GEAEP140-26LCANE",
+            "GEAEP140-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear EP 80w90 GL4",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP80W-20LBUCKE",
+            "GEAEP80W-210LBARR",
+            "GEAEP80W-26LCANE",
+            "GEAEP80W-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear EP 85w140 GL4",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP85W-20LBUCKE",
+            "GEAEP85W-210LBARR",
+            "GEAEP85W-26LCANE",
+            "GEAEP85W-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear EP 90 GL4",
+          "skuCount": 4,
+          "skus": [
+            "GEAEP90-20LBUCKE",
+            "GEAEP90-210LBARR",
+            "GEAEP90-26LCANE",
+            "GEAEP90-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 25,
+      "catalogueTitle": "INDUSTRIAL ENGINE OILS \u2013 TECHNOFLUID DIESEL ENGINE OILS",
+      "commercialName": "15W40 API CI4 PLUS / 15W40 API CF4 / 20W40 API CH4 / SAE 40 CF / SAE 50 CF",
+      "productType": "Industrial Engine Oils",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 31,
+      "masterFamilies": [
+        {
+          "product": "1 liter 15w40 CI4 Plus",
+          "skuCount": 1,
+          "skus": [
+            "1LIT15W-20X1LITE"
+          ]
+        },
+        {
+          "product": "1 liter M.G. 20w40 CH4",
+          "skuCount": 1,
+          "skus": [
+            "1LITM-20X1LITE"
+          ]
+        },
+        {
+          "product": "10 liter Bucket M.G. 15W40 CF4",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-10"
+          ]
+        },
+        {
+          "product": "10 liter Bucket M.G. 15W40 CI4 Plus",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-11"
+          ]
+        },
+        {
+          "product": "10 liter Bucket M.G.20W40 CH4",
+          "skuCount": 1,
+          "skus": [
+            "10LITBUC-10LITERB-12"
+          ]
+        },
+        {
+          "product": "15 liter Bucket MG 15w40 CI4",
+          "skuCount": 1,
+          "skus": [
+            "15LITBUC-15LITERB"
+          ]
+        },
+        {
+          "product": "3 liter ENGINE OIL 15W40 CF4",
+          "skuCount": 1,
+          "skus": [
+            "3LITENG-4X3LITER"
+          ]
+        },
+        {
+          "product": "3 liter ENGINE OIL 15W40 CI4 plus",
+          "skuCount": 1,
+          "skus": [
+            "3LITENG-4X3LITER-2"
+          ]
+        },
+        {
+          "product": "3.5 liter Engine Oil 15W40 CF4",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE-3"
+          ]
+        },
+        {
+          "product": "3.5 liter Engine Oil 15W40 Ci4 plus",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE-4"
+          ]
+        },
+        {
+          "product": "3.5 liter PSO 20w40(Group I)",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE-6"
+          ]
+        },
+        {
+          "product": "5 liter Engine oil15w40 CF4",
+          "skuCount": 1,
+          "skus": [
+            "5LITENG-4X5LITER"
+          ]
+        },
+        {
+          "product": "5 liter Engine oil15w40 CI4 Plus",
+          "skuCount": 1,
+          "skus": [
+            "5LITENG-4X5LITER-2"
+          ]
+        },
+        {
+          "product": "5 liter M.G. 20w40 CH4",
+          "skuCount": 1,
+          "skus": [
+            "5LITM-4X5LITER"
+          ]
+        },
+        {
+          "product": "500 ml 15W-40 CI4",
+          "skuCount": 1,
+          "skus": [
+            "500ML15W-35X500ML"
+          ]
+        },
+        {
+          "product": "6 liter Bucket MG 15w40 API CI4 Plus",
+          "skuCount": 1,
+          "skus": [
+            "6LITBUC-2X6LITER"
+          ]
+        },
+        {
+          "product": "6 liter Bucket MG 20w40 API CH4",
+          "skuCount": 1,
+          "skus": [
+            "6LITBUC-2X6LITER-2"
+          ]
+        },
+        {
+          "product": "7.5 liter Bucket MG 15w40 API CI4 Plus",
+          "skuCount": 1,
+          "skus": [
+            "75LIT-2X75LITE"
+          ]
+        },
+        {
+          "product": "7.5 liter Bucket MG 20w40 API CH4",
+          "skuCount": 1,
+          "skus": [
+            "75LIT-2X75LITE-2"
+          ]
+        },
+        {
+          "product": "Engine Oil CH4 20w40",
+          "skuCount": 4,
+          "skus": [
+            "ENGOILCH4-20LBUCKE",
+            "ENGOILCH4-210LBARR",
+            "ENGOILCH4-26LCANE",
+            "ENGOILCH4-50LCANE"
+          ]
+        },
+        {
+          "product": "Engine oil CF4 15w40",
+          "skuCount": 4,
+          "skus": [
+            "ENGOILCF4-20LBUCKE",
+            "ENGOILCF4-210LBARR",
+            "ENGOILCF4-26LCANE",
+            "ENGOILCF4-50LCANE"
+          ]
+        },
+        {
+          "product": "Engine oil CI4 15w40 PLUS",
+          "skuCount": 4,
+          "skus": [
+            "ENGOILCI4-20LBUCKE",
+            "ENGOILCI4-210LBARR",
+            "ENGOILCI4-26LCANE",
+            "ENGOILCI4-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": true,
+      "confirmNote": "Catalogue lists 15W40 CF4 & CI4 under BOTH 'Industrial/Diesel Engine Oils' (#25) and 'PCMO' (#27). Diesel-coded master rows (CF4/CH4/CI4/MG) mapped to #25. Confirm the diesel-vs-passenger split."
+    },
+    {
+      "seriesId": 26,
+      "catalogueTitle": "4T ENGINE OILS \u2013 TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+      "commercialName": "4T ( 20W40  API  SM / 20W40 API  SN / 15W50 API  SN / 20W50 API  SM  / 10W30 API SM )",
+      "productType": "4T Engine Oils",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 17,
+      "masterFamilies": [
+        {
+          "product": "1 Liter Engine Oil 4T 10w 40 (SEMI SYNTHETIC)",
+          "skuCount": 1,
+          "skus": [
+            "1LITENG-20X1LITE"
+          ]
+        },
+        {
+          "product": "1 Liter Engine Oil 4T 20w 40 SN (SEMI SYNTHETIC)",
+          "skuCount": 1,
+          "skus": [
+            "1LITENG-20X1LITE-2"
+          ]
+        },
+        {
+          "product": "1 liter 4T 20w40 SM",
+          "skuCount": 1,
+          "skus": [
+            "1LIT4T-20X1LITE"
+          ]
+        },
+        {
+          "product": "1 liter ENGINE OIL 4T -20W50",
+          "skuCount": 1,
+          "skus": [
+            "1LITENG-20X1LITE-3"
+          ]
+        },
+        {
+          "product": "500 ml 4T 20W-40",
+          "skuCount": 1,
+          "skus": [
+            "500ML4T-35X500ML"
+          ]
+        },
+        {
+          "product": "800 ml 4T 10w30 SM",
+          "skuCount": 1,
+          "skus": [
+            "800ML4T-20X800ML"
+          ]
+        },
+        {
+          "product": "900 ml 4T 10w30 SM",
+          "skuCount": 1,
+          "skus": [
+            "900ML4T-20X900ML"
+          ]
+        },
+        {
+          "product": "900 ml 4T 20w40 SM",
+          "skuCount": 1,
+          "skus": [
+            "900ML4T-20X900ML-2"
+          ]
+        },
+        {
+          "product": "900 ml 4T 20w40 SN (SEMI SYNTHETIC)",
+          "skuCount": 1,
+          "skus": [
+            "900ML4T-20X900ML-3"
+          ]
+        },
+        {
+          "product": "Engine Oil 4T 15w50 SN",
+          "skuCount": 4,
+          "skus": [
+            "ENGOIL4T-20LBUCKE",
+            "ENGOIL4T-210LBARR",
+            "ENGOIL4T-26LCANE",
+            "ENGOIL4T-50LCANE"
+          ]
+        },
+        {
+          "product": "Engine oil 4T 20w40 SM",
+          "skuCount": 4,
+          "skus": [
+            "ENGOIL4T-20LBUCKE-2",
+            "ENGOIL4T-210LBARR-2",
+            "ENGOIL4T-26LCANE-2",
+            "ENGOIL4T-50LCANE-2"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 27,
+      "catalogueTitle": "AUTOMOTIVE ENGINE OILS \u2013 TECHNOFLUID PCMO",
+      "commercialName": "PCMO ( 5W30  API SN / 10W40 API SN / 15W40 API CF4 / 15W40 API CI4 PLUS / 20W50 API SN )",
+      "productType": "Automotive Engine Oils",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 13,
+      "masterFamilies": [
+        {
+          "product": "1 liter ENGINE OIL CNG-20W50",
+          "skuCount": 1,
+          "skus": [
+            "1LITENG-20X1LITE-4"
+          ]
+        },
+        {
+          "product": "2.5 liter engine oil 15w50 ( Bullet)",
+          "skuCount": 1,
+          "skus": [
+            "25LIT-4X25LITE"
+          ]
+        },
+        {
+          "product": "3 liter Engine Oil CNG-20W50",
+          "skuCount": 1,
+          "skus": [
+            "3LITENG-4X3LITER-3"
+          ]
+        },
+        {
+          "product": "3 liter Engine Oil SN 5w30",
+          "skuCount": 1,
+          "skus": [
+            "3LITENG-4X35LITE"
+          ]
+        },
+        {
+          "product": "3 liter Engine oil 15w50 SN (Bullet)",
+          "skuCount": 1,
+          "skus": [
+            "3LITENG-4X3LITER-4"
+          ]
+        },
+        {
+          "product": "3.5 Liter Engine Oil 20W50 Petrol",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE"
+          ]
+        },
+        {
+          "product": "3.5 liter Engine Oil 10W40 SN",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE-2"
+          ]
+        },
+        {
+          "product": "3.5 liter Engine Oil SN 5w30",
+          "skuCount": 1,
+          "skus": [
+            "35LIT-4X35LITE-5"
+          ]
+        },
+        {
+          "product": "5 liter SN 5w30",
+          "skuCount": 1,
+          "skus": [
+            "5LITSN-4X5LITER"
+          ]
+        },
+        {
+          "product": "Engine oil 20w50 SM",
+          "skuCount": 4,
+          "skus": [
+            "ENGOIL20W-20LBUCKE",
+            "ENGOIL20W-210LBARR",
+            "ENGOIL20W-26LCANE",
+            "ENGOIL20W-50LCANE"
+          ]
+        }
+      ],
+      "needsConfirmation": true,
+      "confirmNote": "Passenger-car engine oils (SN/SM, 5w30, 10w40, 20w50 petrol/CNG/Bullet) mapped here. Confirm this is the intended PCMO set."
+    },
+    {
+      "seriesId": 28,
+      "catalogueTitle": "GREASE \u2013 TECHNOFLUID CALCIUM BASE GREASE",
+      "commercialName": "GREASE C RED GEL / MP3 /  SLR",
+      "productType": "Grease",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 32,
+      "masterFamilies": [
+        {
+          "product": "10 Kg Bucket Grease G Red Gel (Dark red Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG"
+          ]
+        },
+        {
+          "product": "10 Kg Bucket Grease SLR ( Dark Green Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-2"
+          ]
+        },
+        {
+          "product": "10 kg Bucket Grease C Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-6"
+          ]
+        },
+        {
+          "product": "10 kg Bucket Grease MP3 ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-8"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease C Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-4"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease G Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-5"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease MP3( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-6"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease SLR ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-8"
+          ]
+        },
+        {
+          "product": "18 Kg Bucket Grease G Red Gel (Dark red Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-2"
+          ]
+        },
+        {
+          "product": "18 Kg Bucket Grease SLR (lustrous green : calcium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-3"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease C Red Gel (Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-4"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease MP3 (Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-13"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease C Red Gel( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-4"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease G red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-5"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease MP3( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-6"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease SLR ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-8"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease C Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-4"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease G Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-5"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease MP3( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-7"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease SLR ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-8"
+          ]
+        },
+        {
+          "product": "4 x 5 kg Grease C Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-5"
+          ]
+        },
+        {
+          "product": "4 x 5 kg Grease G Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-6"
+          ]
+        },
+        {
+          "product": "4 x 5 kg Grease MP3( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-7"
+          ]
+        },
+        {
+          "product": "4 x 5 kg Grease SLR ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-8"
+          ]
+        },
+        {
+          "product": "6 x 2 Kg Grease C Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG-3"
+          ]
+        },
+        {
+          "product": "6 x 2 Kg Grease G Red Gel ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG-4"
+          ]
+        },
+        {
+          "product": "6 x 2 Kg Grease MP3( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG-6"
+          ]
+        },
+        {
+          "product": "6 x 2 Kg Grease SLR ( Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG-7"
+          ]
+        },
+        {
+          "product": "Grease C Red Gel (Red calcium base 90 deg drop pt.)",
+          "skuCount": 1,
+          "skus": [
+            "GRECRED-170KG"
+          ]
+        },
+        {
+          "product": "Grease G Red Gel (Dark Red Calcium 90 deg Drop pt.)",
+          "skuCount": 1,
+          "skus": [
+            "GREGRED-170KG"
+          ]
+        },
+        {
+          "product": "Grease MP3 (Yellowish calcium base 90 deg drop pt.)",
+          "skuCount": 1,
+          "skus": [
+            "GREMP3YEL-170KG"
+          ]
+        },
+        {
+          "product": "Grease SLR (Calcium) (Green chassis 90 deg drop pt.)",
+          "skuCount": 1,
+          "skus": [
+            "GRESLRCAL-170KG"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 29,
+      "catalogueTitle": "GREASE \u2013 TECHNOFLUID LITHIUM GREASE AP3 & APLR",
+      "commercialName": "LITHIUM GREASE AP3 / LITHIUM GREASE APLR",
+      "productType": "Grease",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 16,
+      "masterFamilies": [
+        {
+          "product": "10 kg Bucket Grease AP3",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-3"
+          ]
+        },
+        {
+          "product": "10 kg Bucket Grease APLR",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-4"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease AP3 (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease APLR (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-2"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease AP3 (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-6"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease APLR ( lithium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-7"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease AP3 (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease APLR (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-2"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease AP3 (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease APLR (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-2"
+          ]
+        },
+        {
+          "product": "4 x 5 kg Grease AP3",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-3"
+          ]
+        },
+        {
+          "product": "4 x 5 kg Grease APLR",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-4"
+          ]
+        },
+        {
+          "product": "6 x 2 Kg Grease AP3(lithium)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG-2"
+          ]
+        },
+        {
+          "product": "6x2 Kg Grease APLR (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "6X2KGGRE-12KG"
+          ]
+        },
+        {
+          "product": "Grease High Temp. AP3 (Drop pt. 190 deg C) (lithium base whitish color grease)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG"
+          ]
+        },
+        {
+          "product": "Grease High Temp. APLR (Drop pt. 190 deg C) (lithium base green color grease)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG-2"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 30,
+      "catalogueTitle": "GREASE \u2013 TECHNOFLUID LITHIUM COMPLEX GREASE",
+      "commercialName": "LITHIUM COMPLEX GREASE (  RED GEL / BLUE GEL / 222 )",
+      "productType": "Grease",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 18,
+      "masterFamilies": [
+        {
+          "product": "10 kg Bucket Grease Blue Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-5"
+          ]
+        },
+        {
+          "product": "10 kg Bucket Grease Red GEL (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-9"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease Blue Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-3"
+          ]
+        },
+        {
+          "product": "12 x 1 Kg Grease Red Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "12X1-12KG-7"
+          ]
+        },
+        {
+          "product": "18 Kg Bucket Grease Blue Gel ( lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease 222 (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-5"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease Red Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-14"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease Blue Gel ( lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-3"
+          ]
+        },
+        {
+          "product": "24 x 500 g Grease Red Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "24X500-12KG-7"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease Blue Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-3"
+          ]
+        },
+        {
+          "product": "4 x 3 Kg Grease Gel (lithium complex )",
+          "skuCount": 1,
+          "skus": [
+            "4X3-12KG-6"
+          ]
+        },
+        {
+          "product": "4 x 5 Kg Grease Blue Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG"
+          ]
+        },
+        {
+          "product": "4 x 5 Kg Grease GEL (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "4X5-20KG-2"
+          ]
+        },
+        {
+          "product": "6 X 2 Kg Grease Blue Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG"
+          ]
+        },
+        {
+          "product": "6 x 2 Kg Grease Gel (lithium complex)",
+          "skuCount": 1,
+          "skus": [
+            "6X2-12KG-5"
+          ]
+        },
+        {
+          "product": "Blue Gel Grease High Temp. (Drop pt. 240 deg C) (lithium complex red grease)",
+          "skuCount": 1,
+          "skus": [
+            "BLUGELGRE-180KG"
+          ]
+        },
+        {
+          "product": "Gel Grease 222 (Drop pt. 245 deg C) (lithium complex blue color grease)",
+          "skuCount": 1,
+          "skus": [
+            "GELGRE222-180KG"
+          ]
+        },
+        {
+          "product": "Red Gel Grease High Temp. (Drop pt. 230 deg C) (lithium complex red grease)",
+          "skuCount": 1,
+          "skus": [
+            "REDGELGRE-180KG"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 31,
+      "catalogueTitle": "GREASE \u2013 TECHNOFLUID EP GREASE SERIES",
+      "commercialName": "GREASE EP ( 000/  00 /  0 /  1 /  2 / 3)",
+      "productType": "Grease",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 12,
+      "masterFamilies": [
+        {
+          "product": "10 kg Bucket Grease EP-2",
+          "skuCount": 1,
+          "skus": [
+            "10KGBUC-10KG-7"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease EP-00 ( lithium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-8"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease EP-000 ( lithium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-9"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease EP-1",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-10"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease EP-2 (lithium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-11"
+          ]
+        },
+        {
+          "product": "18 kg Bucket Grease EP-3 ( lithium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGBUC-18KG-12"
+          ]
+        },
+        {
+          "product": "4x5 kg Grease EP-2",
+          "skuCount": 1,
+          "skus": [
+            "4X5KGGRE-20KG"
+          ]
+        },
+        {
+          "product": "Grease High Temp. EP-00(Drop pt. 190 deg C)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG-3"
+          ]
+        },
+        {
+          "product": "Grease High Temp. EP-000(Drop pt. 190 deg C)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG-4"
+          ]
+        },
+        {
+          "product": "Grease High Temp. EP-1(Drop pt. 190 deg C)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG-5"
+          ]
+        },
+        {
+          "product": "Grease High Temp. EP-2(Drop pt. 190 deg C)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG-6"
+          ]
+        },
+        {
+          "product": "Grease High Temp. EP-3(Drop pt. 190 deg C)",
+          "skuCount": 1,
+          "skus": [
+            "GREHIGTEM-180KG-7"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 32,
+      "catalogueTitle": "TECHNOFLUID GREASE WR-2 (Water Resistant Grease)",
+      "commercialName": "GREASE WR2",
+      "productType": null,
+      "aspirational": true,
+      "status": "mapped",
+      "skuCount": 2,
+      "masterFamilies": [
+        {
+          "product": "18 kg Grease WB (Dark green Color: Calcium)",
+          "skuCount": 1,
+          "skus": [
+            "18KGGRE-18KG"
+          ]
+        },
+        {
+          "product": "Grease Wheel Bearing (Calcium) (Green chassis 90 deg drop pt.)",
+          "skuCount": 1,
+          "skus": [
+            "GREWHEBEA-170KG"
+          ]
+        }
+      ],
+      "needsConfirmation": true,
+      "confirmNote": "Catalogue 'GREASE WR2' is aspirational (no obvious master). Tentatively mapped master 'Wheel Bearing'/'WB' grease here. Confirm WR2 = Wheel Bearing grease, or leave WR2 available-on-request and give WB its own home."
+    },
+    {
+      "seriesId": 33,
+      "catalogueTitle": "TECHNOFLUID GEAR LUBE EP SERIES",
+      "commercialName": "GEAR LUBE EP ( 150 / 220 / 320 / 460 )",
+      "productType": null,
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 16,
+      "masterFamilies": [
+        {
+          "product": "Gear Lube EP 150",
+          "skuCount": 4,
+          "skus": [
+            "GEALUBEP-20LBUCKE-2",
+            "GEALUBEP-210LBARR-2",
+            "GEALUBEP-26LCANE-2",
+            "GEALUBEP-50LCANE-2"
+          ]
+        },
+        {
+          "product": "Gear Lube EP 220",
+          "skuCount": 4,
+          "skus": [
+            "GEALUBEP-20LBUCKE",
+            "GEALUBEP-210LBARR",
+            "GEALUBEP-26LCANE",
+            "GEALUBEP-50LCANE"
+          ]
+        },
+        {
+          "product": "Gear Lube EP 320",
+          "skuCount": 4,
+          "skus": [
+            "GEALUBEP-20LBUCKE-3",
+            "GEALUBEP-210LBARR-3",
+            "GEALUBEP-26LCANE-3",
+            "GEALUBEP-50LCANE-3"
+          ]
+        },
+        {
+          "product": "Gear Lube EP 460",
+          "skuCount": 4,
+          "skus": [
+            "GEALUBEP-20LBUCKE-4",
+            "GEALUBEP-210LBARR-4",
+            "GEALUBEP-26LCANE-4",
+            "GEALUBEP-50LCANE-4"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 34,
+      "catalogueTitle": "TECHNOFLUID ROLL PERFECT 22",
+      "commercialName": "ROLL PERFECT 22",
+      "productType": null,
+      "aspirational": true,
+      "status": "available-on-request",
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 35,
+      "catalogueTitle": "TECHNOFLUID ROLL PERFECT 46 (SOLUBLE)",
+      "commercialName": "ROLL PERFECT 46",
+      "productType": null,
+      "aspirational": true,
+      "status": "available-on-request",
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": null
+    },
+    {
+      "seriesId": 36,
+      "catalogueTitle": "TECHNOFLUID GIRTH GEAR GREASE",
+      "commercialName": "GIRTH GEAR GREASE",
+      "productType": null,
+      "aspirational": true,
+      "status": "available-on-request",
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": null
+    }
+  ],
+  "orphanMasterProducts": [
+    {
+      "sku": "AIRCOMOIL-210LBARR",
+      "product": "Air Compressor Oil",
+      "category": "Bulk oil",
+      "note": "Air Compressor Oil \u2014 NO catalogue series exists"
+    },
+    {
+      "sku": "AIRCOMOIL-26LCANE",
+      "product": "Air Compressor Oil",
+      "category": "Bulk oil",
+      "note": "Air Compressor Oil \u2014 NO catalogue series exists"
+    },
+    {
+      "sku": "AIRCOMOIL-50LCANE",
+      "product": "Air Compressor Oil",
+      "category": "Bulk oil",
+      "note": "Air Compressor Oil \u2014 NO catalogue series exists"
+    },
+    {
+      "sku": "5LITAIR-4X5LITER",
+      "product": "5 liter Air Compressor Oil",
+      "category": "Retail pack",
+      "note": "Air Compressor Oil \u2014 NO catalogue series exists"
+    },
+    {
+      "sku": "500ML2T-35X500ML",
+      "product": "500 ml 2T",
+      "category": "Retail pack",
+      "note": "2T oil \u2014 NO catalogue series (catalogue has only 4T)"
+    }
+  ]
+}
