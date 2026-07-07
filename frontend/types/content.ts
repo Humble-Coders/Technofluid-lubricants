@@ -39,3 +39,73 @@ export interface IndustriesContent {
   industries: Industry[];
   automotiveOils: Industry;
 }
+
+export type SpecTableRow = string[];
+export type SpecTable = SpecTableRow[];
+
+export type CatalogueCategory =
+  | "Industrial Oils"
+  | "Automotive Lubricants"
+  | "Greases"
+  | "Specialty Oils";
+
+export interface CatalogueSeries {
+  title: string;
+  displayName: string;
+  productType: string | null;
+  subtitle: string | null;
+  commercialName: string;
+  category: CatalogueCategory;
+  aspirational: boolean;
+  sectionsOrder: string[];
+  sections: Record<string, string[]>;
+  specTables: SpecTable[];
+}
+
+export interface CatalogueContent {
+  source: string;
+  productCount: number;
+  products: CatalogueSeries[];
+}
+
+export interface CrosswalkMasterFamily {
+  product: string;
+  skuCount: number;
+  skus: string[];
+}
+
+export interface CrosswalkSeries {
+  seriesId: number;
+  catalogueTitle: string;
+  commercialName: string;
+  productType: string;
+  aspirational: boolean;
+  status: "mapped" | "available-on-request";
+  skuCount: number;
+  masterFamilies: CrosswalkMasterFamily[];
+  needsConfirmation: boolean;
+  confirmNote: string | null;
+}
+
+export interface PublicCatalogDoc {
+  productKey: string;
+  product: string;
+  category: string;
+  segment: string;
+  packSizes: string[];
+}
+
+export interface CrosswalkContent {
+  generatedFrom: { catalogue: string; master: string };
+  summary: {
+    seriesTotal: number;
+    seriesMapped: number;
+    seriesAvailableOnRequest: number;
+    skusTotal: number;
+    skusMapped: number;
+    skusOrphan: number;
+    needsConfirmation: number;
+  };
+  series: CrosswalkSeries[];
+  orphanMasterProducts: unknown[];
+}

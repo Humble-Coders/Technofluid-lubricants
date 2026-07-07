@@ -20,6 +20,7 @@ export const COLLECTIONS = {
   PRODUCTS: "products",
   COUPONS: "coupons",
   RATE_LISTS: "rate_lists",
+  PUBLIC_CATALOG: "public_catalog",
 } as const;
 
 export const DISTRIBUTOR_TYPES = {
