@@ -39,7 +39,7 @@ export type RowValidationResult =
   | { valid: true; product: ValidProductRow; rowNumber: number }
   | { valid: false; reason: string; rowNumber: number; raw: RawRow };
 
-function slugify(input: string): string {
+export function slugify(input: string): string {
   return input
     .trim()
     .toLowerCase()
