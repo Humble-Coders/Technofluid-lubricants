@@ -108,5 +108,5 @@ The design is yours (consistent with the #9 landing page). This ticket fixes **w
 
 ## 🤖 Kickoff prompt (paste into Claude Code)
 ```
-/start-ticket <this-issue-number>
+/start-ticket 12
 ```
