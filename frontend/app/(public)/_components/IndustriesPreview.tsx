@@ -10,7 +10,6 @@ import IndustryCard from "./IndustryCard";
 
 const DATA = industriesData as IndustriesContent;
 const PREVIEW = DATA.industries;
-const TOTAL = DATA.summary.industries;
 
 export default function IndustriesPreview() {
   return (
@@ -33,18 +32,6 @@ export default function IndustriesPreview() {
             <h2 className="mt-3 text-[1.9rem] font-extrabold leading-tight tracking-tight text-textPrimary sm:text-[2.2rem]">
               Industries We Serve
             </h2>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2">
-            <span
-              className="text-[1.1rem] font-extrabold leading-none"
-              style={{ color: BRAND.orange }}
-            >
-              {TOTAL}
-            </span>
-            <span className="text-[12px] font-semibold text-textSecondary">
-              industries served
-            </span>
           </div>
         </motion.div>
 

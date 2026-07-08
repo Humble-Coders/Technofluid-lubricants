@@ -180,7 +180,7 @@ export default function Hero() {
                   {INDUSTRIES_COUNT}
                 </p>
                 <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
-                  Types of Industries We Serve
+                  Types of Industry
                 </p>
               </div>
               <div
