@@ -16,10 +16,10 @@ const INDUSTRIES_COUNT = (industriesData as IndustriesContent).summary
 const PRODUCT_SERIES_COUNT = 36;
 
 const STATS = [
-  { value: `${COMPANY.since}`, label: "Established" },
+  { value: `Since ${COMPANY.since}`, label: "Powered by Experience" },
   { value: COMPANY.certification, label: "Certified Quality" },
   { value: `${PRODUCT_SERIES_COUNT}`, label: "Product Series" },
-  { value: `${INDUSTRIES_COUNT}`, label: "Industries Served" },
+  { value: `${INDUSTRIES_COUNT}`, label: "Types of Industries We Serve" },
 ];
 
 export default function TrustStrip() {

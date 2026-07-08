@@ -89,7 +89,7 @@ export default function IndustriesHero() {
               {SUMMARY.industries}
             </p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/70">
-              Industries Served
+              Types of Industries We Serve
             </p>
           </div>
           <div className="rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm">
@@ -108,10 +108,10 @@ export default function IndustriesHero() {
               className="text-[1.3rem] font-extrabold leading-none"
               style={{ color: BRAND.peach }}
             >
-              {COMPANY.since}
+              Since {COMPANY.since}
             </p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/70">
-              Established
+              Powered by Experience
             </p>
           </div>
         </motion.div>

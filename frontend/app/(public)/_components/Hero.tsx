@@ -163,10 +163,10 @@ export default function Hero() {
                   className="text-base font-extrabold leading-none sm:text-[1.3rem]"
                   style={{ color: BRAND.orange }}
                 >
-                  {COMPANY.since}
+                  Since {COMPANY.since}
                 </p>
                 <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
-                  Established
+                  Powered by Experience
                 </p>
               </div>
               <div
@@ -180,7 +180,7 @@ export default function Hero() {
                   {INDUSTRIES_COUNT}
                 </p>
                 <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
-                  Industries Served
+                  Types of Industries We Serve
                 </p>
               </div>
               <div

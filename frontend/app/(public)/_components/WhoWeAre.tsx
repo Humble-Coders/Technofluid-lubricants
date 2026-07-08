@@ -59,7 +59,7 @@ export default function WhoWeAre() {
       />
 
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-        {/* Established-since badge */}
+        {/* "Powered by experience" since-badge */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -108,10 +108,10 @@ export default function WhoWeAre() {
             />
 
             <span className="relative text-[11px] font-bold uppercase tracking-[0.25em] text-white/80">
-              Established
+              Powered by Experience
             </span>
             <span className="relative mt-2 text-[3.1rem] font-extrabold leading-none text-white drop-shadow-sm">
-              {COMPANY.since}
+              Since {COMPANY.since}
             </span>
             <span className="relative mt-3 h-[3px] w-10 rounded-full bg-white/90" />
           </div>
@@ -124,7 +124,7 @@ export default function WhoWeAre() {
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
         >
-          {/* Eyebrow row — on mobile, pairs with an inline "Established" stat replacing the circular badge above */}
+          {/* Eyebrow row — on mobile, pairs with an inline "Powered by Experience" stat replacing the circular badge above */}
           <div className="flex items-center justify-between gap-4 lg:block">
             <p
               className="text-[11px] font-bold uppercase tracking-[0.28em]"
