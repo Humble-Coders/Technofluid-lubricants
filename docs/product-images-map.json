@@ -1,0 +1,403 @@
+{
+ "images": [
+  {
+   "file": "00000088-PHOTO-2026-07-07-18-03-29.jpg",
+   "productName": "TRANSMISSION FLUID TQ",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Blue metal pail with handle. Claims: Anti Wear Properties, Extends Machine Life, Excellent Corrosion Protection. AN ISO 9001:2015 CERTIFIED CO. No volume printed.",
+   "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+   "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+  },
+  {
+   "file": "00000089-PHOTO-2026-07-07-18-06-10.jpg",
+   "productName": "Transmission Fluid TQ",
+   "packSize": "500 ml",
+   "container": "bottle",
+   "note": "Silver/grey bottle, red cap. Marked '500 ml at 29.5°C'. Claims: Advanced Gear Protection, Extends Gear Life, Excellent Steering Oil. Older label (ISO 9001:2008).",
+   "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+   "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+  },
+  {
+   "file": "00000090-PHOTO-2026-07-07-18-08-04.jpg",
+   "productName": "TRANSMISSION SAE 30",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Blue metal pail with handle. Claims: Anti Wear Properties, Extends Machine Life, Excellent Corrosion Protection. No volume printed.",
+   "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+   "seriesSlug": "transmission-fluid-technofluid-tq-atf"
+  },
+  {
+   "file": "00000091-PHOTO-2026-07-07-18-19-10.jpg",
+   "productName": "Coolant/Antifreeze Concentrated",
+   "packSize": "5 L",
+   "container": "jar",
+   "note": "Grey jerrycan, red cap. Marked '5 l at 29.5°C'. Claims: long term corrosion protection, heat resistant, no silicate drop out, free from phosphate/silicate/nitrite.",
+   "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+   "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
+  },
+  {
+   "file": "00000092-PHOTO-2026-07-07-18-38-38.jpg",
+   "productName": "Coolant/Antifreeze Concentrated",
+   "packSize": "1 L",
+   "container": "bottle",
+   "note": "Grey bottle, red cap. Marked '1 l at 29.5°C'. Same product as 91 in smaller pack.",
+   "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+   "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
+  },
+  {
+   "file": "00000093-PHOTO-2026-07-07-18-49-08.jpg",
+   "productName": "WET BRAKE OIL UTTO",
+   "packSize": "5 L",
+   "container": "other",
+   "note": "Group shot of 3 packs: (1) grey bottle 'WET BRAKE OIL UTTO' 5 l at 29.5°C, (2) large blue pail 'Wet Brake Oil UTTO', (3) white pail 'WET BRAKE OIL'. Multiple containers in one image.",
+   "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+   "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
+  },
+  {
+   "file": "00000102-PHOTO-2026-07-08-10-02-08.jpg",
+   "productName": "4T 20W-40",
+   "packSize": null,
+   "container": "bottle",
+   "note": "Gold/bronze bottle, red cap. 'MEETS AND EXCEEDS API SM SPECIFICATION', 'BS6 Compliant', 'ADVANCE TECHNOLOGY ENGINE OIL FOR MOTORBIKE'. No volume printed.",
+   "series": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+   "seriesSlug": "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils"
+  },
+  {
+   "file": "00000103-PHOTO-2026-07-08-10-02-09.jpg",
+   "productName": "4T 20W-40",
+   "packSize": null,
+   "container": "bottle",
+   "note": "Silver bottle, red cap, purple label. 'MEETS AND EXCEEDS API SN SPECIFICATION', 'Semi Synthetic', 'BS6 Compliant', ENGINE OIL FOR MOTORBIKE. Note API SN (vs SM on 102). No volume printed.",
+   "series": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+   "seriesSlug": "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils"
+  },
+  {
+   "file": "00000105-PHOTO-2026-07-08-10-05-33.jpg",
+   "productName": "Engine Oil 15W50",
+   "packSize": "2.5 L",
+   "container": "jar",
+   "note": "Grey jerrycan, red cap, brown label. 'Special Engine Oil'. Marked '2.5 l at 29.5°C'. Claims: Advanced engine protection, Protect from wear & tear, Excellent corrosion protection, Improved Wet Clutch Performance.",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000106-PHOTO-2026-07-08-10-14-18.jpg",
+   "productName": "4T 10W-30",
+   "packSize": null,
+   "container": "bottle",
+   "note": "Silver bottle, red cap, blue label. 'MEETS AND EXCEEDS API SM JASO MB SPECIFICATION', 'Advance Technology Engine Oil For Modern Vehicles'. Scooter graphic. No volume printed.",
+   "series": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+   "seriesSlug": "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils"
+  },
+  {
+   "file": "00000107-PHOTO-2026-07-08-10-15-05.jpg",
+   "productName": "4T 20W-50",
+   "packSize": null,
+   "container": "bottle",
+   "note": "Silver bottle, red cap, blue label. 'MEETS AND EXCEEDS API SM SPECIFICATION', 'ADVANCE TECHNOLOGY ENGINE OIL FOR MOTORBIKE'. Motorbike graphic. No volume printed.",
+   "series": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+   "seriesSlug": "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils"
+  },
+  {
+   "file": "00000110-PHOTO-2026-07-08-10-47-16.jpg",
+   "productName": "Engine Oil SL 20W50",
+   "packSize": "3 L",
+   "container": "bottle",
+   "note": "Petrol Engine Oil; grade SL 20W50; red label; car graphic; 'at 29.5°C'",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000111-PHOTO-2026-07-08-10-47-16.jpg",
+   "productName": "Engine Oil SN 5W30",
+   "packSize": "3 L",
+   "container": "bottle",
+   "note": "Advance Engine Oil; Synthetic Technology Motor Oil; blue label",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000113-PHOTO-2026-07-08-10-49-07.jpg",
+   "productName": "Engine Oil SN 5W30",
+   "packSize": "3.5 L",
+   "container": "bottle",
+   "note": "Advance Engine Oil; Synthetic Technology Motor Oil; blue label; 3.5 L variant",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000114-PHOTO-2026-07-08-10-49-08.jpg",
+   "productName": "Engine Oil SN 10W40",
+   "packSize": "5 L",
+   "container": "bottle",
+   "note": "Advance Engine Oil; Synthetic Technology Motor Oil; red label",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000115-PHOTO-2026-07-08-11-03-18.jpg",
+   "productName": "Engine Oil SN 5W-40",
+   "packSize": "5 L",
+   "container": "bottle",
+   "note": "Semi Synthetic Engine Oil; dark blue label; blue car graphic",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000116-PHOTO-2026-07-08-11-10-25.jpg",
+   "productName": "Engine Oil SP 0W-20",
+   "packSize": "3.5 L",
+   "container": "bottle",
+   "note": "Fully Synthetic Engine Oil; teal label; excellent fuel economy",
+   "series": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+   "seriesSlug": "automotive-engine-oils-technofluid-pcmo"
+  },
+  {
+   "file": "00000119-PHOTO-2026-07-08-11-16-50.jpg",
+   "productName": "HYDRAULIC OIL AW 68",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Green/white metal pail with bail handle; grade AW 68; ISO 9001:2008; likely 20 L bucket (no printed size)",
+   "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+   "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460"
+  },
+  {
+   "file": "00000120-PHOTO-2026-07-08-11-16-50.jpg",
+   "productName": "HYDRAULIC OIL HLP AW 68",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Green/white metal pail with bail handle; grade HLP AW 68; no printed size",
+   "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+   "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+  },
+  {
+   "file": "00000121-PHOTO-2026-07-08-11-16-51.jpg",
+   "productName": "HYDRAULIC OIL HVI AW 68",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Green/white metal pail with bail handle; grade HVI AW 68; no printed size",
+   "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HVI",
+   "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hvi"
+  },
+  {
+   "file": "00000123-PHOTO-2026-07-08-11-21-30.jpg",
+   "productName": "HYDRAULIC OIL AW 68",
+   "packSize": "5 L",
+   "container": "bottle",
+   "note": "Advance Protection; black/yellow label; excavator graphic",
+   "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+   "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460"
+  },
+  {
+   "file": "00000124-PHOTO-2026-07-08-11-22-12.jpg",
+   "productName": "HYDRAULIC OIL HLP AW 68",
+   "packSize": "5 L",
+   "container": "bottle",
+   "note": "Advance Protection; black/yellow label; excavator graphic; grade HLP AW 68",
+   "series": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+   "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
+  },
+  {
+   "file": "00000125-PHOTO-2026-07-08-11-22-37.jpg",
+   "productName": null,
+   "packSize": null,
+   "container": "barrel",
+   "note": "Not a specific product packshot — generic yellow drum/barrel reading only 'TECHNOFLUID' and 'LUBRICANTS & INDUSTRIAL OILS'; no product name or size",
+   "series": null,
+   "seriesSlug": null
+  },
+  {
+   "file": "00000128-PHOTO-2026-07-08-11-30-21.jpg",
+   "productName": "GEAR EP 460",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Technofluid metal pail with handle. Grade EP 460. Claims: Anti Wear Properties, Extends Machine Life, Excellent Corrosion Protection. AN ISO 9001:2015 CERTIFIED CO.",
+   "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+   "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+  },
+  {
+   "file": "00000129-PHOTO-2026-07-08-11-30-22.jpg",
+   "productName": "GEAR EP 320",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 320. Same Technofluid gear-oil pail design and claims.",
+   "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+   "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+  },
+  {
+   "file": "00000130-PHOTO-2026-07-08-11-30-23.jpg",
+   "productName": "GEAR EP 220",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 220. Same Technofluid gear-oil pail design and claims.",
+   "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+   "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+  },
+  {
+   "file": "00000131-PHOTO-2026-07-08-11-31-09.jpg",
+   "productName": "GEAR EP 150",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 150. Same Technofluid gear-oil pail design and claims.",
+   "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+   "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+  },
+  {
+   "file": "00000132-PHOTO-2026-07-08-11-33-02.jpg",
+   "productName": "GEAR EP 100",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 100. Same Technofluid gear-oil pail design and claims.",
+   "series": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+   "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
+  },
+  {
+   "file": "00000135-PHOTO-2026-07-08-11-43-32.jpg",
+   "productName": "GEAR LUBE EP 460",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 460. 'GEAR LUBE' naming variant (vs 'GEAR EP' series). Same pail design and claims.",
+   "series": "TECHNOFLUID GEAR LUBE EP SERIES",
+   "seriesSlug": "technofluid-gear-lube-ep-series"
+  },
+  {
+   "file": "00000136-PHOTO-2026-07-08-11-43-33.jpg",
+   "productName": "GEAR LUBE EP 320",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 320. 'GEAR LUBE' naming variant. Same pail design and claims.",
+   "series": "TECHNOFLUID GEAR LUBE EP SERIES",
+   "seriesSlug": "technofluid-gear-lube-ep-series"
+  },
+  {
+   "file": "00000137-PHOTO-2026-07-08-11-44-21.jpg",
+   "productName": "GEAR LUBE EP 220",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 220. 'GEAR LUBE' naming variant. Same pail design and claims.",
+   "series": "TECHNOFLUID GEAR LUBE EP SERIES",
+   "seriesSlug": "technofluid-gear-lube-ep-series"
+  },
+  {
+   "file": "00000138-PHOTO-2026-07-08-11-45-55.jpg",
+   "productName": "GEAR LUBE EP 150",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Grade EP 150. 'GEAR LUBE' naming variant. Same pail design and claims.",
+   "series": "TECHNOFLUID GEAR LUBE EP SERIES",
+   "seriesSlug": "technofluid-gear-lube-ep-series"
+  },
+  {
+   "file": "00000144-PHOTO-2026-07-08-11-52-34.jpg",
+   "productName": "NEAT CUTTING OIL",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Metalworking / cutting fluid. Same Technofluid pail design and claims.",
+   "series": "NEAT CUTTING OIL – TECHNOFLUID NEAT CUTTING OIL 55",
+   "seriesSlug": "neat-cutting-oil-technofluid-neat-cutting-oil-55"
+  },
+  {
+   "file": "00000145-PHOTO-2026-07-08-11-54-40.jpg",
+   "productName": "SEMI SYNTHETIC CUTTING OIL",
+   "packSize": null,
+   "container": "pail/bucket",
+   "note": "Metalworking / cutting fluid, semi-synthetic. Same Technofluid pail design and claims.",
+   "series": "SEMI SYNTHETIC CUTTING OIL – TECHNOFLUID SEMI SYNTHETIC CUTTING OIL",
+   "seriesSlug": "semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil"
+  },
+  {
+   "file": "00000148-PHOTO-2026-07-08-14-00-20.jpg",
+   "productName": "KNITTING OIL",
+   "packSize": null,
+   "container": "tin",
+   "note": "Blue metal drum/tin with carry handle. TECHNOFLUID branding; AN ISO 9001:2015 CERTIFIED CO. Claims: Anti Wear Properties, Extends Machine Life, Excellent Corrosion Protection.",
+   "series": "TEXTILE LUBRICANT – TECHNOFLUID KNITTING OIL",
+   "seriesSlug": "textile-lubricant-technofluid-knitting-oil"
+  },
+  {
+   "file": "00000149-PHOTO-2026-07-08-14-00-21.jpg",
+   "productName": "CONING OIL",
+   "packSize": null,
+   "container": "tin",
+   "note": "Same blue metal drum/tin format as knitting oil. Textile-industry oil. Same claim strip.",
+   "series": "TEXTILE LUBRICANT – TECHNOFLUID CONING OIL",
+   "seriesSlug": "textile-lubricant-technofluid-coning-oil"
+  },
+  {
+   "file": "00000150-PHOTO-2026-07-08-14-04-19.jpg",
+   "productName": "WARPING OIL",
+   "packSize": null,
+   "container": "tin",
+   "note": "Blue metal drum/tin with handle. Textile oil. Same TECHNOFLUID claim strip.",
+   "series": "TEXTILE LUBRICANT – TECHNOFLUID WARPING OIL",
+   "seriesSlug": "textile-lubricant-technofluid-warping-oil"
+  },
+  {
+   "file": "00000153-PHOTO-2026-07-08-14-07-51.jpg",
+   "productName": "CHAIN OIL HT",
+   "packSize": null,
+   "container": "tin",
+   "note": "Grade code 'HT' (high temperature). Blue metal drum/tin. Same claim strip.",
+   "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+   "seriesSlug": "chain-lubricant-technofluid-chain-oil"
+  },
+  {
+   "file": "00000154-PHOTO-2026-07-08-14-07-54.jpg",
+   "productName": "PVC OIL",
+   "packSize": null,
+   "container": "tin",
+   "note": "Blue metal drum/tin with handle. Same claim strip.",
+   "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
+   "seriesSlug": "process-oil-technofluid-pvc-oil"
+  },
+  {
+   "file": "00000155-PHOTO-2026-07-08-14-09-50.jpg",
+   "productName": "ROTAVATOR OIL 140",
+   "packSize": null,
+   "container": "tin",
+   "note": "Grade '140'. Blue metal drum/tin. Same claim strip. (Note: distinct from ROTAVATOR GEAR 140 jerrycan below.)",
+   "series": "AGRICULTURAL GEAR OIL – TECHNOFLUID ROTAVATOR OIL (SAE 140)",
+   "seriesSlug": "agricultural-gear-oil-technofluid-rotavator-oil-sae-140"
+  },
+  {
+   "file": "00000156-PHOTO-2026-07-08-14-17-35.jpg",
+   "productName": "ROTAVATOR GEAR 140",
+   "packSize": "3 l",
+   "container": "bottle",
+   "note": "Grey plastic jerrycan/bottle, red cap, green label 'Advance Protection'. Grade 140. Pack '3 l at 29.5C'. Rotavator/tiller graphic. Premium Quality mark. Claims: Advanced Machine protection, Protect from wear & tear, Excellent corrosion protection.",
+   "series": "AGRICULTURAL GEAR OIL – TECHNOFLUID ROTAVATOR OIL (SAE 140)",
+   "seriesSlug": "agricultural-gear-oil-technofluid-rotavator-oil-sae-140"
+  },
+  {
+   "file": "00000163-PHOTO-2026-07-08-14-33-52.jpg",
+   "productName": "ENGINE OIL 15W40",
+   "packSize": "5 l",
+   "container": "bottle",
+   "note": "Grey plastic jerrycan/bottle, red cap, maroon label. Viscosity grade 15W40. 'MEETS AND EXCEEDS API CI4 PLUS SPECIFICATION'. 'ADVANCE TECHNOLOGY ENGINE OIL FOR AUTOMOBILES'. Truck + SUV graphics. Pack '5 l at 29.5C'.",
+   "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+   "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+  }
+ ],
+ "seriesCovered": [
+  "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "AGRICULTURAL GEAR OIL – TECHNOFLUID ROTAVATOR OIL (SAE 140)",
+  "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+  "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+  "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+  "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+  "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+  "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HVI",
+  "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+  "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+  "NEAT CUTTING OIL – TECHNOFLUID NEAT CUTTING OIL 55",
+  "PROCESS OIL – TECHNOFLUID PVC OIL",
+  "SEMI SYNTHETIC CUTTING OIL – TECHNOFLUID SEMI SYNTHETIC CUTTING OIL",
+  "TECHNOFLUID GEAR LUBE EP SERIES",
+  "TEXTILE LUBRICANT – TECHNOFLUID CONING OIL",
+  "TEXTILE LUBRICANT – TECHNOFLUID KNITTING OIL",
+  "TEXTILE LUBRICANT – TECHNOFLUID WARPING OIL",
+  "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+  "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)"
+ ]
+}

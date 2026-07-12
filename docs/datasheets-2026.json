@@ -1,0 +1,2531 @@
+{
+  "source": "Gaurav Verma Google Docs datasheets, 09 Jul 2026",
+  "count": 38,
+  "summary": {
+    "total": 38,
+    "mappedToSeries": 36,
+    "newProducts": 2,
+    "seriesCovered": 34,
+    "seriesMissingDatasheet": 2
+  },
+  "datasheets": [
+    {
+      "docId": "1iIjEJaSbSNJ6tlH9MHdhCzZMldE1nEFPlkSjzr1MyfM",
+      "givenName": "Transmission Fluid CF4 SAE 30",
+      "docTitle": "TECHNOFLUID TRANSMISSION CF4 SAE 30 - Product Data Sheet",
+      "description": "This premium heavy-duty lubricant is \"formulated from highly refined mineral base oils and advanced additive technology.\" It serves powershift transmissions, torque converters, final drives, hydraulic systems, and wet brake applications across construction, mining, earthmoving, and agricultural equipment sectors.",
+      "applications": "JCB Equipment Transmissions; Powershift Transmissions; Torque Converters; Final Drives; Off-Highway Equipment; Construction & Mining Machinery; Loaders, Excavators & Backhoe Loaders; Agricultural Machinery; Wet Brake Systems",
+      "performanceStandards": [
+        "API CF-4",
+        "Allison C-4",
+        "Caterpillar TO-2",
+        "SAE 30 Transmission Fluid applications"
+      ],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Visual)"
+        },
+        {
+          "property": "Colour",
+          "value": "Red (ASTM D1500)"
+        },
+        {
+          "property": "Density @ 29.5°C (g/cm³)",
+          "value": "0.870 – 0.890 (ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C (cSt)",
+          "value": "80 – 100 (ASTM D445)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C (cSt)",
+          "value": "9 – 12 (ASTM D445)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95 (ASTM D2270)"
+        },
+        {
+          "property": "Flash Point (COC), °C",
+          "value": "210 (ASTM D92)"
+        },
+        {
+          "property": "Pour Point, °C",
+          "value": "≤ -6 (ASTM D97)"
+        },
+        {
+          "property": "Copper Corrosion (3h @100°C)",
+          "value": "1a (ASTM D130)"
+        },
+        {
+          "property": "Foaming Characteristics",
+          "value": "Pass (ASTM D892)"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (ASTM D943)"
+        }
+      ],
+      "benefits": "Excellent anti-wear protection for gears and bearings; Superior oxidation and thermal stability; Smooth clutch and wet brake performance; Excellent rust and corrosion protection; High resistance to foaming; Extended oil drain intervals; Good seal compatibility; Reduced transmission noise and wear",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID TRANSMISSION CF4 SAE 30 - Product Data Sheet\n\n## Product Description\nThis premium heavy-duty lubricant is \"formulated from highly refined mineral base oils and advanced additive technology.\" It serves powershift transmissions, torque converters, final drives, hydraulic systems, and wet brake applications across construction, mining, earthmoving, and agricultural equipment sectors.\n\n## Applications\n- JCB Equipment Transmissions\n- Powershift Transmissions\n- Torque Converters\n- Final Drives\n- Off-Highway Equipment\n- Construction & Mining Machinery\n- Loaders, Excavators & Backhoe Loaders\n- Agricultural Machinery\n- Wet Brake Systems\n\n## Performance Level / Specifications\nMeets or suitable for:\n- API CF-4\n- Allison C-4\n- Caterpillar TO-2\n- SAE 30 Transmission Fluid applications\n\n## Typical Technical Characteristics\n\n| Characteristic | Test Method | Typical Value |\n|---|---|---|\n| Appearance | Visual | Clear & Bright |\n| Colour | ASTM D1500 | Red |\n| Density @ 29.5°C (g/cm³) | ASTM D4052 | 0.870 – 0.890 |\n| Kinematic Viscosity @ 40°C (cSt) | ASTM D445 | 80 – 100 |\n| Kinematic Viscosity @ 100°C (cSt) | ASTM D445 | 9 – 12 |\n| Viscosity Index | ASTM D2270 | ≥ 95 |\n| Flash Point (COC), °C | ASTM D92 | 210 |\n| Pour Point, °C | ASTM D97 | ≤ -6 |\n| Copper Corrosion (3h @100°C) | ASTM D130 | 1a |\n| Foaming Characteristics | ASTM D892 | Pass |\n| Oxidation Stability | ASTM D943 | Excellent |\n\n## Key Features & Benefits\n- Excellent anti-wear protection for gears and bearings\n- Superior oxidation and thermal stability\n- Smooth clutch and wet brake performance\n- Excellent rust and corrosion protection\n- High resistance to foaming\n- Extended oil drain intervals\n- Good seal compatibility\n- Reduced transmission noise and wear",
+      "seriesTitle": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+      "seriesSlug": "transmission-fluid-technofluid-tq-atf",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1MQFoZAQW-EF0iBLxQ_5bJYVobnQsRVKW6XkqcGCq6Hk",
+      "givenName": "TECHNOFLUID WET BRAKE UTTO",
+      "docTitle": "TECHNOFLUID UTTO Wet Brake Oil - Product Data Sheet",
+      "description": "TECHNOFLUID Wet Brake Oil (UTTO) represents a \"high-performance multifunctional lubricant specially formulated for use in tractors and off-highway equipment with wet brake systems.\" This universal oil addresses multiple lubrication needs simultaneously across transmission, hydraulic, and brake components.",
+      "applications": "Serves agricultural and construction equipment, particularly vehicles requiring unified lubrication for transmissions, differentials, final drives, hydraulic systems, and wet brakes. Addresses \"equipment operating under heavy loads and severe field conditions.\"",
+      "performanceStandards": [
+        "API GL-4",
+        "Allison C-3/C-4",
+        "Case MAT 3505/3525",
+        "Caterpillar TO-2",
+        "Ford ESN-M2C-134 C/D"
+      ],
+      "specTable": [
+        {
+          "property": "Base Oil Type",
+          "value": "Mineral"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "55–65 cSt"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥140"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥210°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-23°C"
+        },
+        {
+          "property": "Density @ 29.5°C",
+          "value": "0.845 g/ml"
+        }
+      ],
+      "benefits": "Excellent friction control for brake noise elimination; superior anti-wear protection; extended oil life through oxidation stability; comprehensive corrosion safeguarding across metal components.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID UTTO Wet Brake Oil - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Wet Brake Oil (UTTO) represents a \"high-performance multifunctional lubricant specially formulated for use in tractors and off-highway equipment with wet brake systems.\" This universal oil addresses multiple lubrication needs simultaneously across transmission, hydraulic, and brake components.\n\n## Core Applications\nThe product serves agricultural and construction equipment, particularly vehicles requiring unified lubrication for transmissions, differentials, final drives, hydraulic systems, and wet brakes. It addresses \"equipment operating under heavy loads and severe field conditions.\"\n\n## Key Technical Specifications\n\n| Property | Value |\n|----------|-------|\n| Base Oil Type | Mineral |\n| Kinematic Viscosity @ 40°C | 55–65 cSt |\n| Viscosity Index | ≥140 |\n| Flash Point | ≥210°C |\n| Pour Point | -23°C |\n| Density @ 29.5°C | 0.845 g/ml |\n\n## Performance Standards\nThe formulation \"Meets or exceeds requirements of\" API GL-4, Allison C-3/C-4, Case MAT 3505/3525, Caterpillar TO-2, and Ford ESN-M2C-134 C/D specifications.\n\n## Notable Benefits\nKey advantages include \"Excellent friction control\" for brake noise elimination, superior anti-wear protection, extended oil life through oxidation stability, and comprehensive corrosion safeguarding across metal components.",
+      "seriesTitle": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+      "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1nuXFEpGq4otj1xvN8Xi3U4cmGH_XBxAaRu74W2weruA",
+      "givenName": "AUTOMOTIVE ENGINE OILS PCMO",
+      "docTitle": "TECHNOFLUID PCMO PRODUCT DATA SHEET",
+      "description": "TECHNOFLUID Automotive Engine Oils are premium lubricants designed for passenger vehicles. The product line includes five viscosity grades: 5W30, 10W40, 15W40, and 20W50, each meeting distinct API performance standards.",
+      "applications": "These oils suit petrol, diesel, and CNG vehicles operating in city traffic, highway conditions, and high-temperature environments. The product family supports extended drain intervals per manufacturer recommendations.",
+      "performanceStandards": [
+        "API (distinct API performance standards per viscosity grade)",
+        "ASTM D943 (oxidation stability)"
+      ],
+      "specTable": [
+        {
+          "property": "Base Oil Composition (5W-30)",
+          "value": "Synthetic / Semi-Synthetic"
+        },
+        {
+          "property": "Base Oil Composition (15W-40, 20W-50)",
+          "value": "Mineral"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C (5W-30)",
+          "value": "55-65 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C (20W-50)",
+          "value": "160-190 cSt"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥220°C to ≥230°C depending on grade"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-36°C to -12°C depending on grade"
+        },
+        {
+          "property": "Foaming",
+          "value": "Pass"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (ASTM D943)"
+        }
+      ],
+      "benefits": "\"Excellent anti-wear protection\" and \"Superior detergency and dispersancy\" to maintain engine cleanliness; stable viscosity over a wide range of temperatures.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID PCMO PRODUCT DATA SHEET\n\n## Product Overview\nTECHNOFLUID Automotive Engine Oils are premium lubricants designed for passenger vehicles. The product line includes five viscosity grades: 5W30, 10W40, 15W40, and 20W50, each meeting distinct API performance standards.\n\n## Key Specifications\n\n**Base Oil Composition:**\nThe 5W-30 variant uses \"Synthetic / Semi-Synthetic\" base stock, while heavier grades (15W-40, 20W-50) utilize mineral formulations.\n\n**Viscosity Performance:**\nKinematic viscosity at 40°C ranges from 55-65 cSt (5W-30) to 160-190 cSt (20W-50). All grades maintain \"stable viscosity over a wide range of temperatures.\"\n\n**Protection Features:**\nThe formulations provide \"Excellent anti-wear protection\" and \"Superior detergency and dispersancy\" to maintain engine cleanliness.\n\n**Thermal Stability:**\nFlash points range from ≥220°C to ≥230°C depending on grade, with pour points from -36°C to -12°C.\n\n## Application Scope\nThese oils suit petrol, diesel, and CNG vehicles operating in city traffic, highway conditions, and high-temperature environments. The product family supports extended drain intervals per manufacturer recommendations.\n\n**Performance Certifications:**\nAll variants pass foaming tests and demonstrate excellent oxidation stability per ASTM D943.",
+      "seriesTitle": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
+      "seriesSlug": "automotive-engine-oils-technofluid-pcmo",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1f7IAj8vl1rsicP8R4ibmQiaYF_OLP4odLgMA6aAMhZ0",
+      "givenName": "TECHNOFLUID 4T ENGINE OIL",
+      "docTitle": "TECHNOFLUID 4T Engine Oils Product Data Sheet",
+      "description": "TECHNOFLUID manufactures \"premium-quality four-stroke motorcycle and scooter engine oils formulated to deliver reliable performance under varied riding and climatic conditions.\"",
+      "applications": "These oils serve motorcycles and scooters with four-stroke engines, particularly those used in city traffic and highway conditions requiring API SM/SN performance levels.",
+      "performanceStandards": [
+        "API SM",
+        "API SM/SN",
+        "API SN"
+      ],
+      "specTable": [
+        {
+          "property": "Density (g/ml) — 10W-30 SM",
+          "value": "0.855"
+        },
+        {
+          "property": "Density (g/ml) — 20W-40 SM/SN",
+          "value": "0.860"
+        },
+        {
+          "property": "Density (g/ml) — 20W-50 SM",
+          "value": "0.860"
+        },
+        {
+          "property": "Density (g/ml) — 15W-50 SN",
+          "value": "0.860"
+        },
+        {
+          "property": "Viscosity @ 40°C — 10W-30 SM",
+          "value": "65-75 cSt"
+        },
+        {
+          "property": "Viscosity @ 40°C — 20W-40 SM/SN",
+          "value": "125-150 cSt"
+        },
+        {
+          "property": "Viscosity @ 40°C — 20W-50 SM",
+          "value": "160-190 cSt"
+        },
+        {
+          "property": "Viscosity @ 40°C — 15W-50 SN",
+          "value": "125-150 cSt"
+        },
+        {
+          "property": "Flash Point — 10W-30 SM",
+          "value": "≥210°C"
+        },
+        {
+          "property": "Flash Point — 20W-40 SM/SN",
+          "value": "≥215°C"
+        },
+        {
+          "property": "Flash Point — 20W-50 SM",
+          "value": "≥220°C"
+        },
+        {
+          "property": "Flash Point — 15W-50 SN",
+          "value": "≥225°C"
+        },
+        {
+          "property": "Pour Point — 10W-30 SM",
+          "value": "-27°C"
+        },
+        {
+          "property": "Pour Point — 20W-40 SM/SN",
+          "value": "-15°C"
+        },
+        {
+          "property": "Pour Point — 20W-50 SM",
+          "value": "-12°C"
+        },
+        {
+          "property": "Pour Point — 15W-50 SN",
+          "value": "-30°C"
+        },
+        {
+          "property": "Wet Clutch Compatibility (all grades)",
+          "value": "Pass"
+        }
+      ],
+      "benefits": "\"Excellent anti-wear protection reduces engine and gear wear\" along with superior cleaning properties. They maintain viscosity stability across temperature ranges and are compatible with wet clutch systems.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID 4T Engine Oils Product Data Sheet\n\n## Product Overview\nTECHNOFLUID manufactures \"premium-quality four-stroke motorcycle and scooter engine oils formulated to deliver reliable performance under varied riding and climatic conditions.\"\n\n## Available Viscosity Grades\n- 4T 10W-30 API SM\n- 4T 20W-40 API SM/SN\n- 4T 20W-50 API SM\n- 4T 15W-50 API SN\n\n## Key Benefits\nThe oils provide \"excellent anti-wear protection reduces engine and gear wear\" along with superior cleaning properties. They maintain viscosity stability across temperature ranges and are compatible with wet clutch systems.\n\n## Primary Applications\nThese oils serve motorcycles and scooters with four-stroke engines, particularly those used in city traffic and highway conditions requiring API SM/SN performance levels.\n\n## Core Performance Properties\n\n| Property | 10W-30 SM | 20W-40 SM/SN | 20W-50 SM | 15W-50 SN |\n|----------|-----------|-------------|----------|-----------|\n| Density (g/ml) | 0.855 | 0.860 | 0.860 | 0.860 |\n| Viscosity @ 40°C | 65-75 cSt | 125-150 cSt | 160-190 cSt | 125-150 cSt |\n| Flash Point | ≥210°C | ≥215°C | ≥220°C | ≥225°C |\n| Pour Point | -27°C | -15°C | -12°C | -30°C |\n| Wet Clutch Compatibility | Pass | Pass | Pass | Pass |",
+      "seriesTitle": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
+      "seriesSlug": "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1Z1kDelaHue5cb37w-J9p42BZFLTlCI0sVxCjiNsiG8g",
+      "givenName": "HYDRAULIC OIL AW 68",
+      "docTitle": "TECHNOFLUID Hydraulic Oil AW Product Data Sheet",
+      "description": "TECHNOFLUID Hydraulic Oil AW is available in eight ISO viscosity grades (32, 46, 68, 100, 150, 220, 320, and 460). The formulation uses \"high-quality, chemically stable base oils and a balanced additive system\" designed for modern hydraulic applications. The oil provides \"anti-wear, anti-oxidant, anti-rust, and anti-foam additives\" for protecting pumps and components operating under demanding conditions. It maintains viscosity stability across temperature ranges while offering rapid water separation and minimal foaming.",
+      "applications": "Suitable for industrial hydraulic presses, injection molding equipment, construction machinery, forklifts, agricultural systems, and mining equipment with vane, piston, and gear-type pumps.",
+      "performanceStandards": [
+        "IS 10522:1983",
+        "Vickers/Denison performance standards"
+      ],
+      "specTable": [
+        {
+          "property": "Base Oil Type",
+          "value": "Mineral"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.845-0.855 g/ml (depending on grade)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥95 (all grades)"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥210-215°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1a rating"
+        },
+        {
+          "property": "Rust Protection",
+          "value": "Pass (ASTM D665)"
+        },
+        {
+          "property": "Demulsibility",
+          "value": "40/40/0 @ 54°C"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent"
+        }
+      ],
+      "benefits": "Anti-wear, anti-oxidant, anti-rust, and anti-foam additives protecting pumps and components under demanding conditions; viscosity stability across temperature ranges; rapid water separation; minimal foaming.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Hydraulic Oil AW Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Hydraulic Oil AW is available in eight ISO viscosity grades (32, 46, 68, 100, 150, 220, 320, and 460). The formulation uses \"high-quality, chemically stable base oils and a balanced additive system\" designed for modern hydraulic applications.\n\n## Key Features\nThe oil provides \"anti-wear, anti-oxidant, anti-rust, and anti-foam additives\" for protecting pumps and components operating under demanding conditions. It maintains viscosity stability across temperature ranges while offering rapid water separation and minimal foaming.\n\n## Specifications Summary\n- **Base Oil Type:** Mineral\n- **Density @ 15°C:** 0.845-0.855 g/ml (depending on grade)\n- **Viscosity Index:** ≥95 (all grades)\n- **Flash Point:** ≥210-215°C\n- **Pour Point:** -6°C\n- **Copper Corrosion:** 1a rating\n- **Rust Protection:** Pass (ASTM D665)\n- **Demulsibility:** 40/40/0 @ 54°C\n- **Oxidation Stability:** Excellent\n\n## Applications\nSuitable for industrial hydraulic presses, injection molding equipment, construction machinery, forklifts, agricultural systems, and mining equipment with vane, piston, and gear-type pumps.\n\n## Compliance\nMeets IS 10522:1983 and Vickers/Denison performance standards.",
+      "seriesTitle": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL AW (ISO VG 32, 46,68,100,150,220,320 & 460)",
+      "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1rs3pvNkxhxHsTZyxPR47T0ZutsvXrSb9xOSXgvjvTcU",
+      "givenName": "HYDRAULIC OIL HLP AW",
+      "docTitle": "TECHNOFLUID Hydraulic Oil HLP AW Product Data Sheet",
+      "description": "TECHNOFLUID Hydraulic Oil HLP AW is formulated from premium base oils and advanced additives, \"designed to provide reliable lubrication and protection for hydraulic systems operating under high pressure.\" Available in ISO VG grades: 32, 46, 68, 100, and 150.",
+      "applications": "Suitable for industrial and mobile hydraulic systems, including hydraulic presses, injection molding machines, steel plants, construction equipment, and material handling systems. Compatible with vane, piston, and gear type pumps.",
+      "performanceStandards": [
+        "DIN 51524 Part 2 (HLP)",
+        "IS 10522:1983",
+        "Vickers/Denison specifications"
+      ],
+      "specTable": [
+        {
+          "property": "Density at 15°C — VG 32",
+          "value": "0.842"
+        },
+        {
+          "property": "Density at 15°C — VG 46",
+          "value": "0.849"
+        },
+        {
+          "property": "Density at 15°C — VG 68",
+          "value": "0.855"
+        },
+        {
+          "property": "Density at 15°C — VG 100",
+          "value": "0.862"
+        },
+        {
+          "property": "Density at 15°C — VG 150",
+          "value": "0.862"
+        },
+        {
+          "property": "Kinematic Viscosity (cSt @ 40°C) — VG 32",
+          "value": "32.6"
+        },
+        {
+          "property": "Kinematic Viscosity (cSt @ 40°C) — VG 46",
+          "value": "46.7"
+        },
+        {
+          "property": "Kinematic Viscosity (cSt @ 40°C) — VG 68",
+          "value": "68.1"
+        },
+        {
+          "property": "Kinematic Viscosity (cSt @ 40°C) — VG 100",
+          "value": "100.2"
+        },
+        {
+          "property": "Kinematic Viscosity (cSt @ 40°C) — VG 150",
+          "value": "150"
+        },
+        {
+          "property": "Viscosity Index — VG 32/46/68/100",
+          "value": "115"
+        },
+        {
+          "property": "Viscosity Index — VG 150",
+          "value": "117"
+        },
+        {
+          "property": "Pour Point — VG 32/46/68/100",
+          "value": "-12°C"
+        },
+        {
+          "property": "Pour Point — VG 150",
+          "value": "-10°C"
+        },
+        {
+          "property": "Flash Point (COC) — VG 32",
+          "value": "220°C"
+        },
+        {
+          "property": "Flash Point (COC) — VG 46",
+          "value": "228°C"
+        },
+        {
+          "property": "Flash Point (COC) — VG 68",
+          "value": "242°C"
+        },
+        {
+          "property": "Flash Point (COC) — VG 100",
+          "value": "252°C"
+        },
+        {
+          "property": "Flash Point (COC) — VG 150",
+          "value": "252°C"
+        },
+        {
+          "property": "Foaming Characteristics",
+          "value": "Nil across all sequences"
+        }
+      ],
+      "benefits": "\"Excellent anti-wear protection minimizes wear of pumps, valves, and actuators\"; superior oxidation stability that reduces sludge and varnish formation; effective rust and corrosion protection; \"Good demulsibility enables quick separation of water, maintaining lubrication efficiency\"; extended equipment lifespan with reduced maintenance.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Hydraulic Oil HLP AW Product Data Sheet\n\n## Product Description\nTECHNOFLUID Hydraulic Oil HLP AW is formulated from premium base oils and advanced additives, \"designed to provide reliable lubrication and protection for hydraulic systems operating under high pressure.\"\n\nAvailable in ISO VG grades: 32, 46, 68, 100, and 150.\n\n## Key Performance Benefits\nThe product delivers several protective qualities:\n- \"Excellent anti-wear protection minimizes wear of pumps, valves, and actuators\"\n- Superior oxidation stability that reduces sludge and varnish formation\n- Effective rust and corrosion protection\n- \"Good demulsibility enables quick separation of water, maintaining lubrication efficiency\"\n- Extended equipment lifespan with reduced maintenance\n\n## Applications\nSuitable for industrial and mobile hydraulic systems, including hydraulic presses, injection molding machines, steel plants, construction equipment, and material handling systems. Compatible with vane, piston, and gear type pumps.\n\n## Performance Standards\nMeets or exceeds DIN 51524 Part 2 (HLP), IS 10522:1983, and Vickers/Denison specifications.\n\n## Typical Characteristics\n\n| Property | VG 32 | VG 46 | VG 68 | VG 100 | VG 150 |\n|----------|-------|-------|-------|--------|--------|\n| Density at 15°C | 0.842 | 0.849 | 0.855 | 0.862 | 0.862 |\n| Kinematic Viscosity (cSt @ 40°C) | 32.6 | 46.7 | 68.1 | 100.2 | 150 |\n| Viscosity Index | 115 | 115 | 115 | 115 | 117 |\n| Pour Point | -12°C | -12°C | -12°C | -12°C | -10°C |\n| Flash Point (COC) | 220°C | 228°C | 242°C | 252°C | 252°C |\n| Foaming Characteristics | Nil across all sequences |",
+      "seriesTitle": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HLP",
+      "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1D0xSrmZKYvoW25X_CzkJxcz2g7WKanUZ4BEjuku9ZoI",
+      "givenName": "HYDRAULIC OIL HVI AW",
+      "docTitle": "TECHNOFLUID HYDRAULIC OIL HVI",
+      "description": "TECHNOFLUID Hydraulic Oil HVI is a premium fluid formulated with selected high-quality base oils and advanced additive technology designed for wide temperature range performance across industrial and mobile hydraulic systems in ISO VG 46, 68, and 100 grades. The formulation includes anti-wear, anti-oxidant, anti-rust, and anti-foam additives to extend oil life and component protection. The fluid maintains viscosity stability during both cold starts and high-temperature operation.",
+      "applications": "Recommended for equipment experiencing temperature fluctuations, including mobile hydraulic systems, construction machinery, agricultural equipment, and material handling systems. Compatible with vane, piston, and gear-type pumps.",
+      "performanceStandards": [
+        "DIN 51524 Part 3 (HVLP)",
+        "IS 10522: 1983",
+        "Vickers V-104C / Denison HF-0, HF-1, HF-2"
+      ],
+      "specTable": [
+        {
+          "property": "Kinematic Viscosity at 40°C (VG 46)",
+          "value": "46.7 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity at 40°C (VG 68)",
+          "value": "68.1 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity at 40°C (VG 100)",
+          "value": "100.2 cSt"
+        },
+        {
+          "property": "Viscosity Index (VG 46)",
+          "value": "138"
+        },
+        {
+          "property": "Viscosity Index (VG 68)",
+          "value": "139"
+        },
+        {
+          "property": "Viscosity Index (VG 100)",
+          "value": "141"
+        },
+        {
+          "property": "Pour Point (VG 46)",
+          "value": "-15°C"
+        },
+        {
+          "property": "Pour Point (VG 68)",
+          "value": "-15°C"
+        },
+        {
+          "property": "Pour Point (VG 100)",
+          "value": "-15°C"
+        },
+        {
+          "property": "Flash Point (COC) (VG 46)",
+          "value": "242°C"
+        },
+        {
+          "property": "Flash Point (COC) (VG 68)",
+          "value": "242°C"
+        },
+        {
+          "property": "Flash Point (COC) (VG 100)",
+          "value": "242°C"
+        },
+        {
+          "property": "Copper Strip Corrosion (VG 46)",
+          "value": "1"
+        },
+        {
+          "property": "Copper Strip Corrosion (VG 68)",
+          "value": "1"
+        },
+        {
+          "property": "Copper Strip Corrosion (VG 100)",
+          "value": "1"
+        },
+        {
+          "property": "Foaming Characteristics (VG 46)",
+          "value": "Nil"
+        },
+        {
+          "property": "Foaming Characteristics (VG 68)",
+          "value": "Nil"
+        },
+        {
+          "property": "Foaming Characteristics (VG 100)",
+          "value": "Nil"
+        }
+      ],
+      "benefits": "The formulation includes anti-wear, anti-oxidant, anti-rust, and anti-foam additives to extend oil life and component protection. The fluid maintains viscosity stability during both cold starts and high-temperature operation.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID HYDRAULIC OIL HVI – Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Hydraulic Oil HVI is a premium fluid formulated with \"selected high-quality base oils and advanced additive technology\" designed for wide temperature range performance across industrial and mobile hydraulic systems in ISO VG 46, 68, and 100 grades.\n\n## Key Protective Features\nThe formulation includes \"anti-wear, anti-oxidant, anti-rust, and anti-foam additives\" to extend oil life and component protection. The fluid maintains viscosity stability during both cold starts and high-temperature operation.\n\n## Primary Applications\nRecommended for equipment experiencing temperature fluctuations, including mobile hydraulic systems, construction machinery, agricultural equipment, and material handling systems. Compatible with vane, piston, and gear-type pumps.\n\n## Performance Standards\nMeets or exceeds DIN 51524 Part 3 (HVLP), IS 10522: 1983, and Vickers V-104C / Denison HF-0, HF-1, HF-2 specifications where applicable.\n\n## Typical Specifications\n\n| Property | VG 46 | VG 68 | VG 100 |\n|----------|-------|-------|--------|\n| Kinematic Viscosity at 40°C | 46.7 cSt | 68.1 cSt | 100.2 cSt |\n| Viscosity Index | 138 | 139 | 141 |\n| Pour Point | -15°C | -15°C | -15°C |\n| Flash Point (COC) | 242°C | 242°C | 242°C |\n| Copper Strip Corrosion | 1 | 1 | 1 |\n| Foaming Characteristics | Nil | Nil | Nil |",
+      "seriesTitle": "HYDRAULIC OIL – TECHNOFLUID HYDRAULIC OIL HVI",
+      "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hvi",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1QZQUjPbji4-g9aAw-t3ayfRX-9UY36Yn3qBDHDKCdL4",
+      "givenName": "__ORPHAN_A__",
+      "docTitle": "TECHNOFLUID FULLY SYNTHETIC GEAR OIL EP 320",
+      "description": "TECHNOFLUID Fully Synthetic Gear Oil EP 320 is a premium quality extreme pressure industrial gear lubricant designed for enclosed systems experiencing severe operating conditions including high temperatures and shock loading.",
+      "applications": "The lubricant serves heavy industrial sectors including: Cement and steel manufacturing; Mining operations; Paper and pulp production; Wind turbine systems; Marine and offshore equipment.",
+      "performanceStandards": [
+        "DIN 51517 Part 3 (CLP)",
+        "ISO 12925-1 CKD",
+        "AGMA 9005-E02 EP"
+      ],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear Amber Fluid"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.85 – 0.87 g/cm³"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "320 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "38 – 42 cSt"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "145 – 155"
+        },
+        {
+          "property": "Flash Point",
+          "value": "250°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "Below -35°C"
+        },
+        {
+          "property": "FZG Load Stage",
+          "value": "> 12"
+        }
+      ],
+      "benefits": "Key advantages include Excellent EP and anti-wear protection and Outstanding oxidation and thermal stability, along with extended service intervals and improved operational efficiency.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID FULLY SYNTHETIC GEAR OIL EP 320 - Product Data Sheet\n\n**Product Description**\n\"TECHNOFLUID Fully Synthetic Gear Oil EP 320 is a premium quality extreme pressure industrial gear lubricant\" designed for enclosed systems experiencing severe operating conditions including high temperatures and shock loading.\n\n**Applications**\nThe lubricant serves heavy industrial sectors including:\n* Cement and steel manufacturing\n* Mining operations\n* Paper and pulp production\n* Wind turbine systems\n* Marine and offshore equipment\n\n**Performance Benefits**\nKey advantages include \"Excellent EP and anti-wear protection\" and \"Outstanding oxidation and thermal stability,\" along with extended service intervals and improved operational efficiency.\n\n**Typical Characteristics**\n\n| Property | Test Method | Value |\n|----------|-------------|-------|\n| Appearance | Visual | Clear Amber Fluid |\n| Density @ 15°C | ASTM D4052 | 0.85 – 0.87 g/cm³ |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 320 cSt |\n| Kinematic Viscosity @ 100°C | ASTM D445 | 38 – 42 cSt |\n| Viscosity Index | ASTM D2270 | 145 – 155 |\n| Flash Point | ASTM D92 | 250°C |\n| Pour Point | ASTM D97 | Below -35°C |\n| FZG Load Stage | DIN 51354 | > 12 |\n\n**Performance Standards**\nMeets DIN 51517 Part 3 (CLP), ISO 12925-1 CKD, and AGMA 9005-E02 EP specifications.",
+      "seriesTitle": null,
+      "seriesSlug": null,
+      "isNewProduct": true
+    },
+    {
+      "docId": "14ZAu5BZU143pz2_pOT7bKOQgkP_bX4pG3ILPgFuQqUI",
+      "givenName": "Technofluid Gear EP 320",
+      "docTitle": "TECHNOFLUID GEAR EP 320",
+      "description": "TECHNOFLUID GEAR EP 320 is formulated with refined base oils, viscosity index improvers, and advanced sulfur-phosphorus EP additive to deliver exceptional performance in industrial gear applications. The product provides Excellent load carrying capacity and Superior micropitting protection along with high thermal stability and extended service life across demanding conditions.",
+      "applications": "Enclosed industrial gear drives, helical/spur/bevel gears, circulating systems, and heavy-duty equipment in cement plants, steel mills, and mining operations.",
+      "performanceStandards": [
+        "DIN 51517 Part 3 (CLP)",
+        "ISO 12925-1 CKD",
+        "AGMA 9005-F16 EP",
+        "David Brown S1.53.101",
+        "US Steel 224",
+        "Cincinnati Machine P-74"
+      ],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Bright & clear"
+        },
+        {
+          "property": "Density @ 29.5 °C",
+          "value": "0.855 kg/L"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40 °C",
+          "value": "290-340 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100 °C",
+          "value": "24 cSt"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": ">95"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "242–246 °C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "<-12 °C"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1b"
+        },
+        {
+          "property": "FZG Load Stage",
+          "value": "Pass 12+"
+        }
+      ],
+      "benefits": "The product provides Excellent load carrying capacity and Superior micropitting protection along with high thermal stability and extended service life across demanding conditions.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID GEAR EP 320 Product Data Sheet\n\n**Product Description**\nTECHNOFLUID GEAR EP 320 is formulated with refined base oils, viscosity index improvers, and \"advanced sulfur-phosphorus EP additive\" to deliver exceptional performance in industrial gear applications.\n\n**Key Performance Features**\nThe product provides \"Excellent load carrying capacity\" and \"Superior micropitting protection\" along with high thermal stability and extended service life across demanding conditions.\n\n**Specifications Met**\n- DIN 51517 Part 3 (CLP)\n- ISO 12925-1 CKD\n- AGMA 9005-F16 EP\n- David Brown S1.53.101\n- US Steel 224\n- Cincinnati Machine P-74\n\n**Typical Physical Properties**\n\n| Property | Value | Test Method |\n|----------|-------|-------------|\n| Appearance | Bright & clear | Visual |\n| Density @ 29.5 °C | 0.855 kg/L | ASTM D1298 |\n| Kinematic Viscosity @ 40 °C | 290-340 cSt | ASTM D445 |\n| Kinematic Viscosity @ 100 °C | 24 cSt | ASTM D445 |\n| Viscosity Index | >95 | ASTM D2270 |\n| Flash Point (COC) | 242–246 °C | ASTM D92 |\n| Pour Point | <-12 °C | ASTM D97 |\n| Copper Corrosion | 1b | ASTM D130 |\n| FZG Load Stage | Pass 12+ | DIN 51354 |\n\n**Suitable Applications**\nEnclosed industrial gear drives, helical/spur/bevel gears, circulating systems, and heavy-duty equipment in cement plants, steel mills, and mining operations.",
+      "seriesTitle": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+      "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1i1dvvM4pQTFHQsk6R50NyD4wDcvhCZ0EnFx8FKAl2h8",
+      "givenName": "TECHNOFLUID GEAR EP 460",
+      "docTitle": "TECHNOFLUID GEAR EP 460",
+      "description": "TECHNOFLUID GEAR EP 460 is a premium quality Extreme Pressure (EP) industrial gear lubricant formulated with refined base oils and sulphur-phosphorus additives for severe-duty applications.",
+      "applications": "This lubricant addresses enclosed gear systems including spur, helical, bevel, and worm configurations across heavy industries like cement, steel, mining, and textiles.",
+      "performanceStandards": [
+        "AGMA 9005-F16 (EP)",
+        "DIN 51517 Part 3 (CLP)",
+        "ISO 12925-1 Type CKD",
+        "US Steel 224"
+      ],
+      "specTable": [
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "410–460 cSt"
+        },
+        {
+          "property": "Flash Point",
+          "value": "230°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C maximum"
+        },
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Density @ 29.5°C",
+          "value": "0.88 g/cm³"
+        }
+      ],
+      "benefits": "Notable capabilities include Outstanding protection against wear and scuffing, superior thermal stability, and rapid water separation. The formulation supports extended drain intervals and reduces maintenance expenditures for industrial operations.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID GEAR EP 460 Product Data Sheet\n\n## Product Overview\n\"TECHNOFLUID GEAR EP 460 is a premium quality Extreme Pressure (EP) industrial gear lubricant\" formulated with refined base oils and sulphur-phosphorus additives for severe-duty applications.\n\n## Intended Uses\nThis lubricant addresses enclosed gear systems including spur, helical, bevel, and worm configurations across heavy industries like cement, steel, mining, and textiles.\n\n## Compliance Standards\nThe product meets \"AGMA 9005-F16 (EP)\" and \"DIN 51517 Part 3 (CLP)\" along with ISO 12925-1 Type CKD and US Steel 224 requirements.\n\n## Key Specifications\n- Kinematic Viscosity @ 40°C: 410–460 cSt\n- Flash Point: 230°C\n- Pour Point: -6°C maximum\n- Appearance: \"Clear & Bright\"\n- Density @ 29.5°C: 0.88 g/cm³\n\n## Performance Advantages\nNotable capabilities include \"Outstanding protection against wear and scuffing,\" superior thermal stability, and rapid water separation. The formulation supports extended drain intervals and reduces maintenance expenditures for industrial operations.",
+      "seriesTitle": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+      "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1tfI0y9voHJL5qVZx4s4cplNFmOYlqFCQQWUvVYwqqko",
+      "givenName": "TECHNOFLUID GEAR EP SERIES",
+      "docTitle": "TECHNOFLUID INDUSTRIAL GEAR OILS",
+      "description": "TECHNOFLUID Industrial Gear Oils are high-performance extreme pressure (EP) lubricants formulated from carefully selected high-quality base oils and advanced additive systems. These oils deliver protection for industrial gear systems under demanding conditions, with excellent oxidation stability and corrosion resistance for ferrous and non-ferrous components. Suitable for both circulation and splash lubrication systems. Commercial/Pack Name: GEAR EP 100 / 150 / 220 / 320 / 460.",
+      "applications": "Cement, steel, rolling mills, sugar, paper, textile industries, power plants, mining equipment, crushers, conveyors, gear reducers, machine tools, and industrial gearboxes. Also suitable for bearings, sliding surfaces, chain drives, and couplings.",
+      "performanceStandards": [
+        "AGMA 250.04 (EP)",
+        "IS 8408 (EP Gear Oils)",
+        "DIN 51517 Part 3 (CLP)"
+      ],
+      "specTable": [
+        {
+          "property": "Appearance (ISO VG 100)",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Appearance (ISO VG 150)",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Appearance (ISO VG 220)",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Appearance (ISO VG 320)",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Appearance (ISO VG 460)",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Colour (ASTM D1500) (ISO VG 100)",
+          "value": "≤ 3.0"
+        },
+        {
+          "property": "Colour (ASTM D1500) (ISO VG 150)",
+          "value": "≤ 3.0"
+        },
+        {
+          "property": "Colour (ASTM D1500) (ISO VG 220)",
+          "value": "≤ 3.0"
+        },
+        {
+          "property": "Colour (ASTM D1500) (ISO VG 320)",
+          "value": "≤ 3.0"
+        },
+        {
+          "property": "Colour (ASTM D1500) (ISO VG 460)",
+          "value": "≤ 3.0"
+        },
+        {
+          "property": "Density @ 15°C, g/ml (ISO VG 100)",
+          "value": "0.865"
+        },
+        {
+          "property": "Density @ 15°C, g/ml (ISO VG 150)",
+          "value": "0.868"
+        },
+        {
+          "property": "Density @ 15°C, g/ml (ISO VG 220)",
+          "value": "0.870"
+        },
+        {
+          "property": "Density @ 15°C, g/ml (ISO VG 320)",
+          "value": "0.875"
+        },
+        {
+          "property": "Density @ 15°C, g/ml (ISO VG 460)",
+          "value": "0.880"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C, cSt (ISO VG 100)",
+          "value": "100"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C, cSt (ISO VG 150)",
+          "value": "150"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C, cSt (ISO VG 220)",
+          "value": "220"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C, cSt (ISO VG 320)",
+          "value": "320"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C, cSt (ISO VG 460)",
+          "value": "460"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C, cSt (ISO VG 100)",
+          "value": "11.0"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C, cSt (ISO VG 150)",
+          "value": "14.5"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C, cSt (ISO VG 220)",
+          "value": "19.0"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C, cSt (ISO VG 320)",
+          "value": "24.5"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C, cSt (ISO VG 460)",
+          "value": "30.5"
+        },
+        {
+          "property": "Viscosity Index (ISO VG 100)",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Viscosity Index (ISO VG 150)",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Viscosity Index (ISO VG 220)",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Viscosity Index (ISO VG 320)",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Viscosity Index (ISO VG 460)",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Flash Point (COC), °C (ISO VG 100)",
+          "value": "≥ 220"
+        },
+        {
+          "property": "Flash Point (COC), °C (ISO VG 150)",
+          "value": "≥ 225"
+        },
+        {
+          "property": "Flash Point (COC), °C (ISO VG 220)",
+          "value": "≥ 230"
+        },
+        {
+          "property": "Flash Point (COC), °C (ISO VG 320)",
+          "value": "≥ 235"
+        },
+        {
+          "property": "Flash Point (COC), °C (ISO VG 460)",
+          "value": "≥ 240"
+        },
+        {
+          "property": "Pour Point, °C (ISO VG 100)",
+          "value": "-6"
+        },
+        {
+          "property": "Pour Point, °C (ISO VG 150)",
+          "value": "-6"
+        },
+        {
+          "property": "Pour Point, °C (ISO VG 220)",
+          "value": "-6"
+        },
+        {
+          "property": "Pour Point, °C (ISO VG 320)",
+          "value": "-6"
+        },
+        {
+          "property": "Pour Point, °C (ISO VG 460)",
+          "value": "-6"
+        },
+        {
+          "property": "Copper Corrosion (ISO VG 100)",
+          "value": "1b"
+        },
+        {
+          "property": "Copper Corrosion (ISO VG 150)",
+          "value": "1b"
+        },
+        {
+          "property": "Copper Corrosion (ISO VG 220)",
+          "value": "1b"
+        },
+        {
+          "property": "Copper Corrosion (ISO VG 320)",
+          "value": "1b"
+        },
+        {
+          "property": "Copper Corrosion (ISO VG 460)",
+          "value": "1b"
+        },
+        {
+          "property": "Rust Prevention (ASTM D665) (ISO VG 100)",
+          "value": "Pass"
+        },
+        {
+          "property": "Rust Prevention (ASTM D665) (ISO VG 150)",
+          "value": "Pass"
+        },
+        {
+          "property": "Rust Prevention (ASTM D665) (ISO VG 220)",
+          "value": "Pass"
+        },
+        {
+          "property": "Rust Prevention (ASTM D665) (ISO VG 320)",
+          "value": "Pass"
+        },
+        {
+          "property": "Rust Prevention (ASTM D665) (ISO VG 460)",
+          "value": "Pass"
+        },
+        {
+          "property": "Water Demulsibility @ 54°C (ISO VG 100)",
+          "value": "40/40/0"
+        },
+        {
+          "property": "Water Demulsibility @ 54°C (ISO VG 150)",
+          "value": "40/40/0"
+        },
+        {
+          "property": "Water Demulsibility @ 54°C (ISO VG 220)",
+          "value": "40/40/0"
+        },
+        {
+          "property": "Water Demulsibility @ 54°C (ISO VG 320)",
+          "value": "40/40/0"
+        },
+        {
+          "property": "Water Demulsibility @ 54°C (ISO VG 460)",
+          "value": "40/40/0"
+        },
+        {
+          "property": "Foaming Characteristics (ISO VG 100)",
+          "value": "Pass"
+        },
+        {
+          "property": "Foaming Characteristics (ISO VG 150)",
+          "value": "Pass"
+        },
+        {
+          "property": "Foaming Characteristics (ISO VG 220)",
+          "value": "Pass"
+        },
+        {
+          "property": "Foaming Characteristics (ISO VG 320)",
+          "value": "Pass"
+        },
+        {
+          "property": "Foaming Characteristics (ISO VG 460)",
+          "value": "Pass"
+        },
+        {
+          "property": "Oxidation Stability (ASTM D943) (ISO VG 100)",
+          "value": "Excellent"
+        },
+        {
+          "property": "Oxidation Stability (ASTM D943) (ISO VG 150)",
+          "value": "Excellent"
+        },
+        {
+          "property": "Oxidation Stability (ASTM D943) (ISO VG 220)",
+          "value": "Excellent"
+        },
+        {
+          "property": "Oxidation Stability (ASTM D943) (ISO VG 320)",
+          "value": "Excellent"
+        },
+        {
+          "property": "Oxidation Stability (ASTM D943) (ISO VG 460)",
+          "value": "Excellent"
+        },
+        {
+          "property": "Load Carrying (FZG Stage) (ISO VG 100)",
+          "value": "≥ 12"
+        },
+        {
+          "property": "Load Carrying (FZG Stage) (ISO VG 150)",
+          "value": "≥ 12"
+        },
+        {
+          "property": "Load Carrying (FZG Stage) (ISO VG 220)",
+          "value": "≥ 12"
+        },
+        {
+          "property": "Load Carrying (FZG Stage) (ISO VG 320)",
+          "value": "≥ 12"
+        },
+        {
+          "property": "Load Carrying (FZG Stage) (ISO VG 460)",
+          "value": "≥ 12"
+        }
+      ],
+      "benefits": "Excellent extreme pressure and anti-wear properties reducing gear tooth wear; High load-carrying capacity for severe operating conditions; Superior oxidation stability minimizing sludge and deposit formation; Good demulsibility allows rapid separation of water; Low foaming tendency maintaining oil film integrity; Extended equipment service life with reduced maintenance costs.",
+      "packSizes": "GEAR EP 100 / 150 / 220 / 320 / 460",
+      "rawText": "# TECHNOFLUID INDUSTRIAL GEAR OILS - PRODUCT DATA SHEET\n\n## Commercial/Pack Name\nGEAR EP 100 / 150 / 220 / 320 / 460\n\n## Product Description\n\"TECHNOFLUID Industrial Gear Oils are high-performance extreme pressure (EP) lubricants formulated from carefully selected high-quality base oils and advanced additive systems.\" These oils deliver protection for industrial gear systems under demanding conditions, with excellent oxidation stability and corrosion resistance for ferrous and non-ferrous components. Suitable for both circulation and splash lubrication systems.\n\n## Key Performance Benefits\n- Excellent extreme pressure and anti-wear properties reducing gear tooth wear\n- High load-carrying capacity for severe operating conditions\n- Superior oxidation stability minimizing sludge and deposit formation\n- \"Good demulsibility allows rapid separation of water\"\n- Low foaming tendency maintaining oil film integrity\n- Extended equipment service life with reduced maintenance costs\n\n## Applications\nCement, steel, rolling mills, sugar, paper, textile industries, power plants, mining equipment, crushers, conveyors, gear reducers, machine tools, and industrial gearboxes. Also suitable for bearings, sliding surfaces, chain drives, and couplings.\n\n## Performance Standards\nAGMA 250.04 (EP), IS 8408 (EP Gear Oils), DIN 51517 Part 3 (CLP)\n\n## Typical Characteristics Table\n\n| Characteristic | ISO VG 100 | ISO VG 150 | ISO VG 220 | ISO VG 320 | ISO VG 460 |\n|---|---|---|---|---|---|\n| Appearance | Clear & Bright | Clear & Bright | Clear & Bright | Clear & Bright | Clear & Bright |\n| Colour (ASTM D1500) | ≤ 3.0 | ≤ 3.0 | ≤ 3.0 | ≤ 3.0 | ≤ 3.0 |\n| Density @ 15°C, g/ml | 0.865 | 0.868 | 0.870 | 0.875 | 0.880 |\n| Kinematic Viscosity @ 40°C, cSt | 100 | 150 | 220 | 320 | 460 |\n| Kinematic Viscosity @ 100°C, cSt | 11.0 | 14.5 | 19.0 | 24.5 | 30.5 |\n| Viscosity Index | ≥ 95 | ≥ 95 | ≥ 95 | ≥ 95 | ≥ 95 |\n| Flash Point (COC), °C | ≥ 220 | ≥ 225 | ≥ 230 | ≥ 235 | ≥ 240 |\n| Pour Point, °C | -6 | -6 | -6 | -6 | -6 |\n| Copper Corrosion | 1b | 1b | 1b | 1b | 1b |\n| Rust Prevention (ASTM D665) | Pass | Pass | Pass | Pass | Pass |\n| Water Demulsibility @ 54°C | 40/40/0 | 40/40/0 | 40/40/0 | 40/40/0 | 40/40/0 |\n| Foaming Characteristics | Pass | Pass | Pass | Pass | Pass |\n| Oxidation Stability (ASTM D943) | Excellent | Excellent | Excellent | Excellent | Excellent |\n| Load Carrying (FZG Stage) | ≥ 12 | ≥ 12 | ≥ 12 | ≥ 12 | ≥ 12 |",
+      "seriesTitle": "INDUSTRIAL GEAR OILS – TECHNOFLUID GEAR OILS (ISO VG 100, 150, 220, 320 & 460)",
+      "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1pRHaxywq7ybQebJXFxDu_SSiRqUaFUChkXDBM_bjuv0",
+      "givenName": "TECHNOFLUID GEAR LUBE EP SERIES",
+      "docTitle": "TECHNOFLUID GEAR LUBE EP SERIES",
+      "description": "TECHNOFLUID Gear Lube EP Series comprises high-performance industrial gear oils available in four viscosity grades (ISO VG 150, 220, 320, and 460). These oils are formulated with quality mineral base stocks and advanced EP additives to deliver protection against wear, pitting, scuffing, and micropitting under heavy load conditions.",
+      "applications": "The product serves enclosed industrial gearboxes featuring spur, helical, bevel, and worm gear configurations. It is well-suited for cement manufacturing, steel production, sugar processing, power generation, and mining operations.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Density @ 15°C",
+          "value": "0.860 g/ml"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥210°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "Copper Corrosion Rating",
+          "value": "1b"
+        },
+        {
+          "property": "Four Ball Weld Load",
+          "value": "≥315 kg"
+        },
+        {
+          "property": "FZG Load Stage",
+          "value": "≥12"
+        },
+        {
+          "property": "Demulsibility @ 54°C",
+          "value": "40/40/0"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C (VG 150)",
+          "value": "150 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C (VG 460)",
+          "value": "460 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C (range)",
+          "value": "14.5 to 30.5 cSt"
+        }
+      ],
+      "benefits": "Exceptional pressure and load-carrying performance; Enhanced gear tooth protection against wear and surface fatigue; Rapid water separation capabilities; Robust rust and corrosion resistance; Minimal foaming for reliable circulation; Extended service intervals reducing operational disruptions.",
+      "packSizes": "ISO VG 150, 220, 320, and 460",
+      "rawText": "# TECHNOFLUID GEAR LUBE EP SERIES - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Gear Lube EP Series comprises high-performance industrial gear oils available in four viscosity grades (ISO VG 150, 220, 320, and 460).\n\n## Key Characteristics\nThese oils are formulated with quality mineral base stocks and advanced EP additives to deliver \"protection against wear, pitting, scuffing, and micropitting under heavy load\" conditions.\n\n## Primary Benefits\n- Exceptional pressure and load-carrying performance\n- Enhanced gear tooth protection against wear and surface fatigue\n- Rapid water separation capabilities\n- Robust rust and corrosion resistance\n- Minimal foaming for reliable circulation\n- Extended service intervals reducing operational disruptions\n\n## Recommended Applications\nThe product serves enclosed industrial gearboxes featuring spur, helical, bevel, and worm gear configurations. It is well-suited for cement manufacturing, steel production, sugar processing, power generation, and mining operations.\n\n## Specification Summary\nAll four viscosity grades share consistent baseline properties:\n- Density: 0.860 g/ml at 15°C\n- Flash Point: ≥210°C\n- Pour Point: -6°C\n- Copper Corrosion Rating: 1b\n- Four Ball Weld Load: ≥315 kg\n- FZG Load Stage: ≥12\n- Demulsibility: 40/40/0 at 54°C\n\nKinematic viscosity at 40°C ranges from 150 cSt (VG 150) to 460 cSt (VG 460), with corresponding values at 100°C spanning 14.5 to 30.5 cSt.",
+      "seriesTitle": "TECHNOFLUID GEAR LUBE EP SERIES",
+      "seriesSlug": "technofluid-gear-lube-ep-series",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1MVhTN-w1cmM3LCLr07vToYV7-P9SLBGuLc3vN2HpOyw",
+      "givenName": "TECHNOFLUID CUTTING OIL",
+      "docTitle": "TECHNOFLUID CUTTING OIL - Product Data Sheet",
+      "description": "TECHNOFLUID Cutting Oil is a high-performance metal working fluid formulated to provide effective lubrication, cooling, and surface protection during machining operations.",
+      "applications": "Works across multiple machining processes—turning, milling, drilling, boring, grinding, tapping, and threading—on materials including mild steel, alloys, cast iron, and select non-ferrous metals.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance (Concentrate)",
+          "value": "Clear/Light Amber"
+        },
+        {
+          "property": "Appearance (5% Emulsion)",
+          "value": "Milky White"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "40–45 cSt"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.875 g/ml"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥180°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "pH (5% Emulsion)",
+          "value": "8.5–9.0"
+        },
+        {
+          "property": "Operating Dilution",
+          "value": "3%–10%"
+        }
+      ],
+      "benefits": "Delivers excellent lubricity that reduces tool wear and improves surface finish of machined components while providing effective heat management and rust protection for industrial machining. Demonstrates stable emulsion characteristics, good hard water stability, and passes industry-standard corrosion and rust prevention testing.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID CUTTING OIL - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Cutting Oil is a \"high-performance metal working fluid formulated to provide effective lubrication, cooling, and surface protection during machining operations.\"\n\n## Key Benefits\nThe fluid delivers \"excellent lubricity reduces tool wear and improves surface finish of machined components\" while providing effective heat management and rust protection for industrial machining.\n\n## Applications\nThis cutting oil works across multiple machining processes—turning, milling, drilling, boring, grinding, tapping, and threading—on materials including mild steel, alloys, cast iron, and select non-ferrous metals.\n\n## Typical Specifications\n| Property | Value |\n|----------|-------|\n| Appearance (Concentrate) | Clear/Light Amber |\n| Appearance (5% Emulsion) | Milky White |\n| Kinematic Viscosity @ 40°C | 40–45 cSt |\n| Density @ 15°C | 0.875 g/ml |\n| Flash Point (COC) | ≥180°C |\n| Pour Point | -6°C |\n| pH (5% Emulsion) | 8.5–9.0 |\n| Operating Dilution | 3%–10% |\n\n## Performance Notes\nThe product demonstrates stable emulsion characteristics, \"good hard water stability,\" and passes industry-standard corrosion and rust prevention testing.",
+      "seriesTitle": "METAL WORKING FLUID – TECHNOFLUID CUTTING OIL",
+      "seriesSlug": "metal-working-fluid-technofluid-cutting-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1Zr7g6u9uDLougObOgcG4bfVLYbL3b0zYNX2U0rLinTE",
+      "givenName": "TECHNOFLUID NEAT CUTTING OIL",
+      "docTitle": "TECHNOFLUID Neat Cutting Oil 55 - Product Data Sheet",
+      "description": "TECHNOFLUID Neat Cutting Oil 55 is a high-performance straight (neat) cutting oil formulated for heavy-duty metal machining operations. The formulation incorporates superior base oils and includes extreme pressure additives containing active sulphur and chlorine designed for demanding machining environments.",
+      "applications": "Recommended for operations including gear hobbing, thread cutting, broaching, tapping, and deep drilling. Works effectively with high-tensile steels, alloy steels, stainless steels and difficult-to-machine materials, finding widespread use in automotive and precision machining sectors.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "50–60 cSt"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥200°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "Four Ball Weld Load",
+          "value": "≥250 kg"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1b"
+        }
+      ],
+      "benefits": "Delivers excellent extreme pressure properties that protect tools during heavy-duty machining while reducing wear and improving surface finish quality. Provides effective thermal management and extends tool lifespan through superior lubrication characteristics. Medium viscosity ensures effective lubrication and chip removal during continuous operation.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Neat Cutting Oil 55 - Product Data Sheet\n\n**Product Description**\n\nTECHNOFLUID Neat Cutting Oil 55 is described as \"a high-performance straight (neat) cutting oil formulated for heavy-duty metal machining operations.\" The formulation incorporates superior base oils and includes extreme pressure additives containing active sulphur and chlorine designed for demanding machining environments.\n\n**Key Performance Benefits**\n\nThe product delivers \"excellent extreme pressure properties protect tools during heavy-duty machining\" while reducing wear and improving surface finish quality. It provides effective thermal management and extends tool lifespan through superior lubrication characteristics.\n\n**Applications**\n\nRecommended for operations including gear hobbing, thread cutting, broaching, tapping, and deep drilling. The oil works effectively with \"high-tensile steels, alloy steels, stainless steels\" and difficult-to-machine materials, finding widespread use in automotive and precision machining sectors.\n\n**Typical Characteristics**\n\n| Property | Value |\n|----------|-------|\n| Kinematic Viscosity @ 40°C | 50–60 cSt |\n| Flash Point (COC) | ≥200°C |\n| Pour Point | -6°C |\n| Four Ball Weld Load | ≥250 kg |\n| Copper Corrosion | 1b |\n\nThe product maintains a \"medium viscosity ensures effective lubrication and chip removal\" during continuous operation.",
+      "seriesTitle": "NEAT CUTTING OIL – TECHNOFLUID NEAT CUTTING OIL 55",
+      "seriesSlug": "neat-cutting-oil-technofluid-neat-cutting-oil-55",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1DWxHtYelDRF3huLeIDJrW1JmV04f_WmCJL0v9-mZmnA",
+      "givenName": "TECHNOFLUID SEMI SYNTHETIC CUTTING OIL",
+      "docTitle": "TECHNOFLUID Semi Synthetic Cutting Oil - Product Data Sheet",
+      "description": "This metalworking fluid combines mineral oils, synthetic components, and advanced additive technology for machining operations. It creates a stable, translucent emulsion with water, offering visibility and long sump life. The formulation excludes nitrites, phenols, and other harmful substances.",
+      "applications": "Suitable for turning, milling, drilling, boring, tapping, and grinding on mild steel, carbon steel, alloy steels, cast iron, and select non-ferrous metals. Works with both CNC and conventional machines.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance (Concentrate)",
+          "value": "Clear/Light Amber"
+        },
+        {
+          "property": "Appearance (5% Emulsion)",
+          "value": "Translucent/Light Milky"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.880 g/ml"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "30–40 cSt"
+        },
+        {
+          "property": "pH (5% Emulsion)",
+          "value": "8.8–9.2"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥180°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "Operating Dilution",
+          "value": "5%–10%"
+        }
+      ],
+      "benefits": "Enhances tool longevity and machining efficiency through superior cooling and lubrication. Maintains consistent performance via stable emulsion over extended periods. Supports medium to heavy-duty work with anti-wear and EP capabilities. Protects machined parts and equipment from rust and corrosion. Low foaming tendency ensures smooth operation in high-pressure coolant systems. Reduces misting and odor for better working conditions. Lowers coolant consumption and maintenance expenses.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Semi Synthetic Cutting Oil - Product Data Sheet\n\n**Product Description**\nThis metalworking fluid combines \"mineral oils, synthetic components, and advanced additive technology\" for machining operations. It creates a stable, translucent emulsion with water, offering visibility and long sump life. The formulation excludes nitrites, phenols, and other harmful substances.\n\n**Key Performance Benefits**\n- Enhances tool longevity and machining efficiency through superior cooling and lubrication\n- Maintains consistent performance via stable emulsion over extended periods\n- Supports medium to heavy-duty work with anti-wear and EP capabilities\n- Protects machined parts and equipment from rust and corrosion\n- \"Low foaming tendency ensures smooth operation in high-pressure coolant systems\"\n- Reduces misting and odor for better working conditions\n- Lowers coolant consumption and maintenance expenses\n\n**Applications**\nSuitable for turning, milling, drilling, boring, tapping, and grinding on mild steel, carbon steel, alloy steels, cast iron, and select non-ferrous metals. Works with both CNC and conventional machines.\n\n**Typical Characteristics**\n| Property | Value |\n|----------|-------|\n| Appearance (Concentrate) | Clear/Light Amber |\n| Appearance (5% Emulsion) | Translucent/Light Milky |\n| Density @ 15°C | 0.880 g/ml |\n| Kinematic Viscosity @ 40°C | 30–40 cSt |\n| pH (5% Emulsion) | 8.8–9.2 |\n| Flash Point | ≥180°C |\n| Pour Point | -6°C |\n| Operating Dilution | 5%–10% |",
+      "seriesTitle": "SEMI SYNTHETIC CUTTING OIL – TECHNOFLUID SEMI SYNTHETIC CUTTING OIL",
+      "seriesSlug": "semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1KzYDyZduYWFBVv3KNN5U7xbXJVhlVzwLtG4jcMfOy0o",
+      "givenName": "TECHNOFLUID KNITTING OIL",
+      "docTitle": "TECHNOFLUID KNITTING OIL - Product Data Sheet",
+      "description": "TECHNOFLUID Knitting Oil is a premium-quality textile lubricant specially formulated for lubrication of knitting machine components. The product utilizes refined base oils with advanced additives, delivering excellent lubricity while maintaining low volatility and low misting characteristics.",
+      "applications": "Recommended for circular knitting machines, flat knitting machines, and hosiery/garment knitting machines. Functions with cotton, polyester, nylon, and blended yarns in high-speed operations.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Test Method: Visual)"
+        },
+        {
+          "property": "Colour",
+          "value": "≤ 1.5 (Test Method: ASTM D1500)"
+        },
+        {
+          "property": "Base Oil Type",
+          "value": "Highly Refined Mineral"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.860 – 0.870 g/ml (Test Method: ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "20 – 30 cSt (Test Method: ASTM D445)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "4.0 – 5.5 cSt (Test Method: ASTM D445)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95 (Test Method: ASTM D2270)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥ 190 °C (Test Method: ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6 °C (Test Method: ASTM D97)"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1a (Test Method: ASTM D130)"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (Test Method: ASTM D943)"
+        }
+      ],
+      "benefits": "Reduces friction among machine components and minimizes needle wear and machine downtime. Notable attributes include non-staining properties, ease of removal during fabric processing, and oxidation resistance that extends operational life.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID KNITTING OIL - Product Data Sheet\n\n## Product Description\nTECHNOFLUID Knitting Oil is formulated as \"a premium-quality textile lubricant specially formulated for lubrication of knitting machine components.\" The product utilizes refined base oils with advanced additives, delivering \"excellent lubricity while maintaining low volatility and low misting characteristics.\"\n\n## Key Performance Benefits\nThe lubricant reduces friction among machine components and \"minimizes needle wear and machine downtime.\" Notable attributes include non-staining properties, ease of removal during fabric processing, and oxidation resistance that extends operational life.\n\n## Applications\nRecommended for circular knitting machines, flat knitting machines, and hosiery/garment knitting machines. The product functions with cotton, polyester, nylon, and blended yarns in high-speed operations.\n\n## Typical Characteristics\n\n| Property | Test Method | Value |\n|----------|------------|-------|\n| Appearance | Visual | Clear & Bright |\n| Colour | ASTM D1500 | ≤ 1.5 |\n| Base Oil Type | — | Highly Refined Mineral |\n| Density @ 15°C | ASTM D4052 | 0.860 – 0.870 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 20 – 30 cSt |\n| Kinematic Viscosity @ 100°C | ASTM D445 | 4.0 – 5.5 cSt |\n| Viscosity Index | ASTM D2270 | ≥ 95 |\n| Flash Point (COC) | ASTM D92 | ≥ 190 °C |\n| Pour Point | ASTM D97 | -6 °C |\n| Copper Corrosion | ASTM D130 | 1a |\n| Oxidation Stability | ASTM D943 | Excellent |",
+      "seriesTitle": "TEXTILE LUBRICANT – TECHNOFLUID KNITTING OIL",
+      "seriesSlug": "textile-lubricant-technofluid-knitting-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1xAT1-pLyFIRDG692mszdcFEeHz3gZ7QUgjMtbWG5OFs",
+      "givenName": "TECHNOFLUID CONING OIL",
+      "docTitle": "TECHNOFLUID Coning Oil - Product Data Sheet",
+      "description": "TECHNOFLUID Coning Oil is a high-quality textile lubricant specially formulated for yarn winding and coning operations. The product combines refined base oils with advanced additives to optimize yarn processing.",
+      "applications": "Suitable for yarn coning machines, winding and rewinding equipment, and textile preparatory processes. Compatible with cotton, polyester, nylon, and blended yarns in high-speed operations.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Test Method: Visual)"
+        },
+        {
+          "property": "Colour",
+          "value": "≤ 1.5 (Test Method: ASTM D1500)"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.860 – 0.870 g/ml (Test Method: ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "15 – 25 cSt (Test Method: ASTM D445)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "3.5 – 5.0 cSt (Test Method: ASTM D445)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95 (Test Method: ASTM D2270)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥ 185°C (Test Method: ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (Test Method: ASTM D97)"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (Test Method: ASTM D943)"
+        }
+      ],
+      "benefits": "Excellent lubrication reduces yarn tension and breakage during high-speed coning and ensures uniform winding and improved package build. Additional benefits include low volatility, non-staining properties, and superior washability that facilitates removal during subsequent processing steps.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Coning Oil - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Coning Oil is \"a high-quality textile lubricant specially formulated for yarn winding and coning operations.\" The product combines refined base oils with advanced additives to optimize yarn processing.\n\n## Key Benefits\nThe lubricant delivers several advantages: \"Excellent lubrication reduces yarn tension and breakage during high-speed coning\" and \"Ensures uniform winding and improved package build.\" Additional benefits include low volatility, non-staining properties, and superior washability that facilitates removal during subsequent processing steps.\n\n## Applications\nSuitable for yarn coning machines, winding and rewinding equipment, and textile preparatory processes. Compatible with cotton, polyester, nylon, and blended yarns in high-speed operations.\n\n## Technical Specifications\n\n| Property | Test Method | Value |\n|----------|-------------|-------|\n| Appearance | Visual | Clear & Bright |\n| Colour | ASTM D1500 | ≤ 1.5 |\n| Density @ 15°C | ASTM D4052 | 0.860 – 0.870 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 15 – 25 cSt |\n| Kinematic Viscosity @ 100°C | ASTM D445 | 3.5 – 5.0 cSt |\n| Viscosity Index | ASTM D2270 | ≥ 95 |\n| Flash Point (COC) | ASTM D92 | ≥ 185°C |\n| Pour Point | ASTM D97 | -6°C |\n| Oxidation Stability | ASTM D943 | Excellent |",
+      "seriesTitle": "TEXTILE LUBRICANT – TECHNOFLUID CONING OIL",
+      "seriesSlug": "textile-lubricant-technofluid-coning-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1_X4ZNXQv3AxE7Y7KHrU0tV4f4RTlvAGGBhwAPxSPn0I",
+      "givenName": "TECHNOFLUID WARPING OIL",
+      "docTitle": "TECHNOFLUID WARPING OIL - Product Data Sheet",
+      "description": "TECHNOFLUID Warping Oil is a premium-quality textile lubricant specially formulated for warping and sizing preparatory processes. The formulation uses refined base oils and additives designed to facilitate smooth yarn movement while reducing friction during high-speed operations.",
+      "applications": "Suitable for warping machines and beam/sectional warping operations with cotton, polyester, viscose, and blended yarns in high-speed textile environments.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Test Method: Visual)"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.860–0.875 g/ml (Test Method: ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "25–40 cSt (Test Method: ASTM D445)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥195°C (Test Method: ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (Test Method: ASTM D97)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥95 (Test Method: ASTM D2270)"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (Test Method: ASTM D943)"
+        }
+      ],
+      "benefits": "Excellent lubrication ensures smooth yarn passage and uniform beam formation. Reduces yarn breakage and fly generation. Maintains consistent yarn tension, improving fabric quality. Non-staining and easily washable formulation ensures clean fabric appearance. Minimizes mist formation and oil consumption.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID WARPING OIL - Product Data Sheet\n\n## Product Description\nTECHNOFLUID Warping Oil is a \"premium-quality textile lubricant specially formulated for warping and sizing preparatory processes.\" The formulation uses refined base oils and additives designed to facilitate smooth yarn movement while reducing friction during high-speed operations.\n\n## Key Performance Benefits\nThe product offers several advantages:\n- \"Excellent lubrication ensures smooth yarn passage and uniform beam formation\"\n- Reduces yarn breakage and fly generation\n- \"Maintains consistent yarn tension, improving fabric quality\"\n- \"Non-staining and easily washable formulation ensures clean fabric appearance\"\n- Minimizes mist formation and oil consumption\n\n## Applications\nSuitable for warping machines and beam/sectional warping operations with cotton, polyester, viscose, and blended yarns in high-speed textile environments.\n\n## Typical Characteristics\n\n| Property | Test Method | Value |\n|----------|-------------|-------|\n| Appearance | Visual | Clear & Bright |\n| Density @ 15°C | ASTM D4052 | 0.860–0.875 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 25–40 cSt |\n| Flash Point (COC) | ASTM D92 | ≥195°C |\n| Pour Point | ASTM D97 | -6°C |\n| Viscosity Index | ASTM D2270 | ≥95 |\n| Oxidation Stability | ASTM D943 | Excellent |",
+      "seriesTitle": "TEXTILE LUBRICANT – TECHNOFLUID WARPING OIL",
+      "seriesSlug": "textile-lubricant-technofluid-warping-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1LQNgrfF7sQ3IDwkUa7NL6TcB5DwPOK8tilIXKoAHUI8",
+      "givenName": "TECHNOFLUID CHAIN OIL",
+      "docTitle": "TECHNOFLUID CHAIN OIL - Product Data Sheet",
+      "description": "TECHNOFLUID Chain Oil (Commercial Name: CHAIN OIL HT) is a high-performance lubricant specially formulated for lubrication of chains operating under high temperature, heavy load, and continuous service conditions. Formulated with mineral base oil with anti-wear, oxidation inhibitor, and tackifier additives.",
+      "applications": "Suitable for conveyor chains, drive chains, textile machinery (stenter frames), oven/dryer chains, and systems in textile, food processing, paper, plywood, ceramics, and packaging industries.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.870 g/ml"
+        },
+        {
+          "property": "Viscosity @ 40°C",
+          "value": "150–220 cSt"
+        },
+        {
+          "property": "Viscosity @ 100°C",
+          "value": "14–18 cSt"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥ 230°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1a"
+        }
+      ],
+      "benefits": "Excellent adhesion properties ensure the oil stays on chains during high-speed and high-temperature operation; thermal and oxidation stability that reduces breakdown; enhanced wear protection and extended chain lifespan; provides effective rust and corrosion protection in humid and wet environments.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID CHAIN OIL - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Chain Oil (Commercial Name: CHAIN OIL HT) is described as \"a high-performance lubricant specially formulated for lubrication of chains operating under high temperature, heavy load, and continuous service conditions.\"\n\n## Key Features\nThe formulation emphasizes several critical attributes:\n- \"Excellent adhesion properties ensure the oil stays on chains during high-speed and high-temperature operation\"\n- Thermal and oxidation stability that reduces breakdown\n- Enhanced wear protection and extended chain lifespan\n- \"Provides effective rust and corrosion protection in humid and wet environments\"\n\n## Recommended Applications\nThe product is suitable for conveyor chains, drive chains, textile machinery (stenter frames), oven/dryer chains, and systems in textile, food processing, paper, plywood, ceramics, and packaging industries.\n\n## Technical Specifications\n\n| Property | Value |\n|----------|-------|\n| Appearance | Clear & Bright |\n| Density @ 15°C | 0.870 g/ml |\n| Viscosity @ 40°C | 150–220 cSt |\n| Viscosity @ 100°C | 14–18 cSt |\n| Viscosity Index | ≥ 95 |\n| Flash Point | ≥ 230°C |\n| Pour Point | -6°C |\n| Copper Corrosion | 1a |\n\nThe product utilizes mineral base oil with anti-wear, oxidation inhibitor, and tackifier additives.",
+      "seriesTitle": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
+      "seriesSlug": "chain-lubricant-technofluid-chain-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "115kD_Ccyuta8fSY5ToV4IUGy8H5hseMquO-iai5q-CE",
+      "givenName": "TECHNOFLUID PVC OIL",
+      "docTitle": "TECHNOFLUID PVC OIL - Product Data Sheet",
+      "description": "TECHNOFLUID PVC Oil is a high-quality process oil specially formulated for use in PVC compounding and plastic processing applications. The formulation uses refined base oils and provides effective plasticizing action, enhancing processing efficiency and finished product quality.",
+      "applications": "Suitable for PVC compounding, extrusion and injection molding of PVC pipes, profiles, cables, sheets, films, footwear, and hoses in both rigid and flexible formulations.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Visual)"
+        },
+        {
+          "property": "Colour",
+          "value": "≤ 2.0 (ASTM D1500)"
+        },
+        {
+          "property": "Base Oil Type",
+          "value": "Highly Refined Mineral"
+        },
+        {
+          "property": "Aromatic Content",
+          "value": "Low"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.870 – 0.890 g/ml (ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "80 – 120 cSt (ASTM D445)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "8 – 11 cSt (ASTM D445)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95 (ASTM D2270)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥ 210°C (ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (ASTM D97)"
+        },
+        {
+          "property": "Sulphur Content",
+          "value": "Nil (ASTM D4294)"
+        },
+        {
+          "property": "Ash Content",
+          "value": "≤ 0.01% wt (ASTM D482)"
+        },
+        {
+          "property": "Copper Corrosion (3 hrs @ 100°C)",
+          "value": "1a (ASTM D130)"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (ASTM D943)"
+        },
+        {
+          "property": "Volatility",
+          "value": "Low (ASTM D972)"
+        },
+        {
+          "property": "Compatibility with PVC",
+          "value": "Excellent (In-house)"
+        },
+        {
+          "property": "Odour",
+          "value": "Mild"
+        }
+      ],
+      "benefits": "Improves processability and flow characteristics during mixing, extrusion, and molding while enhancing surface finish and maintaining thermal stability during high-temperature operations.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID PVC OIL - Product Data Sheet\n\n## Product Description\nTECHNOFLUID PVC Oil is \"a high-quality process oil specially formulated for use in PVC compounding and plastic processing applications.\" The formulation uses refined base oils and provides \"effective plasticizing action, enhancing processing efficiency and finished product quality.\"\n\n## Key Performance Benefits\nThe product \"improves processability and flow characteristics during mixing, extrusion, and molding\" while enhancing surface finish and maintaining thermal stability during high-temperature operations.\n\n## Applications\nSuitable for PVC compounding, extrusion and injection molding of PVC pipes, profiles, cables, sheets, films, footwear, and hoses in both rigid and flexible formulations.\n\n## Typical Specifications\n\n| Characteristic | Test Method | Value |\n|---|---|---|\n| Appearance | Visual | Clear & Bright |\n| Colour | ASTM D1500 | ≤ 2.0 |\n| Base Oil Type | — | Highly Refined Mineral |\n| Aromatic Content | — | Low |\n| Density @ 15°C | ASTM D4052 | 0.870 – 0.890 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 80 – 120 cSt |\n| Kinematic Viscosity @ 100°C | ASTM D445 | 8 – 11 cSt |\n| Viscosity Index | ASTM D2270 | ≥ 95 |\n| Flash Point (COC) | ASTM D92 | ≥ 210°C |\n| Pour Point | ASTM D97 | -6°C |\n| Sulphur Content | ASTM D4294 | Nil |\n| Ash Content | ASTM D482 | ≤ 0.01% wt |\n| Copper Corrosion (3 hrs @ 100°C) | ASTM D130 | 1a |\n| Oxidation Stability | ASTM D943 | Excellent |\n| Volatility | ASTM D972 | Low |\n| Compatibility with PVC | In-house | Excellent |\n| Odour | — | Mild |",
+      "seriesTitle": "PROCESS OIL – TECHNOFLUID PVC OIL",
+      "seriesSlug": "process-oil-technofluid-pvc-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1SvRFqgqOi5mPX3MTeOpDob8fVo7OUCUwCwy4QVH-n-E",
+      "givenName": "TECHNOFLUID ROTAVATOR GEAR 140",
+      "docTitle": "TECHNOFLUID ROTAVATOR GEAR OIL (SAE 140) - Product Data Sheet",
+      "description": "TECHNOFLUID Rotavator Oil is a heavy-duty gear oil specially formulated for rotavators and agricultural implements operating under severe load and shock conditions.",
+      "applications": "Suitable for equipment where SAE 140 grade gear oil is recommended by the OEM, including rotavators, power tillers, and agricultural gear systems under heavy loads and shock conditions.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.899 g/ml"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "25.0–30.0 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "400–460 cSt"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥ 230°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95"
+        }
+      ],
+      "benefits": "Excellent extreme pressure properties protect gears against wear, scuffing, and pitting; strong film protection extending gearbox longevity; superior thermal and oxidation stability; effective rust and corrosion safeguards; noise and vibration reduction capabilities.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID ROTAVATOR GEAR OIL (SAE 140) - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Rotavator Oil is described as \"a heavy-duty gear oil specially formulated for rotavators and agricultural implements operating under severe load and shock conditions.\"\n\n## Key Characteristics\n\n**Performance Features:**\n- \"Excellent extreme pressure properties protect gears against wear, scuffing, and pitting\"\n- Strong film protection extending gearbox longevity\n- Superior thermal and oxidation stability\n- Effective rust and corrosion safeguards\n- Noise and vibration reduction capabilities\n\n**Typical Specifications (SAE 140):**\n| Property | Value |\n|----------|-------|\n| Appearance | Clear & Bright |\n| Density @ 15°C | 0.899 g/ml |\n| Kinematic Viscosity @ 100°C | 25.0–30.0 cSt |\n| Kinematic Viscosity @ 40°C | 400–460 cSt |\n| Flash Point (COC) | ≥ 230°C |\n| Pour Point | -6°C |\n| Viscosity Index | ≥ 95 |\n\n## Recommended Applications\n\"Suitable for equipment where SAE 140 grade gear oil is recommended by the OEM\" including rotavators, power tillers, and agricultural gear systems under heavy loads and shock conditions.",
+      "seriesTitle": "AGRICULTURAL GEAR OIL – TECHNOFLUID ROTAVATOR OIL (SAE 140)",
+      "seriesSlug": "agricultural-gear-oil-technofluid-rotavator-oil-sae-140",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1uQsLSTGnt26Nu8TK2axbDQV77Kpucje03BQ-PsdXGZo",
+      "givenName": "TECHNOFLUID SUBMERSIBLE MOTOR OIL",
+      "docTitle": "TECHNOFLUID Submersible Motor Oil - Product Data Sheet",
+      "description": "TECHNOFLUID Submersible Motor Oil is a high-quality insulating and lubricating oil formulated specifically for water-filled and oil-filled submersible pump motors. The product is manufactured from refined base oils and designed to provide effective lubrication of motor bearings while ensuring efficient heat dissipation.",
+      "applications": "Suits submersible pump motors for boreholes, open wells, agricultural irrigation, and domestic/industrial water systems. Works with both single-phase and three-phase motors per manufacturer guidance.",
+      "performanceStandards": [
+        "IS 335",
+        "OEM specifications for submersible motor oils"
+      ],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright"
+        },
+        {
+          "property": "Color",
+          "value": "≤ 1.0 (ASTM D1500)"
+        },
+        {
+          "property": "Viscosity @ 40°C",
+          "value": "20-30 cSt"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥ 200°C"
+        },
+        {
+          "property": "Dielectric Strength",
+          "value": "≥ 40 kV"
+        },
+        {
+          "property": "Moisture Content",
+          "value": "≤ 50 ppm"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1a"
+        }
+      ],
+      "benefits": "High dielectric strength for motor winding protection; excellent thermal conductivity supporting efficient cooling; superior bearing and component lubrication; strong oxidation stability during extended operation; material compatibility with copper windings and motor seals; reduced motor failures and maintenance needs.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Submersible Motor Oil - Product Data Sheet\n\n**Product Name:** Submersible Motor Oil\n\n**Description:**\nThis high-quality insulating and lubricating oil is formulated specifically for water-filled and oil-filled submersible pump motors. The product is manufactured from refined base oils and \"designed to provide effective lubrication of motor bearings while ensuring efficient heat dissipation.\"\n\n**Key Benefits:**\n- High dielectric strength for motor winding protection\n- Excellent thermal conductivity supporting efficient cooling\n- Superior bearing and component lubrication\n- Strong oxidation stability during extended operation\n- Material compatibility with copper windings and motor seals\n- Reduced motor failures and maintenance needs\n\n**Recommended Applications:**\nThe oil suits submersible pump motors for boreholes, open wells, agricultural irrigation, and domestic/industrial water systems. It works with both single-phase and three-phase motors per manufacturer guidance.\n\n**Performance Standards:**\nMeets IS 335 and OEM specifications for submersible motor oils.\n\n**Key Specifications:**\n- Appearance: Clear & Bright\n- Color: ≤ 1.0 (ASTM D1500)\n- Viscosity @ 40°C: 20-30 cSt\n- Flash Point: ≥ 200°C\n- Dielectric Strength: ≥ 40 kV\n- Moisture Content: ≤ 50 ppm\n- Copper Corrosion: 1a",
+      "seriesTitle": "ELECTRICAL MOTOR OIL – TECHNOFLUID SUBMERSIBLE MOTOR OIL",
+      "seriesSlug": "electrical-motor-oil-technofluid-submersible-motor-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1HsWZZL7s1TzzNk0XarcE3eKH1gLodOJPShusZqvNnR4",
+      "givenName": "TECHNOFLUID DIESEL ENGINE OILS",
+      "docTitle": "TECHNOFLUID Industrial Engine Oils - Product Data Sheet",
+      "description": "TECHNOFLUID manufactures high-performance diesel lubricants formulated for stationary and mobile industrial engines. The line includes multiple viscosity grades: SAE 15W-40 (API CI-4 Plus/CF-4/CH-4), SAE 20W-40, SAE 40, and SAE 50. The oils feature premium quality base oils and advanced additive technology designed for heavy-duty protection.",
+      "applications": "Recommended for diesel generator sets, industrial engines, water pumps, compressors, construction equipment, and agricultural engines operating under continuous or heavy-load conditions.",
+      "performanceStandards": [
+        "API CI-4 Plus",
+        "API CF-4",
+        "API CH-4"
+      ],
+      "specTable": [
+        {
+          "property": "Density (15W-40 CI-4 Plus)",
+          "value": "0.855 g/ml @ 29.5°C"
+        },
+        {
+          "property": "Viscosity Index (15W-40 CI-4 Plus)",
+          "value": "≥130"
+        },
+        {
+          "property": "Flash Point (15W-40 CI-4 Plus)",
+          "value": "≥220°C (COC)"
+        },
+        {
+          "property": "Pour Point (15W-40 CI-4 Plus)",
+          "value": "-21°C"
+        },
+        {
+          "property": "TBN (CI-4 Plus grade)",
+          "value": "10-12 mg KOH/g"
+        }
+      ],
+      "benefits": "Detergency: Maintains clean engines free from sludge buildup; Wear Protection: Extends component lifespan through superior lubrication; Alkalinity: High TBN (10-12 mg KOH/g for CI-4 Plus grade) neutralizes acidic combustion byproducts; Stability: Good thermal and oxidation resistance for extended drain intervals. Meets foaming, wear, and corrosion resistance standards per ASTM testing.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Industrial Engine Oils - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID manufactures high-performance diesel lubricants formulated for stationary and mobile industrial engines. The line includes multiple viscosity grades: SAE 15W-40 (API CI-4 Plus/CF-4/CH-4), SAE 20W-40, SAE 40, and SAE 50.\n\n## Key Features\nThe oils feature \"premium quality base oils and advanced additive technology\" designed for heavy-duty protection. Notable characteristics include:\n\n- **Detergency**: Maintains clean engines free from sludge buildup\n- **Wear Protection**: Extends component lifespan through superior lubrication\n- **Alkalinity**: High TBN (10-12 mg KOH/g for CI-4 Plus grade) neutralizes acidic combustion byproducts\n- **Stability**: Good thermal and oxidation resistance for extended drain intervals\n\n## Applications\nRecommended for diesel generator sets, industrial engines, water pumps, compressors, construction equipment, and agricultural engines operating under continuous or heavy-load conditions.\n\n## Technical Specifications Summary\nThe 15W-40 CI-4 Plus variant demonstrates:\n- Density: 0.855 g/ml @ 29.5°C\n- Viscosity Index: ≥130\n- Flash Point: ≥220°C (COC)\n- Pour Point: -21°C\n- Meets foaming, wear, and corrosion resistance standards per ASTM testing",
+      "seriesTitle": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+      "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1p_yYmbUKWqOYK0DzKl26YywitLN75mHFW3svlvsuJZE",
+      "givenName": "TECHNOFLUID ROLL PERFECT 22",
+      "docTitle": "TECHNOFLUID ROLL PERFECT 22 - Product Data Sheet",
+      "description": "TECHNOFLUID ROLL PERFECT 22 (Commercial/Pack Name: ROLL PERFECT 22) is a premium neat cold rolling oil featuring highly refined mineral base oils and selected lubricity-enhancing additives designed for high-speed cold rolling operations. The formula delivers excellent lubrication, surface finish, and roll protection while maintaining low viscosity and volatility for efficient heat dissipation and minimal oil consumption.",
+      "applications": "Suitable for cold rolling of steel strips and sheets in precision operations, including carbon steel, low-alloy steel, and selected non-ferrous metals on high-speed mills and recirculating systems.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Visual)"
+        },
+        {
+          "property": "Colour",
+          "value": "≤ 2.0 (ASTM D1500)"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.860 g/ml (ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "20–24 cSt (ASTM D445)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "4.0–4.8 cSt (ASTM D445)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95 (ASTM D2270)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥ 200°C (ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (ASTM D97)"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1a (ASTM D130)"
+        },
+        {
+          "property": "Oxidation Stability",
+          "value": "Excellent (ASTM D943)"
+        },
+        {
+          "property": "Volatility",
+          "value": "Low (ASTM D972)"
+        },
+        {
+          "property": "Anti-Wear Properties",
+          "value": "Good (ASTM D4172)"
+        },
+        {
+          "property": "Rust Protection",
+          "value": "Pass (IP/In-house)"
+        },
+        {
+          "property": "Residue Formation",
+          "value": "Minimal (In-house)"
+        }
+      ],
+      "benefits": "Enhanced roll bite and reduced rolling forces through superior lubricity; excellent surface finish with reduced strip defects; low volatility minimizes oil losses and smoke generation; good thermal and oxidation stability ensures longer oil life; protection against wear and corrosion; clean rolling conditions with minimal residue.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID ROLL PERFECT 22 - Product Data Sheet\n\n**Commercial/Pack Name:** ROLL PERFECT 22\n\n## Product Description\nThis premium neat cold rolling oil features \"highly refined mineral base oils and selected lubricity-enhancing additives\" designed for high-speed cold rolling operations. The formula delivers \"excellent lubrication, surface finish, and roll protection\" while maintaining low viscosity and volatility for efficient heat dissipation and minimal oil consumption.\n\n## Key Performance Benefits\n- Enhanced roll bite and reduced rolling forces through superior lubricity\n- Excellent surface finish with reduced strip defects\n- Low volatility minimizes oil losses and smoke generation\n- \"Good thermal and oxidation stability ensures longer oil life\"\n- Protection against wear and corrosion\n- Clean rolling conditions with minimal residue\n\n## Applications\nSuitable for cold rolling of steel strips and sheets in precision operations, including carbon steel, low-alloy steel, and selected non-ferrous metals on high-speed mills and recirculating systems.\n\n## Typical Characteristics\n\n| Property | Test Method | Value |\n|----------|-------------|-------|\n| Appearance | Visual | Clear & Bright |\n| Colour | ASTM D1500 | ≤ 2.0 |\n| Density @ 15°C | ASTM D4052 | 0.860 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 20–24 cSt |\n| Kinematic Viscosity @ 100°C | ASTM D445 | 4.0–4.8 cSt |\n| Viscosity Index | ASTM D2270 | ≥ 95 |\n| Flash Point (COC) | ASTM D92 | ≥ 200°C |\n| Pour Point | ASTM D97 | -6°C |\n| Copper Corrosion | ASTM D130 | 1a |\n| Oxidation Stability | ASTM D943 | Excellent |\n| Volatility | ASTM D972 | Low |\n| Anti-Wear Properties | ASTM D4172 | Good |\n| Rust Protection | IP/In-house | Pass |\n| Residue Formation | In-house | Minimal |",
+      "seriesTitle": "TECHNOFLUID ROLL PERFECT 22",
+      "seriesSlug": "technofluid-roll-perfect-22",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1YTiFUgHz2PpNUBEfBrXza9POyXGFL95xWrdWh0Je-38",
+      "givenName": "TECHNOFLUID ROLL PERFECT 46",
+      "docTitle": "TECHNOFLUID ROLL PERFECT 46 (SOLUBLE) - Product Data Sheet",
+      "description": "A soluble rolling lubricant engineered for hot and cold rolling mill operations, delivering excellent lubrication, cooling, and surface finish during metal rolling processes. The formulation creates a stable water emulsion with extended sump life while reducing roll wear and surface defects across ferrous and non-ferrous applications. Commercial/Pack Name: ROLL PERFECT 46.",
+      "applications": "Recommended for hot rolling mills, cold rolling mills, and bar/rod/strip rolling operations involving carbon steel, alloy steel, and non-ferrous metals. Compatible with recirculating water systems.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance (Concentrate)",
+          "value": "Clear/Light Amber (Visual)"
+        },
+        {
+          "property": "Appearance (5% Emulsion)",
+          "value": "Milky White (Visual)"
+        },
+        {
+          "property": "Base Fluid Type",
+          "value": "Mineral Oil Based (Emulsifiable)"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.870 g/ml (ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "45-50 cSt (ASTM D445)"
+        },
+        {
+          "property": "pH (5% Emulsion)",
+          "value": "8.5-9.0 (ASTM D1287)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥180°C (ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (ASTM D97)"
+        },
+        {
+          "property": "Recommended Dilution Ratio",
+          "value": "2%-8%"
+        }
+      ],
+      "benefits": "The product offers multiple advantages including friction reduction, superior temperature management, uniform lubrication distribution, minimized wear, enhanced surface quality, and corrosion protection. It demonstrates low foaming and good hard-water tolerance.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID ROLL PERFECT 46 (SOLUBLE) - Product Data Sheet\n\n**Commercial/Pack Name:** ROLL PERFECT 46\n\n## Product Description\nThis soluble rolling lubricant is engineered for hot and cold rolling mill operations, delivering \"excellent lubrication, cooling, and surface finish during metal rolling processes.\" The formulation creates a stable water emulsion with extended sump life while reducing roll wear and surface defects across ferrous and non-ferrous applications.\n\n## Key Performance Benefits\nThe product offers multiple advantages including friction reduction, superior temperature management, uniform lubrication distribution, minimized wear, enhanced surface quality, and corrosion protection. It demonstrates \"Low foaming and good hard-water tolerance.\"\n\n## Applications\nRecommended for hot rolling mills, cold rolling mills, and bar/rod/strip rolling operations involving carbon steel, alloy steel, and non-ferrous metals. Compatible with recirculating water systems.\n\n## Typical Characteristics\n| Property | Test Method | Value |\n| Appearance (Concentrate) | Visual | Clear/Light Amber |\n| Appearance (5% Emulsion) | Visual | Milky White |\n| Base Fluid Type | — | Mineral Oil Based (Emulsifiable) |\n| Density @ 15°C | ASTM D4052 | 0.870 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 45-50 cSt |\n| pH (5% Emulsion) | ASTM D1287 | 8.5-9.0 |\n| Flash Point (COC) | ASTM D92 | ≥180°C |\n| Pour Point | ASTM D97 | -6°C |\n| Recommended Dilution Ratio | — | 2%-8% |",
+      "seriesTitle": "TECHNOFLUID ROLL PERFECT 46 (SOLUBLE)",
+      "seriesSlug": "technofluid-roll-perfect-46-soluble",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1ewmKdkhY2ALYDfQzoTuLavzHowpclBMqSXHZn59JpRU",
+      "givenName": "TECHNOFLUID LUBE SERIES",
+      "docTitle": "TECHNOFLUID LUBE SERIES - PRODUCT DATA SHEET",
+      "description": "TECHNOFLUID LUBE Series comprises premium general-purpose lubricants available in multigrade (20W-40) and monograde (ISO VG 100, 150, 220, 320, 460) variants, formulated with high-quality base oils and performance additives. The oils feature excellent lubricating film strength that reduces wear and friction of moving parts and maintain good oxidation and thermal stability to minimize sludge and deposit formation.",
+      "applications": "Suitable for industrial machinery, bearings, gearboxes, compressors, and automotive/agricultural use where EP properties aren't required.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear & Bright (Visual)"
+        },
+        {
+          "property": "Base Oil Type",
+          "value": "Mineral"
+        },
+        {
+          "property": "Density @ 29.5°C",
+          "value": "0.850 g/ml (ASTM D4052)"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "≥ 95 (ASTM D2270)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥ 210°C (ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (ASTM D97)"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1b (ASTM D130)"
+        },
+        {
+          "property": "Rust Prevention",
+          "value": "Pass (ASTM D665)"
+        }
+      ],
+      "benefits": "Excellent lubricating film strength reduces wear and friction of moving parts; good oxidation and thermal stability minimize sludge and deposit formation. All grades demonstrate excellent oxidation stability and pass foaming characteristic tests per ASTM D892.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID LUBE SERIES - PRODUCT DATA SHEET\n\n## Product Overview\nTECHNOFLUID LUBE Series comprises premium general-purpose lubricants available in multigrade (20W-40) and monograde (ISO VG 100, 150, 220, 320, 460) variants, formulated with high-quality base oils and performance additives.\n\n## Key Characteristics\nThe oils feature \"excellent lubricating film strength reduces wear and friction of moving parts\" and maintain \"good oxidation and thermal stability minimize sludge and deposit formation.\"\n\n## Applications\nSuitable for industrial machinery, bearings, gearboxes, compressors, and automotive/agricultural use where EP properties aren't required.\n\n## Specifications Summary\n| Property | Test Method | Range/Value |\n| Appearance | Visual | Clear & Bright |\n| Base Oil Type | — | Mineral |\n| Density @ 29.5°C | ASTM D4052 | 0.850 g/ml |\n| Viscosity Index | ASTM D2270 | ≥ 95 |\n| Flash Point (COC) | ASTM D92 | ≥ 210°C |\n| Pour Point | ASTM D97 | -6°C |\n| Copper Corrosion | ASTM D130 | 1b |\n| Rust Prevention | ASTM D665 | Pass |\n\nAll grades demonstrate excellent oxidation stability and pass foaming characteristic tests per ASTM D892.",
+      "seriesTitle": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+      "seriesSlug": "lubricating-oils-technofluid-lube-series",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1sVIrrt--LiB8YSkOWYzYQLQq-WmcV5FuIlc5hIH43Hk",
+      "givenName": "__ORPHAN_B__",
+      "docTitle": "PRODUCT DATA SHEET: HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+      "description": "TECHNOFLUID HT 32 PREMIUM is a high-performance heat transfer fluid formulated from premium quality Group II base oils. The fluid demonstrates robust thermal properties, with excellent oxidation and thermal stability, ensuring long operational life under continuous high-temperature conditions. Key characteristics include very low volatility that reduces fluid loss and minimizes system fouling, and capability for efficient heat transfer with consistent performance over extended service intervals. The product operates reliably in systems operating at bulk temperatures up to 310°C.",
+      "applications": "Recommended for textile, pharmaceutical, chemical, food processing, and plastic/rubber industries, specifically in closed and open heat transfer systems.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "30 cSt"
+        },
+        {
+          "property": "Kinematic Viscosity @ 100°C",
+          "value": "6 cSt"
+        },
+        {
+          "property": "Viscosity Index",
+          "value": "104"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "210°C"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-12°C"
+        },
+        {
+          "property": "Auto-Ignition Temperature",
+          "value": "380°C"
+        },
+        {
+          "property": "Total Acidity",
+          "value": "0.13 mg KOH/g"
+        },
+        {
+          "property": "Max Bulk Operating Temperature",
+          "value": "310°C"
+        }
+      ],
+      "benefits": "The fluid delivers efficient and uniform heat transfer for precise temperature control alongside excellent resistance to thermal cracking and oxidation at elevated temperatures. It minimizes sludge, varnish, and deposit formation inside heat transfer systems while maintaining stable viscosity over a wide operating temperature range.",
+      "packSizes": null,
+      "rawText": "# PRODUCT DATA SHEET: HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM\n\n## Product Description\nTECHNOFLUID HT 32 PREMIUM is \"a high-performance heat transfer fluid formulated from premium quality Group II base oils.\" The fluid demonstrates robust thermal properties, with \"excellent oxidation and thermal stability, ensuring long operational life under continuous high-temperature conditions.\"\n\nKey characteristics include \"very low volatility reduces fluid loss and minimizes system fouling\" and capability for \"efficient heat transfer with consistent performance over extended service intervals.\" The product operates reliably \"in systems operating at bulk temperatures up to 310°C.\"\n\n## Key Performance Benefits\nThe fluid delivers \"efficient and uniform heat transfer for precise temperature control\" alongside \"excellent resistance to thermal cracking and oxidation at elevated temperatures.\" It \"minimizes sludge, varnish, and deposit formation inside heat transfer systems\" while maintaining \"stable viscosity over a wide operating temperature range.\"\n\n## Applications\nRecommended for textile, pharmaceutical, chemical, food processing, and plastic/rubber industries, specifically in \"closed and open heat transfer systems.\"\n\n## Operating Characteristics\nSpecifications include kinematic viscosity of 30 cSt at 40°C and 6 cSt at 100°C, with a viscosity index of 104. Flash point measures 210°C (COC), pour point -12°C, and auto-ignition temperature 380°C. Total acidity stands at 0.13 mg KOH/g.",
+      "seriesTitle": "HEAT TRANSFER FLUID – TECHNOFLUID HT 32 PREMIUM",
+      "seriesSlug": "heat-transfer-fluid-technofluid-ht-32-premium",
+      "isNewProduct": false
+    },
+    {
+      "docId": "12F9KMiAD2WVzxMU1JPvno_jSr1CFF-XRrPviDWSFD4E",
+      "givenName": "TECHNOFLUID REFRIGERATION OIL",
+      "docTitle": "TECHNOFLUID Refrigeration Oil Product Data Sheet",
+      "description": "TECHNOFLUID Refrigeration Oils are available in ISO VG 46 and 68 grades. These premium-quality refrigeration compressor oils formulated from highly refined base oils with advanced additive technology are designed for low-temperature refrigeration applications. Compatible with CFC/HCFC refrigerants and suitable for reciprocating, rotary, and screw compressors per OEM specifications.",
+      "applications": "Recommended for cold storage, ice plants, chillers, commercial and industrial refrigeration systems, and HVAC applications.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Viscosity @ 40°C (VG 46)",
+          "value": "46 cSt"
+        },
+        {
+          "property": "Viscosity @ 100°C (VG 46)",
+          "value": "6.6 cSt"
+        },
+        {
+          "property": "Viscosity @ 40°C (VG 68)",
+          "value": "68 cSt"
+        },
+        {
+          "property": "Viscosity @ 100°C (VG 68)",
+          "value": "8.7 cSt"
+        },
+        {
+          "property": "Viscosity Index (both grades)",
+          "value": "≥ 95"
+        },
+        {
+          "property": "Pour Point (VG 46)",
+          "value": "-30°C"
+        },
+        {
+          "property": "Pour Point (VG 68)",
+          "value": "-24°C"
+        },
+        {
+          "property": "Flash Point (VG 46)",
+          "value": "≥210°C"
+        },
+        {
+          "property": "Flash Point (VG 68)",
+          "value": "≥220°C"
+        },
+        {
+          "property": "Density @ 15°C (VG 46)",
+          "value": "0.851 g/ml"
+        },
+        {
+          "property": "Density @ 15°C (VG 68)",
+          "value": "0.858 g/ml"
+        },
+        {
+          "property": "Neutralization value",
+          "value": "≤ 0.03 mg KOH/g"
+        },
+        {
+          "property": "Moisture content",
+          "value": "≤ 50 ppm"
+        },
+        {
+          "property": "Ash content",
+          "value": "≤ 0.01% wt"
+        },
+        {
+          "property": "Sulphur content",
+          "value": "Nil"
+        }
+      ],
+      "benefits": null,
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Refrigeration Oil Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Refrigeration Oils are available in ISO VG 46 and 68 grades. These \"premium-quality refrigeration compressor oils formulated from highly refined base oils with advanced additive technology\" are designed for low-temperature refrigeration applications.\n\n## Key Properties\n\n**Viscosity & Temperature Performance:**\n- ISO VG 46: 46 cSt @ 40°C, 6.6 cSt @ 100°C\n- ISO VG 68: 68 cSt @ 40°C, 8.7 cSt @ 100°C\n- Both grades maintain a viscosity index ≥ 95\n\n**Thermal Characteristics:**\n- Pour points: -30°C (VG 46) and -24°C (VG 68)\n- Flash points: ≥210°C (VG 46) and ≥220°C (VG 68)\n\n**Chemical Properties:**\n- Density @ 15°C: 0.851 g/ml (VG 46), 0.858 g/ml (VG 68)\n- Neutralization value: ≤ 0.03 mg KOH/g\n- Moisture content: ≤ 50 ppm\n- Ash content: ≤ 0.01% wt\n- Sulphur content: Nil\n\n**Compatibility:**\nCompatible with CFC/HCFC refrigerants and suitable for reciprocating, rotary, and screw compressors per OEM specifications.\n\n## Applications\nRecommended for cold storage, ice plants, chillers, commercial and industrial refrigeration systems, and HVAC applications.",
+      "seriesTitle": "REFRIGERATION OIL – TECHNOFLUID REFRIGERATION OIL (Grades 46 & 68)",
+      "seriesSlug": "refrigeration-oil-technofluid-refrigeration-oil-grades-46-68",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1WIt-Z5Kf01Hr30M8UNrygOxCr9Bk_5AmOYbIXGwXEng",
+      "givenName": "TECHNOFLUID QUENCHING OIL",
+      "docTitle": "TECHNOFLUID Quenching Oil Product Data Sheet",
+      "description": "Describes two quenching oil variants: Q 39 (Group I) and QLP 32 (Group II), manufactured by Technofluid since 1971. The oils are characterized by advanced additives and deliver rapid heat extraction for improved hardness. Key strengths include oxidation stability, low volatility, and controlled cooling properties that minimize component distortion.",
+      "applications": "These products serve general-purpose quenching operations across manufacturing sectors, particularly for treating dies, springs, harrows, and automotive/agricultural components in heat treatment facilities and forging operations.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance (Q 39)",
+          "value": "Light yellow clear"
+        },
+        {
+          "property": "Appearance (QLP 32)",
+          "value": "Transparent"
+        },
+        {
+          "property": "Density (29.5°C) (Q 39)",
+          "value": "0.846"
+        },
+        {
+          "property": "Density (29.5°C) (QLP 32)",
+          "value": "0.841"
+        },
+        {
+          "property": "Viscosity @ 40°C (cSt) (Q 39)",
+          "value": "35"
+        },
+        {
+          "property": "Viscosity @ 40°C (cSt) (QLP 32)",
+          "value": "29"
+        },
+        {
+          "property": "Viscosity Index (Q 39)",
+          "value": "98"
+        },
+        {
+          "property": "Viscosity Index (QLP 32)",
+          "value": "104"
+        },
+        {
+          "property": "Pour Point (°C) (Q 39)",
+          "value": "-6"
+        },
+        {
+          "property": "Pour Point (°C) (QLP 32)",
+          "value": "-12"
+        },
+        {
+          "property": "Flash Point (°C) (Q 39)",
+          "value": "212"
+        },
+        {
+          "property": "Flash Point (°C) (QLP 32)",
+          "value": "218"
+        },
+        {
+          "property": "Copper Corrosion (100°C/3hrs) (Q 39)",
+          "value": "1b"
+        },
+        {
+          "property": "Copper Corrosion (100°C/3hrs) (QLP 32)",
+          "value": "1b"
+        }
+      ],
+      "benefits": "Both variants offer thermal stability, reduced sludge formation, and reliable metallurgical consistency for demanding industrial applications. Rapid heat extraction for improved hardness; oxidation stability, low volatility, and controlled cooling properties that minimize component distortion.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Quenching Oil Product Data Sheet\n\n## Product Overview\nThis document describes two quenching oil variants: **Q 39 (Group I)** and **QLP 32 (Group II)**, manufactured by Technofluid since 1971.\n\n## Core Features\nThe oils are characterized by \"advanced additives\" and deliver \"rapid heat extraction for improved hardness.\" Key strengths include oxidation stability, low volatility, and controlled cooling properties that minimize component distortion.\n\n## Intended Uses\nThese products serve \"general-purpose quenching operations\" across manufacturing sectors, particularly for treating dies, springs, harrows, and automotive/agricultural components in heat treatment facilities and forging operations.\n\n## Performance Specifications\n| Property | Q 39 | QLP 32 |\n| Appearance | Light yellow clear | Transparent |\n| Density (29.5°C) | 0.846 | 0.841 |\n| Viscosity @ 40°C (cSt) | 35 | 29 |\n| Viscosity Index | 98 | 104 |\n| Pour Point (°C) | -6 | -12 |\n| Flash Point (°C) | 212 | 218 |\n| Copper Corrosion (100°C/3hrs) | 1b | 1b |\n\nBoth variants offer thermal stability, reduced sludge formation, and reliable metallurgical consistency for demanding industrial applications.",
+      "seriesTitle": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
+      "seriesSlug": "quenching-oil-technofluid-q-39-qlp-32",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1MJOTwkikyDvpL_3tKOhcfx7TtPJh5IioC6NVKzx0xpw",
+      "givenName": "TECHNOFLUID TRANSFORMER OIL",
+      "docTitle": "TECHNOFLUID TRANSFORMER OIL - Product Data Sheet",
+      "description": "TECHNOFLUID Transformer Oil is described as a high-quality insulating mineral oil specially refined for use in electrical transformers and switchgear. The product offers excellent dielectric strength, thermal stability, and oxidation resistance, ensuring reliable electrical insulation and efficient heat dissipation. It is non-corrosive and compatible with transformer construction materials.",
+      "applications": "Recommended for power and distribution transformers, instrument transformers, oil-filled circuit breakers, and switchgear installations.",
+      "performanceStandards": [
+        "IS 335:2018",
+        "IEC 60296",
+        "ASTM D3487"
+      ],
+      "specTable": [
+        {
+          "property": "Breakdown Voltage",
+          "value": "≥60 Kv"
+        },
+        {
+          "property": "Moisture Content",
+          "value": "≤30 ppm"
+        },
+        {
+          "property": "Flash Point",
+          "value": "≥140°C"
+        },
+        {
+          "property": "Viscosity @ 40°C",
+          "value": "≤12.0 cSt"
+        },
+        {
+          "property": "Dielectric Dissipation Factor",
+          "value": "≤0.005 @ 90°C"
+        },
+        {
+          "property": "Copper Corrosion",
+          "value": "1a (ASTM D130)"
+        }
+      ],
+      "benefits": "Excellent dielectric strength, thermal stability, and oxidation resistance, ensuring reliable electrical insulation and efficient heat dissipation. Non-corrosive and compatible with transformer construction materials.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID TRANSFORMER OIL - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID Transformer Oil is described as \"a high-quality insulating mineral oil specially refined for use in electrical transformers and switchgear.\"\n\n## Key Characteristics\nThe product offers \"excellent dielectric strength, thermal stability, and oxidation resistance, ensuring reliable electrical insulation and efficient heat dissipation.\"\n\n## Primary Applications\nThis insulating oil is recommended for power and distribution transformers, instrument transformers, oil-filled circuit breakers, and switchgear installations.\n\n## Performance Standards\nThe product meets or exceeds IS 335:2018, IEC 60296, and ASTM D3487 specifications.\n\n## Critical Specifications\n- Breakdown Voltage: ≥60 Kv\n- Moisture Content: ≤30 ppm\n- Flash Point: ≥140°C\n- Viscosity @ 40°C: ≤12.0 cSt\n- Dielectric Dissipation Factor: ≤0.005 @ 90°C\n\n## Material Compatibility\nThe oil is \"non-corrosive and compatible with transformer construction materials\" with copper corrosion rating of 1a per ASTM D130.",
+      "seriesTitle": "INSULATING OIL – TECHNOFLUID TRANSFORMER OIL",
+      "seriesSlug": "insulating-oil-technofluid-transformer-oil",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1TWg4MAegpvKazIVhNS26Wn0Fovy_WyuN",
+      "givenName": "TECHNOFLUID RUST PREVENTIVE OIL 906",
+      "docTitle": "TECHNOFLUID RUST PREVENTIVE OIL 906 - Product Data Sheet",
+      "description": "TECHNOFLUID Rust Preventive Oil 906 is described as a solvent-based, oil-type rust preventive fluid formulated to provide effective corrosion protection to ferrous metal components. The product generates a thin, uniform protective film that displaces moisture and shields metal surfaces from rust and oxidation. It can be applied by dipping, spraying, or brushing and maintains compatibility with standard metals and alloys.",
+      "applications": "Suitable for automotive, engineering, machined parts, gears, bearings, metal tools, and fabricated ferrous components across manufacturing plants, warehouses, and inter-process transportation scenarios.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance",
+          "value": "Clear/Light Brown (Visual)"
+        },
+        {
+          "property": "Density @ 15°C",
+          "value": "0.830–0.860 g/ml (ASTM D4052)"
+        },
+        {
+          "property": "Kinematic Viscosity @ 40°C",
+          "value": "6–10 cSt (ASTM D445)"
+        },
+        {
+          "property": "Flash Point (COC)",
+          "value": "≥65°C (ASTM D92)"
+        },
+        {
+          "property": "Pour Point",
+          "value": "-6°C (ASTM D97)"
+        },
+        {
+          "property": "Rust Prevention (Humidity Cabinet)",
+          "value": "≥72 hrs (ASTM D1748)"
+        },
+        {
+          "property": "Protection Period (Indoor)",
+          "value": "Up to 6 months"
+        },
+        {
+          "property": "Protection Period (Outdoor–covered)",
+          "value": "Up to 3 months"
+        }
+      ],
+      "benefits": "Dependable safeguarding against corrosion during storage and transport; excellent water displacement prevents moisture-induced corrosion; produces a thin, non-sticky film for clean component handling; does not stain or attack metal surfaces; easy removal using petroleum solvents or alkaline cleaners.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID RUST PREVENTIVE OIL 906 - Product Data Sheet\n\n## Product Description\nTECHNOFLUID Rust Preventive Oil 906 is described as \"a solvent-based, oil-type rust preventive fluid formulated to provide effective corrosion protection to ferrous metal components.\" The product generates \"a thin, uniform protective film that displaces moisture and shields metal surfaces from rust and oxidation.\"\n\n## Key Performance Benefits\n- Dependable safeguarding against corrosion during storage and transport\n- \"Excellent water displacement prevents moisture-induced corrosion\"\n- Produces a \"thin, non-sticky film\" for clean component handling\n- \"Does not stain or attack metal surfaces\"\n- \"Easy removal using petroleum solvents or alkaline cleaners\"\n\n## Applications\nSuitable for automotive, engineering, machined parts, gears, bearings, metal tools, and fabricated ferrous components across manufacturing plants, warehouses, and inter-process transportation scenarios.\n\n## Operating Characteristics\nThe product \"can be applied by dipping, spraying, or brushing\" and maintains compatibility with standard metals and alloys.\n\n## Typical Specifications\n| Property | Test Method | Value |\n| Appearance | Visual | Clear/Light Brown |\n| Density @ 15°C | ASTM D4052 | 0.830–0.860 g/ml |\n| Kinematic Viscosity @ 40°C | ASTM D445 | 6–10 cSt |\n| Flash Point (COC) | ASTM D92 | ≥65°C |\n| Pour Point | ASTM D97 | -6°C |\n| Rust Prevention (Humidity Cabinet) | ASTM D1748 | ≥72 hrs |\n| Protection Period (Indoor) | — | Up to 6 months |\n| Protection Period (Outdoor–covered) | — | Up to 3 months |",
+      "seriesTitle": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
+      "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1RajkX-LDlR6KVGgc6v4NwHg6rQgfXwlbxYG3kQ4mrRI",
+      "givenName": "TECHNOFLUID CALCIUM GREASE MP3",
+      "docTitle": "TECHNOFLUID CALCIUM BASE GREASE - Product Data Sheet",
+      "description": "A high-quality, water-resistant grease formulated using refined mineral base oils and calcium soap thickener. The formulation delivers lubrication for wet environments while maintaining strong adhesion to metal surfaces. It addresses low-to-moderate speed bearing applications across agricultural, automotive, and industrial sectors. Commercial/Pack Names: GREASE C RED GEL / MP3 / SLR. Demonstrates good pumpability at normal temperatures and remains non-corrosive with standard bearing materials.",
+      "applications": "Suitable for chassis components, agricultural machinery, water pump bearings, and plain/rolling bearings in moisture-heavy environments.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "NLGI Grade (Red Gel)",
+          "value": "2"
+        },
+        {
+          "property": "NLGI Grade (MP3)",
+          "value": "3"
+        },
+        {
+          "property": "NLGI Grade (Dark Green)",
+          "value": "2"
+        },
+        {
+          "property": "Worked Penetration (Red Gel)",
+          "value": "265-295"
+        },
+        {
+          "property": "Worked Penetration (MP3)",
+          "value": "220-250"
+        },
+        {
+          "property": "Worked Penetration (Dark Green)",
+          "value": "265-295"
+        },
+        {
+          "property": "Drop Point (°C min) (Red Gel)",
+          "value": "≥95"
+        },
+        {
+          "property": "Drop Point (°C min) (MP3)",
+          "value": "≥90"
+        },
+        {
+          "property": "Drop Point (°C min) (Dark Green)",
+          "value": "≥95"
+        },
+        {
+          "property": "Operating Range (°C) (Red Gel)",
+          "value": "-10 to 70"
+        },
+        {
+          "property": "Operating Range (°C) (MP3)",
+          "value": "-10 to 70"
+        },
+        {
+          "property": "Operating Range (°C) (Dark Green)",
+          "value": "-10 to 70"
+        },
+        {
+          "property": "Water Washout Loss (%) (Red Gel)",
+          "value": "≤3"
+        },
+        {
+          "property": "Water Washout Loss (%) (MP3)",
+          "value": "≤2"
+        },
+        {
+          "property": "Water Washout Loss (%) (Dark Green)",
+          "value": "≤2"
+        }
+      ],
+      "benefits": "Notable advantages include exceptional water resistance, reduced friction and wear, rust/corrosion protection, and structural stability across varying loads. The product helps extend bearing life and reduce maintenance frequency.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID CALCIUM BASE GREASE - Product Data Sheet\n\n**Commercial/Pack Names:** GREASE C RED GEL / MP3 / SLR\n\n## Product Description\nThis is a \"high-quality, water-resistant grease formulated using refined mineral base oils and calcium soap thickener.\" The formulation delivers lubrication for wet environments while maintaining strong adhesion to metal surfaces. It addresses low-to-moderate speed bearing applications across agricultural, automotive, and industrial sectors.\n\n## Key Performance Benefits\nNotable advantages include exceptional water resistance, reduced friction and wear, rust/corrosion protection, and structural stability across varying loads. The product \"helps extend bearing life and reduce maintenance frequency.\"\n\n## Applications\nSuitable for chassis components, agricultural machinery, water pump bearings, and plain/rolling bearings in moisture-heavy environments.\n\n## Operating Characteristics\nThe grease demonstrates good pumpability at normal temperatures and remains non-corrosive with standard bearing materials.\n\n## Specifications Summary\n\n| Property | Red Gel | MP3 | Dark Green |\n|----------|---------|-----|-----------|\n| NLGI Grade | 2 | 3 | 2 |\n| Worked Penetration | 265-295 | 220-250 | 265-295 |\n| Drop Point (°C min) | ≥95 | ≥90 | ≥95 |\n| Operating Range (°C) | -10 to 70 | -10 to 70 | -10 to 70 |\n| Water Washout Loss (%) | ≤3 | ≤2 | ≤2 |",
+      "seriesTitle": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
+      "seriesSlug": "grease-technofluid-calcium-base-grease",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1y9qNGwiZw8wNvi8wScX5rrXXYqYmFg8-IapKKENAW9I",
+      "givenName": "TECHNOFLUID LITHIUM GREASE",
+      "docTitle": "TECHNOFLUID LITHIUM GREASE AP3 & APLR - Product Data Sheet",
+      "description": "TECHNOFLUID offers two lithium grease variants—AP3 and APLR—both formulated with mineral base oils and lithium soap thickeners. The products are engineered to deliver reliable lubrication across diverse automotive and industrial applications.",
+      "applications": "These greases address \"wheel bearings, electric motor bearings, plain and rolling bearings\" alongside automotive chassis components and industrial machinery requiring moderate-speed operation.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Appearance (AP3)",
+          "value": "Smooth, fibrous"
+        },
+        {
+          "property": "Appearance (APLR)",
+          "value": "Smooth, fibrous"
+        },
+        {
+          "property": "Color (AP3)",
+          "value": "Yellowish White"
+        },
+        {
+          "property": "Color (APLR)",
+          "value": "Dark Green"
+        },
+        {
+          "property": "NLGI Grade (AP3)",
+          "value": "3"
+        },
+        {
+          "property": "NLGI Grade (APLR)",
+          "value": "3"
+        },
+        {
+          "property": "Penetration (60 strokes) (AP3)",
+          "value": "220–250 (0.1 mm)"
+        },
+        {
+          "property": "Penetration (60 strokes) (APLR)",
+          "value": "220–250 (0.1 mm)"
+        },
+        {
+          "property": "Drop Point (AP3)",
+          "value": "≥180°C"
+        },
+        {
+          "property": "Drop Point (APLR)",
+          "value": "≥180°C"
+        },
+        {
+          "property": "Base Oil Viscosity @ 40°C (AP3)",
+          "value": "150–220 cSt"
+        },
+        {
+          "property": "Base Oil Viscosity @ 40°C (APLR)",
+          "value": "150–220 cSt"
+        },
+        {
+          "property": "Four Ball Weld Load (AP3)",
+          "value": "≥250 kg"
+        },
+        {
+          "property": "Four Ball Weld Load (APLR)",
+          "value": "≥250 kg"
+        },
+        {
+          "property": "Wear Scar Diameter (AP3)",
+          "value": "≤0.50 mm"
+        },
+        {
+          "property": "Wear Scar Diameter (APLR)",
+          "value": "≤0.50 mm"
+        },
+        {
+          "property": "Copper Corrosion (AP3)",
+          "value": "1a"
+        },
+        {
+          "property": "Copper Corrosion (APLR)",
+          "value": "1a"
+        },
+        {
+          "property": "Water Washout @ 79°C (AP3)",
+          "value": "≤4% loss"
+        },
+        {
+          "property": "Water Washout @ 79°C (APLR)",
+          "value": "≤4% loss"
+        },
+        {
+          "property": "Rust Prevention (AP3)",
+          "value": "Pass"
+        },
+        {
+          "property": "Rust Prevention (APLR)",
+          "value": "Pass"
+        },
+        {
+          "property": "Operating Range (AP3)",
+          "value": "-20 to 140°C"
+        },
+        {
+          "property": "Operating Range (APLR)",
+          "value": "-20 to 140°C"
+        }
+      ],
+      "benefits": "Enhanced anti-wear protection, thermal stability, and water resistance characterize both formulations, supporting extended maintenance intervals.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID LITHIUM GREASE AP3 & APLR - Product Data Sheet\n\n## Product Overview\nTECHNOFLUID offers two lithium grease variants—AP3 and APLR—both formulated with mineral base oils and lithium soap thickeners. The products are engineered to deliver reliable lubrication across diverse automotive and industrial applications.\n\n## Core Specifications\n\n| Property | AP3 | APLR |\n|----------|-----|------|\n| Appearance | Smooth, fibrous | Smooth, fibrous |\n| Color | Yellowish White | Dark Green |\n| NLGI Grade | 3 | 3 |\n| Penetration (60 strokes) | 220–250 (0.1 mm) | 220–250 (0.1 mm) |\n| Drop Point | ≥180°C | ≥180°C |\n| Base Oil Viscosity @ 40°C | 150–220 cSt | 150–220 cSt |\n| Four Ball Weld Load | ≥250 kg | ≥250 kg |\n| Wear Scar Diameter | ≤0.50 mm | ≤0.50 mm |\n| Copper Corrosion | 1a | 1a |\n| Water Washout @ 79°C | ≤4% loss | ≤4% loss |\n| Rust Prevention | Pass | Pass |\n| Operating Range | -20 to 140°C | -20 to 140°C |\n\n## Primary Applications\nThese greases address \"wheel bearings, electric motor bearings, plain and rolling bearings\" alongside automotive chassis components and industrial machinery requiring moderate-speed operation.\n\n## Key Advantages\nEnhanced anti-wear protection, thermal stability, and water resistance characterize both formulations, supporting extended maintenance intervals.",
+      "seriesTitle": "GREASE – TECHNOFLUID LITHIUM GREASE AP3 & APLR",
+      "seriesSlug": "grease-technofluid-lithium-grease-ap3-aplr",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1khxpGPQlUB1Ldn8Am6uFDlUNRFsP94J7B15DN4-R1SU",
+      "givenName": "TECHNOFLUID GREASE EP SERIES",
+      "docTitle": "TECHNOFLUID EP GREASE SERIES - PRODUCT DATA SHEET",
+      "description": "TECHNOFLUID EP Grease Series comprises \"high-performance extreme pressure greases formulated using high-quality mineral base oils and advanced EP additive technology.\" These products span NLGI grades 000 through 3, accommodating various lubrication needs from semi-fluid to stiff formulations. All grades feature mineral base oil, lithium/lithium EP thickeners, and Copper Corrosion (24 hrs @ 100°C) rating of 1a across the entire range.",
+      "applications": "Suitable for heavy-duty bearings, industrial gear couplings, construction/mining equipment, and agricultural machinery. The product supports both centralized lubrication systems (grades 000/00/0) and manual greasing applications (grades 1/2/3).",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "Penetration (0.1mm) (Grade 000)",
+          "value": "445–475"
+        },
+        {
+          "property": "Drop Point (°C) (Grade 000)",
+          "value": "180"
+        },
+        {
+          "property": "Temp Range (°C) (Grade 000)",
+          "value": "-20 to 120"
+        },
+        {
+          "property": "Penetration (0.1mm) (Grade 00)",
+          "value": "400–430"
+        },
+        {
+          "property": "Drop Point (°C) (Grade 00)",
+          "value": "180"
+        },
+        {
+          "property": "Temp Range (°C) (Grade 00)",
+          "value": "-20 to 120"
+        },
+        {
+          "property": "Penetration (0.1mm) (Grade 0)",
+          "value": "355–385"
+        },
+        {
+          "property": "Drop Point (°C) (Grade 0)",
+          "value": "180"
+        },
+        {
+          "property": "Temp Range (°C) (Grade 0)",
+          "value": "-20 to 130"
+        },
+        {
+          "property": "Penetration (0.1mm) (Grade 1)",
+          "value": "310–340"
+        },
+        {
+          "property": "Drop Point (°C) (Grade 1)",
+          "value": "185"
+        },
+        {
+          "property": "Temp Range (°C) (Grade 1)",
+          "value": "-20 to 130"
+        },
+        {
+          "property": "Penetration (0.1mm) (Grade 2)",
+          "value": "265–295"
+        },
+        {
+          "property": "Drop Point (°C) (Grade 2)",
+          "value": "190"
+        },
+        {
+          "property": "Temp Range (°C) (Grade 2)",
+          "value": "-20 to 140"
+        },
+        {
+          "property": "Penetration (0.1mm) (Grade 3)",
+          "value": "220–250"
+        },
+        {
+          "property": "Drop Point (°C) (Grade 3)",
+          "value": "190"
+        },
+        {
+          "property": "Temp Range (°C) (Grade 3)",
+          "value": "-20 to 140"
+        },
+        {
+          "property": "Copper Corrosion (24 hrs @ 100°C) (all grades)",
+          "value": "1a"
+        }
+      ],
+      "benefits": "The grease delivers several performance advantages: \"Excellent extreme pressure and anti-wear properties protect components under heavy loads\" and \"Good mechanical stability ensures consistent grease structure under shear.\" Additional strengths include corrosion resistance and reduced maintenance requirements.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID EP GREASE SERIES - PRODUCT DATA SHEET\n\n## Product Overview\nTECHNOFLUID EP Grease Series comprises \"high-performance extreme pressure greases formulated using high-quality mineral base oils and advanced EP additive technology.\" These products span NLGI grades 000 through 3, accommodating various lubrication needs from semi-fluid to stiff formulations.\n\n## Key Benefits\nThe grease delivers several performance advantages: \"Excellent extreme pressure and anti-wear properties protect components under heavy loads\" and \"Good mechanical stability ensures consistent grease structure under shear.\" Additional strengths include corrosion resistance and reduced maintenance requirements.\n\n## Applications\nSuitable for heavy-duty bearings, industrial gear couplings, construction/mining equipment, and agricultural machinery. The product supports both centralized lubrication systems (grades 000/00/0) and manual greasing applications (grades 1/2/3).\n\n## NLGI Grade Specifications\n\n| Grade | Penetration (0.1mm) | Drop Point (°C) | Temp Range (°C) |\n|-------|-------------------|-----------------|-----------------|\n| 000   | 445–475           | 180             | -20 to 120      |\n| 00    | 400–430           | 180             | -20 to 120      |\n| 0     | 355–385           | 180             | -20 to 130      |\n| 1     | 310–340           | 185             | -20 to 130      |\n| 2     | 265–295           | 190             | -20 to 140      |\n| 3     | 220–250           | 190             | -20 to 140      |\n\nAll grades feature mineral base oil, lithium/lithium EP thickeners, and \"Copper Corrosion (24 hrs @ 100°C)\" rating of 1a across the entire range.",
+      "seriesTitle": "GREASE – TECHNOFLUID EP GREASE SERIES",
+      "seriesSlug": "grease-technofluid-ep-grease-series",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1r5igJpEX_8m9Vx0gtH823T0utef1CzlgKLJF3dZdWlc",
+      "givenName": "TECHNOFLUID GREASE WATER RESISTANT WR2",
+      "docTitle": "TECHNOFLUID GREASE WR-2 Product Data Sheet",
+      "description": "TECHNOFLUID WR-2 is formulated as a \"high-performance water-resistant grease\" using mineral base oils and calcium/lithium-calcium soap thickener for wet environments.",
+      "applications": "The product suits \"wheel bearings, chassis and suspension components, agricultural machinery, construction equipment, and water pumps\" in high-moisture conditions.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "NLGI Grade",
+          "value": "2"
+        },
+        {
+          "property": "Thickener Type",
+          "value": "Calcium / Lithium-Calcium Soap"
+        },
+        {
+          "property": "Base Oil Type",
+          "value": "Mineral"
+        },
+        {
+          "property": "Operating Temperature Range",
+          "value": "-10 to 120°C"
+        },
+        {
+          "property": "Drop Point (Min)",
+          "value": "≥ 180°C"
+        },
+        {
+          "property": "Base Oil Viscosity @ 40°C",
+          "value": "140–180 cSt"
+        },
+        {
+          "property": "Water Washout @ 79°C",
+          "value": "≤ 3% loss"
+        },
+        {
+          "property": "Four Ball Weld Load",
+          "value": "≥ 200 kg"
+        },
+        {
+          "property": "Wear Scar Diameter",
+          "value": "≤ 0.55 mm"
+        },
+        {
+          "property": "Copper Corrosion (24 hrs @ 100°C)",
+          "value": "1a"
+        },
+        {
+          "property": "Rust Prevention",
+          "value": "Pass"
+        },
+        {
+          "property": "Mechanical Stability",
+          "value": "Good"
+        }
+      ],
+      "benefits": null,
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID GREASE WR-2 Product Data Sheet\n\n## Product Overview\nTECHNOFLUID WR-2 is formulated as a \"high-performance water-resistant grease\" using mineral base oils and calcium/lithium-calcium soap thickener for wet environments.\n\n## Key Specifications\n- **NLGI Grade:** 2\n- **Thickener Type:** Calcium / Lithium-Calcium Soap\n- **Base Oil Type:** Mineral\n- **Operating Temperature Range:** -10 to 120°C\n- **Drop Point (Min):** ≥ 180°C\n- **Base Oil Viscosity @ 40°C:** 140–180 cSt\n\n## Performance Characteristics\n- Water Washout @ 79°C: ≤ 3% loss\n- Four Ball Weld Load: ≥ 200 kg\n- Wear Scar Diameter: ≤ 0.55 mm\n- Copper Corrosion (24 hrs @ 100°C): 1a\n- Rust Prevention: Pass\n- Mechanical Stability: Good\n\n## Primary Applications\nThe product suits \"wheel bearings, chassis and suspension components, agricultural machinery, construction equipment, and water pumps\" in high-moisture conditions.",
+      "seriesTitle": "TECHNOFLUID GREASE WR-2 (Water Resistant Grease)",
+      "seriesSlug": "technofluid-grease-wr-2-water-resistant-grease",
+      "isNewProduct": false
+    },
+    {
+      "docId": "1kM9dvkEwdFONN6HU8wG4Wx1ZOL3fKCJCRCObzzesaCg",
+      "givenName": "TECHNOFLUID KILN GREASE",
+      "docTitle": "TECHNOFLUID KILN GREASE - Product Data Sheet",
+      "description": "Technofluid Kiln Grease is a premium high-temperature, extreme-pressure grease developed for rotary kiln support rollers, thrust rollers, riding ring rollers, and other heavily loaded bearings operating under severe thermal and shock-loading conditions in sponge iron, cement, and mineral processing plants.",
+      "applications": "Rotary kiln support roller bearings; Kiln thrust roller bearings; Riding ring support bearings; Heavy-duty industrial bearings; High-temperature and shock-loaded applications.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "NLGI Grade",
+          "value": "2"
+        },
+        {
+          "property": "Thickener Type",
+          "value": "Calcium Sulfonate Complex / EP Type"
+        },
+        {
+          "property": "Base Oil Viscosity @ 40°C",
+          "value": "460 cSt"
+        },
+        {
+          "property": "Dropping Point",
+          "value": "> 250°C"
+        },
+        {
+          "property": "Worked Penetration (60 strokes)",
+          "value": "265–295"
+        },
+        {
+          "property": "4-Ball Weld Load",
+          "value": "> 400 kg"
+        },
+        {
+          "property": "Operating Temperature Range",
+          "value": "-20°C to +180°C (intermittent 200°C)"
+        },
+        {
+          "property": "Color",
+          "value": "Yellowish"
+        }
+      ],
+      "benefits": "Excellent load-carrying capacity; Superior resistance to water washout; Outstanding oxidation stability; High-temperature performance; Reduced bearing wear; Extended relubrication intervals; Good mechanical stability under vibration and shock loads.",
+      "packSizes": "Available in 18 kg and 180 kg packs.",
+      "rawText": "# TECHNOFLUID KILN GREASE - Product Data Sheet\n\n**Product Description**\n\"Technofluid Kiln Grease is a premium high-temperature, extreme-pressure grease developed for rotary kiln support rollers, thrust rollers, riding ring rollers, and other heavily loaded bearings operating under severe thermal and shock-loading conditions in sponge iron, cement, and mineral processing plants.\"\n\n**Typical Applications**\n- Rotary kiln support roller bearings\n- Kiln thrust roller bearings\n- Riding ring support bearings\n- Heavy-duty industrial bearings\n- High-temperature and shock-loaded applications\n\n**Typical Characteristics**\n\n| Characteristic | Value |\n|---|---|\n| NLGI Grade | 2 |\n| Thickener Type | Calcium Sulfonate Complex / EP Type |\n| Base Oil Viscosity @ 40°C | 460 cSt |\n| Dropping Point | > 250°C |\n| Worked Penetration (60 strokes) | 265–295 |\n| 4-Ball Weld Load | > 400 kg |\n| Operating Temperature Range | -20°C to +180°C (intermittent 200°C) |\n| Color | Yellowish |\n\n**Performance Benefits**\n- Excellent load-carrying capacity\n- Superior resistance to water washout\n- Outstanding oxidation stability\n- High-temperature performance\n- Reduced bearing wear\n- Extended relubrication intervals\n- Good mechanical stability under vibration and shock loads\n\n**Packaging**\nAvailable in 18 kg and 180 kg packs.",
+      "seriesTitle": null,
+      "seriesSlug": null,
+      "isNewProduct": true
+    },
+    {
+      "docId": "13dByfBC9pzT6ZYw2hj6B-hXlzp75IxoM0QauEt-ornk",
+      "givenName": "TECHNOFLUID GREASE LITHIUM COMPLEX",
+      "docTitle": "TECHNOFLUID Lithium Complex Grease - Product Data Sheet",
+      "description": "TECHNOFLUID Lithium Complex Grease is a premium high-temperature, heavy-duty grease formulated with lithium complex thickener and selected base oils. It is engineered for applications requiring extended service intervals and component durability. Three variants: RED GEL, BLUE GEL, and 222 (Premium).",
+      "applications": "Wheel bearings on disc brake vehicles; High-speed and high-temperature bearing systems; Industrial motors and machinery; Steel, cement, and rolling mill operations; Construction and mining equipment.",
+      "performanceStandards": [],
+      "specTable": [
+        {
+          "property": "NLGI Grade (all variants)",
+          "value": "2"
+        },
+        {
+          "property": "Worked Penetration (0.1 mm) (all variants)",
+          "value": "265-295"
+        },
+        {
+          "property": "Operating Range (RED GEL)",
+          "value": "-20 to 180°C"
+        },
+        {
+          "property": "Operating Range (BLUE GEL)",
+          "value": "-20 to 190°C"
+        },
+        {
+          "property": "Operating Range (222 Premium)",
+          "value": "-20 to 200°C"
+        },
+        {
+          "property": "Drop Point (RED GEL)",
+          "value": "≥235°C"
+        },
+        {
+          "property": "Drop Point (222 Premium)",
+          "value": "250°C"
+        },
+        {
+          "property": "Water Resistance (loss)",
+          "value": "≤2-3% loss"
+        }
+      ],
+      "benefits": "The product delivers superior mechanical stability and resistance to water washout along with excellent performance under demanding conditions. Excellent load-carrying capacity, water resistance (≤2-3% loss), and outstanding oxidation stability minimizes hardening and deposit formation.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID Lithium Complex Grease - Product Data Sheet\n\n## Product Overview\n\"TECHNOFLUID Lithium Complex Grease is a premium high-temperature, heavy-duty grease formulated with lithium complex thickener and selected base oils.\"\n\n## Key Features\nThe product delivers \"superior mechanical stability and resistance to water washout\" along with excellent performance under demanding conditions. It's engineered for applications requiring extended service intervals and component durability.\n\n## Primary Applications\n- Wheel bearings on disc brake vehicles\n- High-speed and high-temperature bearing systems\n- Industrial motors and machinery\n- Steel, cement, and rolling mill operations\n- Construction and mining equipment\n\n## Temperature Performance\nThe three variants offer different operating ranges:\n- RED GEL: -20 to 180°C\n- BLUE GEL: -20 to 190°C\n- 222 (Premium): -20 to 200°C\n\n## Key Specifications\nAll variants maintain NLGI Grade 2 with worked penetration of 265-295 (0.1 mm). Drop points range from 235°C minimum (RED GEL) to 250°C (222 Premium), supporting high-temperature operation.\n\n## Performance Properties\nThe grease demonstrates excellent load-carrying capacity, water resistance (≤2-3% loss), and \"outstanding oxidation stability minimizes hardening and deposit formation.\"",
+      "seriesTitle": "GREASE – TECHNOFLUID LITHIUM COMPLEX GREASE",
+      "seriesSlug": "grease-technofluid-lithium-complex-grease",
+      "isNewProduct": false
+    },
+    {
+      "docId": "15DYpQkSVxVJB0C2wJIlr-wmBLLedPNivIgTyUpcZ0iA",
+      "givenName": "TECHNOFLUID GIRTH GEAR GREASE",
+      "docTitle": "TECHNOFLUID GIRTH GEAR GREASE - Product Data Sheet",
+      "description": "TECHNOFLUID Girth Gear Grease is a heavy-duty, high-load lubricating grease specially formulated for open girth gears and large slow-speed gear drives. The formulation utilizes high-viscosity base oils combined with specialized thickening agents and EP/solid lubricant additives designed to handle extreme loads and boundary lubrication scenarios.",
+      "applications": "Intended for open girth gears in rotary kilns, ball mills, tube mills, dryers, and rotary furnaces. \"Suitable for slow-speed, heavily loaded gear systems operating under shock loads and dusty environments.\"",
+      "performanceStandards": [
+        "ASTM D217",
+        "ASTM D445",
+        "ASTM D2265",
+        "ASTM D2596",
+        "ASTM D1264"
+      ],
+      "specTable": [
+        {
+          "property": "Appearance (Test Method: Visual)",
+          "value": "Smooth, tacky grease"
+        },
+        {
+          "property": "Colour (Test Method: Visual)",
+          "value": "Dark Brown / Black"
+        },
+        {
+          "property": "Thickener Type",
+          "value": "Special Soap / Clay"
+        },
+        {
+          "property": "Base Oil Type",
+          "value": "High Viscosity Mineral"
+        },
+        {
+          "property": "NLGI Grade (Test Method: ASTM D217)",
+          "value": "0 / 1 (Sprayable / Brushable)"
+        },
+        {
+          "property": "Base Oil Viscosity @ 40°C (Test Method: ASTM D445)",
+          "value": "≥ 1000 cSt"
+        },
+        {
+          "property": "Drop Point (Test Method: ASTM D2265)",
+          "value": "Non-melting"
+        },
+        {
+          "property": "Four Ball Weld Load (Test Method: ASTM D2596)",
+          "value": "≥ 400 kg"
+        },
+        {
+          "property": "Water Washout @ 79°C (Test Method: ASTM D1264)",
+          "value": "≤ 5% loss"
+        },
+        {
+          "property": "Operating Temperature Range",
+          "value": "-10 to 120°C"
+        }
+      ],
+      "benefits": "\"Exceptional load-carrying and extreme pressure performance\"; \"Strong adhesion ensures grease remains on gear teeth during rotation\"; Protection against micropitting, scuffing, and wear; Water washout resistance and contamination protection; Noise and vibration reduction; Extended equipment lifespan with reduced maintenance intervals; Compatible with spray, brush, or manual application methods.",
+      "packSizes": null,
+      "rawText": "# TECHNOFLUID GIRTH GEAR GREASE - Product Data Sheet\n\n## Product Description\n\"TECHNOFLUID Girth Gear Grease is a heavy-duty, high-load lubricating grease specially formulated for open girth gears and large slow-speed gear drives.\" The formulation utilizes high-viscosity base oils combined with specialized thickening agents and EP/solid lubricant additives designed to handle extreme loads and boundary lubrication scenarios.\n\n## Key Performance Benefits\n- \"Exceptional load-carrying and extreme pressure performance\"\n- \"Strong adhesion ensures grease remains on gear teeth during rotation\"\n- Protection against micropitting, scuffing, and wear\n- Water washout resistance and contamination protection\n- Noise and vibration reduction\n- Extended equipment lifespan with reduced maintenance intervals\n- Compatible with spray, brush, or manual application methods\n\n## Applications\nIntended for open girth gears in rotary kilns, ball mills, tube mills, dryers, and rotary furnaces. \"Suitable for slow-speed, heavily loaded gear systems operating under shock loads and dusty environments.\"\n\n## Typical Characteristics\n\n| Property | Test Method | Value |\n|----------|-------------|-------|\n| Appearance | Visual | Smooth, tacky grease |\n| Colour | Visual | Dark Brown / Black |\n| Thickener Type | — | Special Soap / Clay |\n| Base Oil Type | — | High Viscosity Mineral |\n| NLGI Grade | ASTM D217 | 0 / 1 (Sprayable / Brushable) |\n| Base Oil Viscosity @ 40°C | ASTM D445 | ≥ 1000 cSt |\n| Drop Point | ASTM D2265 | Non-melting |\n| Four Ball Weld Load | ASTM D2596 | ≥ 400 kg |\n| Water Washout @ 79°C | ASTM D1264 | ≤ 5% loss |\n| Operating Temperature Range | — | -10 to 120°C |",
+      "seriesTitle": "TECHNOFLUID GIRTH GEAR GREASE",
+      "seriesSlug": "technofluid-girth-gear-grease",
+      "isNewProduct": false
+    }
+  ]
+}
