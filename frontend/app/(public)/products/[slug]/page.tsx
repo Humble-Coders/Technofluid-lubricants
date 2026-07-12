@@ -224,7 +224,9 @@ export default async function ProductSeriesPage({
       </section>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-14 lg:grid-cols-[1fr_320px] lg:gap-16 lg:px-8">
-        <div className="order-2 flex flex-col gap-8 lg:order-1">
+        <div
+          className={`flex flex-col gap-8 ${productImages ? "order-2 lg:order-1" : ""}`}
+        >
           {descriptionSection && (
             <section
               className="relative overflow-hidden rounded-3xl border p-6 sm:p-8"
@@ -295,7 +297,9 @@ export default async function ProductSeriesPage({
           ))}
         </div>
 
-        <aside className="order-1 flex flex-col gap-5 lg:order-2 lg:sticky lg:top-24 lg:self-start">
+        <aside
+          className={`flex flex-col gap-5 lg:sticky lg:top-24 lg:self-start ${productImages ? "order-1 lg:order-2" : ""}`}
+        >
           {productImages && (
             <ProductGallery images={productImages} altBase={series.displayName} />
           )}
