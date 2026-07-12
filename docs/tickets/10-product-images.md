@@ -70,5 +70,5 @@ The public product pages (`/products`, `/products/[slug]`) currently render **no
 
 ## 🤖 Kickoff prompt (paste into Claude Code)
 ```
-/start-ticket <this-issue-number>
+/start-ticket 16
 ```
