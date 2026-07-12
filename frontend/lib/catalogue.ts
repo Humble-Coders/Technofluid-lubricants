@@ -1,6 +1,7 @@
 // File: frontend/lib/catalogue.ts
 import catalogueData from "@/content/catalogue.json";
 import crosswalkData from "@/content/catalogue-crosswalk.json";
+import productImagesData from "@/content/product-images.json";
 import { BRAND } from "@/content/brand";
 import { slugify } from "@/lib/services/productImport";
 import type {
@@ -9,10 +10,13 @@ import type {
   CatalogueSeries,
   CrosswalkContent,
   CrosswalkSeries,
+  ProductImages,
+  ProductImagesManifest,
 } from "@/types/content";
 
 export const catalogue = catalogueData as unknown as CatalogueContent;
 export const crosswalk = crosswalkData as unknown as CrosswalkContent;
+const productImages = productImagesData as unknown as ProductImagesManifest;
 
 const CATEGORY_ACCENT: Record<CatalogueCategory, string> = {
   "Industrial Oils": BRAND.orange,
@@ -52,4 +56,8 @@ export function productKeysForSeries(slug: string): string[] {
 
 export function categorySlug(category: string): string {
   return slugify(category);
+}
+
+export function imagesForSeries(slug: string): ProductImages | null {
+  return productImages[slug] ?? null;
 }

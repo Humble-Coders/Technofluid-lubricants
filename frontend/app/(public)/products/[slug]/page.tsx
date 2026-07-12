@@ -2,9 +2,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BRAND } from "@/content/brand";
-import { categoryAccent, findCrosswalkBySlug, findSeriesBySlug } from "@/lib/catalogue";
+import {
+  categoryAccent,
+  findCrosswalkBySlug,
+  findSeriesBySlug,
+  imagesForSeries,
+} from "@/lib/catalogue";
 import SeriesSpecTable from "./_components/SeriesSpecTable";
 import SeriesPackSizes from "./_components/SeriesPackSizes";
+import ProductGallery from "./_components/ProductGallery";
 
 const SECTION_LABELS: Record<string, string> = {
   description: "Description",
@@ -42,6 +48,7 @@ export default async function ProductSeriesPage({
   const isAspirational =
     series.aspirational || crosswalkEntry?.status === "available-on-request";
   const accent = categoryAccent(series.category);
+  const productImages = imagesForSeries(slug);
 
   const contentSections = series.sectionsOrder
     .map((key) => ({ key, items: series.sections[key] }))
@@ -217,7 +224,7 @@ export default async function ProductSeriesPage({
       </section>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-14 lg:grid-cols-[1fr_320px] lg:gap-16 lg:px-8">
-        <div className="flex flex-col gap-8">
+        <div className="order-2 flex flex-col gap-8 lg:order-1">
           {descriptionSection && (
             <section
               className="relative overflow-hidden rounded-3xl border p-6 sm:p-8"
@@ -288,7 +295,11 @@ export default async function ProductSeriesPage({
           ))}
         </div>
 
-        <aside className="flex flex-col gap-5 lg:sticky lg:top-24 lg:self-start">
+        <aside className="order-1 flex flex-col gap-5 lg:order-2 lg:sticky lg:top-24 lg:self-start">
+          {productImages && (
+            <ProductGallery images={productImages} altBase={series.displayName} />
+          )}
+
           <div className="rounded-3xl border border-border bg-white p-6 shadow-sm">
             <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-textSecondary">
               At a glance

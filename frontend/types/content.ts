@@ -95,6 +95,20 @@ export interface PublicCatalogDoc {
   packSizes: string[];
 }
 
+export interface ProductImage {
+  src: string;
+  label: string;
+  packSize: string | null;
+  container: string;
+}
+
+export interface ProductImages {
+  primary: string;
+  images: ProductImage[];
+}
+
+export type ProductImagesManifest = Record<string, ProductImages>;
+
 export interface CrosswalkContent {
   generatedFrom: { catalogue: string; master: string };
   summary: {
