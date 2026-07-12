@@ -1,0 +1,343 @@
+{
+ "transmission-fluid-technofluid-tq-atf": {
+  "primary": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-pail-bucket.jpg",
+    "label": "TRANSMISSION FLUID TQ",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-sae-30-pail-bucket.jpg",
+    "label": "TRANSMISSION SAE 30",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-500-ml.jpg",
+    "label": "Transmission Fluid TQ",
+    "packSize": "500 ml",
+    "container": "bottle"
+   }
+  ]
+ },
+ "engine-coolant-antifreeze-technofluid-coolant": {
+  "primary": "/product-photos/engine-coolant-antifreeze-technofluid-coolant/coolant-antifreeze-concentrated-5-l.jpg",
+  "images": [
+   {
+    "src": "/product-photos/engine-coolant-antifreeze-technofluid-coolant/coolant-antifreeze-concentrated-5-l.jpg",
+    "label": "Coolant/Antifreeze Concentrated",
+    "packSize": "5 L",
+    "container": "jar"
+   },
+   {
+    "src": "/product-photos/engine-coolant-antifreeze-technofluid-coolant/coolant-antifreeze-concentrated-1-l.jpg",
+    "label": "Coolant/Antifreeze Concentrated",
+    "packSize": "1 L",
+    "container": "bottle"
+   }
+  ]
+ },
+ "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil": {
+  "primary": "/product-photos/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil/wet-brake-oil-utto-5-l.jpg",
+  "images": [
+   {
+    "src": "/product-photos/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil/wet-brake-oil-utto-5-l.jpg",
+    "label": "WET BRAKE OIL UTTO",
+    "packSize": "5 L",
+    "container": "other"
+   }
+  ]
+ },
+ "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils": {
+  "primary": "/product-photos/4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils/4t-20w-40-bottle.jpg",
+  "images": [
+   {
+    "src": "/product-photos/4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils/4t-20w-40-bottle.jpg",
+    "label": "4T 20W-40",
+    "packSize": null,
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils/4t-20w-40-bottle-2.jpg",
+    "label": "4T 20W-40",
+    "packSize": null,
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils/4t-10w-30-bottle.jpg",
+    "label": "4T 10W-30",
+    "packSize": null,
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils/4t-20w-50-bottle.jpg",
+    "label": "4T 20W-50",
+    "packSize": null,
+    "container": "bottle"
+   }
+  ]
+ },
+ "automotive-engine-oils-technofluid-pcmo": {
+  "primary": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-15w50-2-5-l.jpg",
+  "images": [
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-15w50-2-5-l.jpg",
+    "label": "Engine Oil 15W50",
+    "packSize": "2.5 L",
+    "container": "jar"
+   },
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-sl-20w50-3-l.jpg",
+    "label": "Engine Oil SL 20W50",
+    "packSize": "3 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-sn-5w30-3-l.jpg",
+    "label": "Engine Oil SN 5W30",
+    "packSize": "3 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-sn-5w30-3-5-l.jpg",
+    "label": "Engine Oil SN 5W30",
+    "packSize": "3.5 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-sn-10w40-5-l.jpg",
+    "label": "Engine Oil SN 10W40",
+    "packSize": "5 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-sn-5w-40-5-l.jpg",
+    "label": "Engine Oil SN 5W-40",
+    "packSize": "5 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/automotive-engine-oils-technofluid-pcmo/engine-oil-sp-0w-20-3-5-l.jpg",
+    "label": "Engine Oil SP 0W-20",
+    "packSize": "3.5 L",
+    "container": "bottle"
+   }
+  ]
+ },
+ "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460": {
+  "primary": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460/hydraulic-oil-aw-68-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460/hydraulic-oil-aw-68-pail-bucket.jpg",
+    "label": "HYDRAULIC OIL AW 68",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460/hydraulic-oil-aw-68-5-l.jpg",
+    "label": "HYDRAULIC OIL AW 68",
+    "packSize": "5 L",
+    "container": "bottle"
+   }
+  ]
+ },
+ "hydraulic-oil-technofluid-hydraulic-oil-hlp": {
+  "primary": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-hlp/hydraulic-oil-hlp-aw-68-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-hlp/hydraulic-oil-hlp-aw-68-pail-bucket.jpg",
+    "label": "HYDRAULIC OIL HLP AW 68",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-hlp/hydraulic-oil-hlp-aw-68-5-l.jpg",
+    "label": "HYDRAULIC OIL HLP AW 68",
+    "packSize": "5 L",
+    "container": "bottle"
+   }
+  ]
+ },
+ "hydraulic-oil-technofluid-hydraulic-oil-hvi": {
+  "primary": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-hvi/hydraulic-oil-hvi-aw-68-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/hydraulic-oil-technofluid-hydraulic-oil-hvi/hydraulic-oil-hvi-aw-68-pail-bucket.jpg",
+    "label": "HYDRAULIC OIL HVI AW 68",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460": {
+  "primary": "/product-photos/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460/gear-ep-460-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460/gear-ep-460-pail-bucket.jpg",
+    "label": "GEAR EP 460",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460/gear-ep-320-pail-bucket.jpg",
+    "label": "GEAR EP 320",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460/gear-ep-220-pail-bucket.jpg",
+    "label": "GEAR EP 220",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460/gear-ep-150-pail-bucket.jpg",
+    "label": "GEAR EP 150",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460/gear-ep-100-pail-bucket.jpg",
+    "label": "GEAR EP 100",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "technofluid-gear-lube-ep-series": {
+  "primary": "/product-photos/technofluid-gear-lube-ep-series/gear-lube-ep-460-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/technofluid-gear-lube-ep-series/gear-lube-ep-460-pail-bucket.jpg",
+    "label": "GEAR LUBE EP 460",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/technofluid-gear-lube-ep-series/gear-lube-ep-320-pail-bucket.jpg",
+    "label": "GEAR LUBE EP 320",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/technofluid-gear-lube-ep-series/gear-lube-ep-220-pail-bucket.jpg",
+    "label": "GEAR LUBE EP 220",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/technofluid-gear-lube-ep-series/gear-lube-ep-150-pail-bucket.jpg",
+    "label": "GEAR LUBE EP 150",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "neat-cutting-oil-technofluid-neat-cutting-oil-55": {
+  "primary": "/product-photos/neat-cutting-oil-technofluid-neat-cutting-oil-55/neat-cutting-oil-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/neat-cutting-oil-technofluid-neat-cutting-oil-55/neat-cutting-oil-pail-bucket.jpg",
+    "label": "NEAT CUTTING OIL",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil": {
+  "primary": "/product-photos/semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil/semi-synthetic-cutting-oil-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil/semi-synthetic-cutting-oil-pail-bucket.jpg",
+    "label": "SEMI SYNTHETIC CUTTING OIL",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "textile-lubricant-technofluid-knitting-oil": {
+  "primary": "/product-photos/textile-lubricant-technofluid-knitting-oil/knitting-oil-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/textile-lubricant-technofluid-knitting-oil/knitting-oil-tin.jpg",
+    "label": "KNITTING OIL",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "textile-lubricant-technofluid-coning-oil": {
+  "primary": "/product-photos/textile-lubricant-technofluid-coning-oil/coning-oil-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/textile-lubricant-technofluid-coning-oil/coning-oil-tin.jpg",
+    "label": "CONING OIL",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "textile-lubricant-technofluid-warping-oil": {
+  "primary": "/product-photos/textile-lubricant-technofluid-warping-oil/warping-oil-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/textile-lubricant-technofluid-warping-oil/warping-oil-tin.jpg",
+    "label": "WARPING OIL",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "chain-lubricant-technofluid-chain-oil": {
+  "primary": "/product-photos/chain-lubricant-technofluid-chain-oil/chain-oil-ht-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/chain-lubricant-technofluid-chain-oil/chain-oil-ht-tin.jpg",
+    "label": "CHAIN OIL HT",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "process-oil-technofluid-pvc-oil": {
+  "primary": "/product-photos/process-oil-technofluid-pvc-oil/pvc-oil-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/process-oil-technofluid-pvc-oil/pvc-oil-tin.jpg",
+    "label": "PVC OIL",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "agricultural-gear-oil-technofluid-rotavator-oil-sae-140": {
+  "primary": "/product-photos/agricultural-gear-oil-technofluid-rotavator-oil-sae-140/rotavator-oil-140-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/agricultural-gear-oil-technofluid-rotavator-oil-sae-140/rotavator-oil-140-tin.jpg",
+    "label": "ROTAVATOR OIL 140",
+    "packSize": null,
+    "container": "tin"
+   },
+   {
+    "src": "/product-photos/agricultural-gear-oil-technofluid-rotavator-oil-sae-140/rotavator-gear-140-3-l.jpg",
+    "label": "ROTAVATOR GEAR 140",
+    "packSize": "3 l",
+    "container": "bottle"
+   }
+  ]
+ },
+ "industrial-engine-oils-technofluid-diesel-engine-oils": {
+  "primary": "/product-photos/industrial-engine-oils-technofluid-diesel-engine-oils/engine-oil-15w40-5-l.jpg",
+  "images": [
+   {
+    "src": "/product-photos/industrial-engine-oils-technofluid-diesel-engine-oils/engine-oil-15w40-5-l.jpg",
+    "label": "ENGINE OIL 15W40",
+    "packSize": "5 l",
+    "container": "bottle"
+   }
+  ]
+ }
+}
