@@ -1,7 +1,8 @@
 // File: frontend/app/(public)/products/_components/ProductSeriesCard.tsx
+import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { categoryAccent, seriesSlug } from "@/lib/catalogue";
+import { categoryAccent, imagesForSeries, seriesSlug } from "@/lib/catalogue";
 import type { CatalogueSeries } from "@/types/content";
 
 export default function ProductSeriesCard({
@@ -11,6 +12,11 @@ export default function ProductSeriesCard({
 }) {
   const blurb = series.sections.description?.[0] ?? "";
   const accent = categoryAccent(series.category);
+  const productImages = imagesForSeries(seriesSlug(series));
+  const primaryLabel = productImages?.images.find(
+    (image) => image.src === productImages.primary,
+  )?.label;
+  const cardImageAlt = [series.displayName, primaryLabel].filter(Boolean).join(" — ");
 
   return (
     <Link
@@ -24,26 +30,34 @@ export default function ProductSeriesCard({
         aria-hidden
       />
 
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105"
-            style={{ backgroundColor: `${accent}14`, color: accent }}
+      <div className="relative -mx-6 -mt-6 aspect-[4/3] w-[calc(100%+3rem)] overflow-hidden border-b border-border bg-white">
+        {productImages ? (
+          <Image
+            src={productImages.primary}
+            alt={cardImageAlt}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div
+            className="relative flex h-full w-full items-center justify-center"
+            style={{ backgroundColor: `${accent}0a` }}
             aria-hidden
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2.5s6.5 7.1 6.5 12A6.5 6.5 0 0 1 5.5 14.5C5.5 9.6 12 2.5 12 2.5Z" />
-            </svg>
-          </span>
+            <Image
+              src="/logo-no_bg.png"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className="object-contain p-10 opacity-90 transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
           <p
             className="text-[10.5px] font-bold uppercase tracking-[0.2em]"
             style={{ color: accent }}
