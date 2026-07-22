@@ -232,6 +232,12 @@
     "label": "GEAR LUBE EP 150",
     "packSize": null,
     "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/technofluid-gear-lube-ep-series/gear-lube-ep-100-pail-bucket.jpg",
+    "label": "GEAR LUBE EP 100",
+    "packSize": null,
+    "container": "pail/bucket"
    }
   ]
  },
@@ -337,6 +343,205 @@
     "label": "ENGINE OIL 15W40",
     "packSize": "5 l",
     "container": "bottle"
+   },
+   {
+    "src": "/product-photos/industrial-engine-oils-technofluid-diesel-engine-oils/engine-mx-ci4-plus-tin.jpg",
+    "label": "Engine MX CI4 Plus",
+    "packSize": null,
+    "container": "tin"
+   },
+   {
+    "src": "/product-photos/industrial-engine-oils-technofluid-diesel-engine-oils/engine-oil-15w40-ch4-1-l.jpg",
+    "label": "Engine Oil 15W40 CH4",
+    "packSize": "1 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/industrial-engine-oils-technofluid-diesel-engine-oils/engine-oil-15w40-multigrade-18-l.jpg",
+    "label": "Engine Oil 15W40 Multigrade",
+    "packSize": "18 L",
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "metal-working-fluid-technofluid-cutting-oil": {
+  "primary": "/product-photos/metal-working-fluid-technofluid-cutting-oil/cutting-oil-5-l.jpg",
+  "images": [
+   {
+    "src": "/product-photos/metal-working-fluid-technofluid-cutting-oil/cutting-oil-5-l.jpg",
+    "label": "Cutting Oil",
+    "packSize": "5 L",
+    "container": "bottle"
+   },
+   {
+    "src": "/product-photos/metal-working-fluid-technofluid-cutting-oil/cutting-oil-tin.jpg",
+    "label": "Cutting Oil",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "electrical-motor-oil-technofluid-submersible-motor-oil": {
+  "primary": "/product-photos/electrical-motor-oil-technofluid-submersible-motor-oil/submersible-motor-oil-22-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/electrical-motor-oil-technofluid-submersible-motor-oil/submersible-motor-oil-22-tin.jpg",
+    "label": "Submersible Motor Oil 22",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "lubricating-oils-technofluid-lube-series": {
+  "primary": "/product-photos/lubricating-oils-technofluid-lube-series/lube-100-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/lubricating-oils-technofluid-lube-series/lube-100-pail-bucket.jpg",
+    "label": "Lube 100",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/lubricating-oils-technofluid-lube-series/lube-150-pail-bucket.jpg",
+    "label": "Lube 150",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/lubricating-oils-technofluid-lube-series/lube-220-pail-bucket.jpg",
+    "label": "Lube 220",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/lubricating-oils-technofluid-lube-series/lube-320-pail-bucket.jpg",
+    "label": "Lube 320",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/lubricating-oils-technofluid-lube-series/lube-460-pail-bucket.jpg",
+    "label": "Lube 460",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "heat-transfer-fluid-technofluid-ht-32-premium": {
+  "primary": "/product-photos/heat-transfer-fluid-technofluid-ht-32-premium/ht-32-premium-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/heat-transfer-fluid-technofluid-ht-32-premium/ht-32-premium-pail-bucket.jpg",
+    "label": "HT 32 Premium",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "refrigeration-oil-technofluid-refrigeration-oil-grades-46-68": {
+  "primary": "/product-photos/refrigeration-oil-technofluid-refrigeration-oil-grades-46-68/refrigeration-oil-68-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/refrigeration-oil-technofluid-refrigeration-oil-grades-46-68/refrigeration-oil-68-pail-bucket.jpg",
+    "label": "Refrigeration Oil 68",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "quenching-oil-technofluid-q-39-qlp-32": {
+  "primary": "/product-photos/quenching-oil-technofluid-q-39-qlp-32/quenching-oil-q39-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/quenching-oil-technofluid-q-39-qlp-32/quenching-oil-q39-pail-bucket.jpg",
+    "label": "Quenching Oil Q39",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "insulating-oil-technofluid-transformer-oil": {
+  "primary": "/product-photos/insulating-oil-technofluid-transformer-oil/transformer-oil-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/insulating-oil-technofluid-transformer-oil/transformer-oil-pail-bucket.jpg",
+    "label": "Transformer Oil",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "rust-preventive-oil-technofluid-rust-preventive-oil-906": {
+  "primary": "/product-photos/rust-preventive-oil-technofluid-rust-preventive-oil-906/rust-preventive-oil-906-tin.jpg",
+  "images": [
+   {
+    "src": "/product-photos/rust-preventive-oil-technofluid-rust-preventive-oil-906/rust-preventive-oil-906-tin.jpg",
+    "label": "Rust Preventive Oil 906",
+    "packSize": null,
+    "container": "tin"
+   }
+  ]
+ },
+ "grease-technofluid-calcium-base-grease": {
+  "primary": "/product-photos/grease-technofluid-calcium-base-grease/grease-slr-pail-bucket.jpg",
+  "images": [
+   {
+    "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-slr-pail-bucket.jpg",
+    "label": "Grease SLR",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-mp-3-pail-bucket.jpg",
+    "label": "Grease MP-3",
+    "packSize": null,
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-c-red-gel-pail-bucket.jpg",
+    "label": "Grease C Red Gel",
+    "packSize": null,
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "grease-technofluid-lithium-grease-ap3-aplr": {
+  "primary": "/product-photos/grease-technofluid-lithium-grease-ap3-aplr/grease-aplr-5-kg.jpg",
+  "images": [
+   {
+    "src": "/product-photos/grease-technofluid-lithium-grease-ap3-aplr/grease-aplr-5-kg.jpg",
+    "label": "Grease APLR",
+    "packSize": "5 Kg",
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/grease-technofluid-lithium-grease-ap3-aplr/grease-ap-3-5-kg.jpg",
+    "label": "Grease AP-3",
+    "packSize": "5 Kg",
+    "container": "pail/bucket"
+   }
+  ]
+ },
+ "grease-technofluid-lithium-complex-grease": {
+  "primary": "/product-photos/grease-technofluid-lithium-complex-grease/grease-red-gel-5-kg.jpg",
+  "images": [
+   {
+    "src": "/product-photos/grease-technofluid-lithium-complex-grease/grease-red-gel-5-kg.jpg",
+    "label": "Grease Red Gel",
+    "packSize": "5 Kg",
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/grease-technofluid-lithium-complex-grease/grease-blue-gel-5-kg.jpg",
+    "label": "Grease Blue Gel",
+    "packSize": "5 Kg",
+    "container": "pail/bucket"
+   },
+   {
+    "src": "/product-photos/grease-technofluid-lithium-complex-grease/grease-222-pail-bucket.jpg",
+    "label": "Grease 222",
+    "packSize": null,
+    "container": "pail/bucket"
    }
   ]
  }

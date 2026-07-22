@@ -6,11 +6,14 @@
 export const ASSETS = {
   logoSrc: "/logo-no_bg.png",
 
-  // TODO(asset): replace with confirmed registered office / plant address.
+  // Contact details from Gaurav (flyer footer + WhatsApp, Jul 2026).
   contact: {
-    address: "Address available on request",
-    phone: "+91 00000 00000",
-    email: "info@technofluid.com",
+    address:
+      "Lube Chem Industries, Adjoining Central Warehouse, Near Gaushala Road, Matak Majri, Karnal-132001, Haryana",
+    phone: "+91 88148 85245",
+    email: "info@technofluidlubricants.in",
+    website: "technofluidlubricants.in",
+    hours: "Mon–Sat: 9:00 AM – 6:00 PM · Sun: Closed",
   },
 
   // TODO(asset): replace with real photography once client supplies it.
