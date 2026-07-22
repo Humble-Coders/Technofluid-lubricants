@@ -16,5 +16,32 @@
     "closing": "We take pride in offering tailor-made lubrication solutions to meet every industrial and automotive need."
   },
   "ourCommitment": "At TECHNOFLUID, we believe in continuous innovation and technological advancement, ensuring that our products not only meet but exceed industry expectations.",
-  "_sourceNote": "Copy verbatim from Gaurav Verma WhatsApp, 31 Mar 2026. Tagline confirmed separately by Ansh. JAS-ANZ certification mention dropped 2026-07-08 per Ansh — certification pending change; parent company name corrected to 'Lube Chem Industries' (no period)."
+  "journey": {
+    "heading": "Our Journey",
+    "intro": "Technofluid is the culmination of over five decades of experience, dedication, and continuous growth in the lubricants industry.",
+    "milestones": [
+      {
+        "year": "1971",
+        "title": "The beginning",
+        "text": "Mr. Ramesh Chander Verma entered the lubricants business with a commitment to delivering reliable products and building lasting customer relationships, establishing a solid presence in the market."
+      },
+      {
+        "year": "2001",
+        "title": "The second generation",
+        "text": "Mr. Gaurav Verma became actively involved in operations, bringing fresh energy and a progressive vision — expanding the product range, strengthening customer outreach, and enhancing technical capabilities."
+      },
+      {
+        "year": "2005",
+        "title": "The TECHNOFLUID brand",
+        "text": "The TECHNOFLUID brand was launched with a mission to provide high-quality automotive and industrial lubricants tailored to the evolving needs of modern industries and vehicles."
+      },
+      {
+        "year": "Today",
+        "title": "A new chapter",
+        "text": "Alongside Mr. Gaurav Verma, Mr. Rajiv Kumar and Mr. Hemant Sethi have joined the management team — strengthening Technofluid's presence across India while expanding its reach into international markets."
+      }
+    ],
+    "closing": "Built on a strong foundation laid in 1971 and strengthened through generations of dedication and expertise, Technofluid continues its journey with renewed energy and ambition — committed to delivering world-class lubrication solutions and a lasting global presence."
+  },
+  "_sourceNote": "Copy verbatim from Gaurav Verma WhatsApp, 31 Mar 2026. Tagline confirmed separately by Ansh. JAS-ANZ certification mention dropped 2026-07-08 per Ansh — certification pending change; parent company name corrected to 'Lube Chem Industries' (no period). 'journey' section from Gaurav's 'journey technofluid.docx' (16 Jul 2026)."
 }
