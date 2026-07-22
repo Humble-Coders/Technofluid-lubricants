@@ -34,7 +34,7 @@ Replaced the `/about` page's `ComingSoon` stub with a real page built from `comp
 3. Edit any milestone's `text` in `frontend/content/company.json` under `journey.milestones` and reload `/about` — confirm the change appears with no code change.
 4. Visit `/` (landing page):
    - Confirm the Hero's stat strip (top-left) no longer shows "28" / "Types of Industry" — only "Since 1971" and "ISO 9001" tiles remain.
-   - Scroll past "Why Choose Us" and confirm the "Our Journey" teaser appears with a "Read Our Story" button linking to `/about`.
+   - Scroll past "Who We Are" and confirm the "Our Journey" teaser appears with a "Read Our Story" button linking to `/about`.
    - Scroll to the (white) trust strip lower down and confirm it shows 3 stats (Since 1971 / Certified Quality / Product Series) with no industries count anywhere.
    - Resize to mobile and confirm the journey teaser shows a vertical connecting line between milestones, in order.
 
