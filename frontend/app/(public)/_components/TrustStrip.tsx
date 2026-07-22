@@ -2,13 +2,10 @@
 
 import { motion } from "motion/react";
 import company from "@/content/company.json";
-import industriesData from "@/content/industries.json";
 import { BRAND } from "@/content/brand";
-import type { CompanyContent, IndustriesContent } from "@/types/content";
+import type { CompanyContent } from "@/types/content";
 
 const COMPANY = company as CompanyContent;
-const INDUSTRIES_COUNT = (industriesData as IndustriesContent).summary
-  .industries;
 
 // TODO: derive from docs/catalogue-2026.json once that catalogue is wired
 // into the frontend (out of scope for this ticket) — ticket PUB1 allows
@@ -19,14 +16,13 @@ const STATS = [
   { value: `Since ${COMPANY.since}`, label: "Powered by Experience" },
   { value: COMPANY.certification, label: "Certified Quality" },
   { value: `${PRODUCT_SERIES_COUNT}`, label: "Product Series" },
-  { value: `${INDUSTRIES_COUNT}`, label: "Types of Industries We Serve" },
 ];
 
 export default function TrustStrip() {
   return (
     <section className="bg-white py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid grid-cols-1 divide-y divide-border overflow-hidden rounded-2xl border border-border sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+        <div className="grid grid-cols-1 divide-y divide-border overflow-hidden rounded-2xl border border-border sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
           {STATS.map((stat, i) => (
             <motion.div
               key={stat.label}

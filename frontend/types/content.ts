@@ -1,5 +1,18 @@
 // File: frontend/types/content.ts
 
+export interface JourneyMilestone {
+  year: string;
+  title: string;
+  text: string;
+}
+
+export interface Journey {
+  heading: string;
+  intro: string;
+  milestones: JourneyMilestone[];
+  closing: string;
+}
+
 export interface CompanyContent {
   brandLine: string;
   tagline: string;
@@ -13,6 +26,7 @@ export interface CompanyContent {
     closing: string;
   };
   ourCommitment: string;
+  journey: Journey;
 }
 
 export interface IndustryType {

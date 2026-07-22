@@ -177,25 +177,6 @@ export default function WhyChooseUs() {
                 }}
               />
 
-              {/* Large Background Number */}
-              <span
-                className="
-                  absolute
-                  right-4
-                  top-2
-                  select-none
-                  text-7xl
-                  font-black
-                  leading-none
-                  text-black/[0.03]
-                  transition-all
-                  duration-300
-                  group-hover:text-black/[0.05]
-                "
-              >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-
               {/* Icon */}
               <div
                 className="
