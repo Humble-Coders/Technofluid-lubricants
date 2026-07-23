@@ -4,14 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import company from "@/content/company.json";
-import industriesData from "@/content/industries.json";
 import { BRAND } from "@/content/brand";
-import type { CompanyContent, IndustriesContent } from "@/types/content";
+import type { CompanyContent } from "@/types/content";
 import HeroCarousel from "./HeroCarousel";
 
 const COMPANY = company as CompanyContent;
-const INDUSTRIES_COUNT = (industriesData as IndustriesContent).summary
-  .industries;
 
 const stagger = {
   hidden: {},
@@ -153,7 +150,7 @@ export default function Hero() {
             {/* Colourful trust strip */}
             <motion.div
               variants={fadeUp}
-              className="mt-10 grid grid-cols-3 gap-3"
+              className="mt-10 grid grid-cols-2 gap-3"
             >
               <div
                 className="rounded-xl px-3 py-3 sm:px-4"
@@ -167,20 +164,6 @@ export default function Hero() {
                 </p>
                 <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
                   Powered by Experience
-                </p>
-              </div>
-              <div
-                className="rounded-xl px-3 py-3 sm:px-4"
-                style={{ backgroundColor: `${BRAND.red}14` }}
-              >
-                <p
-                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
-                  style={{ color: BRAND.red }}
-                >
-                  {INDUSTRIES_COUNT}
-                </p>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
-                  Types of Industry
                 </p>
               </div>
               <div
