@@ -28,8 +28,8 @@ export default function Hero() {
   return (
     <section className="relative flex flex-col overflow-hidden border-b border-border bg-white lg:min-h-[calc(100vh-70px)]">
       <div className="relative flex flex-1 flex-col lg:flex-row">
-        {/* Copy — left half */}
-        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:pl-20 lg:pr-12 lg:py-24 xl:pl-24">
+        {/* Copy — left column */}
+        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-8 lg:w-2/5 lg:pl-8 lg:pr-12 lg:py-12 xl:pl-10">
           {/* Background image — mobile only, scoped to this column so its
               foreground detail lands behind the copy, not the carousel below */}
           <div aria-hidden className="absolute inset-0 lg:hidden">
@@ -51,56 +51,12 @@ export default function Hero() {
             }}
           />
 
-          {/* Bold ring graphic, colour mass */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-24 right-4 hidden h-72 w-72 rounded-full sm:block"
-            style={{
-              background: `conic-gradient(from 0deg, ${BRAND.orange} 0deg, ${BRAND.orange} 80deg, transparent 80deg 360deg)`,
-              opacity: 0.18,
-              maskImage:
-                "radial-gradient(circle, transparent 62%, black 63%, black 100%)",
-              WebkitMaskImage:
-                "radial-gradient(circle, transparent 62%, black 63%, black 100%)",
-            }}
-          />
-
-          {/* Vertical spec rail, engineering-drawing style */}
-          <div className="pointer-events-none absolute bottom-16 left-6 top-16 hidden w-px bg-border lg:block">
-            <span
-              className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full"
-              style={{ backgroundColor: BRAND.orange }}
-            />
-            <span
-              className="absolute bottom-0 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full"
-              style={{ backgroundColor: BRAND.orange }}
-            />
-            <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.35em] text-textSecondary"
-              style={{ writingMode: "vertical-rl" }}
-            >
-              Est. {COMPANY.since} — Precision Engineered
-            </span>
-          </div>
-
           <motion.div
             className="relative max-w-xl"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
-            {/* Corner brackets, CAD/blueprint framing */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -left-4 -top-4 hidden h-6 w-6 border-l-2 border-t-2 sm:block"
-              style={{ borderColor: BRAND.orange }}
-            />
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -bottom-4 -right-4 hidden h-6 w-6 border-b-2 border-r-2 sm:block"
-              style={{ borderColor: BRAND.orange }}
-            />
-
             <motion.div variants={fadeUp}>
               <Image
                 src="/logo-no_bg.png"
@@ -130,18 +86,18 @@ export default function Hero() {
 
             <motion.div
               variants={fadeUp}
-              className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4"
+              className="mt-8 flex flex-col items-center gap-3"
             >
               <Link
                 href="/products"
                 style={{ backgroundColor: BRAND.orange }}
-                className="rounded-lg px-6 py-3 text-center text-[13px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                className="w-4/5 rounded-lg px-6 py-3 text-center text-[13px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
               >
                 Explore products
               </Link>
               <Link
                 href="/contact"
-                className="rounded-lg border border-border px-6 py-3 text-center text-[13px] font-semibold text-textPrimary transition-colors hover:bg-page"
+                className="w-4/5 rounded-lg border border-border px-6 py-3 text-center text-[13px] font-semibold text-textPrimary transition-colors hover:bg-page"
               >
                 Enquire
               </Link>
@@ -174,25 +130,25 @@ export default function Hero() {
                   className="text-base font-extrabold leading-none sm:text-[1.3rem]"
                   style={{ color: BRAND.charcoal }}
                 >
-                  ISO 9001
+                  ISO 9001:2015
                 </p>
                 <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
-                  Certified Quality
+                  Certified Company
                 </p>
               </div>
             </motion.div>
           </motion.div>
         </div>
 
-        {/* Carousel — full-bleed right half, diagonal partition on desktop */}
-        <div className="relative h-72 w-full sm:h-96 lg:h-auto lg:w-1/2 lg:[clip-path:polygon(12%_0%,100%_0%,100%_100%,0%_100%)]">
+        {/* Carousel — full-bleed right column, straight partition on desktop */}
+        <div className="relative h-72 w-full sm:h-96 lg:h-auto lg:w-3/5">
           <HeroCarousel />
         </div>
 
-        {/* Thin brand-colour seam along the diagonal cut */}
+        {/* Thin brand-colour seam along the straight cut */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 lg:block lg:[clip-path:polygon(12%_0%,calc(12%_+_3px)_0%,3px_100%,0%_100%)]"
+          className="pointer-events-none absolute inset-y-0 left-[40%] hidden w-[3px] lg:block"
           style={{
             background: `linear-gradient(${BRAND.red}, ${BRAND.orange})`,
           }}

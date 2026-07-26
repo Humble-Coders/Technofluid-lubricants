@@ -14,7 +14,7 @@ const PRODUCT_SERIES_COUNT = 36;
 
 const STATS = [
   { value: `Since ${COMPANY.since}`, label: "Powered by Experience" },
-  { value: COMPANY.certification, label: "Certified Quality" },
+  { value: COMPANY.certification, label: "Certified Company" },
   { value: `${PRODUCT_SERIES_COUNT}`, label: "Product Series" },
 ];
 
