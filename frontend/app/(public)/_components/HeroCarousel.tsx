@@ -7,7 +7,7 @@ import type { CompanyContent } from "@/types/content";
 
 const COMPANY = company as CompanyContent;
 
-const SLIDES = ["/bike.png", "/industry-hero.png", "/product.png","/molecules.png","/crane.png","/heart.png"];
+const SLIDES = ["/bike-2.png", "/industry-hero.png", "/product-2.png","/molecules.png","/crane.png","/heart.png"];
 
 export default function HeroCarousel() {
   const [active, setActive] = useState(0);
