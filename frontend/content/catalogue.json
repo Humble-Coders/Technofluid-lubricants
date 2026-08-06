@@ -1,6 +1,6 @@
 {
   "source": "WEBSITE AND CATALOGUE 2026.docx",
-  "productCount": 36,
+  "productCount": 40,
   "products": [
     {
       "title": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
@@ -3020,7 +3020,7 @@
     },
     {
       "title": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-      "displayName": "TECHNOFLUID LUBE SERIES",
+      "displayName": "TECHNOFLUID LUBE (SLIDEWAY) SERIES",
       "productType": "Lubricating Oils",
       "subtitle": "(LUBE 20W-40, ISO VG 100, 150, 220, 320 & 460)",
       "commercialName": "LUBE 20W-40 / 100 / 150 / 220 / 320 / 460",
@@ -3217,12 +3217,13 @@
       "title": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
       "displayName": "TECHNOFLUID TQ / ATF",
       "productType": "Transmission Fluid",
-      "subtitle": null,
-      "commercialName": "ATF (TQ)",
+      "subtitle": "(TQ / ATF & CF-4 SAE 30)",
+      "commercialName": "ATF (TQ) / CF-4 SAE 30",
       "category": "Automotive Lubricants",
       "aspirational": false,
       "sectionsOrder": [
         "description",
+        "gradesAvailable",
         "benefits",
         "applications",
         "typicalUses",
@@ -3235,7 +3236,8 @@
           "Designed to provide excellent lubrication of gears, bearings, and hydraulic components while ensuring smooth torque transmission.",
           "Formulated from high-quality base oils and advanced additive technology to deliver consistent friction characteristics.",
           "Ensures smooth gear shifting, reliable clutch engagement, and efficient power transfer.",
-          "Suitable for use in both automotive and off-highway transmission systems, as per OEM recommendations."
+          "Suitable for use in both automotive and off-highway transmission systems, as per OEM recommendations.",
+          "Also available as TECHNOFLUID Transmission CF-4 SAE 30 — a heavy-duty transmission and drivetrain lubricant for powershift transmissions, torque converters, final drives, hydraulic systems and wet brake applications in construction, mining, earthmoving and agricultural equipment."
         ],
         "benefits": [
           "Excellent thermal and oxidation stability ensures long fluid life under high operating temperatures.",
@@ -3270,6 +3272,11 @@
           "Maintains stable viscosity and friction properties over extended service intervals.",
           "Compatible with commonly used transmission seals and materials.",
           "Ensures clean and efficient operation of transmission and power steering systems."
+        ],
+        "gradesAvailable": [
+          "TQ / ATF — automatic transmissions, power steering systems and other hydraulic applications.",
+          "CF-4 SAE 30 — powershift transmissions, torque converters, final drives and wet brake systems (JCBs, loaders, excavators and other off-highway equipment). Meets API CF-4, Allison C-4 and Caterpillar TO-2.",
+          "SAE 30 pack sizes: 20 L bucket, 26 L cane, 50 L cane and 210 L barrel."
         ]
       },
       "specTables": [
@@ -3363,6 +3370,68 @@
             "Dye Content",
             "—",
             "Red (Visual Identification)"
+          ]
+        ],
+        [
+          [
+            "Transmission CF-4 SAE 30 — Characteristics",
+            "Test Method",
+            "Typical Value"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "ASTM D1500",
+            "Red"
+          ],
+          [
+            "Density @ 29.5°C (g/cm³)",
+            "ASTM D4052",
+            "0.870 – 0.890"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C (cSt)",
+            "ASTM D445",
+            "80 – 100"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C (cSt)",
+            "ASTM D445",
+            "9 – 12"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 95"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "210"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "≤ -6"
+          ],
+          [
+            "Copper Corrosion (3h @100°C)",
+            "ASTM D130",
+            "1a"
+          ],
+          [
+            "Foaming Characteristics",
+            "ASTM D892",
+            "Pass"
+          ],
+          [
+            "Oxidation Stability",
+            "ASTM D943",
+            "Excellent"
           ]
         ]
       ]
@@ -3688,7 +3757,7 @@
     },
     {
       "title": "AUTOMOTIVE GEAR OILS – TECHNOFLUID EP SERIES",
-      "displayName": "TECHNOFLUID EP SERIES",
+      "displayName": "TECHNOFLUID GEAR EP SERIES",
       "productType": "Automotive Gear Oils",
       "subtitle": "(SAE 90 GL-4, SAE 140 GL-4, SAE 75W-90 GL-4 / GL-5, SAE 80W-90 GL-4 / GL-5, SAE 85W-140 GL-4)",
       "commercialName": "GEAR EP ( 90 GL4 / 140 GL4 / 75W90 GL4 / 75W90 GL5 / 80W90 GL4 / 80W90 GL5 / 85W140 GL4 )",
@@ -4171,7 +4240,7 @@
       "title": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
       "displayName": "TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
       "productType": "4T Engine Oils",
-      "subtitle": "(20W-40 SM / SN, 15W-50 SN, 20W-50 SM, 10W-30 SM)",
+      "subtitle": "(20W-40 SM, 20W-40 SN, 15W-50 SN, 20W-50 SM, 10W-30 SM)",
       "commercialName": "4T ( 20W40  API  SM / 20W40 API  SN / 15W50 API  SN / 20W50 API  SM  / 10W30 API SM )",
       "category": "Automotive Lubricants",
       "aspirational": false,
@@ -6031,6 +6100,358 @@
           ]
         ]
       ]
+    },
+    {
+      "title": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+      "displayName": "TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+      "productType": "Compressor Oil",
+      "subtitle": "(SCREW 32 / 46 / 68 & AIR 100 / 150 / 220)",
+      "commercialName": "SCREW COMPRESSOR OIL 32 / 46 / 68, AIR COMPRESSOR OIL 100 / 150 / 220",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium compressor lubricants formulated from highly refined base oils and advanced additives.",
+          "Designed for rotary screw and reciprocating air compressors.",
+          "Excellent oxidation and thermal stability.",
+          "Low deposit formation for clean compressor operation.",
+          "Superior anti-wear, rust and corrosion protection."
+        ],
+        "gradesAvailable": [
+          "Screw Compressor Oil: ISO VG 32, 46 & 68.",
+          "Air Compressor Oil: ISO VG 100, 150 & 220.",
+          "Screw Compressor Oil 32 packs: 26 L, 50 L and 210 L.",
+          "Screw Compressor Oil 46 packs: 1 L, 5 L, 20 L, 26 L, 50 L and 210 L."
+        ],
+        "benefits": [
+          "Extended oil service life.",
+          "Excellent air release and anti-foam performance.",
+          "Minimizes sludge and varnish.",
+          "Reduces maintenance costs.",
+          "Reliable protection under severe operating conditions."
+        ],
+        "applications": [
+          "Rotary screw compressors.",
+          "Reciprocating air compressors.",
+          "Industrial compressed air systems.",
+          "Manufacturing, textile, mining and engineering industries."
+        ],
+        "industryPerformanceCharacteristics": [
+          "High oxidation stability",
+          "Excellent thermal stability",
+          "Rapid air release",
+          "Low foaming tendency",
+          "Excellent wear protection",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "SC 32",
+            "SC 46",
+            "SC 68",
+            "AC 100",
+            "AC 150",
+            "AC 220"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.845",
+            "0.850",
+            "0.858",
+            "0.865",
+            "0.870",
+            "0.875"
+          ],
+          [
+            "K.V @40°C cSt",
+            "32",
+            "46",
+            "68",
+            "100",
+            "150",
+            "220"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "98",
+            "98",
+            "95"
+          ],
+          [
+            "Pour Point °C",
+            "-18",
+            "-18",
+            "-15",
+            "-12",
+            "-9",
+            "-6"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "210",
+            "220",
+            "230",
+            "235",
+            "235",
+            "235"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+      "displayName": "TECHNOFLUID TURBINE OILS",
+      "productType": "Turbine Oil",
+      "subtitle": "(ISO VG 32, 46, 68 & 100)",
+      "commercialName": "TURBINE OIL ( 32 / 46 / 68 / 100 )",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium turbine oils formulated from highly refined base oils and advanced anti-oxidant technology.",
+          "Designed for steam, gas and hydro turbine lubrication systems.",
+          "Excellent oxidation stability and long service life.",
+          "Superior rust, corrosion and foam protection."
+        ],
+        "gradesAvailable": [
+          "ISO VG 32, 46, 68 & 100."
+        ],
+        "benefits": [
+          "Outstanding oxidation and thermal stability.",
+          "Excellent water separation characteristics.",
+          "Rapid air release and low foaming tendency.",
+          "Reliable rust and corrosion protection.",
+          "Extended oil drain intervals and reduced maintenance."
+        ],
+        "applications": [
+          "Steam turbines.",
+          "Gas turbines.",
+          "Hydroelectric turbines.",
+          "Industrial circulating lubrication systems.",
+          "Power generation and process industries."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Excellent oxidation stability",
+          "High demulsibility",
+          "Rapid air release",
+          "Low foaming tendency",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "ISO VG 32",
+            "ISO VG 46",
+            "ISO VG 68",
+            "ISO VG 100"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.845",
+            "0.850",
+            "0.855",
+            "0.865"
+          ],
+          [
+            "K.V @40°C cSt",
+            "32",
+            "46",
+            "68",
+            "100"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "98"
+          ],
+          [
+            "Pour Point °C",
+            "-18",
+            "-15",
+            "-12",
+            "-9"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "210",
+            "220",
+            "230",
+            "240"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+      "displayName": "TECHNOFLUID SPINDLE OIL",
+      "productType": "Spindle Oil",
+      "subtitle": "(ISO VG 2, 5, 10, 12 & 22)",
+      "commercialName": "SPIN ( 2 / 5 / 10 / 12 / 22 )",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium low-viscosity spindle oils formulated from highly refined base oils.",
+          "Designed for high-speed textile spindles, precision bearings and light-duty machine tools.",
+          "Excellent oxidation stability and rust protection.",
+          "Low friction characteristics ensure smooth operation and reduced power consumption."
+        ],
+        "gradesAvailable": [
+          "ISO VG 2, 5, 10, 12 & 22."
+        ],
+        "benefits": [
+          "Excellent lubrication of high-speed bearings.",
+          "Superior oxidation stability for long oil life.",
+          "Excellent anti-rust and anti-corrosion protection.",
+          "Low foaming and rapid air release.",
+          "Minimizes wear and improves equipment efficiency."
+        ],
+        "applications": [
+          "Textile spinning and weaving machinery.",
+          "High-speed spindles and precision bearings.",
+          "Machine tool spindles and light-duty circulating systems.",
+          "General low-viscosity industrial lubrication."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Excellent oxidation stability",
+          "Low friction characteristics",
+          "Excellent rust protection",
+          "Low foaming tendency",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "ISO VG 2",
+            "ISO VG 5",
+            "ISO VG 10",
+            "ISO VG 12",
+            "ISO VG 22"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.830",
+            "0.835",
+            "0.840",
+            "0.842",
+            "0.845"
+          ],
+          [
+            "K.V @40°C cSt",
+            "2",
+            "5",
+            "10",
+            "12",
+            "22"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "100",
+            "100"
+          ],
+          [
+            "Pour Point °C",
+            "-24",
+            "-21",
+            "-18",
+            "-18",
+            "-15"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "120",
+            "145",
+            "165",
+            "175",
+            "195"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+      "displayName": "TECHNOFLUID CIRCULATING OIL",
+      "productType": "Circulating Oil",
+      "subtitle": null,
+      "commercialName": "CIRCULATING OIL",
+      "category": "Industrial Oils",
+      "aspirational": true,
+      "sectionsOrder": [
+        "description",
+        "applications"
+      ],
+      "sections": {
+        "description": [
+          "Industrial circulating oils for bearing, gear and general circulating lubrication systems.",
+          "Formulated from highly refined base oils with rust, oxidation and foam protection.",
+          "Offered on request — contact us with your viscosity grade and application details."
+        ],
+        "applications": [
+          "Circulating lubrication systems in steel, sugar, paper and process plants.",
+          "Bearing and gear lubrication in industrial machinery."
+        ]
+      },
+      "specTables": []
     }
   ]
 }
