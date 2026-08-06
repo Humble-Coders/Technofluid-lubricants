@@ -356,8 +356,8 @@
         },
         {
           "label": "Axle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "REAR AXLE OIL – TECHNOFLUID REAR AXLE OIL",
+          "seriesSlug": "rear-axle-oil-technofluid-rear-axle-oil"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -1326,13 +1326,13 @@
       "types": [
         {
           "label": "Food-grade hydraulic oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade gear oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade compressor oil (H1)",
@@ -1346,8 +1346,8 @@
         },
         {
           "label": "Food-grade chain oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade conveyor lubricant",
@@ -1356,13 +1356,13 @@
         },
         {
           "label": "Food-grade grease (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade white oil (mineral oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade heat transfer oil",
@@ -1407,18 +1407,18 @@
       "types": [
         {
           "label": "Food-grade / pharma-grade white oil (liquid paraffin)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade hydraulic oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade gear oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade compressor oil (H1)",
@@ -1432,8 +1432,8 @@
         },
         {
           "label": "Food-grade chain oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade conveyor lubricant",
@@ -1442,8 +1442,8 @@
         },
         {
           "label": "Food-grade grease (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade heat transfer oil",
@@ -1730,8 +1730,8 @@
         },
         {
           "label": "Food-grade grease (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Slideway oil (way oil)",
@@ -1756,8 +1756,8 @@
         },
         {
           "label": "Tractor engine oil",
-          "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
-          "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
+          "series": "TRACTOR ENGINE OILS – TECHNOFLUID TRACTOR ENGINE OILS",
+          "seriesSlug": "tractor-engine-oils-technofluid-tractor-engine-oils"
         },
         {
           "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
@@ -1776,8 +1776,8 @@
         },
         {
           "label": "Axle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "REAR AXLE OIL – TECHNOFLUID REAR AXLE OIL",
+          "seriesSlug": "rear-axle-oil-technofluid-rear-axle-oil"
         },
         {
           "label": "Final drive oil",
@@ -1842,8 +1842,8 @@
         },
         {
           "label": "Marine cylinder oil (crosshead engine oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "MARINE ENGINE OILS – TECHNOFLUID MARINE SERIES",
+          "seriesSlug": "marine-engine-oils-technofluid-marine-series"
         },
         {
           "label": "System oil (marine system oil)",
@@ -2054,23 +2054,23 @@
         },
         {
           "label": "Food-grade chain oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade hydraulic oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade gear oil (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Food-grade grease (H1)",
-          "series": null,
-          "seriesSlug": null
+          "series": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+          "seriesSlug": "food-grade-lubricants-technofluid-food-grade-range"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -2499,18 +2499,18 @@
       "types": [
         {
           "label": "Process oil (paraffinic / naphthenic / aromatic)",
-          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
-          "seriesSlug": "process-oil-technofluid-pvc-oil"
+          "series": "RUBBER PROCESS OILS – TECHNOFLUID RPO & ELASTOL SERIES",
+          "seriesSlug": "rubber-process-oils-technofluid-rpo-elastol-series"
         },
         {
           "label": "Rubber processing oil (RPO)",
-          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
-          "seriesSlug": "process-oil-technofluid-pvc-oil"
+          "series": "RUBBER PROCESS OILS – TECHNOFLUID RPO & ELASTOL SERIES",
+          "seriesSlug": "rubber-process-oils-technofluid-rpo-elastol-series"
         },
         {
           "label": "White oil (for non-staining applications)",
-          "series": "PROCESS OIL – TECHNOFLUID PVC OIL",
-          "seriesSlug": "process-oil-technofluid-pvc-oil"
+          "series": "WHITE OILS – TECHNOFLUID WHITE OIL",
+          "seriesSlug": "white-oils-technofluid-white-oil"
         },
         {
           "label": "Plasticizer oil",

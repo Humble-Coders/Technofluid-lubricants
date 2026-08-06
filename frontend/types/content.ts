@@ -60,8 +60,9 @@ export type SpecTable = SpecTableRow[];
 export type CatalogueCategory =
   | "Industrial Oils"
   | "Automotive Lubricants"
-  | "Greases"
-  | "Specialty Oils";
+  | "Agricultural Lubricants"
+  | "Specialty Lubricants & Process Oils"
+  | "Grease";
 
 export interface CatalogueSeries {
   title: string;

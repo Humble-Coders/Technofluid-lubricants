@@ -21,8 +21,9 @@ const productImages = productImagesData as unknown as ProductImagesManifest;
 const CATEGORY_ACCENT: Record<CatalogueCategory, string> = {
   "Industrial Oils": BRAND.orange,
   "Automotive Lubricants": BRAND.red,
-  Greases: BRAND.orangeDark,
-  "Specialty Oils": BRAND.charcoal,
+  "Agricultural Lubricants": BRAND.orangeDark,
+  "Specialty Lubricants & Process Oils": BRAND.charcoal,
+  Grease: BRAND.orangeDark,
 };
 
 export function categoryAccent(category: CatalogueCategory): string {

@@ -662,5 +662,107 @@
         "container": "barrel"
       }
     ]
+  },
+  "rear-axle-oil-technofluid-rear-axle-oil": {
+    "primary": "/product-photos/rear-axle-oil-technofluid-rear-axle-oil/rear-axle-oil-pail.jpg",
+    "images": [
+      {
+        "src": "/product-photos/rear-axle-oil-technofluid-rear-axle-oil/rear-axle-oil-pail.jpg",
+        "label": "Rear Axle Oil",
+        "packSize": null,
+        "container": "pail/bucket"
+      },
+      {
+        "src": "/product-photos/rear-axle-oil-technofluid-rear-axle-oil/rear-axle-oil-barrel.jpg",
+        "label": "Rear Axle Oil",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
+  },
+  "tractor-engine-oils-technofluid-tractor-engine-oils": {
+    "primary": "/product-photos/tractor-engine-oils-technofluid-tractor-engine-oils/tractor-engine-oil-15w40-ch4-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/tractor-engine-oils-technofluid-tractor-engine-oils/tractor-engine-oil-15w40-ch4-barrel.jpg",
+        "label": "Tractor Engine Oil 15W-40 CH-4",
+        "packSize": null,
+        "container": "barrel"
+      },
+      {
+        "src": "/product-photos/tractor-engine-oils-technofluid-tractor-engine-oils/tractor-engine-oil-20w40-cf4-barrel.jpg",
+        "label": "Tractor Engine Oil 20W-40 CF4",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
+  },
+  "rubber-process-oils-technofluid-rpo-elastol-series": {
+    "primary": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/rpo-710-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/rpo-710-barrel.jpg",
+        "label": "RPO 710",
+        "packSize": null,
+        "container": "barrel"
+      },
+      {
+        "src": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/elastol-245-barrel.jpg",
+        "label": "Elastol 245",
+        "packSize": null,
+        "container": "barrel"
+      },
+      {
+        "src": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/elastol-541-barrel.jpg",
+        "label": "Elastol 541",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
+  },
+  "white-oils-technofluid-white-oil": {
+    "primary": "/product-photos/white-oils-technofluid-white-oil/white-oil-32-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/white-oils-technofluid-white-oil/white-oil-12-barrel.jpg",
+        "label": "White Oil 12",
+        "packSize": null,
+        "container": "barrel"
+      },
+      {
+        "src": "/product-photos/white-oils-technofluid-white-oil/white-oil-32-barrel.jpg",
+        "label": "White Oil 32",
+        "packSize": null,
+        "container": "barrel"
+      },
+      {
+        "src": "/product-photos/white-oils-technofluid-white-oil/white-oil-100-barrel.jpg",
+        "label": "White Oil 100",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
+  },
+  "food-grade-lubricants-technofluid-food-grade-range": {
+    "primary": "/product-photos/food-grade-lubricants-technofluid-food-grade-range/food-grade-chain-oil-150-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/food-grade-lubricants-technofluid-food-grade-range/food-grade-chain-oil-150-barrel.jpg",
+        "label": "Food Grade Chain Oil 150",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
+  },
+  "marine-engine-oils-technofluid-marine-series": {
+    "primary": "/product-photos/marine-engine-oils-technofluid-marine-series/marine-sae-40-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/marine-engine-oils-technofluid-marine-series/marine-sae-40-barrel.jpg",
+        "label": "Marine SAE 40",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
   }
 }

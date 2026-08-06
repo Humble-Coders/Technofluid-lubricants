@@ -39,8 +39,21 @@ const CATEGORY_STYLE: Record<
       </>
     ),
   },
-  // Grease-gun cartridge — greases
-  "/products?category=greases": {
+  // Tractor — agricultural lubricants (no card photo yet; gradient fallback)
+  "/products?category=agricultural-lubricants": {
+    gradient: `linear-gradient(135deg, ${BRAND.orangeDark}, ${BRAND.peach})`,
+    icon: (
+      <>
+        <circle cx="7" cy="16" r="4" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="18" cy="17.5" r="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7 12V7h6l2 5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13 7V4h3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M11 16h4.5" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
+  },
+  // Grease-gun cartridge — grease
+  "/products?category=grease": {
     gradient: `linear-gradient(135deg, ${BRAND.peach}, ${BRAND.orange})`,
     image: "/greases-bg-2.png",
     icon: (
@@ -55,8 +68,8 @@ const CATEGORY_STYLE: Record<
       </>
     ),
   },
-  // Lab flask — specialty oils
-  "/products?category=specialty-oils": {
+  // Lab flask — specialty lubricants & process oils
+  "/products?category=specialty-lubricants-process-oils": {
     gradient: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.peach})`,
     image: "/special-card-2.png",
     icon: (
@@ -137,7 +150,7 @@ export default function ProductCategories() {
           />
         </motion.div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {PRODUCT_CATEGORIES.map((category, index) => {
             const style = CATEGORY_STYLE[category.href];
             return (
