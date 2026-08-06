@@ -77,17 +77,9 @@ export default function Hero() {
               <span style={{ color: BRAND.orange }}>Driven to perform.</span>
             </motion.h1>
 
-            <motion.p
-              variants={fadeUp}
-              className="mt-4 max-w-md text-[15px] leading-relaxed text-textSecondary"
-            >
-              Automotive, industrial, agricultural and specialty lubricants,
-              made in India since {COMPANY.since}.
-            </motion.p>
-
             <motion.div
               variants={fadeUp}
-              className="mt-5 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
+              className="mt-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
               style={{ backgroundColor: `${BRAND.red}0F` }}
             >
               <span
