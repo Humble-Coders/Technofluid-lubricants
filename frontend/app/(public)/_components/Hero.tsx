@@ -29,7 +29,7 @@ export default function Hero() {
     <section className="relative flex flex-col overflow-hidden border-b border-border bg-white lg:min-h-[calc(100vh-70px)]">
       <div className="relative flex flex-1 flex-col lg:flex-row">
         {/* Copy — left column */}
-        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-8 lg:w-2/5 lg:pl-8 lg:pr-12 lg:py-12 xl:pl-10">
+        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-8 lg:w-1/3 lg:pl-8 lg:pr-10 lg:py-12 xl:pl-10">
           {/* Background image — mobile only, scoped to this column so its
               foreground detail lands behind the copy, not the carousel below */}
           <div aria-hidden className="absolute inset-0 lg:hidden">
@@ -67,15 +67,6 @@ export default function Hero() {
                 className="h-auto w-full max-w-[260px] lg:max-w-[330px]"
               />
             </motion.div>
-
-            <motion.h1
-              variants={fadeUp}
-              className="mt-7 text-[1.8rem] font-extrabold leading-[1.12] tracking-tight text-textPrimary sm:text-[2.2rem] xl:text-[2.5rem]"
-            >
-              Engineered to protect.
-              <br />
-              <span style={{ color: BRAND.orange }}>Driven to perform.</span>
-            </motion.h1>
 
             <motion.div
               variants={fadeUp}
@@ -151,14 +142,14 @@ export default function Hero() {
         </div>
 
         {/* Carousel — full-bleed right column, straight partition on desktop */}
-        <div className="relative h-72 w-full sm:h-96 lg:h-auto lg:w-3/5">
+        <div className="relative h-72 w-full sm:h-96 lg:h-auto lg:w-2/3">
           <HeroCarousel />
         </div>
 
         {/* Thin brand-colour seam along the straight cut */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-[40%] hidden w-[3px] lg:block"
+          className="pointer-events-none absolute inset-y-0 left-[33.333%] hidden w-[3px] lg:block"
           style={{
             background: `linear-gradient(${BRAND.red}, ${BRAND.orange})`,
           }}
