@@ -81,7 +81,7 @@ export default function Hero() {
               variants={fadeUp}
               className="mt-4 max-w-md text-[15px] leading-relaxed text-textSecondary"
             >
-              Automotive, industrial, agricultural and specialty lubricants —
+              Automotive, industrial, agricultural and specialty lubricants,
               made in India since {COMPANY.since}.
             </motion.p>
 
