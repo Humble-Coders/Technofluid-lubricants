@@ -61,23 +61,41 @@ export default function Hero() {
               <Image
                 src="/logo-no_bg.png"
                 alt={COMPANY.brandLine}
-                width={280}
-                height={72}
+                width={810}
+                height={246}
                 priority
-                className="h-32 w-auto lg:h-48"
+                className="h-auto w-full max-w-[260px] lg:max-w-[330px]"
               />
             </motion.div>
 
+            <motion.h1
+              variants={fadeUp}
+              className="mt-7 text-[1.8rem] font-extrabold leading-[1.12] tracking-tight text-textPrimary sm:text-[2.2rem] xl:text-[2.5rem]"
+            >
+              Engineered to protect.
+              <br />
+              <span style={{ color: BRAND.orange }}>Driven to perform.</span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-4 max-w-md text-[15px] leading-relaxed text-textSecondary"
+            >
+              Automotive, industrial, agricultural and specialty lubricants —
+              made in India since {COMPANY.since}.
+            </motion.p>
+
             <motion.div
               variants={fadeUp}
-              className="mt-6 flex items-center gap-3"
+              className="mt-5 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
+              style={{ backgroundColor: `${BRAND.red}0F` }}
             >
               <span
-                className="h-px w-8"
+                className="h-1.5 w-1.5 rounded-full"
                 style={{ backgroundColor: BRAND.red }}
               />
               <p
-                className="text-[13px] font-semibold"
+                className="text-[12.5px] font-semibold"
                 style={{ color: BRAND.red }}
               >
                 {COMPANY.certification}
@@ -86,18 +104,18 @@ export default function Hero() {
 
             <motion.div
               variants={fadeUp}
-              className="mt-8 flex flex-col items-center gap-3"
+              className="mt-8 flex flex-wrap gap-3"
             >
               <Link
                 href="/products"
                 style={{ backgroundColor: BRAND.orange }}
-                className="w-4/5 rounded-lg px-6 py-3 text-center text-[13px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                className="rounded-lg px-7 py-3 text-center text-[13.5px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
               >
                 Explore products
               </Link>
               <Link
                 href="/contact"
-                className="w-4/5 rounded-lg border border-border px-6 py-3 text-center text-[13px] font-semibold text-textPrimary transition-colors hover:bg-page"
+                className="rounded-lg border border-border bg-white/70 px-7 py-3 text-center text-[13.5px] font-semibold text-textPrimary transition-colors hover:bg-page"
               >
                 Enquire
               </Link>
