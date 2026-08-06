@@ -1,6 +1,6 @@
 // File: frontend/content/productCategories.ts
-// The four real catalogue categories (docs/PRD.md, ticket PUB1). Shared by the
-// public header/footer and the landing page's product-category band.
+// The five real catalogue categories (client taxonomy, Aug 2026). Shared by
+// the public header/footer and the landing page's product-category band.
 
 export interface ProductCategory {
   label: string;
@@ -8,11 +8,18 @@ export interface ProductCategory {
 }
 
 export const PRODUCT_CATEGORIES: ProductCategory[] = [
-  { label: "Industrial oils", href: "/products?category=industrial-oils" },
   {
-    label: "Automotive lubricants",
+    label: "Automotive Lubricants",
     href: "/products?category=automotive-lubricants",
   },
-  { label: "Greases", href: "/products?category=greases" },
-  { label: "Specialty oils", href: "/products?category=specialty-oils" },
+  { label: "Industrial Oils", href: "/products?category=industrial-oils" },
+  {
+    label: "Specialty Lubricants & Process Oils",
+    href: "/products?category=specialty-lubricants-process-oils",
+  },
+  {
+    label: "Agricultural Lubricants",
+    href: "/products?category=agricultural-lubricants",
+  },
+  { label: "Grease", href: "/products?category=grease" },
 ];

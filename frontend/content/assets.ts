@@ -19,9 +19,10 @@ export const ASSETS = {
   // TODO(asset): replace with real photography once client supplies it.
   heroImage: null as string | null,
   categoryImages: {
-    "industrial-oils": null as string | null,
     "automotive-lubricants": null as string | null,
-    greases: null as string | null,
-    "specialty-oils": null as string | null,
+    "industrial-oils": null as string | null,
+    "specialty-lubricants-process-oils": null as string | null,
+    "agricultural-lubricants": null as string | null,
+    grease: null as string | null,
   },
 };
