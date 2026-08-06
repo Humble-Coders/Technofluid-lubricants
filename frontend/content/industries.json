@@ -138,12 +138,12 @@
           "seriesSlug": "technofluid-girth-gear-grease"
         },
         {
-          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)",
+          "label": "Engine oil (SAE 15W-40, 20W-40, etc.)",
           "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
           "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
         },
         {
-          "label": "Transmission oil (TO-4 type)",
+          "label": "Transmission oil (TQ, SAE 30)",
           "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
           "seriesSlug": "transmission-fluid-technofluid-tq-atf"
         },
@@ -325,7 +325,7 @@
       "slug": "earth-movers",
       "types": [
         {
-          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)",
+          "label": "Engine oil (SAE 15W-40, 20W-40, etc.)",
           "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
           "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
         },
@@ -335,7 +335,7 @@
           "seriesSlug": "hydraulic-oil-technofluid-hydraulic-oil-hlp"
         },
         {
-          "label": "Transmission oil (TO-4 type)",
+          "label": "Transmission oil (TQ, SAE 30)",
           "series": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
           "seriesSlug": "transmission-fluid-technofluid-tq-atf"
         },
@@ -393,21 +393,6 @@
           "label": "Power steering oil",
           "series": null,
           "seriesSlug": null
-        },
-        {
-          "label": "Multipurpose tractor oil (MTO)",
-          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
-          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
-        },
-        {
-          "label": "Chain oil / linkage lubricant",
-          "series": "CHAIN LUBRICANT – TECHNOFLUID CHAIN OIL",
-          "seriesSlug": "chain-lubricant-technofluid-chain-oil"
-        },
-        {
-          "label": "Rust preventive oil (for storage)",
-          "series": "RUST PREVENTIVE OIL – TECHNOFLUID RUST PREVENTIVE OIL 906",
-          "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
         }
       ]
     },
@@ -532,17 +517,12 @@
           "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
         },
         {
-          "label": "Open gear lubricant",
+          "label": "Girth Gear Grease",
           "series": "TECHNOFLUID GIRTH GEAR GREASE",
           "seriesSlug": "technofluid-girth-gear-grease"
         },
         {
-          "label": "Rolling mill oil (hot rolling emulsion)",
-          "series": "TECHNOFLUID ROLL PERFECT 22",
-          "seriesSlug": "technofluid-roll-perfect-22"
-        },
-        {
-          "label": "Cold rolling oil",
+          "label": "Roll Perfect 22/46",
           "series": "TECHNOFLUID ROLL PERFECT 22",
           "seriesSlug": "technofluid-roll-perfect-22"
         },
@@ -567,9 +547,9 @@
           "seriesSlug": null
         },
         {
-          "label": "Roll bearing oil / grease",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "label": "Roll bearing grease",
+          "series": "GREASE – TECHNOFLUID EP GREASE SERIES",
+          "seriesSlug": "grease-technofluid-ep-grease-series"
         },
         {
           "label": "Slideway oil (way oil)",
@@ -592,7 +572,7 @@
           "seriesSlug": "rust-preventive-oil-technofluid-rust-preventive-oil-906"
         },
         {
-          "label": "Coolant oil (soluble oil)",
+          "label": "Coolant / Antifreeze",
           "series": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
           "seriesSlug": "engine-coolant-antifreeze-technofluid-coolant"
         },
@@ -1643,7 +1623,7 @@
           "seriesSlug": null
         },
         {
-          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40)",
+          "label": "Engine oil (SAE 15W-40, 20W-40)",
           "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
           "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
         },
@@ -1770,7 +1750,7 @@
       "slug": "agriculture-and-farming-sector",
       "types": [
         {
-          "label": "Engine oil (HDEO – SAE 15W-40, 20W-40)",
+          "label": "Engine oil (SAE 15W-40, 20W-40)",
           "series": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
           "seriesSlug": "industrial-engine-oils-technofluid-diesel-engine-oils"
         },
@@ -1823,11 +1803,6 @@
           "label": "Calcium-based grease",
           "series": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
           "seriesSlug": "grease-technofluid-calcium-base-grease"
-        },
-        {
-          "label": "Multipurpose tractor oil (MTO)",
-          "series": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
-          "seriesSlug": "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil"
         },
         {
           "label": "Chain oil / bar oil (for chainsaw)",

@@ -101,7 +101,7 @@ export default function ProductSeriesCard({
         <span
           className="text-[12px] font-semibold text-textSecondary transition-colors duration-200 group-hover:text-[color:var(--accent)]"
         >
-          View series
+          View all product details
         </span>
         <span
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[14px] transition-all duration-300 group-hover:translate-x-1"

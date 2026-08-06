@@ -11,7 +11,7 @@ export default function ProductsHero() {
         Products
       </span>
       <h1 className="mt-4 text-[2.2rem] font-extrabold leading-tight tracking-tight text-textPrimary sm:text-[2.8rem]">
-        Our full lubricant catalogue
+        Our Product Range
       </h1>
       <p className="mt-4 text-[15px] leading-relaxed text-textSecondary">
         Industrial oils, automotive lubricants, greases and specialty oils —
