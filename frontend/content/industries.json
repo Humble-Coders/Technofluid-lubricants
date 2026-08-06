@@ -33,13 +33,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Slideway oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Way lubricant",
@@ -63,13 +63,13 @@
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil (for captive power units)",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Quenching oil (fast / medium)",
@@ -103,8 +103,8 @@
         },
         {
           "label": "Spindle oil (for auxiliary equipment)",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -174,18 +174,18 @@
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil (for power units)",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Chain oil / wire rope lubricant",
@@ -199,8 +199,8 @@
         },
         {
           "label": "Slideway oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Heat transfer oil",
@@ -240,18 +240,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Rolling mill oil (hot rolling emulsions)",
@@ -290,8 +290,8 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -315,8 +315,8 @@
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -386,8 +386,8 @@
         },
         {
           "label": "Compressor oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Power steering oil",
@@ -432,13 +432,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "EP gear oil (ISO VG 150, 220, 320)",
@@ -447,8 +447,8 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -487,13 +487,13 @@
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -528,8 +528,8 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -553,8 +553,8 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -578,18 +578,18 @@
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "Compressor oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Heat transfer oil",
@@ -619,8 +619,8 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -644,13 +644,13 @@
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil (for power units)",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -674,13 +674,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -710,18 +710,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Quenching oil (fast / medium / martempering)",
@@ -770,13 +770,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -831,8 +831,8 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -856,13 +856,13 @@
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil (if captive power used)",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Quenching oil (fast / medium)",
@@ -901,13 +901,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -937,18 +937,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Rust preventive oil (RP oil)",
@@ -992,13 +992,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -1038,18 +1038,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -1098,13 +1098,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -1114,8 +1114,8 @@
       "types": [
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "Knitting oil",
@@ -1149,18 +1149,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Heat transfer oil",
@@ -1169,8 +1169,8 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Rust preventive oil (RP oil)",
@@ -1230,18 +1230,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Refrigeration oil",
@@ -1310,13 +1310,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -1498,18 +1498,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Vacuum pump oil",
@@ -1568,13 +1568,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -1614,13 +1614,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Engine oil (SAE 15W-40, 20W-40)",
@@ -1670,18 +1670,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Grease (lithium, lithium complex)",
@@ -1735,13 +1735,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -1821,8 +1821,8 @@
         },
         {
           "label": "Compressor oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Coolant (antifreeze)",
@@ -1872,13 +1872,13 @@
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Refrigeration oil",
@@ -1953,13 +1953,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Vacuum pump oil",
@@ -1983,13 +1983,13 @@
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -2029,13 +2029,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Vacuum pump oil",
@@ -2094,13 +2094,13 @@
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         }
       ]
     },
@@ -2135,13 +2135,13 @@
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Grease (aviation grade)",
@@ -2191,13 +2191,13 @@
       "types": [
         {
           "label": "Turbine oil (steam turbine oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Gas turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
@@ -2216,8 +2216,8 @@
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Gear oil (EP – ISO VG 150, 220, 320, 460)",
@@ -2226,8 +2226,8 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Heat transfer oil",
@@ -2297,18 +2297,18 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Turbine oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+          "seriesSlug": "turbine-oil-technofluid-turbine-oils"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Refrigeration oil",
@@ -2377,13 +2377,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -2408,13 +2408,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Vacuum pump oil",
@@ -2483,13 +2483,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -2539,13 +2539,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Vacuum pump oil",
@@ -2594,13 +2594,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     },
@@ -2625,13 +2625,13 @@
         },
         {
           "label": "Circulating oil",
-          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-          "seriesSlug": "lubricating-oils-technofluid-lube-series"
+          "series": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+          "seriesSlug": "circulating-oil-technofluid-circulating-oil"
         },
         {
           "label": "Compressor oil (ISO VG 32, 46, 68)",
-          "series": null,
-          "seriesSlug": null
+          "series": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+          "seriesSlug": "compressor-oils-technofluid-screw-air-compressor-oils"
         },
         {
           "label": "Vacuum pump oil",
@@ -2690,13 +2690,13 @@
         },
         {
           "label": "Slideway oil (way oil)",
-          "series": null,
-          "seriesSlug": null
+          "series": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
+          "seriesSlug": "lubricating-oils-technofluid-lube-series"
         },
         {
           "label": "Spindle oil",
-          "series": null,
-          "seriesSlug": null
+          "series": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+          "seriesSlug": "spindle-oil-technofluid-spindle-oil"
         }
       ]
     }
