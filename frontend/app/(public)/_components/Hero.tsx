@@ -109,31 +109,51 @@ export default function Hero() {
               variants={fadeUp}
               className="mt-10 grid grid-cols-2 gap-3"
             >
+              {/* Both lines stay on one line at any width — the type scales
+                  with the column instead of wrapping (cqw = % of card width). */}
               <div
-                className="rounded-xl px-3 py-3 sm:px-4"
+                className="@container rounded-xl px-3 py-3 sm:px-4"
                 style={{ backgroundColor: `${BRAND.orange}14` }}
               >
                 <p
-                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
-                  style={{ color: BRAND.orange }}
+                  className="whitespace-nowrap font-extrabold leading-none"
+                  style={{
+                    color: BRAND.orange,
+                    fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
+                  }}
                 >
                   Since {COMPANY.since}
                 </p>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
+                <p
+                  className="mt-1 whitespace-nowrap font-bold uppercase text-textPrimary lg:text-textSecondary"
+                  style={{
+                    fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
+                    letterSpacing: "0.12em",
+                  }}
+                >
                   Powered by Experience
                 </p>
               </div>
               <div
-                className="rounded-xl px-3 py-3 sm:px-4"
+                className="@container rounded-xl px-3 py-3 sm:px-4"
                 style={{ backgroundColor: `${BRAND.charcoal}0D` }}
               >
                 <p
-                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
-                  style={{ color: BRAND.charcoal }}
+                  className="whitespace-nowrap font-extrabold leading-none"
+                  style={{
+                    color: BRAND.charcoal,
+                    fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
+                  }}
                 >
                   ISO 9001:2015
                 </p>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
+                <p
+                  className="mt-1 whitespace-nowrap font-bold uppercase text-textPrimary lg:text-textSecondary"
+                  style={{
+                    fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
+                    letterSpacing: "0.12em",
+                  }}
+                >
                   Certified Company
                 </p>
               </div>
