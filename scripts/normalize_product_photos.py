@@ -29,7 +29,8 @@ THE STANDARD
 * Tilt          grey jerry cans (2.5/3/3.5/5 L) are rotated 2 deg clockwise,
                 matching the client-approved cutting-oil can. The rotation is
                 applied to a measured target, not blindly, so re-running the
-                script never compounds the tilt.
+                script never compounds the tilt. Composite shots (a group of
+                packs in one frame) are excluded — see NEVER_TILT.
 
 Sizes were set with the client (Aug 2026); change TARGETS/TILT_DEG here rather
 than editing individual photos, then re-run over the whole library so
@@ -64,7 +65,16 @@ SQUAT_MAX_RATIO = 1.05  # grease: height/width below this is the 5 kg pail
 TARGET_CAN_LEAN = -3.2
 LEAN_TOLERANCE = 0.2
 
+# Composite shots — several packs arranged in one frame — are never tilted: the
+# rotation is meant to stand a single can upright, and it skews a whole group.
+# Add a photo here if its filename would otherwise match the jerry-can rule.
+# Composite/range shots are named "*-range.jpg". They are never tilted and are
+# sized like a drum, so the drum inside a group matches a standalone drum.
+COMPOSITE = re.compile(r"-range\.jpg$")
+NEVER_TILT: set[str] = set()
+
 TARGETS: list[tuple[str, float]] = [
+    (r"-range\.jpg$", 0.88),
     (r"500-?ml", 0.50),
     (r"(-1-l\b|-1-l\.|bottle)", 0.58),
     (r"-2-5-l", 0.60),
@@ -131,7 +141,11 @@ def target_height(path: Path, box: tuple[int, int, int, int]) -> float:
 def normalize(path: Path) -> str:
     img = Image.open(path).convert("RGB")
     tilted = False
-    if JERRY_CAN.search(path.name):
+    if (
+        JERRY_CAN.search(path.name)
+        and not COMPOSITE.search(path.name)
+        and path.name not in NEVER_TILT
+    ):
         delta = TARGET_CAN_LEAN - can_lean(img)
         if abs(delta) > LEAN_TOLERANCE:
             img = whiten(

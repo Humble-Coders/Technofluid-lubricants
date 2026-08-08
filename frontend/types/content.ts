@@ -124,6 +124,18 @@ export interface ProductImages {
 
 export type ProductImagesManifest = Record<string, ProductImages>;
 
+export interface ProductDataSheet {
+  /** Public path of the PDF, e.g. "/data-sheets/technofluid-turbine-oil.pdf" */
+  file: string;
+  /** Shown on the download button when a series has more than one sheet. */
+  label: string;
+}
+
+export interface ProductDataSheetsManifest {
+  source: string;
+  sheets: Record<string, ProductDataSheet[]>;
+}
+
 export interface CrosswalkContent {
   generatedFrom: { catalogue: string; master: string };
   summary: {
