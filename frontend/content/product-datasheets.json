@@ -1,0 +1,81 @@
+{
+  "source": "Client-supplied product data sheets (Gaurav Verma, Aug 2026). Originals (.docx) archived in 'Product master resources/client-changes-2026-08/data-sheets'; served here as PDF so they open on any device.",
+  "sheets": {
+    "compressor-oils-technofluid-screw-air-compressor-oils": [
+      {
+        "file": "/data-sheets/technofluid-screw-air-air-compressor-oil.pdf",
+        "label": "Screw & Air Compressor Oils"
+      }
+    ],
+    "turbine-oil-technofluid-turbine-oils": [
+      {
+        "file": "/data-sheets/technofluid-turbine-oil.pdf",
+        "label": "Turbine Oils"
+      }
+    ],
+    "spindle-oil-technofluid-spindle-oil": [
+      {
+        "file": "/data-sheets/technofluid-spindle-oil.pdf",
+        "label": "Spindle Oil"
+      }
+    ],
+    "rear-axle-oil-technofluid-rear-axle-oil": [
+      {
+        "file": "/data-sheets/technofluid-rear-axle-oil.pdf",
+        "label": "Rear Axle Oil"
+      }
+    ],
+    "tractor-engine-oils-technofluid-tractor-engine-oils": [
+      {
+        "file": "/data-sheets/technofluid-tractor-engine-oil.pdf",
+        "label": "Tractor Engine Oil"
+      }
+    ],
+    "white-oils-technofluid-white-oil": [
+      {
+        "file": "/data-sheets/technofluid-white-oils.pdf",
+        "label": "White Oils"
+      }
+    ],
+    "marine-engine-oils-technofluid-marine-series": [
+      {
+        "file": "/data-sheets/technofluid-marine-engine-oil.pdf",
+        "label": "Marine Engine Oil"
+      }
+    ],
+    "transmission-fluid-technofluid-tq-atf": [
+      {
+        "file": "/data-sheets/technofluid-transmission-cf4-sae-30.pdf",
+        "label": "Transmission CF-4 SAE 30"
+      }
+    ],
+    "rubber-process-oils-technofluid-rpo-elastol-series": [
+      {
+        "file": "/data-sheets/technofluid-rubber-process-oils.pdf",
+        "label": "Rubber Process Oils (RPO 710, Elastol 245 & 541)"
+      },
+      {
+        "file": "/data-sheets/technofluid-rubber-process-oil-p-165.pdf",
+        "label": "Rubber Process Oil P 165"
+      }
+    ],
+    "food-grade-lubricants-technofluid-food-grade-range": [
+      {
+        "file": "/data-sheets/technofluid-food-grade-hydraulic-oil.pdf",
+        "label": "Food Grade Hydraulic Oil"
+      },
+      {
+        "file": "/data-sheets/technofluid-food-grade-gear-oil.pdf",
+        "label": "Food Grade Gear Oil"
+      },
+      {
+        "file": "/data-sheets/technofluid-food-grade-grease-ep2-h1.pdf",
+        "label": "Food Grade Grease EP 2 (H1)"
+      },
+      {
+        "file": "/data-sheets/technofluid-food-grade-white-oil.pdf",
+        "label": "Food Grade White Oil"
+      }
+    ]
+  }
+}

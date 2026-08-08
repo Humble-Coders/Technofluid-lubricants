@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BRAND } from "@/content/brand";
 import {
   categoryAccent,
+  dataSheetsForSeries,
   findCrosswalkBySlug,
   findSeriesBySlug,
   imagesForSeries,
@@ -49,6 +50,7 @@ export default async function ProductSeriesPage({
     series.aspirational || crosswalkEntry?.status === "available-on-request";
   const accent = categoryAccent(series.category);
   const productImages = imagesForSeries(slug);
+  const dataSheets = dataSheetsForSeries(slug);
 
   const contentSections = series.sectionsOrder
     .map((key) => ({ key, items: series.sections[key] }))
@@ -346,6 +348,48 @@ export default async function ProductSeriesPage({
               <SeriesPackSizes slug={slug} aspirational={isAspirational} />
             </div>
           </div>
+
+          {dataSheets.length > 0 && (
+            <div className="rounded-3xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-textSecondary">
+                Data Sheet
+              </h2>
+              <div className="mt-4 flex flex-col gap-2.5">
+                {dataSheets.map((sheet) => (
+                  <a
+                    key={sheet.file}
+                    href={sheet.file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="group flex items-center gap-3 rounded-xl border border-border px-4 py-3 transition-colors hover:border-transparent"
+                    style={{ backgroundColor: `${accent}0A` }}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5 shrink-0"
+                      fill="none"
+                      stroke={accent}
+                      strokeWidth="1.6"
+                      aria-hidden
+                    >
+                      <path
+                        d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span className="flex-1 text-[13px] font-semibold leading-snug text-textPrimary">
+                      {dataSheets.length > 1 ? sheet.label : "Download data sheet"}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-textSecondary">
+                      PDF
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </aside>
       </div>
 
