@@ -1,6 +1,6 @@
 // File: frontend/app/(public)/contact/page.tsx
-import ContactCta from "../_components/ContactCta";
+import ContactScreen from "./_components/ContactScreen";
 
 export default function ContactPage() {
-  return <ContactCta />;
+  return <ContactScreen />;
 }

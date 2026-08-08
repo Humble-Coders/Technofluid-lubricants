@@ -75,7 +75,7 @@ export default function IndustriesHero() {
           variants={fadeUp}
           className="mt-4 max-w-2xl text-[15px] leading-relaxed text-white/75"
         >
-          From steel and mining to pharma and marine, {SUMMARY.industries}{" "}
+          From steel and mining to pharma and marine, {SUMMARY.industries}+{" "}
           industries rely on Technofluid lubricants suited to their exact
           duty — filter by sector or search below to find yours.
         </motion.p>
@@ -86,7 +86,7 @@ export default function IndustriesHero() {
               className="text-[1.3rem] font-extrabold leading-none"
               style={{ color: BRAND.peach }}
             >
-              {SUMMARY.industries}
+              {SUMMARY.industries}+
             </p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white/70">
               Types of Industries We Serve
