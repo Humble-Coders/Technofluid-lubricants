@@ -80,6 +80,7 @@ Cloud Functions (verify `caller.role` server-side) own: **account approval, role
 - **Referenced entities store both id and name** (`{ productId, productName }`), plus `createdAt` / `updatedAt` (AGENTS.md §3).
 - **Soft delete:** always write `deleted: false` on create. Firestore `where("deleted","!=",true)` **excludes docs missing the field** — a doc created without `deleted` becomes invisible. Every soft-deletable doc must set the field at creation.
 - **Media:** Firebase Storage; Firestore stores `url` **and** `storagePath` (mandatory for deletion).
+- **Public product photos** (`frontend/public/product-photos/`) follow a fixed display standard so pack sizes read correctly next to each other: 1600×1200 canvas, white background, all products on a 92% baseline, and a size ladder by pack (500 ml → drum). Never resize a photo by hand — run `scripts/normalize_product_photos.py` (safe to re-run; it documents the ladder and is the single place to change it).
 
 ## Routing & UI
 
