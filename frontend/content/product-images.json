@@ -1,12 +1,12 @@
 {
   "transmission-fluid-technofluid-tq-atf": {
-    "primary": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-pail-bucket.jpg",
+    "primary": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-range.jpg",
     "images": [
       {
-        "src": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-pail-bucket.jpg",
-        "label": "TRANSMISSION FLUID TQ",
+        "src": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-fluid-tq-range.jpg",
+        "label": "Transmission Fluid TQ / ATF range",
         "packSize": null,
-        "container": "pail/bucket"
+        "container": "other"
       },
       {
         "src": "/product-photos/transmission-fluid-technofluid-tq-atf/transmission-sae-30-pail-bucket.jpg",
@@ -52,12 +52,12 @@
     ]
   },
   "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil": {
-    "primary": "/product-photos/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil/wet-brake-oil-utto-5-l.jpg",
+    "primary": "/product-photos/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil/wet-brake-oil-utto-range.jpg",
     "images": [
       {
-        "src": "/product-photos/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil/wet-brake-oil-utto-5-l.jpg",
-        "label": "WET BRAKE OIL UTTO",
-        "packSize": "5 L",
+        "src": "/product-photos/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil/wet-brake-oil-utto-range.jpg",
+        "label": "Wet Brake Oil UTTO range",
+        "packSize": null,
         "container": "other"
       }
     ]

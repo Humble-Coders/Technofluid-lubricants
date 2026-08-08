@@ -68,11 +68,13 @@ LEAN_TOLERANCE = 0.2
 # Composite shots — several packs arranged in one frame — are never tilted: the
 # rotation is meant to stand a single can upright, and it skews a whole group.
 # Add a photo here if its filename would otherwise match the jerry-can rule.
-NEVER_TILT = {
-    "wet-brake-oil-utto-5-l.jpg",  # 5 L can + drum + pail in one frame
-}
+# Composite/range shots are named "*-range.jpg". They are never tilted and are
+# sized like a drum, so the drum inside a group matches a standalone drum.
+COMPOSITE = re.compile(r"-range\.jpg$")
+NEVER_TILT: set[str] = set()
 
 TARGETS: list[tuple[str, float]] = [
+    (r"-range\.jpg$", 0.88),
     (r"500-?ml", 0.50),
     (r"(-1-l\b|-1-l\.|bottle)", 0.58),
     (r"-2-5-l", 0.60),
@@ -139,7 +141,11 @@ def target_height(path: Path, box: tuple[int, int, int, int]) -> float:
 def normalize(path: Path) -> str:
     img = Image.open(path).convert("RGB")
     tilted = False
-    if JERRY_CAN.search(path.name) and path.name not in NEVER_TILT:
+    if (
+        JERRY_CAN.search(path.name)
+        and not COMPOSITE.search(path.name)
+        and path.name not in NEVER_TILT
+    ):
         delta = TARGET_CAN_LEAN - can_lean(img)
         if abs(delta) > LEAN_TOLERANCE:
             img = whiten(
