@@ -52,116 +52,144 @@ export default function Hero() {
           />
 
           <motion.div
-            className="relative w-full max-w-[360px]"
+            className="relative w-full max-w-[380px]"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
-            <motion.div variants={fadeUp}>
-              <Image
-                src="/logo-no_bg.png"
-                alt={COMPANY.brandLine}
-                width={810}
-                height={246}
-                priority
-                className="h-auto w-full max-w-[250px] lg:max-w-[300px]"
-              />
-            </motion.div>
-
-            {/* Brand rule — anchors the block and separates mark from copy */}
-            <motion.div
-              variants={fadeUp}
+            {/* Soft brand glow behind the card */}
+            <div
               aria-hidden
-              className="mt-6 h-[3px] w-16 rounded-full"
+              className="pointer-events-none absolute -inset-5 rounded-[40px] opacity-[0.18] blur-2xl"
               style={{
-                background: `linear-gradient(90deg, ${BRAND.red}, ${BRAND.orange})`,
+                background: `linear-gradient(140deg, ${BRAND.red}, ${BRAND.orange} 55%, transparent)`,
               }}
             />
 
-            <motion.div
-              variants={fadeUp}
-              className="mt-5 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
-              style={{ backgroundColor: `${BRAND.red}0F` }}
-            >
-              <span
-                className="h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ backgroundColor: BRAND.red }}
+            <div className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/75 p-7 shadow-[0_24px_70px_-30px_rgba(43,43,43,0.45)] backdrop-blur-xl lg:p-8">
+              {/* Gradient hairline across the top edge */}
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-[3px]"
+                style={{
+                  background: `linear-gradient(90deg, ${BRAND.red}, ${BRAND.orange}, transparent)`,
+                }}
               />
-              <p
-                className="whitespace-nowrap text-[12.5px] font-semibold"
-                style={{ color: BRAND.red }}
-              >
-                {COMPANY.certification}
-              </p>
-            </motion.div>
 
-            {/* Equal-width CTAs so the pair reads as one unit */}
-            <motion.div
-              variants={fadeUp}
-              className="mt-7 grid grid-cols-2 gap-3"
-            >
-              <Link
-                href="/products"
-                style={{ backgroundColor: BRAND.orange }}
-                className="rounded-xl px-4 py-3 text-center text-[13.5px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-              >
-                Explore products
-              </Link>
-              <Link
-                href="/contact"
-                className="rounded-xl border border-border bg-white/70 px-4 py-3 text-center text-[13.5px] font-semibold text-textPrimary transition-colors hover:border-black/20 hover:bg-page"
-              >
-                Enquire
-              </Link>
-            </motion.div>
+              <motion.div variants={fadeUp}>
+                <Image
+                  src="/logo-no_bg.png"
+                  alt={COMPANY.brandLine}
+                  width={810}
+                  height={246}
+                  priority
+                  className="h-auto w-full max-w-[240px] lg:max-w-[270px]"
+                />
+              </motion.div>
 
-            {/* Credentials — one card, hairline split, so it reads as a unit.
-                Type scales with each half (cqw) and never wraps. */}
-            <motion.div
-              variants={fadeUp}
-              className="mt-6 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-white/70 shadow-sm backdrop-blur-sm"
-            >
-              <div className="@container px-4 py-3.5">
-                <p
-                  className="whitespace-nowrap font-extrabold leading-none"
+              <motion.div
+                variants={fadeUp}
+                className="mt-6 inline-flex items-center gap-2 rounded-full py-1.5 pl-2 pr-3.5 ring-1"
+                style={{
+                  backgroundColor: `${BRAND.red}0D`,
+                  color: BRAND.red,
+                  ["--tw-ring-color" as string]: `${BRAND.red}26`,
+                }}
+              >
+                <span
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
+                  style={{ backgroundColor: BRAND.red }}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-2.5 w-2.5"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="4"
+                    aria-hidden
+                  >
+                    <path
+                      d="M4 12.5 9.5 18 20 6.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <p className="whitespace-nowrap text-[12.5px] font-semibold">
+                  {COMPANY.certification}
+                </p>
+              </motion.div>
+
+              <motion.div variants={fadeUp} className="mt-7 flex flex-col gap-2.5">
+                <Link
+                  href="/products"
+                  className="group flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-[13.5px] font-bold text-white transition-all hover:-translate-y-0.5"
                   style={{
-                    color: BRAND.orange,
-                    fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
+                    background: `linear-gradient(120deg, ${BRAND.red}, ${BRAND.orange})`,
+                    boxShadow: `0 10px 24px -12px ${BRAND.orange}`,
                   }}
                 >
-                  Since {COMPANY.since}
-                </p>
-                <p
-                  className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
-                  style={{
-                    fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
-                    letterSpacing: "0.12em",
-                  }}
+                  Explore products
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+                <Link
+                  href="/contact"
+                  className="rounded-xl border border-border bg-white/80 px-5 py-3.5 text-center text-[13.5px] font-semibold text-textPrimary transition-colors hover:border-black/20 hover:bg-page"
                 >
-                  Powered by Experience
-                </p>
-              </div>
-              <div className="@container border-l border-border px-4 py-3.5">
-                <p
-                  className="whitespace-nowrap font-extrabold leading-none"
-                  style={{
-                    color: BRAND.charcoal,
-                    fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
-                  }}
-                >
-                  ISO 9001:2015
-                </p>
-                <p
-                  className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
-                  style={{
-                    fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
-                    letterSpacing: "0.12em",
-                  }}
-                >
-                  Certified Company
-                </p>
-              </div>
-            </motion.div>
+                  Enquire
+                </Link>
+              </motion.div>
+
+              {/* Credentials — hairline-split pair. Type scales with each half
+                  (cqw) so it never wraps as the panel narrows. */}
+              <motion.div
+                variants={fadeUp}
+                className="mt-7 grid grid-cols-2 border-t border-border pt-5"
+              >
+                <div className="@container pr-4">
+                  <p
+                    className="whitespace-nowrap font-extrabold leading-none"
+                    style={{
+                      color: BRAND.orange,
+                      fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
+                    }}
+                  >
+                    Since {COMPANY.since}
+                  </p>
+                  <p
+                    className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
+                    style={{
+                      fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
+                      letterSpacing: "0.12em",
+                    }}
+                  >
+                    Powered by Experience
+                  </p>
+                </div>
+                <div className="@container border-l border-border pl-4">
+                  <p
+                    className="whitespace-nowrap font-extrabold leading-none"
+                    style={{
+                      color: BRAND.charcoal,
+                      fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
+                    }}
+                  >
+                    ISO 9001:2015
+                  </p>
+                  <p
+                    className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
+                    style={{
+                      fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
+                      letterSpacing: "0.12em",
+                    }}
+                  >
+                    Certified Company
+                  </p>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
 
