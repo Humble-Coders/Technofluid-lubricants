@@ -51,145 +51,134 @@ export default function Hero() {
             }}
           />
 
+          {/* Masthead — the block spans the column's full height so the copy
+              reads as a letterhead hung off one hairline spine, not a card
+              floating in space. Head at the top, ruled credentials ledger
+              absorbing the middle, action bars at the foot. */}
           <motion.div
-            className="relative w-full max-w-[380px]"
+            className="relative flex w-full max-w-[420px] flex-col gap-9 lg:h-full lg:max-w-none lg:justify-between lg:gap-0"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
-            {/* Soft brand glow behind the card */}
+            {/* Spine — single alignment edge for every band */}
             <div
               aria-hidden
-              className="pointer-events-none absolute -inset-5 rounded-[40px] opacity-[0.18] blur-2xl"
+              className="pointer-events-none absolute inset-y-0 left-0 hidden w-px lg:block"
               style={{
-                background: `linear-gradient(140deg, ${BRAND.red}, ${BRAND.orange} 55%, transparent)`,
+                background: `linear-gradient(180deg, ${BRAND.red}, ${BRAND.orange} 22%, ${BRAND.peach} 48%, transparent)`,
               }}
             />
 
-            <div className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/75 p-7 shadow-[0_24px_70px_-30px_rgba(43,43,43,0.45)] backdrop-blur-xl lg:p-8">
-              {/* Gradient hairline across the top edge */}
+            {/* Head — mark, rule, certification */}
+            <motion.div variants={fadeUp} className="@container lg:pl-7">
+              <Image
+                src="/logo-no_bg.png"
+                alt={COMPANY.brandLine}
+                width={810}
+                height={246}
+                priority
+                className="h-auto w-full max-w-[270px] xl:max-w-[310px]"
+              />
               <div
                 aria-hidden
-                className="absolute inset-x-0 top-0 h-[3px]"
+                className="mt-6 h-px w-full"
                 style={{
-                  background: `linear-gradient(90deg, ${BRAND.red}, ${BRAND.orange}, transparent)`,
+                  background: `linear-gradient(90deg, ${BRAND.orange}, ${BRAND.peach}, transparent)`,
                 }}
               />
-
-              <motion.div variants={fadeUp}>
-                <Image
-                  src="/logo-no_bg.png"
-                  alt={COMPANY.brandLine}
-                  width={810}
-                  height={246}
-                  priority
-                  className="h-auto w-full max-w-[240px] lg:max-w-[270px]"
-                />
-              </motion.div>
-
-              <motion.div
-                variants={fadeUp}
-                className="mt-6 inline-flex items-center gap-2 rounded-full py-1.5 pl-2 pr-3.5 ring-1"
-                style={{
-                  backgroundColor: `${BRAND.red}0D`,
-                  color: BRAND.red,
-                  ["--tw-ring-color" as string]: `${BRAND.red}26`,
-                }}
+              {/* Allowed to wrap — only the credential lines below must not.
+                  Keeping it one line here would force it to micro-type. */}
+              <p
+                className="mt-4 text-[11.5px] font-bold uppercase leading-relaxed xl:text-[12.5px]"
+                style={{ color: BRAND.red, letterSpacing: "0.16em" }}
               >
-                <span
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
-                  style={{ backgroundColor: BRAND.red }}
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-2.5 w-2.5"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="4"
-                    aria-hidden
-                  >
-                    <path
-                      d="M4 12.5 9.5 18 20 6.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <p className="whitespace-nowrap text-[12.5px] font-semibold">
-                  {COMPANY.certification}
-                </p>
-              </motion.div>
+                {COMPANY.certification}
+              </p>
+            </motion.div>
 
-              <motion.div variants={fadeUp} className="mt-7 flex flex-col gap-2.5">
-                <Link
-                  href="/products"
-                  className="group flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-[13.5px] font-bold text-white transition-all hover:-translate-y-0.5"
+            {/* Credentials ledger — takes the middle of the column so the
+                leftover height belongs to one deliberate band instead of
+                becoming dead air above and below the content. */}
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col lg:my-8 lg:flex-1 lg:justify-center"
+            >
+              <div className="@container flex flex-col justify-center border-t border-border py-5 lg:min-h-[104px] lg:flex-1 lg:py-6 lg:pl-7">
+                <p
+                  className="whitespace-nowrap font-extrabold leading-none"
                   style={{
-                    background: `linear-gradient(120deg, ${BRAND.red}, ${BRAND.orange})`,
-                    boxShadow: `0 10px 24px -12px ${BRAND.orange}`,
+                    color: BRAND.orange,
+                    fontSize: "clamp(1.1rem, 12cqw, 1.85rem)",
+                    letterSpacing: "-0.01em",
                   }}
                 >
-                  Explore products
-                  <span className="transition-transform duration-300 group-hover:translate-x-1">
-                    →
-                  </span>
-                </Link>
-                <Link
-                  href="/contact"
-                  className="rounded-xl border border-border bg-white/80 px-5 py-3.5 text-center text-[13.5px] font-semibold text-textPrimary transition-colors hover:border-black/20 hover:bg-page"
+                  Since {COMPANY.since}
+                </p>
+                <p
+                  className="mt-2 whitespace-nowrap font-bold uppercase text-textSecondary"
+                  style={{
+                    fontSize: "clamp(0.45rem, 3.6cqw, 0.7rem)",
+                    letterSpacing: "0.16em",
+                  }}
                 >
-                  Enquire
-                </Link>
-              </motion.div>
+                  Powered by Experience
+                </p>
+              </div>
+              <div className="@container flex flex-col justify-center border-y border-border py-5 lg:min-h-[104px] lg:flex-1 lg:py-6 lg:pl-7">
+                <p
+                  className="whitespace-nowrap font-extrabold leading-none"
+                  style={{
+                    color: BRAND.charcoal,
+                    fontSize: "clamp(1.1rem, 12cqw, 1.85rem)",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  ISO 9001:2015
+                </p>
+                <p
+                  className="mt-2 whitespace-nowrap font-bold uppercase text-textSecondary"
+                  style={{
+                    fontSize: "clamp(0.45rem, 3.6cqw, 0.7rem)",
+                    letterSpacing: "0.16em",
+                  }}
+                >
+                  Certified Company
+                </p>
+              </div>
+            </motion.div>
 
-              {/* Credentials — hairline-split pair. Type scales with each half
-                  (cqw) so it never wraps as the panel narrows. */}
-              <motion.div
-                variants={fadeUp}
-                className="mt-7 grid grid-cols-2 border-t border-border pt-5"
+            {/* Actions — full-measure bars, so the foot is as wide as the head */}
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col gap-3 lg:pl-7"
+            >
+              <Link
+                href="/products"
+                className="group flex items-center justify-between gap-3 rounded-lg px-5 py-4 text-[12px] font-bold uppercase tracking-[0.12em] text-white shadow-sm transition-all duration-200 hover:brightness-95 xl:text-[12.5px]"
+                style={{ backgroundColor: BRAND.red }}
               >
-                <div className="@container pr-4">
-                  <p
-                    className="whitespace-nowrap font-extrabold leading-none"
-                    style={{
-                      color: BRAND.orange,
-                      fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
-                    }}
-                  >
-                    Since {COMPANY.since}
-                  </p>
-                  <p
-                    className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
-                    style={{
-                      fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
-                      letterSpacing: "0.12em",
-                    }}
-                  >
-                    Powered by Experience
-                  </p>
-                </div>
-                <div className="@container border-l border-border pl-4">
-                  <p
-                    className="whitespace-nowrap font-extrabold leading-none"
-                    style={{
-                      color: BRAND.charcoal,
-                      fontSize: "clamp(0.6rem, 13cqw, 1.3rem)",
-                    }}
-                  >
-                    ISO 9001:2015
-                  </p>
-                  <p
-                    className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
-                    style={{
-                      fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
-                      letterSpacing: "0.12em",
-                    }}
-                  >
-                    Certified Company
-                  </p>
-                </div>
-              </motion.div>
-            </div>
+                <span className="whitespace-nowrap">Explore products</span>
+                <span
+                  aria-hidden
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </Link>
+              <Link
+                href="/contact"
+                className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-white px-5 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-textPrimary transition-colors duration-200 hover:border-textPrimary xl:text-[12.5px]"
+              >
+                <span className="whitespace-nowrap">Enquire</span>
+                <span
+                  aria-hidden
+                  className="text-textSecondary transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
 
