@@ -51,12 +51,13 @@ export default function Hero() {
             }}
           />
 
-          {/* Masthead — the block spans the column's full height so the copy
-              reads as a letterhead hung off one hairline spine, not a card
-              floating in space. Head at the top, ruled credentials ledger
-              absorbing the middle, action bars at the foot. */}
+          {/* Masthead — sized to its own content (not stretched to the
+              column), centred in the available space by the parent's
+              justify-center. Head at the top, ruled credentials ledger,
+              action bars at the foot, all hung off one hairline spine that
+              runs only the height of this block. */}
           <motion.div
-            className="relative flex w-full max-w-[420px] flex-col gap-9 lg:h-full lg:max-w-none lg:justify-between lg:gap-0"
+            className="relative flex w-full max-w-[420px] flex-col gap-9"
             variants={stagger}
             initial="hidden"
             animate="show"
@@ -97,14 +98,9 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Credentials ledger — takes the middle of the column so the
-                leftover height belongs to one deliberate band instead of
-                becoming dead air above and below the content. */}
-            <motion.div
-              variants={fadeUp}
-              className="flex flex-col lg:my-8 lg:flex-1 lg:justify-center"
-            >
-              <div className="@container flex flex-col justify-center border-t border-border py-5 lg:min-h-[104px] lg:flex-1 lg:py-6 lg:pl-7">
+            {/* Credentials ledger — sized to its own content */}
+            <motion.div variants={fadeUp} className="flex flex-col">
+              <div className="@container border-t border-border py-5 lg:pl-7">
                 <p
                   className="whitespace-nowrap font-extrabold leading-none"
                   style={{
@@ -125,7 +121,7 @@ export default function Hero() {
                   Powered by Experience
                 </p>
               </div>
-              <div className="@container flex flex-col justify-center border-y border-border py-5 lg:min-h-[104px] lg:flex-1 lg:py-6 lg:pl-7">
+              <div className="@container border-y border-border py-5 lg:pl-7">
                 <p
                   className="whitespace-nowrap font-extrabold leading-none"
                   style={{
