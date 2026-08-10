@@ -764,5 +764,16 @@
         "container": "barrel"
       }
     ]
+  },
+  "technofluid-girth-gear-grease": {
+    "primary": "/product-photos/technofluid-girth-gear-grease/girth-gear-grease-bucket.jpg",
+    "images": [
+      {
+        "src": "/product-photos/technofluid-girth-gear-grease/girth-gear-grease-bucket.jpg",
+        "label": "Girth Gear Grease",
+        "packSize": "18 Kg",
+        "container": "pail/bucket"
+      }
+    ]
   }
 }
