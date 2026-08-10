@@ -52,7 +52,7 @@ export default function Hero() {
           />
 
           <motion.div
-            className="relative max-w-xl"
+            className="relative w-full max-w-[360px]"
             variants={stagger}
             initial="hidden"
             animate="show"
@@ -64,57 +64,64 @@ export default function Hero() {
                 width={810}
                 height={246}
                 priority
-                className="h-auto w-full max-w-[260px] lg:max-w-[330px]"
+                className="h-auto w-full max-w-[250px] lg:max-w-[300px]"
               />
             </motion.div>
 
+            {/* Brand rule — anchors the block and separates mark from copy */}
             <motion.div
               variants={fadeUp}
-              className="mt-6 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
+              aria-hidden
+              className="mt-6 h-[3px] w-16 rounded-full"
+              style={{
+                background: `linear-gradient(90deg, ${BRAND.red}, ${BRAND.orange})`,
+              }}
+            />
+
+            <motion.div
+              variants={fadeUp}
+              className="mt-5 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
               style={{ backgroundColor: `${BRAND.red}0F` }}
             >
               <span
-                className="h-1.5 w-1.5 rounded-full"
+                className="h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: BRAND.red }}
               />
               <p
-                className="text-[12.5px] font-semibold"
+                className="whitespace-nowrap text-[12.5px] font-semibold"
                 style={{ color: BRAND.red }}
               >
                 {COMPANY.certification}
               </p>
             </motion.div>
 
+            {/* Equal-width CTAs so the pair reads as one unit */}
             <motion.div
               variants={fadeUp}
-              className="mt-8 flex flex-wrap gap-3"
+              className="mt-7 grid grid-cols-2 gap-3"
             >
               <Link
                 href="/products"
                 style={{ backgroundColor: BRAND.orange }}
-                className="rounded-lg px-7 py-3 text-center text-[13.5px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                className="rounded-xl px-4 py-3 text-center text-[13.5px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 Explore products
               </Link>
               <Link
                 href="/contact"
-                className="rounded-lg border border-border bg-white/70 px-7 py-3 text-center text-[13.5px] font-semibold text-textPrimary transition-colors hover:bg-page"
+                className="rounded-xl border border-border bg-white/70 px-4 py-3 text-center text-[13.5px] font-semibold text-textPrimary transition-colors hover:border-black/20 hover:bg-page"
               >
                 Enquire
               </Link>
             </motion.div>
 
-            {/* Colourful trust strip */}
+            {/* Credentials — one card, hairline split, so it reads as a unit.
+                Type scales with each half (cqw) and never wraps. */}
             <motion.div
               variants={fadeUp}
-              className="mt-10 grid grid-cols-2 gap-3"
+              className="mt-6 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-white/70 shadow-sm backdrop-blur-sm"
             >
-              {/* Both lines stay on one line at any width — the type scales
-                  with the column instead of wrapping (cqw = % of card width). */}
-              <div
-                className="@container rounded-xl px-3 py-3 sm:px-4"
-                style={{ backgroundColor: `${BRAND.orange}14` }}
-              >
+              <div className="@container px-4 py-3.5">
                 <p
                   className="whitespace-nowrap font-extrabold leading-none"
                   style={{
@@ -125,7 +132,7 @@ export default function Hero() {
                   Since {COMPANY.since}
                 </p>
                 <p
-                  className="mt-1 whitespace-nowrap font-bold uppercase text-textPrimary lg:text-textSecondary"
+                  className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
                   style={{
                     fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
                     letterSpacing: "0.12em",
@@ -134,10 +141,7 @@ export default function Hero() {
                   Powered by Experience
                 </p>
               </div>
-              <div
-                className="@container rounded-xl px-3 py-3 sm:px-4"
-                style={{ backgroundColor: `${BRAND.charcoal}0D` }}
-              >
+              <div className="@container border-l border-border px-4 py-3.5">
                 <p
                   className="whitespace-nowrap font-extrabold leading-none"
                   style={{
@@ -148,7 +152,7 @@ export default function Hero() {
                   ISO 9001:2015
                 </p>
                 <p
-                  className="mt-1 whitespace-nowrap font-bold uppercase text-textPrimary lg:text-textSecondary"
+                  className="mt-1.5 whitespace-nowrap font-bold uppercase text-textSecondary"
                   style={{
                     fontSize: "clamp(0.32rem, 6cqw, 0.625rem)",
                     letterSpacing: "0.12em",
