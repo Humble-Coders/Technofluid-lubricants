@@ -73,11 +73,7 @@ export default function Hero() {
 
             {/* Head — mark only. (The certification line duplicated the
                 "ISO 9001:2015 / Certified Company" row already in the
-                ledger below, so it's dropped here rather than repeated.)
-                Extra room below: on its own, the mark reads as a lighter
-                band than the ledger/actions, so it gets more air than the
-                9-unit rhythm used everywhere else to keep the composition
-                from feeling top-heavy. */}
+                ledger below, so it's dropped here rather than repeated.) */}
             <motion.div variants={fadeUp} className="lg:pl-7">
               <Image
                 src="/logo-no_bg.png"
@@ -90,7 +86,7 @@ export default function Hero() {
             </motion.div>
 
             {/* Credentials ledger — sized to its own content */}
-            <motion.div variants={fadeUp} className="mt-14 flex flex-col">
+            <motion.div variants={fadeUp} className="mt-9 flex flex-col">
               <div className="@container border-t border-border py-5 lg:pl-7">
                 <p
                   className="whitespace-nowrap font-extrabold leading-none"
