@@ -57,7 +57,7 @@ export default function Hero() {
               action bars at the foot, all hung off one hairline spine that
               runs only the height of this block. */}
           <motion.div
-            className="relative flex w-full max-w-[420px] flex-col gap-9"
+            className="relative flex w-full max-w-[420px] flex-col"
             variants={stagger}
             initial="hidden"
             animate="show"
@@ -71,8 +71,14 @@ export default function Hero() {
               }}
             />
 
-            {/* Head — mark, rule, certification */}
-            <motion.div variants={fadeUp} className="@container lg:pl-7">
+            {/* Head — mark only. (The certification line duplicated the
+                "ISO 9001:2015 / Certified Company" row already in the
+                ledger below, so it's dropped here rather than repeated.)
+                Extra room below: on its own, the mark reads as a lighter
+                band than the ledger/actions, so it gets more air than the
+                9-unit rhythm used everywhere else to keep the composition
+                from feeling top-heavy. */}
+            <motion.div variants={fadeUp} className="lg:pl-7">
               <Image
                 src="/logo-no_bg.png"
                 alt={COMPANY.brandLine}
@@ -81,25 +87,10 @@ export default function Hero() {
                 priority
                 className="h-auto w-full max-w-[270px] xl:max-w-[310px]"
               />
-              <div
-                aria-hidden
-                className="mt-6 h-px w-full"
-                style={{
-                  background: `linear-gradient(90deg, ${BRAND.orange}, ${BRAND.peach}, transparent)`,
-                }}
-              />
-              {/* Allowed to wrap — only the credential lines below must not.
-                  Keeping it one line here would force it to micro-type. */}
-              <p
-                className="mt-4 text-[11.5px] font-bold uppercase leading-relaxed xl:text-[12.5px]"
-                style={{ color: BRAND.red, letterSpacing: "0.16em" }}
-              >
-                {COMPANY.certification}
-              </p>
             </motion.div>
 
             {/* Credentials ledger — sized to its own content */}
-            <motion.div variants={fadeUp} className="flex flex-col">
+            <motion.div variants={fadeUp} className="mt-14 flex flex-col">
               <div className="@container border-t border-border py-5 lg:pl-7">
                 <p
                   className="whitespace-nowrap font-extrabold leading-none"
@@ -147,7 +138,7 @@ export default function Hero() {
             {/* Actions — full-measure bars, so the foot is as wide as the head */}
             <motion.div
               variants={fadeUp}
-              className="flex flex-col gap-3 lg:pl-7"
+              className="mt-9 flex flex-col gap-3 lg:pl-7"
             >
               <Link
                 href="/products"
