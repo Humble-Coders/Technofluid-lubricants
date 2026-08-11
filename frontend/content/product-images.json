@@ -775,5 +775,27 @@
         "container": "pail/bucket"
       }
     ]
+  },
+  "shock-absorber-oils-technofluid-shock-absorber-oil": {
+    "primary": "/product-photos/shock-absorber-oils-technofluid-shock-absorber-oil/shock-absorber-oil-10w-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/shock-absorber-oils-technofluid-shock-absorber-oil/shock-absorber-oil-10w-barrel.jpg",
+        "label": "Shock Absorber Oil SAE 10W",
+        "packSize": null,
+        "container": "barrel"
+      }
+    ]
+  },
+  "brake-fluids-technofluid-brake-fluid-dot-3-dot-4-dot-5": {
+    "primary": "/product-photos/brake-fluids-technofluid-brake-fluid-dot-3-dot-4-dot-5/brake-fluid-dot-4-500-ml.jpg",
+    "images": [
+      {
+        "src": "/product-photos/brake-fluids-technofluid-brake-fluid-dot-3-dot-4-dot-5/brake-fluid-dot-4-500-ml.jpg",
+        "label": "Brake Fluid DOT 4",
+        "packSize": "500 ml",
+        "container": "bottle"
+      }
+    ]
   }
 }

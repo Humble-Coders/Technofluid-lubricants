@@ -1,5 +1,5 @@
 // File: frontend/app/(public)/products/page.tsx
-import { catalogue, categorySlug } from "@/lib/catalogue";
+import { catalogue, seriesInCategory } from "@/lib/catalogue";
 import { BRAND } from "@/content/brand";
 import ProductsHero from "./_components/ProductsHero";
 import CategoryFilterTabs from "./_components/CategoryFilterTabs";
@@ -17,7 +17,7 @@ export default async function ProductsPage({
   const activeSlug = category ?? null;
 
   const series = catalogue.products.filter(
-    (p) => !activeSlug || categorySlug(p.category) === activeSlug,
+    (p) => !activeSlug || seriesInCategory(p, activeSlug),
   );
 
   const totalPages = Math.max(1, Math.ceil(series.length / PAGE_SIZE));

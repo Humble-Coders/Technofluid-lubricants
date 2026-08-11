@@ -70,7 +70,15 @@ export interface CatalogueSeries {
   productType: string | null;
   subtitle: string | null;
   commercialName: string;
+  /** The category the series is filed under — its badge and accent colour. */
   category: CatalogueCategory;
+  /**
+   * Extra categories the series also appears under when browsing. Some
+   * products genuinely serve two segments (e.g. UTTO is both an automotive
+   * and an agricultural lubricant), so they are listed in both without being
+   * duplicated in the catalogue.
+   */
+  alsoInCategories?: CatalogueCategory[];
   aspirational: boolean;
   sectionsOrder: string[];
   sections: Record<string, string[]>;

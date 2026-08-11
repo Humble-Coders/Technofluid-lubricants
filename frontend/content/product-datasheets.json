@@ -76,6 +76,18 @@
         "file": "/data-sheets/technofluid-food-grade-white-oil.pdf",
         "label": "Food Grade White Oil"
       }
+    ],
+    "shock-absorber-oils-technofluid-shock-absorber-oil": [
+      {
+        "file": "/data-sheets/technofluid-shock-absorber-oil.pdf",
+        "label": "Shock Absorber Oil"
+      }
+    ],
+    "brake-fluids-technofluid-brake-fluid-dot-3-dot-4-dot-5": [
+      {
+        "file": "/data-sheets/technofluid-brake-fluid-dot3-dot4-dot5.pdf",
+        "label": "Brake Fluid (DOT 3 / DOT 4 / DOT 5)"
+      }
     ]
   }
 }
