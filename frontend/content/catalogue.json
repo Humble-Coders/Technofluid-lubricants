@@ -1,6 +1,6 @@
 {
   "source": "WEBSITE AND CATALOGUE 2026.docx",
-  "productCount": 46,
+  "productCount": 48,
   "products": [
     {
       "title": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
@@ -4247,6 +4247,9 @@
             "Excellent"
           ]
         ]
+      ],
+      "alsoInCategories": [
+        "Agricultural Lubricants"
       ]
     },
     {
@@ -4664,6 +4667,273 @@
             "Pass",
             "Pass",
             "Pass"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "BRAKE FLUIDS – TECHNOFLUID BRAKE FLUID (DOT 3 / DOT 4 / DOT 5)",
+      "displayName": "TECHNOFLUID BRAKE FLUID",
+      "productType": "Brake Fluid",
+      "subtitle": "(DOT 3, DOT 4 & DOT 5)",
+      "commercialName": "BRAKE FLUID DOT 3 / DOT 4 / DOT 5",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Brake Fluid is a high-performance hydraulic brake fluid range developed for reliable and safe operation of automotive and hydraulic braking systems.",
+          "Available in DOT 3, DOT 4 and DOT 5 grades to suit the requirements specified by vehicle manufacturers.",
+          "DOT 3 and DOT 4 are glycol-ether based fluids with high boiling points, excellent corrosion protection and good compatibility with brake-system seals and hoses.",
+          "DOT 5 is a silicone-based brake fluid intended only for systems specifically designed for silicone brake fluid, and must not be mixed with glycol-based DOT 3 / DOT 4 fluids."
+        ],
+        "gradesAvailable": [
+          "DOT 3 — glycol ether; dry boiling point >230°C, wet >145°C.",
+          "DOT 4 — glycol ether / borate ester; dry boiling point ≥250°C, wet ≥160°C.",
+          "DOT 5 — silicone; dry boiling point ≥260°C, wet ≥180°C. Not to be mixed with DOT 3 or DOT 4."
+        ],
+        "benefits": [
+          "High dry and wet boiling points for consistent pedal feel under heavy braking.",
+          "Excellent corrosion protection for brake-system components.",
+          "Good compatibility with commonly used brake seals and hoses.",
+          "Stable low-temperature viscosity for reliable cold-start braking.",
+          "Meets FMVSS 116 performance requirements for the respective grade."
+        ],
+        "applications": [
+          "Hydraulic disc and drum braking systems.",
+          "Passenger cars, commercial vehicles and two-wheelers.",
+          "Clutch hydraulic systems where a compatible brake fluid is specified.",
+          "Systems specifying DOT 3, DOT 4 or DOT 5 to FMVSS 116 / SAE J1703 / J1704."
+        ],
+        "industryPerformanceCharacteristics": [
+          "High boiling point",
+          "Excellent corrosion protection",
+          "Good seal compatibility",
+          "Stable low-temperature viscosity",
+          "Meets FMVSS 116"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Property",
+            "Test Method",
+            "DOT 3",
+            "DOT 4",
+            "DOT 5"
+          ],
+          [
+            "Product Type",
+            "—",
+            "Glycol-Ether Brake Fluid",
+            "Glycol-Ether Brake Fluid",
+            "Silicone Brake Fluid"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear to Amber",
+            "Clear to Amber",
+            "Clear / Translucent"
+          ],
+          [
+            "Density @ 20°C",
+            "ASTM D4052",
+            "1.04–1.07 g/cm³",
+            "1.04–1.08 g/cm³",
+            "0.96–1.00 g/cm³"
+          ],
+          [
+            "Dry Equilibrium Reflux Boiling Point",
+            "FMVSS 116 / SAE J1703 / J1704",
+            ">230°C",
+            "≥250°C",
+            "≥260°C"
+          ],
+          [
+            "Wet Equilibrium Reflux Boiling Point",
+            "FMVSS 116 / SAE J1703 / J1704",
+            ">145°C",
+            "≥160°C",
+            "≥180°C"
+          ],
+          [
+            "Kinematic Viscosity @ -40°C",
+            "FMVSS 116",
+            "≤1500 cSt",
+            "≤1500 cSt",
+            "≤900 cSt"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C",
+            "FMVSS 116",
+            "≥1.5 cSt",
+            "≥1.5 cSt",
+            "≥1.5 cSt"
+          ],
+          [
+            "pH Value",
+            "FMVSS 116",
+            "7.0–11.5",
+            "7.0–11.5",
+            "7.0–11.0"
+          ],
+          [
+            "Water Content",
+            "ASTM D1123 / equivalent",
+            "≤0.20%",
+            "≤0.20%",
+            "≤0.20%"
+          ],
+          [
+            "Base Fluid Type",
+            "—",
+            "Glycol Ether",
+            "Glycol Ether / Borate Ester",
+            "Silicone"
+          ],
+          [
+            "Performance Level",
+            "—",
+            "DOT 3 / FMVSS 116",
+            "DOT 4 / FMVSS 116",
+            "DOT 5 / FMVSS 116"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "SHOCK ABSORBER OILS – TECHNOFLUID SHOCK ABSORBER OIL",
+      "displayName": "TECHNOFLUID SHOCK ABSORBER OIL",
+      "productType": "Shock Absorber / Suspension Fluid",
+      "subtitle": "(2.5W, 5W, 7.5W, 10W, 15W, 20W & 30W)",
+      "commercialName": "SHOCK ABSORBER OIL 2.5W / 5W / 7.5W / 10W / 15W / 20W / 30W",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Shock Absorber Oil is a premium-quality suspension and shock absorber fluid formulated for smooth, consistent and reliable damping performance.",
+          "Designed for automotive and two-wheeler shock absorbers, telescopic forks and other hydraulic suspension systems where controlled viscosity, thermal stability and seal compatibility are required.",
+          "Available in a range of viscosity grades to provide different damping characteristics according to vehicle and suspension requirements.",
+          "Provides good oxidation resistance, low foaming tendency, excellent low-temperature fluidity and consistent performance across a wide operating temperature range."
+        ],
+        "gradesAvailable": [
+          "2.5W (10–15 cSt), 5W (15–20 cSt), 7.5W (20–25 cSt) @ 40°C.",
+          "10W (30–35 cSt), 15W (45–50 cSt) @ 40°C.",
+          "20W (60–70 cSt), 30W (90–110 cSt) @ 40°C.",
+          "Suspension-oil 'weight' labels vary between manufacturers — kinematic viscosity is the preferred basis for selecting an equivalent fluid."
+        ],
+        "benefits": [
+          "Consistent, predictable damping across the operating temperature range.",
+          "Good oxidation resistance for long fluid life.",
+          "Low foaming tendency for stable damping response.",
+          "Excellent low-temperature fluidity.",
+          "Good anti-wear and corrosion protection for suspension components."
+        ],
+        "applications": [
+          "Motorcycle and scooter telescopic forks.",
+          "Two-wheeler shock absorbers and automotive shock absorbers.",
+          "Suspension struts, damping units and steering dampers.",
+          "Hydraulic suspension systems, including off-road and recreational vehicles.",
+          "General-purpose hydraulic damping applications."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Controlled viscosity for predictable damping",
+          "High oxidation stability",
+          "Low foaming tendency",
+          "Excellent low-temperature fluidity",
+          "Good seal compatibility"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Property",
+            "Test Method",
+            "Typical Value"
+          ],
+          [
+            "Product Type",
+            "—",
+            "Shock Absorber / Suspension Fluid"
+          ],
+          [
+            "Viscosity Grades",
+            "—",
+            "2.5W, 5W, 7.5W, 10W, 15W, 20W, 30W"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "Visual",
+            "Water White to Pale Amber"
+          ],
+          [
+            "Density @ 15°C",
+            "ASTM D4052",
+            "0.83–0.87 g/cm³"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C",
+            "ASTM D445",
+            "Grade dependent"
+          ],
+          [
+            "Viscosity @ 100°C",
+            "ASTM D445",
+            "Grade dependent"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "High"
+          ],
+          [
+            "Flash Point (COC)",
+            "ASTM D92",
+            ">150°C"
+          ],
+          [
+            "Pour Point",
+            "ASTM D97",
+            "Low / Grade dependent"
+          ],
+          [
+            "Foaming Tendency",
+            "ASTM D892",
+            "Low"
+          ],
+          [
+            "Oxidation Stability",
+            "—",
+            "Excellent"
+          ],
+          [
+            "Rust / Corrosion Protection",
+            "—",
+            "Good"
+          ],
+          [
+            "Seal Compatibility",
+            "—",
+            "Suitable for commonly used suspension seals"
           ]
         ]
       ]

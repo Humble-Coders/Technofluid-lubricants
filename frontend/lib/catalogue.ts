@@ -64,6 +64,16 @@ export function categorySlug(category: string): string {
   return slugify(category);
 }
 
+/** True when the series belongs to a category, including secondary ones. */
+export function seriesInCategory(
+  series: CatalogueSeries,
+  slug: string,
+): boolean {
+  return [series.category, ...(series.alsoInCategories ?? [])].some(
+    (category) => categorySlug(category) === slug,
+  );
+}
+
 export function imagesForSeries(slug: string): ProductImages | null {
   return productImages[slug] ?? null;
 }
