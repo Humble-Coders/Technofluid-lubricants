@@ -34,12 +34,20 @@ export default function ProductSearchBar() {
   return (
     <div className="mx-auto mb-8 max-w-md px-6 lg:px-8">
       <div className="relative">
-        <span
+        <svg
           aria-hidden
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[15px] text-textSecondary"
+          viewBox="0 0 20 20"
+          fill="none"
+          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-textSecondary"
         >
-          🔍
-        </span>
+          <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.6" />
+          <path
+            d="M14 14L18 18"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+        </svg>
         <input
           type="search"
           value={value}
