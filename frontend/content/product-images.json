@@ -495,8 +495,14 @@
     ]
   },
   "grease-technofluid-calcium-base-grease": {
-    "primary": "/product-photos/grease-technofluid-calcium-base-grease/grease-slr-pail-bucket.jpg",
+    "primary": "/product-photos/grease-technofluid-calcium-base-grease/grease-c-red-gel-pail-bucket.jpg",
     "images": [
+      {
+        "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-c-red-gel-pail-bucket.jpg",
+        "label": "Grease C Red Gel",
+        "packSize": null,
+        "container": "pail/bucket"
+      },
       {
         "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-slr-pail-bucket.jpg",
         "label": "Grease SLR",
@@ -506,12 +512,6 @@
       {
         "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-mp-3-pail-bucket.jpg",
         "label": "Grease MP-3",
-        "packSize": null,
-        "container": "pail/bucket"
-      },
-      {
-        "src": "/product-photos/grease-technofluid-calcium-base-grease/grease-c-red-gel-pail-bucket.jpg",
-        "label": "Grease C Red Gel",
         "packSize": null,
         "container": "pail/bucket"
       }
@@ -698,8 +698,14 @@
     ]
   },
   "rubber-process-oils-technofluid-rpo-elastol-series": {
-    "primary": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/rpo-710-barrel.jpg",
+    "primary": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/rpo-p-165-barrel.jpg",
     "images": [
+      {
+        "src": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/rpo-p-165-barrel.jpg",
+        "label": "RPO P 165",
+        "packSize": null,
+        "container": "barrel"
+      },
       {
         "src": "/product-photos/rubber-process-oils-technofluid-rpo-elastol-series/rpo-710-barrel.jpg",
         "label": "RPO 710",
@@ -795,6 +801,17 @@
         "label": "Brake Fluid DOT 4",
         "packSize": "500 ml",
         "container": "bottle"
+      }
+    ]
+  },
+  "circulating-oil-technofluid-circulating-oil": {
+    "primary": "/product-photos/circulating-oil-technofluid-circulating-oil/circulating-oil-100-barrel.jpg",
+    "images": [
+      {
+        "src": "/product-photos/circulating-oil-technofluid-circulating-oil/circulating-oil-100-barrel.jpg",
+        "label": "Circulating Oil 100",
+        "packSize": null,
+        "container": "barrel"
       }
     ]
   }
