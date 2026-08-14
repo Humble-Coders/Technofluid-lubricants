@@ -182,5 +182,32 @@ service cloud.firestore {
         allow delete: if isAdmin();
       }
     }
+
+    // ─── Contact messages (public website enquiry form) ───────────────────────
+
+    match /contactMessages/{messageId} {
+      // Anonymous visitors may create, but only with the exact expected shape.
+      allow create: if
+        request.resource.data.keys().hasOnly(
+          ['name', 'phone', 'message', 'status', 'source', 'deleted',
+           'createdAt', 'updatedAt']
+        ) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 2 &&
+        request.resource.data.name.size() <= 100 &&
+        request.resource.data.phone is string &&
+        request.resource.data.phone.size() >= 7 &&
+        request.resource.data.phone.size() <= 20 &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() >= 5 &&
+        request.resource.data.message.size() <= 2000 &&
+        request.resource.data.status == 'new' &&
+        request.resource.data.source == 'website' &&
+        request.resource.data.deleted == false;
+
+      // Admin panel reads and works the queue; nobody else sees submissions.
+      allow read, update: if isAdmin() || isSupervisor();
+      allow delete: if isAdmin();
+    }
   }
 }

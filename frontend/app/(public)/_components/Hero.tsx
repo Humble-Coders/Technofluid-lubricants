@@ -29,7 +29,7 @@ export default function Hero() {
     <section className="relative flex flex-col overflow-hidden border-b border-border bg-white lg:min-h-[calc(100vh-70px)]">
       <div className="relative flex flex-1 flex-col lg:flex-row">
         {/* Copy — left column */}
-        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-8 lg:w-2/5 lg:pl-8 lg:pr-12 lg:py-12 xl:pl-10">
+        <div className="relative z-10 flex w-full flex-col justify-center px-6 py-8 lg:w-1/3 lg:pl-8 lg:pr-10 lg:py-12 xl:pl-10">
           {/* Background image — mobile only, scoped to this column so its
               foreground detail lands behind the copy, not the carousel below */}
           <div aria-hidden className="absolute inset-0 lg:hidden">
@@ -51,104 +51,129 @@ export default function Hero() {
             }}
           />
 
+          {/* Masthead — sized to its own content (not stretched to the
+              column), centred in the available space by the parent's
+              justify-center. Head at the top, ruled credentials ledger,
+              action bars at the foot, all hung off one hairline spine that
+              runs only the height of this block. */}
           <motion.div
-            className="relative max-w-xl"
+            className="relative flex w-full max-w-[420px] flex-col"
             variants={stagger}
             initial="hidden"
             animate="show"
           >
-            <motion.div variants={fadeUp}>
+            {/* Spine — single alignment edge for every band */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 left-0 hidden w-px lg:block"
+              style={{
+                background: `linear-gradient(180deg, ${BRAND.red}, ${BRAND.orange} 22%, ${BRAND.peach} 48%, transparent)`,
+              }}
+            />
+
+            {/* Head — mark only. (The certification line duplicated the
+                "ISO 9001:2015 / Certified Company" row already in the
+                ledger below, so it's dropped here rather than repeated.) */}
+            <motion.div variants={fadeUp} className="lg:pl-7">
               <Image
                 src="/logo-no_bg.png"
                 alt={COMPANY.brandLine}
-                width={280}
-                height={72}
+                width={810}
+                height={246}
                 priority
-                className="h-32 w-auto lg:h-48"
+                className="h-auto w-full max-w-[270px] xl:max-w-[310px]"
               />
             </motion.div>
 
-            <motion.div
-              variants={fadeUp}
-              className="mt-6 flex items-center gap-3"
-            >
-              <span
-                className="h-px w-8"
-                style={{ backgroundColor: BRAND.red }}
-              />
-              <p
-                className="text-[13px] font-semibold"
-                style={{ color: BRAND.red }}
-              >
-                {COMPANY.certification}
-              </p>
-            </motion.div>
-
-            <motion.div
-              variants={fadeUp}
-              className="mt-8 flex flex-col items-center gap-3"
-            >
-              <Link
-                href="/products"
-                style={{ backgroundColor: BRAND.orange }}
-                className="w-4/5 rounded-lg px-6 py-3 text-center text-[13px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-              >
-                Explore products
-              </Link>
-              <Link
-                href="/contact"
-                className="w-4/5 rounded-lg border border-border px-6 py-3 text-center text-[13px] font-semibold text-textPrimary transition-colors hover:bg-page"
-              >
-                Enquire
-              </Link>
-            </motion.div>
-
-            {/* Colourful trust strip */}
-            <motion.div
-              variants={fadeUp}
-              className="mt-10 grid grid-cols-2 gap-3"
-            >
-              <div
-                className="rounded-xl px-3 py-3 sm:px-4"
-                style={{ backgroundColor: `${BRAND.orange}14` }}
-              >
+            {/* Credentials ledger — sized to its own content */}
+            <motion.div variants={fadeUp} className="mt-9 flex flex-col">
+              <div className="@container border-t border-border py-5 lg:pl-7">
                 <p
-                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
-                  style={{ color: BRAND.orange }}
+                  className="whitespace-nowrap font-extrabold leading-none"
+                  style={{
+                    color: BRAND.orange,
+                    fontSize: "clamp(1.1rem, 12cqw, 1.85rem)",
+                    letterSpacing: "-0.01em",
+                  }}
                 >
                   Since {COMPANY.since}
                 </p>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
+                <p
+                  className="mt-2 whitespace-nowrap font-bold uppercase text-textSecondary"
+                  style={{
+                    fontSize: "clamp(0.45rem, 3.6cqw, 0.7rem)",
+                    letterSpacing: "0.16em",
+                  }}
+                >
                   Powered by Experience
                 </p>
               </div>
-              <div
-                className="rounded-xl px-3 py-3 sm:px-4"
-                style={{ backgroundColor: `${BRAND.charcoal}0D` }}
-              >
+              <div className="@container border-y border-border py-5 lg:pl-7">
                 <p
-                  className="text-base font-extrabold leading-none sm:text-[1.3rem]"
-                  style={{ color: BRAND.charcoal }}
+                  className="whitespace-nowrap font-extrabold leading-none"
+                  style={{
+                    color: BRAND.charcoal,
+                    fontSize: "clamp(1.1rem, 12cqw, 1.85rem)",
+                    letterSpacing: "-0.01em",
+                  }}
                 >
                   ISO 9001:2015
                 </p>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-textPrimary sm:text-[10px] sm:tracking-[0.15em] lg:text-textSecondary">
+                <p
+                  className="mt-2 whitespace-nowrap font-bold uppercase text-textSecondary"
+                  style={{
+                    fontSize: "clamp(0.45rem, 3.6cqw, 0.7rem)",
+                    letterSpacing: "0.16em",
+                  }}
+                >
                   Certified Company
                 </p>
               </div>
+            </motion.div>
+
+            {/* Actions — full-measure bars, so the foot is as wide as the head */}
+            <motion.div
+              variants={fadeUp}
+              className="mt-9 flex flex-col gap-3 lg:pl-7"
+            >
+              <Link
+                href="/products"
+                className="group flex items-center justify-between gap-3 rounded-lg px-5 py-4 text-[12px] font-bold uppercase tracking-[0.12em] text-white shadow-sm transition-all duration-200 hover:brightness-95 xl:text-[12.5px]"
+                style={{ backgroundColor: BRAND.red }}
+              >
+                <span className="whitespace-nowrap">Explore products</span>
+                <span
+                  aria-hidden
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </Link>
+              <Link
+                href="/contact"
+                className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-white px-5 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-textPrimary transition-colors duration-200 hover:border-textPrimary xl:text-[12.5px]"
+              >
+                <span className="whitespace-nowrap">Enquire</span>
+                <span
+                  aria-hidden
+                  className="text-textSecondary transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
 
         {/* Carousel — full-bleed right column, straight partition on desktop */}
-        <div className="relative h-72 w-full sm:h-96 lg:h-auto lg:w-3/5">
+        <div className="relative h-72 w-full sm:h-96 lg:h-auto lg:w-2/3">
           <HeroCarousel />
         </div>
 
         {/* Thin brand-colour seam along the straight cut */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-[40%] hidden w-[3px] lg:block"
+          className="pointer-events-none absolute inset-y-0 left-[33.333%] hidden w-[3px] lg:block"
           style={{
             background: `linear-gradient(${BRAND.red}, ${BRAND.orange})`,
           }}

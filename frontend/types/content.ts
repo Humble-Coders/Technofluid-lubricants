@@ -60,8 +60,9 @@ export type SpecTable = SpecTableRow[];
 export type CatalogueCategory =
   | "Industrial Oils"
   | "Automotive Lubricants"
-  | "Greases"
-  | "Specialty Oils";
+  | "Agricultural Lubricants"
+  | "Specialty Lubricants & Process Oils"
+  | "Grease";
 
 export interface CatalogueSeries {
   title: string;
@@ -69,7 +70,15 @@ export interface CatalogueSeries {
   productType: string | null;
   subtitle: string | null;
   commercialName: string;
+  /** The category the series is filed under — its badge and accent colour. */
   category: CatalogueCategory;
+  /**
+   * Extra categories the series also appears under when browsing. Some
+   * products genuinely serve two segments (e.g. UTTO is both an automotive
+   * and an agricultural lubricant), so they are listed in both without being
+   * duplicated in the catalogue.
+   */
+  alsoInCategories?: CatalogueCategory[];
   aspirational: boolean;
   sectionsOrder: string[];
   sections: Record<string, string[]>;
@@ -122,6 +131,18 @@ export interface ProductImages {
 }
 
 export type ProductImagesManifest = Record<string, ProductImages>;
+
+export interface ProductDataSheet {
+  /** Public path of the PDF, e.g. "/data-sheets/technofluid-turbine-oil.pdf" */
+  file: string;
+  /** Shown on the download button when a series has more than one sheet. */
+  label: string;
+}
+
+export interface ProductDataSheetsManifest {
+  source: string;
+  sheets: Record<string, ProductDataSheet[]>;
+}
 
 export interface CrosswalkContent {
   generatedFrom: { catalogue: string; master: string };

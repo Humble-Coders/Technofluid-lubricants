@@ -1,5 +1,5 @@
 // File: frontend/app/(public)/products/page.tsx
-import { catalogue, categorySlug } from "@/lib/catalogue";
+import { catalogue, seriesInCategory } from "@/lib/catalogue";
 import { BRAND } from "@/content/brand";
 import ProductsHero from "./_components/ProductsHero";
 import CategoryFilterTabs from "./_components/CategoryFilterTabs";
@@ -16,7 +16,7 @@ export default async function ProductsPage({
   const query = q?.trim().toLowerCase() ?? "";
 
   const series = catalogue.products.filter((p) => {
-    if (activeSlug && categorySlug(p.category) !== activeSlug) return false;
+    if (activeSlug && !seriesInCategory(p, activeSlug)) return false;
     if (!query) return true;
     return [p.displayName, p.productType, p.subtitle, p.category]
       .filter(Boolean)

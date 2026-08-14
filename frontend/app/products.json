@@ -31,8 +31,8 @@
         "Fire-resistant hydraulic oil (underground mining)",
         "EP gear oil (ISO VG 150, 220, 320, 460, 680)",
         "Open gear lubricant (high viscosity / asphaltic)",
-        "Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)",
-        "Transmission oil (TO-4 type)",
+        "Engine oil (SAE 15W-40, 20W-40, etc.)",
+        "Transmission oil (TQ, SAE 30)",
         "UTTO (Universal Tractor Transmission Oil)",
         "Final drive oil",
         "Grease (lithium, lithium complex)",
@@ -48,7 +48,6 @@
         "Rust preventive oil (RP oil)"
       ]
     },
-
     {
       "name": "Integrated Steel Plants",
       "products": [
@@ -74,13 +73,12 @@
         "Spindle oil"
       ]
     },
-
     {
       "name": "Earth Movers",
       "products": [
-        "Engine oil (HDEO – SAE 15W-40, 20W-40, etc.)",
+        "Engine oil (SAE 15W-40, 20W-40, etc.)",
         "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
-        "Transmission oil (TO-4 type)",
+        "Transmission oil (TQ, SAE 30)",
         "UTTO (Universal Tractor Transmission Oil)",
         "Gear oil (EP – 80W-90, 85W-140, ISO grades)",
         "Final drive oil",
@@ -91,13 +89,9 @@
         "Brake fluid",
         "Coolant (antifreeze)",
         "Compressor oil",
-        "Power steering oil",
-        "Multipurpose tractor oil (MTO)",
-        "Chain oil / linkage lubricant",
-        "Rust preventive oil (for storage)"
+        "Power steering oil"
       ]
     },
-
     {
       "name": "Automobile plants",
       "products": [
@@ -123,7 +117,6 @@
         "Chain oil / conveyor lubricant"
       ]
     },
-
     {
       "name": "Rolling Mills",
       "products": [
@@ -148,7 +141,6 @@
         "Heat transfer oil"
       ]
     },
-
     {
       "name": "Sponge iron (DRI) plants",
       "products": [
@@ -170,7 +162,6 @@
         "Spindle oil"
       ]
     },
-
     {
       "name": "Alloy Steel and Special steel units",
       "products": [
@@ -201,7 +192,6 @@
         "Heat transfer oil"
       ]
     },
-
     {
       "name": "Foundries",
       "products": [
@@ -224,7 +214,7 @@
         "Slideway oil (way oil)",
         "Spindle oil"
       ]
-    }, 
+    },
     {
       "name": "Cold rolling and Processing Units",
       "products": [
@@ -330,7 +320,7 @@
         "High-temperature grease",
         "Circulating oil",
         "Compressor oil (ISO VG 32, 46, 68)",
-        "Engine oil (HDEO – SAE 15W-40, 20W-40)",
+        "Engine oil (SAE 15W-40, 20W-40)",
         "Open gear lubricant",
         "Chain oil / conveyor lubricant",
         "Wire rope lubricant",
@@ -363,7 +353,7 @@
     {
       "name": "Agriculture and farming Sector",
       "products": [
-        "Engine oil (HDEO – SAE 15W-40, 20W-40)",
+        "Engine oil (SAE 15W-40, 20W-40)",
         "Tractor engine oil",
         "Hydraulic oil (AW / HLP – ISO VG 32, 46, 68)",
         "UTTO (Universal Tractor Transmission Oil)",
@@ -374,7 +364,6 @@
         "Grease (lithium, lithium complex)",
         "Moly (MoS₂) grease",
         "Calcium-based grease",
-        "Multipurpose tractor oil (MTO)",
         "Chain oil / bar oil (for chainsaw)",
         "Rust preventive oil (RP oil)",
         "Sprayer pump oil",

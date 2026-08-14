@@ -1,6 +1,6 @@
 {
   "source": "WEBSITE AND CATALOGUE 2026.docx",
-  "productCount": 36,
+  "productCount": 48,
   "products": [
     {
       "title": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
@@ -1214,7 +1214,7 @@
       "productType": "Agricultural Gear Oil",
       "subtitle": null,
       "commercialName": "ROTAVATOR OIL 140",
-      "category": "Automotive Lubricants",
+      "category": "Agricultural Lubricants",
       "aspirational": false,
       "sectionsOrder": [
         "description",
@@ -1518,7 +1518,7 @@
       "productType": "Process Oil",
       "subtitle": null,
       "commercialName": "PVC OIL",
-      "category": "Specialty Oils",
+      "category": "Specialty Lubricants & Process Oils",
       "aspirational": true,
       "sectionsOrder": [
         "description",
@@ -1807,7 +1807,7 @@
       "productType": "Insulating Oil",
       "subtitle": null,
       "commercialName": "TRANSFORMER OIL",
-      "category": "Specialty Oils",
+      "category": "Specialty Lubricants & Process Oils",
       "aspirational": false,
       "sectionsOrder": [
         "description",
@@ -3020,7 +3020,7 @@
     },
     {
       "title": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
-      "displayName": "TECHNOFLUID LUBE SERIES",
+      "displayName": "TECHNOFLUID LUBE (SLIDEWAY) SERIES",
       "productType": "Lubricating Oils",
       "subtitle": "(LUBE 20W-40, ISO VG 100, 150, 220, 320 & 460)",
       "commercialName": "LUBE 20W-40 / 100 / 150 / 220 / 320 / 460",
@@ -3214,964 +3214,10 @@
       ]
     },
     {
-      "title": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
-      "displayName": "TECHNOFLUID TQ / ATF",
-      "productType": "Transmission Fluid",
-      "subtitle": null,
-      "commercialName": "ATF (TQ)",
-      "category": "Automotive Lubricants",
-      "aspirational": false,
-      "sectionsOrder": [
-        "description",
-        "benefits",
-        "applications",
-        "typicalUses",
-        "performanceStandards",
-        "operatingCharacteristics"
-      ],
-      "sections": {
-        "description": [
-          "TECHNOFLUID Transmission Fluid (TQ / ATF) is a high-performance automatic transmission fluid formulated to meet the lubrication and frictional requirements of modern transmission systems.",
-          "Designed to provide excellent lubrication of gears, bearings, and hydraulic components while ensuring smooth torque transmission.",
-          "Formulated from high-quality base oils and advanced additive technology to deliver consistent friction characteristics.",
-          "Ensures smooth gear shifting, reliable clutch engagement, and efficient power transfer.",
-          "Suitable for use in both automotive and off-highway transmission systems, as per OEM recommendations."
-        ],
-        "benefits": [
-          "Excellent thermal and oxidation stability ensures long fluid life under high operating temperatures.",
-          "Provides smooth and consistent friction characteristics for trouble-free transmission performance.",
-          "Superior anti-wear protection extends the life of gears, bearings, and transmission components.",
-          "Good seal compatibility helps prevent leakage and seal hardening.",
-          "Excellent low-temperature flow properties ensure smooth operation during cold starts.",
-          "Protects against rust, corrosion, and sludge formation.",
-          "Reduces noise, vibration, and power loss in transmission systems."
-        ],
-        "applications": [
-          "Recommended for use in:",
-          "Automatic transmissions of passenger cars and commercial vehicles",
-          "Power steering systems",
-          "Torque converters",
-          "Synchromesh manual transmissions (where ATF is specified)",
-          "Certain hydraulic and off-highway equipment requiring ATF-type fluids",
-          "Suitable for automotive, agricultural, and earth-moving equipment.",
-          "Continuous and intermittent operation under varying load and temperature conditions."
-        ],
-        "typicalUses": [
-          "Systems requiring Type A Suffix A, TQ, or ATF-type fluids."
-        ],
-        "performanceStandards": [
-          "Meets or exceeds requirements of:",
-          "Type A Suffix A",
-          "DEXRON® I / IID (where applicable)",
-          "ALLISON C-2 / C-3",
-          "CATERPILLAR TO-2 (where applicable)"
-        ],
-        "operatingCharacteristics": [
-          "Maintains stable viscosity and friction properties over extended service intervals.",
-          "Compatible with commonly used transmission seals and materials.",
-          "Ensures clean and efficient operation of transmission and power steering systems."
-        ]
-      },
-      "specTables": [
-        [
-          [
-            "Characteristics",
-            "Test Method",
-            "Typical Figures"
-          ],
-          [
-            "Appearance",
-            "Visual",
-            "Clear & Bright"
-          ],
-          [
-            "Colour",
-            "ASTM D1500",
-            "Red"
-          ],
-          [
-            "Base Oil Type",
-            "—",
-            "Mineral"
-          ],
-          [
-            "Density @ 29.5°C, g/ml",
-            "ASTM D4052",
-            "0.851"
-          ],
-          [
-            "Kinematic Viscosity @ 40°C, cSt",
-            "ASTM D445",
-            "32 – 38"
-          ],
-          [
-            "Kinematic Viscosity @ 100°C, cSt",
-            "ASTM D445",
-            "7.0 – 7.8"
-          ],
-          [
-            "Viscosity Index",
-            "ASTM D2270",
-            "≥ 170"
-          ],
-          [
-            "Flash Point (COC), °C",
-            "ASTM D92",
-            "≥ 200"
-          ],
-          [
-            "Pour Point, °C",
-            "ASTM D97",
-            "-36"
-          ],
-          [
-            "Copper Corrosion (3 hrs @ 100°C)",
-            "ASTM D130",
-            "1a"
-          ],
-          [
-            "Oxidation Stability",
-            "ASTM D943",
-            "Excellent"
-          ],
-          [
-            "Foaming Characteristics",
-            "ASTM D892",
-            "Pass"
-          ],
-          [
-            "Seal Compatibility",
-            "In-house",
-            "Excellent"
-          ],
-          [
-            "Friction Characteristics",
-            "SAE J300 / OEM",
-            "Controlled"
-          ],
-          [
-            "Anti-Wear Performance",
-            "ASTM D4172",
-            "Good"
-          ],
-          [
-            "Rust & Corrosion Protection",
-            "ASTM D665",
-            "Pass"
-          ],
-          [
-            "Dye Content",
-            "—",
-            "Red (Visual Identification)"
-          ]
-        ]
-      ]
-    },
-    {
-      "title": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
-      "displayName": "TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
-      "productType": "Wet Brake Oil",
-      "subtitle": null,
-      "commercialName": "UTTO ( WET BRAKE OIL )",
-      "category": "Automotive Lubricants",
-      "aspirational": false,
-      "sectionsOrder": [
-        "description",
-        "benefits",
-        "applications",
-        "typicalUses",
-        "performanceStandards",
-        "operatingCharacteristics"
-      ],
-      "sections": {
-        "description": [
-          "TECHNOFLUID Wet Brake Oil (UTTO) is a high-performance multifunctional lubricant specially formulated for use in tractors and off-highway equipment with wet brake systems.",
-          "Designed to lubricate transmissions, final drives, differentials, hydraulic systems, and wet brakes using a single oil.",
-          "Formulated from high-quality base oils and advanced additive technology to provide controlled friction characteristics for smooth wet brake operation.",
-          "Effectively suppresses wet brake noise and chatter while ensuring positive brake engagement.",
-          "Suitable for agricultural, construction, and earth-moving equipment operating under severe conditions."
-        ],
-        "benefits": [
-          "Excellent friction control eliminates wet brake noise and chatter.",
-          "Superior anti-wear and extreme pressure performance protects gears, bearings, and hydraulic components.",
-          "Provides smooth transmission performance and reliable power transfer.",
-          "Good thermal and oxidation stability ensures long oil life.",
-          "Effective rust and corrosion protection safeguards metal components.",
-          "Good seal compatibility prevents leakage and seal deterioration.",
-          "Reduces maintenance costs by allowing use of a single oil for multiple applications."
-        ],
-        "applications": [
-          "Recommended for use in:",
-          "Tractors with wet brake and clutch systems",
-          "Tractor transmissions, differentials, and final drives",
-          "Hydraulic systems of agricultural and off-highway equipment",
-          "Construction and earth-moving machinery requiring UTTO",
-          "Suitable for equipment from various OEMs where UTTO-type oil is specified."
-        ],
-        "typicalUses": [
-          "Agricultural and off-highway machinery requiring a universal transmission and hydraulic oil.",
-          "Equipment operating under heavy loads and severe field conditions.",
-          "Systems demanding reliable wet brake performance and gear protection."
-        ],
-        "performanceStandards": [
-          "Meets or exceeds requirements of:",
-          "API GL-4",
-          "ALLISON C-3 / C-4",
-          "CASE MAT 3505 / 3525",
-          "CATERPILLAR TO-2",
-          "FORD ESN-M2C-134 C/D"
-        ],
-        "operatingCharacteristics": [
-          "Maintains stable viscosity and friction properties over wide temperature ranges.",
-          "Compatible with commonly used seals, elastomers, and friction materials.",
-          "Ensures clean, efficient, and trouble-free operation of tractor systems."
-        ]
-      },
-      "specTables": [
-        [
-          [
-            "Characteristics",
-            "Test Method",
-            "Typical Figures"
-          ],
-          [
-            "Appearance",
-            "Visual",
-            "Clear & Bright"
-          ],
-          [
-            "Colour",
-            "ASTM D1500",
-            "≤ 3.0"
-          ],
-          [
-            "Base Oil Type",
-            "—",
-            "Mineral"
-          ],
-          [
-            "Fluid Type",
-            "—",
-            "UTTO (Transmission / Hydraulic / Wet Brake)"
-          ],
-          [
-            "Density @ 29.5°C, g/ml",
-            "ASTM D4052",
-            "0.845"
-          ],
-          [
-            "Kinematic Viscosity @ 40°C, cSt",
-            "ASTM D445",
-            "55 – 65"
-          ],
-          [
-            "Kinematic Viscosity @ 100°C, cSt",
-            "ASTM D445",
-            "9.0 – 10.5"
-          ],
-          [
-            "Viscosity Index",
-            "ASTM D2270",
-            "≥ 140"
-          ],
-          [
-            "Flash Point (COC), °C",
-            "ASTM D92",
-            "≥ 210"
-          ],
-          [
-            "Pour Point, °C",
-            "ASTM D97",
-            "-23"
-          ],
-          [
-            "Copper Corrosion (3 hrs @ 100°C)",
-            "ASTM D130",
-            "1a"
-          ],
-          [
-            "Wet Brake Friction Performance",
-            "OEM / In-house",
-            "Excellent (No chatter)"
-          ],
-          [
-            "Anti-Wear Performance",
-            "ASTM D4172",
-            "Good"
-          ],
-          [
-            "Rust Prevention",
-            "ASTM D665",
-            "Pass"
-          ],
-          [
-            "Demulsibility @ 54°C",
-            "ASTM D1401",
-            "40/40/0"
-          ],
-          [
-            "Foaming Characteristics",
-            "ASTM D892",
-            "Pass"
-          ],
-          [
-            "Oxidation Stability",
-            "ASTM D943",
-            "Excellent"
-          ],
-          [
-            "Seal Compatibility",
-            "In-house",
-            "Excellent"
-          ]
-        ]
-      ]
-    },
-    {
-      "title": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
-      "displayName": "TECHNOFLUID COOLANT",
-      "productType": "Engine Coolant / Antifreeze",
-      "subtitle": null,
-      "commercialName": "COOLANT ( ANTIFREEZE )",
-      "category": "Automotive Lubricants",
-      "aspirational": false,
-      "sectionsOrder": [
-        "description",
-        "benefits",
-        "applications",
-        "typicalUses",
-        "performanceStandards",
-        "operatingCharacteristics"
-      ],
-      "sections": {
-        "description": [
-          "TECHNOFLUID Coolant (Antifreeze) is a high-performance engine cooling fluid formulated to provide effective heat transfer, freeze protection, and corrosion inhibition.",
-          "Manufactured using high-quality ethylene glycol and a balanced corrosion inhibitor system.",
-          "Designed to protect engines and cooling systems against overheating, freezing, rust, scale, and corrosion.",
-          "Ensures year-round protection in both hot and cold climatic conditions.",
-          "Suitable for use in automotive, agricultural, and industrial engine cooling systems."
-        ],
-        "benefits": [
-          "Provides excellent heat transfer to prevent engine overheating.",
-          "Protects against freezing at low temperatures and boiling at high operating temperatures.",
-          "Superior corrosion protection for aluminum, copper, brass, steel, and cast iron components.",
-          "Prevents scale and deposit formation in radiators and cooling passages.",
-          "Enhances water pump seal life and overall cooling system durability.",
-          "Low foaming characteristics ensure efficient coolant circulation.",
-          "Extends service life of cooling system components and reduces maintenance costs."
-        ],
-        "applications": [
-          "Recommended for use in:",
-          "Passenger cars and commercial vehicles",
-          "Tractors and agricultural machinery",
-          "Construction and earth-moving equipment",
-          "Diesel generator sets",
-          "Industrial engine cooling systems",
-          "Suitable for both petrol and diesel engines."
-        ],
-        "typicalUses": [
-          "Engine cooling systems requiring antifreeze and corrosion protection.",
-          "Vehicles and equipment operating in extreme temperature conditions."
-        ],
-        "performanceStandards": [
-          "Meets or exceeds requirements of:",
-          "IS 5759",
-          "ASTM D3306",
-          "ASTM D4985 (where applicable)",
-          "OEM-recommended antifreeze specifications"
-        ],
-        "operatingCharacteristics": [
-          "Compatible with commonly used radiator materials, hoses, seals, and gaskets.",
-          "Available as concentrate and ready-to-use formulations (as applicable).",
-          "Stable formulation ensures consistent performance over extended service intervals."
-        ]
-      },
-      "specTables": [
-        [
-          [
-            "Characteristics",
-            "Test Method",
-            "Typical Figures"
-          ],
-          [
-            "Appearance (Concentrate)",
-            "Visual",
-            "Clear / Coloured"
-          ],
-          [
-            "Base Fluid",
-            "—",
-            "Ethylene Glycol Based"
-          ],
-          [
-            "Inhibitor Type",
-            "—",
-            "Corrosion Inhibitor Package"
-          ],
-          [
-            "Density @ 20°C, g/ml",
-            "ASTM D4052",
-            "1.06"
-          ],
-          [
-            "pH (50% Solution)",
-            "ASTM D1287",
-            "7.5 – 8.5"
-          ],
-          [
-            "Freezing Point (50% v/v with water), °C",
-            "ASTM D1177",
-            "≤ -36"
-          ],
-          [
-            "Boiling Point (50% v/v with water), °C",
-            "ASTM D1120",
-            "≥ 108"
-          ],
-          [
-            "Reserve Alkalinity, ml",
-            "ASTM D1121",
-            "≥ 10"
-          ],
-          [
-            "Ash Content, % wt",
-            "ASTM D482",
-            "≤ 0.01"
-          ],
-          [
-            "Copper Corrosion (168 hrs @ 88°C)",
-            "ASTM D1384",
-            "Pass"
-          ],
-          [
-            "Aluminum Corrosion",
-            "ASTM D1384",
-            "Pass"
-          ],
-          [
-            "Cast Iron Corrosion",
-            "ASTM D1384",
-            "Pass"
-          ],
-          [
-            "Steel Corrosion",
-            "ASTM D1384",
-            "Pass"
-          ],
-          [
-            "Solder Corrosion",
-            "ASTM D1384",
-            "Pass"
-          ],
-          [
-            "Foam Tendency",
-            "ASTM D1881",
-            "Low"
-          ],
-          [
-            "Water Compatibility",
-            "—",
-            "Excellent"
-          ],
-          [
-            "Hard Water Stability",
-            "In-house",
-            "Good"
-          ],
-          [
-            "Service Life",
-            "—",
-            "Long Life"
-          ]
-        ]
-      ]
-    },
-    {
-      "title": "AUTOMOTIVE GEAR OILS – TECHNOFLUID EP SERIES",
-      "displayName": "TECHNOFLUID EP SERIES",
-      "productType": "Automotive Gear Oils",
-      "subtitle": "(SAE 90 GL-4, SAE 140 GL-4, SAE 75W-90 GL-4 / GL-5, SAE 80W-90 GL-4 / GL-5, SAE 85W-140 GL-4)",
-      "commercialName": "GEAR EP ( 90 GL4 / 140 GL4 / 75W90 GL4 / 75W90 GL5 / 80W90 GL4 / 80W90 GL5 / 85W140 GL4 )",
-      "category": "Automotive Lubricants",
-      "aspirational": false,
-      "sectionsOrder": [
-        "description",
-        "benefits",
-        "applications",
-        "typicalUses",
-        "performanceStandards",
-        "operatingCharacteristics",
-        "monograde",
-        "multigrade"
-      ],
-      "sections": {
-        "description": [
-          "TECHNOFLUID Automotive Gear Oils EP are high-performance extreme-pressure (EP) lubricants specially formulated for automotive gearboxes and axles.",
-          "Manufactured from high-quality base oils and advanced EP additive technology to protect gears operating under high load, shock, and sliding conditions.",
-          "Designed to provide superior wear protection, smooth power transmission, and long service life of gear components.",
-          "Offer excellent thermal and oxidation stability, ensuring consistent performance over extended drain intervals.",
-          "Available in multiple monograde and multigrade viscosities to suit a wide range of automotive and commercial vehicle applications."
-        ],
-        "benefits": [
-          "Excellent extreme-pressure properties protect hypoid, bevel, and spur gears.",
-          "Superior anti-wear performance reduces gear tooth wear, scuffing, and pitting.",
-          "Provides smooth gear shifting and reduced transmission noise.",
-          "Good oxidation and thermal stability minimize sludge and deposit formation.",
-          "Effective rust and corrosion protection safeguards gear components during operation and idle periods.",
-          "Stable viscosity ensures reliable lubrication under varying load and temperature conditions.",
-          "Low foaming tendency ensures uninterrupted oil film and smooth gear operation."
-        ],
-        "applications": [
-          "Recommended for use in:",
-          "Manual transmissions",
-          "Differentials and final drive units",
-          "Hypoid gear assemblies",
-          "Steering gearboxes (where specified)",
-          "Suitable for passenger cars, commercial vehicles, tractors, and off-highway equipment.",
-          "GL-4 grades are recommended for synchromesh gearboxes.",
-          "GL-5 grades are suitable for hypoid gears operating under severe conditions (as per OEM recommendation).",
-          "Vehicles operating in varied climatic and operating conditions."
-        ],
-        "typicalUses": [
-          "Automotive gear systems operating under moderate to severe load and shock conditions."
-        ],
-        "performanceStandards": [
-          "Meets or exceeds:",
-          "API GL-4",
-          "API GL-5 (for applicable grades)",
-          "IS 1118 : 1992 (EP Type Gear Oils)",
-          "MIL-L-2105D (where applicable)"
-        ],
-        "operatingCharacteristics": [
-          "Maintains stable viscosity and EP performance over extended service intervals.",
-          "Non-corrosive to copper and bronze components when used as recommended.",
-          "Compatible with commonly used automotive seals and gasket materials."
-        ],
-        "monograde": [],
-        "multigrade": []
-      },
-      "specTables": [
-        [
-          [
-            "Characteristics",
-            "Test Method",
-            "SAE 90 (GL-4)",
-            "SAE 140 (GL-4)"
-          ],
-          [
-            "Appearance",
-            "Visual",
-            "Clear & Bright",
-            "Clear & Bright"
-          ],
-          [
-            "Colour",
-            "ASTM D1500",
-            "≤ 4.0",
-            "≤ 4.0"
-          ],
-          [
-            "Base Oil Type",
-            "—",
-            "Mineral",
-            "Mineral"
-          ],
-          [
-            "API Service Level",
-            "—",
-            "GL-4",
-            "GL-4"
-          ],
-          [
-            "Density @ 29.5°C, g/ml",
-            "ASTM D4052",
-            "0.880",
-            "0.880"
-          ],
-          [
-            "Kinematic Viscosity @ 40°C, cSt",
-            "ASTM D445",
-            "180 – 220",
-            "400 – 460"
-          ],
-          [
-            "Kinematic Viscosity @ 100°C, cSt",
-            "ASTM D445",
-            "18 – 20",
-            "25 – 30"
-          ],
-          [
-            "Viscosity Index",
-            "ASTM D2270",
-            "≥ 95",
-            "≥ 95"
-          ],
-          [
-            "Flash Point (COC), °C",
-            "ASTM D92",
-            "≥ 220",
-            "≥ 230"
-          ],
-          [
-            "Pour Point, °C",
-            "ASTM D97",
-            "-6",
-            "-6"
-          ],
-          [
-            "Copper Corrosion (3 hrs @ 100°C)",
-            "ASTM D130",
-            "1b",
-            "1b"
-          ],
-          [
-            "Four Ball Weld Load, kg",
-            "ASTM D2596",
-            "≥ 250",
-            "≥ 250"
-          ],
-          [
-            "Rust Prevention",
-            "ASTM D665",
-            "Pass",
-            "Pass"
-          ]
-        ],
-        [
-          [
-            "Characteristics",
-            "Test Method",
-            "75W-90 (GL-4/GL-5)",
-            "80W-90 (GL-4/GL-5)",
-            "85W-140 (GL-4)"
-          ],
-          [
-            "Appearance",
-            "Visual",
-            "Clear & Bright",
-            "Clear & Bright",
-            "Clear & Bright"
-          ],
-          [
-            "Colour",
-            "ASTM D1500",
-            "≤ 4.0",
-            "≤ 4.0",
-            "≤ 4.0"
-          ],
-          [
-            "Base Oil Type",
-            "—",
-            "Mineral",
-            "Mineral",
-            "Mineral"
-          ],
-          [
-            "API Service Level",
-            "—",
-            "GL-4 / GL-5",
-            "GL-4 / GL-5",
-            "GL-4"
-          ],
-          [
-            "Density @ 29.5°C, g/ml",
-            "ASTM D4052",
-            "0.880",
-            "0.880",
-            "0.880"
-          ],
-          [
-            "Kinematic Viscosity @ 40°C, cSt",
-            "ASTM D445",
-            "90 – 110",
-            "130 – 150",
-            "380 – 420"
-          ],
-          [
-            "Kinematic Viscosity @ 100°C, cSt",
-            "ASTM D445",
-            "14 – 16",
-            "14 – 16",
-            "26 – 30"
-          ],
-          [
-            "Viscosity Index",
-            "ASTM D2270",
-            "≥ 140",
-            "≥ 135",
-            "≥ 95"
-          ],
-          [
-            "Flash Point (COC), °C",
-            "ASTM D92",
-            "≥ 210",
-            "≥ 215",
-            "≥ 225"
-          ],
-          [
-            "Pour Point, °C",
-            "ASTM D97",
-            "-36",
-            "-27",
-            "-12"
-          ],
-          [
-            "Copper Corrosion (3 hrs @ 100°C)",
-            "ASTM D130",
-            "1b",
-            "1b",
-            "1b"
-          ],
-          [
-            "Four Ball Weld Load, kg",
-            "ASTM D2596",
-            "≥ 315",
-            "≥ 315",
-            "≥ 250"
-          ],
-          [
-            "FZG Load Stage",
-            "DIN 51354",
-            "≥ 12",
-            "≥ 12",
-            "≥ 12"
-          ],
-          [
-            "Rust Prevention",
-            "ASTM D665",
-            "Pass",
-            "Pass",
-            "Pass"
-          ]
-        ]
-      ]
-    },
-    {
-      "title": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
-      "displayName": "TECHNOFLUID DIESEL ENGINE OILS",
-      "productType": "Industrial Engine Oils",
-      "subtitle": "(For Generators, Pumps & Industrial Engines)",
-      "commercialName": "15W40 API CI4 PLUS / 15W40 API CF4 / 20W40 API CH4 / SAE 40 CF / SAE 50 CF",
-      "category": "Automotive Lubricants",
-      "aspirational": false,
-      "sectionsOrder": [
-        "description",
-        "benefits",
-        "applications",
-        "typicalUses",
-        "gradesAvailable",
-        "operatingCharacteristics"
-      ],
-      "sections": {
-        "description": [
-          "TECHNOFLUID Industrial Engine Oils are high-performance diesel engine lubricants formulated to meet the demanding requirements of stationary and mobile industrial engines.",
-          "Manufactured from premium quality base oils and advanced additive technology to provide excellent protection under continuous and heavy-duty operating conditions.",
-          "Designed to control deposits, neutralize acidic combustion by-products, and protect engine components from wear and corrosion.",
-          "Suitable for naturally aspirated and turbocharged diesel engines operating on high-sulphur and low-sulphur fuels.",
-          "Available in multiple viscosity grades and performance levels to meet diverse industrial engine requirements."
-        ],
-        "benefits": [
-          "Excellent detergency and dispersancy keep engines clean and free from sludge.",
-          "Superior wear protection extends life of pistons, rings, liners, and bearings.",
-          "High Total Base Number (TBN) helps neutralize acidic combustion products.",
-          "Good thermal and oxidation stability ensures long oil life in continuous operations.",
-          "Reduces oil consumption and minimizes downtime.",
-          "Protects engines against rust and corrosion during idle or standby periods.",
-          "Ensures smooth engine operation and consistent power output."
-        ],
-        "applications": [
-          "Recommended for use in:",
-          "Diesel generator sets (DG sets)",
-          "Industrial diesel engines",
-          "Water pump sets",
-          "Air compressors driven by diesel engines",
-          "Construction and mining equipment",
-          "Agricultural and irrigation engines",
-          "Suitable for engines from leading OEMs, subject to recommended API performance level."
-        ],
-        "typicalUses": [
-          "Continuous and standby power generation systems.",
-          "Engines operating under heavy load and extended running hours.",
-          "Industrial applications requiring reliable engine protection and long drain intervals."
-        ],
-        "gradesAvailable": [
-          "Commonly available in:",
-          "SAE 15W-40 (API CI-4 / CH-4 / CF-4)",
-          "SAE 20W-40",
-          "SAE 40 / SAE 50 (Monograde, where required)",
-          "Meets or exceeds:",
-          "API CF-4 / CH-4 / CI-4 / CI-4 Plus",
-          "*OEM-recommended specifications for industrial diesel engines"
-        ],
-        "operatingCharacteristics": [
-          "Maintains stable viscosity over prolonged engine operation.",
-          "Compatible with commonly used engine seals and materials.",
-          "Performs reliably in high ambient temperature and dusty operating environments."
-        ]
-      },
-      "specTables": [
-        [
-          [
-            "Characteristics",
-            "Test Method",
-            "15W-40 API CI-4 PLUS",
-            "15W-40 API CF-4",
-            "20W-40 API CH-4",
-            "SAE 40 API CF",
-            "SAE 50 API CF"
-          ],
-          [
-            "Appearance",
-            "Visual",
-            "Clear & Bright",
-            "Clear & Bright",
-            "Clear & Bright",
-            "Clear & Bright",
-            "Clear & Bright"
-          ],
-          [
-            "Base Oil Type",
-            "—",
-            "Mineral",
-            "Mineral",
-            "Mineral",
-            "Mineral",
-            "Mineral"
-          ],
-          [
-            "SAE Grade",
-            "SAE J300",
-            "15W-40",
-            "15W-40",
-            "20W-40",
-            "SAE 40",
-            "SAE 50"
-          ],
-          [
-            "API Service Level",
-            "—",
-            "CI-4 Plus",
-            "CF-4",
-            "CH-4",
-            "CF",
-            "CF"
-          ],
-          [
-            "Density @ 29.5°C, g/ml",
-            "ASTM D4052",
-            "0.855",
-            "0.860",
-            "0.870",
-            "0.880",
-            "0.880"
-          ],
-          [
-            "Kinematic Viscosity @ 40°C, cSt",
-            "ASTM D445",
-            "110 – 135",
-            "110 – 135",
-            "140 – 165",
-            "150 – 180",
-            "220 – 260"
-          ],
-          [
-            "Kinematic Viscosity @ 100°C, cSt",
-            "ASTM D445",
-            "14.5 – 16.0",
-            "14.5 – 16.0",
-            "15.5 – 17.5",
-            "14.0 – 16.0",
-            "17.5 – 19.5"
-          ],
-          [
-            "Viscosity Index",
-            "ASTM D2270",
-            "≥ 130",
-            "≥ 130",
-            "≥ 115",
-            "≥ 95",
-            "≥ 95"
-          ],
-          [
-            "Flash Point (COC), °C",
-            "ASTM D92",
-            "≥ 220",
-            "≥ 220",
-            "≥ 220",
-            "≥ 230",
-            "≥ 230"
-          ],
-          [
-            "Pour Point, °C",
-            "ASTM D97",
-            "-21",
-            "-21",
-            "-15",
-            "-6",
-            "-6"
-          ],
-          [
-            "Total Base Number (TBN), mg KOH/g",
-            "ASTM D2896",
-            "10 – 12",
-            "7 – 9",
-            "8 – 10",
-            "6 – 8",
-            "6 – 8"
-          ],
-          [
-            "Sulphated Ash, % wt",
-            "ASTM D874",
-            "≤ 1.5",
-            "≤ 1.3",
-            "≤ 1.4",
-            "≤ 1.2",
-            "≤ 1.2"
-          ],
-          [
-            "Copper Corrosion (3 hrs @ 100°C)",
-            "ASTM D130",
-            "1b",
-            "1b",
-            "1b",
-            "1b",
-            "1b"
-          ],
-          [
-            "Oxidation Stability",
-            "ASTM D943",
-            "Excellent",
-            "Excellent",
-            "Good",
-            "Good",
-            "Good"
-          ],
-          [
-            "Wear Protection",
-            "ASTM D4172",
-            "Pass",
-            "Pass",
-            "Pass",
-            "Pass",
-            "Pass"
-          ],
-          [
-            "Foaming Characteristics",
-            "ASTM D892",
-            "Pass",
-            "Pass",
-            "Pass",
-            "Pass",
-            "Pass"
-          ]
-        ]
-      ]
-    },
-    {
       "title": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
       "displayName": "TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
       "productType": "4T Engine Oils",
-      "subtitle": "(20W-40 SM / SN, 15W-50 SN, 20W-50 SM, 10W-30 SM)",
+      "subtitle": "(20W-40 SM, 20W-40 SN, 15W-50 SN, 20W-50 SM, 10W-30 SM)",
       "commercialName": "4T ( 20W40  API  SM / 20W40 API  SN / 15W50 API  SN / 20W50 API  SM  / 10W30 API SM )",
       "category": "Automotive Lubricants",
       "aspirational": false,
@@ -4600,12 +3646,1391 @@
       ]
     },
     {
+      "title": "INDUSTRIAL ENGINE OILS – TECHNOFLUID DIESEL ENGINE OILS",
+      "displayName": "TECHNOFLUID DIESEL ENGINE OILS",
+      "productType": "Industrial Engine Oils",
+      "subtitle": "(For Generators, Pumps & Industrial Engines)",
+      "commercialName": "15W40 API CI4 PLUS / 15W40 API CF4 / 20W40 API CH4 / SAE 40 CF / SAE 50 CF",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "benefits",
+        "applications",
+        "typicalUses",
+        "gradesAvailable",
+        "operatingCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Industrial Engine Oils are high-performance diesel engine lubricants formulated to meet the demanding requirements of stationary and mobile industrial engines.",
+          "Manufactured from premium quality base oils and advanced additive technology to provide excellent protection under continuous and heavy-duty operating conditions.",
+          "Designed to control deposits, neutralize acidic combustion by-products, and protect engine components from wear and corrosion.",
+          "Suitable for naturally aspirated and turbocharged diesel engines operating on high-sulphur and low-sulphur fuels.",
+          "Available in multiple viscosity grades and performance levels to meet diverse industrial engine requirements."
+        ],
+        "benefits": [
+          "Excellent detergency and dispersancy keep engines clean and free from sludge.",
+          "Superior wear protection extends life of pistons, rings, liners, and bearings.",
+          "High Total Base Number (TBN) helps neutralize acidic combustion products.",
+          "Good thermal and oxidation stability ensures long oil life in continuous operations.",
+          "Reduces oil consumption and minimizes downtime.",
+          "Protects engines against rust and corrosion during idle or standby periods.",
+          "Ensures smooth engine operation and consistent power output."
+        ],
+        "applications": [
+          "Recommended for use in:",
+          "Diesel generator sets (DG sets)",
+          "Industrial diesel engines",
+          "Water pump sets",
+          "Air compressors driven by diesel engines",
+          "Construction and mining equipment",
+          "Agricultural and irrigation engines",
+          "Suitable for engines from leading OEMs, subject to recommended API performance level."
+        ],
+        "typicalUses": [
+          "Continuous and standby power generation systems.",
+          "Engines operating under heavy load and extended running hours.",
+          "Industrial applications requiring reliable engine protection and long drain intervals."
+        ],
+        "gradesAvailable": [
+          "Commonly available in:",
+          "SAE 15W-40 (API CI-4 / CH-4 / CF-4)",
+          "SAE 20W-40",
+          "SAE 40 / SAE 50 (Monograde, where required)",
+          "Meets or exceeds:",
+          "API CF-4 / CH-4 / CI-4 / CI-4 Plus",
+          "*OEM-recommended specifications for industrial diesel engines"
+        ],
+        "operatingCharacteristics": [
+          "Maintains stable viscosity over prolonged engine operation.",
+          "Compatible with commonly used engine seals and materials.",
+          "Performs reliably in high ambient temperature and dusty operating environments."
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "15W-40 API CI-4 PLUS",
+            "15W-40 API CF-4",
+            "20W-40 API CH-4",
+            "SAE 40 API CF",
+            "SAE 50 API CF"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright",
+            "Clear & Bright",
+            "Clear & Bright",
+            "Clear & Bright",
+            "Clear & Bright"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "Mineral",
+            "Mineral",
+            "Mineral",
+            "Mineral",
+            "Mineral"
+          ],
+          [
+            "SAE Grade",
+            "SAE J300",
+            "15W-40",
+            "15W-40",
+            "20W-40",
+            "SAE 40",
+            "SAE 50"
+          ],
+          [
+            "API Service Level",
+            "—",
+            "CI-4 Plus",
+            "CF-4",
+            "CH-4",
+            "CF",
+            "CF"
+          ],
+          [
+            "Density @ 29.5°C, g/ml",
+            "ASTM D4052",
+            "0.855",
+            "0.860",
+            "0.870",
+            "0.880",
+            "0.880"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C, cSt",
+            "ASTM D445",
+            "110 – 135",
+            "110 – 135",
+            "140 – 165",
+            "150 – 180",
+            "220 – 260"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C, cSt",
+            "ASTM D445",
+            "14.5 – 16.0",
+            "14.5 – 16.0",
+            "15.5 – 17.5",
+            "14.0 – 16.0",
+            "17.5 – 19.5"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 130",
+            "≥ 130",
+            "≥ 115",
+            "≥ 95",
+            "≥ 95"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "≥ 220",
+            "≥ 220",
+            "≥ 220",
+            "≥ 230",
+            "≥ 230"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "-21",
+            "-21",
+            "-15",
+            "-6",
+            "-6"
+          ],
+          [
+            "Total Base Number (TBN), mg KOH/g",
+            "ASTM D2896",
+            "10 – 12",
+            "7 – 9",
+            "8 – 10",
+            "6 – 8",
+            "6 – 8"
+          ],
+          [
+            "Sulphated Ash, % wt",
+            "ASTM D874",
+            "≤ 1.5",
+            "≤ 1.3",
+            "≤ 1.4",
+            "≤ 1.2",
+            "≤ 1.2"
+          ],
+          [
+            "Copper Corrosion (3 hrs @ 100°C)",
+            "ASTM D130",
+            "1b",
+            "1b",
+            "1b",
+            "1b",
+            "1b"
+          ],
+          [
+            "Oxidation Stability",
+            "ASTM D943",
+            "Excellent",
+            "Excellent",
+            "Good",
+            "Good",
+            "Good"
+          ],
+          [
+            "Wear Protection",
+            "ASTM D4172",
+            "Pass",
+            "Pass",
+            "Pass",
+            "Pass",
+            "Pass"
+          ],
+          [
+            "Foaming Characteristics",
+            "ASTM D892",
+            "Pass",
+            "Pass",
+            "Pass",
+            "Pass",
+            "Pass"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "TRANSMISSION FLUID – TECHNOFLUID TQ / ATF",
+      "displayName": "TECHNOFLUID TQ / ATF",
+      "productType": "Transmission Fluid",
+      "subtitle": "(TQ / ATF & CF-4 SAE 30)",
+      "commercialName": "ATF (TQ) / CF-4 SAE 30",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "typicalUses",
+        "performanceStandards",
+        "operatingCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Transmission Fluid (TQ / ATF) is a high-performance automatic transmission fluid formulated to meet the lubrication and frictional requirements of modern transmission systems.",
+          "Designed to provide excellent lubrication of gears, bearings, and hydraulic components while ensuring smooth torque transmission.",
+          "Formulated from high-quality base oils and advanced additive technology to deliver consistent friction characteristics.",
+          "Ensures smooth gear shifting, reliable clutch engagement, and efficient power transfer.",
+          "Suitable for use in both automotive and off-highway transmission systems, as per OEM recommendations.",
+          "Also available as TECHNOFLUID Transmission CF-4 SAE 30 — a heavy-duty transmission and drivetrain lubricant for powershift transmissions, torque converters, final drives, hydraulic systems and wet brake applications in construction, mining, earthmoving and agricultural equipment."
+        ],
+        "benefits": [
+          "Excellent thermal and oxidation stability ensures long fluid life under high operating temperatures.",
+          "Provides smooth and consistent friction characteristics for trouble-free transmission performance.",
+          "Superior anti-wear protection extends the life of gears, bearings, and transmission components.",
+          "Good seal compatibility helps prevent leakage and seal hardening.",
+          "Excellent low-temperature flow properties ensure smooth operation during cold starts.",
+          "Protects against rust, corrosion, and sludge formation.",
+          "Reduces noise, vibration, and power loss in transmission systems."
+        ],
+        "applications": [
+          "Recommended for use in:",
+          "Automatic transmissions of passenger cars and commercial vehicles",
+          "Power steering systems",
+          "Torque converters",
+          "Synchromesh manual transmissions (where ATF is specified)",
+          "Certain hydraulic and off-highway equipment requiring ATF-type fluids",
+          "Suitable for automotive, agricultural, and earth-moving equipment.",
+          "Continuous and intermittent operation under varying load and temperature conditions."
+        ],
+        "typicalUses": [
+          "Systems requiring Type A Suffix A, TQ, or ATF-type fluids."
+        ],
+        "performanceStandards": [
+          "Meets or exceeds requirements of:",
+          "Type A Suffix A",
+          "DEXRON® I / IID (where applicable)",
+          "ALLISON C-2 / C-3",
+          "CATERPILLAR TO-2 (where applicable)"
+        ],
+        "operatingCharacteristics": [
+          "Maintains stable viscosity and friction properties over extended service intervals.",
+          "Compatible with commonly used transmission seals and materials.",
+          "Ensures clean and efficient operation of transmission and power steering systems."
+        ],
+        "gradesAvailable": [
+          "TQ / ATF — automatic transmissions, power steering systems and other hydraulic applications.",
+          "CF-4 SAE 30 — powershift transmissions, torque converters, final drives and wet brake systems (JCBs, loaders, excavators and other off-highway equipment). Meets API CF-4, Allison C-4 and Caterpillar TO-2.",
+          "SAE 30 pack sizes: 20 L bucket, 26 L cane, 50 L cane and 210 L barrel."
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "Typical Figures"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "ASTM D1500",
+            "Red"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "Mineral"
+          ],
+          [
+            "Density @ 29.5°C, g/ml",
+            "ASTM D4052",
+            "0.851"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C, cSt",
+            "ASTM D445",
+            "32 – 38"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C, cSt",
+            "ASTM D445",
+            "7.0 – 7.8"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 170"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "≥ 200"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "-36"
+          ],
+          [
+            "Copper Corrosion (3 hrs @ 100°C)",
+            "ASTM D130",
+            "1a"
+          ],
+          [
+            "Oxidation Stability",
+            "ASTM D943",
+            "Excellent"
+          ],
+          [
+            "Foaming Characteristics",
+            "ASTM D892",
+            "Pass"
+          ],
+          [
+            "Seal Compatibility",
+            "In-house",
+            "Excellent"
+          ],
+          [
+            "Friction Characteristics",
+            "SAE J300 / OEM",
+            "Controlled"
+          ],
+          [
+            "Anti-Wear Performance",
+            "ASTM D4172",
+            "Good"
+          ],
+          [
+            "Rust & Corrosion Protection",
+            "ASTM D665",
+            "Pass"
+          ],
+          [
+            "Dye Content",
+            "—",
+            "Red (Visual Identification)"
+          ]
+        ],
+        [
+          [
+            "Transmission CF-4 SAE 30 — Characteristics",
+            "Test Method",
+            "Typical Value"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "ASTM D1500",
+            "Red"
+          ],
+          [
+            "Density @ 29.5°C (g/cm³)",
+            "ASTM D4052",
+            "0.870 – 0.890"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C (cSt)",
+            "ASTM D445",
+            "80 – 100"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C (cSt)",
+            "ASTM D445",
+            "9 – 12"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 95"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "210"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "≤ -6"
+          ],
+          [
+            "Copper Corrosion (3h @100°C)",
+            "ASTM D130",
+            "1a"
+          ],
+          [
+            "Foaming Characteristics",
+            "ASTM D892",
+            "Pass"
+          ],
+          [
+            "Oxidation Stability",
+            "ASTM D943",
+            "Excellent"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "WET BRAKE OIL – TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+      "displayName": "TECHNOFLUID UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+      "productType": "Wet Brake Oil",
+      "subtitle": null,
+      "commercialName": "UTTO ( WET BRAKE OIL )",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "benefits",
+        "applications",
+        "typicalUses",
+        "performanceStandards",
+        "operatingCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Wet Brake Oil (UTTO) is a high-performance multifunctional lubricant specially formulated for use in tractors and off-highway equipment with wet brake systems.",
+          "Designed to lubricate transmissions, final drives, differentials, hydraulic systems, and wet brakes using a single oil.",
+          "Formulated from high-quality base oils and advanced additive technology to provide controlled friction characteristics for smooth wet brake operation.",
+          "Effectively suppresses wet brake noise and chatter while ensuring positive brake engagement.",
+          "Suitable for agricultural, construction, and earth-moving equipment operating under severe conditions."
+        ],
+        "benefits": [
+          "Excellent friction control eliminates wet brake noise and chatter.",
+          "Superior anti-wear and extreme pressure performance protects gears, bearings, and hydraulic components.",
+          "Provides smooth transmission performance and reliable power transfer.",
+          "Good thermal and oxidation stability ensures long oil life.",
+          "Effective rust and corrosion protection safeguards metal components.",
+          "Good seal compatibility prevents leakage and seal deterioration.",
+          "Reduces maintenance costs by allowing use of a single oil for multiple applications."
+        ],
+        "applications": [
+          "Recommended for use in:",
+          "Tractors with wet brake and clutch systems",
+          "Tractor transmissions, differentials, and final drives",
+          "Hydraulic systems of agricultural and off-highway equipment",
+          "Construction and earth-moving machinery requiring UTTO",
+          "Suitable for equipment from various OEMs where UTTO-type oil is specified."
+        ],
+        "typicalUses": [
+          "Agricultural and off-highway machinery requiring a universal transmission and hydraulic oil.",
+          "Equipment operating under heavy loads and severe field conditions.",
+          "Systems demanding reliable wet brake performance and gear protection."
+        ],
+        "performanceStandards": [
+          "Meets or exceeds requirements of:",
+          "API GL-4",
+          "ALLISON C-3 / C-4",
+          "CASE MAT 3505 / 3525",
+          "CATERPILLAR TO-2",
+          "FORD ESN-M2C-134 C/D"
+        ],
+        "operatingCharacteristics": [
+          "Maintains stable viscosity and friction properties over wide temperature ranges.",
+          "Compatible with commonly used seals, elastomers, and friction materials.",
+          "Ensures clean, efficient, and trouble-free operation of tractor systems."
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "Typical Figures"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "ASTM D1500",
+            "≤ 3.0"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "Mineral"
+          ],
+          [
+            "Fluid Type",
+            "—",
+            "UTTO (Transmission / Hydraulic / Wet Brake)"
+          ],
+          [
+            "Density @ 29.5°C, g/ml",
+            "ASTM D4052",
+            "0.845"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C, cSt",
+            "ASTM D445",
+            "55 – 65"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C, cSt",
+            "ASTM D445",
+            "9.0 – 10.5"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 140"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "≥ 210"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "-23"
+          ],
+          [
+            "Copper Corrosion (3 hrs @ 100°C)",
+            "ASTM D130",
+            "1a"
+          ],
+          [
+            "Wet Brake Friction Performance",
+            "OEM / In-house",
+            "Excellent (No chatter)"
+          ],
+          [
+            "Anti-Wear Performance",
+            "ASTM D4172",
+            "Good"
+          ],
+          [
+            "Rust Prevention",
+            "ASTM D665",
+            "Pass"
+          ],
+          [
+            "Demulsibility @ 54°C",
+            "ASTM D1401",
+            "40/40/0"
+          ],
+          [
+            "Foaming Characteristics",
+            "ASTM D892",
+            "Pass"
+          ],
+          [
+            "Oxidation Stability",
+            "ASTM D943",
+            "Excellent"
+          ],
+          [
+            "Seal Compatibility",
+            "In-house",
+            "Excellent"
+          ]
+        ]
+      ],
+      "alsoInCategories": [
+        "Agricultural Lubricants"
+      ]
+    },
+    {
+      "title": "ENGINE COOLANT / ANTIFREEZE – TECHNOFLUID COOLANT",
+      "displayName": "TECHNOFLUID COOLANT",
+      "productType": "Engine Coolant / Antifreeze",
+      "subtitle": null,
+      "commercialName": "COOLANT ( ANTIFREEZE )",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "benefits",
+        "applications",
+        "typicalUses",
+        "performanceStandards",
+        "operatingCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Coolant (Antifreeze) is a high-performance engine cooling fluid formulated to provide effective heat transfer, freeze protection, and corrosion inhibition.",
+          "Manufactured using high-quality ethylene glycol and a balanced corrosion inhibitor system.",
+          "Designed to protect engines and cooling systems against overheating, freezing, rust, scale, and corrosion.",
+          "Ensures year-round protection in both hot and cold climatic conditions.",
+          "Suitable for use in automotive, agricultural, and industrial engine cooling systems."
+        ],
+        "benefits": [
+          "Provides excellent heat transfer to prevent engine overheating.",
+          "Protects against freezing at low temperatures and boiling at high operating temperatures.",
+          "Superior corrosion protection for aluminum, copper, brass, steel, and cast iron components.",
+          "Prevents scale and deposit formation in radiators and cooling passages.",
+          "Enhances water pump seal life and overall cooling system durability.",
+          "Low foaming characteristics ensure efficient coolant circulation.",
+          "Extends service life of cooling system components and reduces maintenance costs."
+        ],
+        "applications": [
+          "Recommended for use in:",
+          "Passenger cars and commercial vehicles",
+          "Tractors and agricultural machinery",
+          "Construction and earth-moving equipment",
+          "Diesel generator sets",
+          "Industrial engine cooling systems",
+          "Suitable for both petrol and diesel engines."
+        ],
+        "typicalUses": [
+          "Engine cooling systems requiring antifreeze and corrosion protection.",
+          "Vehicles and equipment operating in extreme temperature conditions."
+        ],
+        "performanceStandards": [
+          "Meets or exceeds requirements of:",
+          "IS 5759",
+          "ASTM D3306",
+          "ASTM D4985 (where applicable)",
+          "OEM-recommended antifreeze specifications"
+        ],
+        "operatingCharacteristics": [
+          "Compatible with commonly used radiator materials, hoses, seals, and gaskets.",
+          "Available as concentrate and ready-to-use formulations (as applicable).",
+          "Stable formulation ensures consistent performance over extended service intervals."
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "Typical Figures"
+          ],
+          [
+            "Appearance (Concentrate)",
+            "Visual",
+            "Clear / Coloured"
+          ],
+          [
+            "Base Fluid",
+            "—",
+            "Ethylene Glycol Based"
+          ],
+          [
+            "Inhibitor Type",
+            "—",
+            "Corrosion Inhibitor Package"
+          ],
+          [
+            "Density @ 20°C, g/ml",
+            "ASTM D4052",
+            "1.06"
+          ],
+          [
+            "pH (50% Solution)",
+            "ASTM D1287",
+            "7.5 – 8.5"
+          ],
+          [
+            "Freezing Point (50% v/v with water), °C",
+            "ASTM D1177",
+            "≤ -36"
+          ],
+          [
+            "Boiling Point (50% v/v with water), °C",
+            "ASTM D1120",
+            "≥ 108"
+          ],
+          [
+            "Reserve Alkalinity, ml",
+            "ASTM D1121",
+            "≥ 10"
+          ],
+          [
+            "Ash Content, % wt",
+            "ASTM D482",
+            "≤ 0.01"
+          ],
+          [
+            "Copper Corrosion (168 hrs @ 88°C)",
+            "ASTM D1384",
+            "Pass"
+          ],
+          [
+            "Aluminum Corrosion",
+            "ASTM D1384",
+            "Pass"
+          ],
+          [
+            "Cast Iron Corrosion",
+            "ASTM D1384",
+            "Pass"
+          ],
+          [
+            "Steel Corrosion",
+            "ASTM D1384",
+            "Pass"
+          ],
+          [
+            "Solder Corrosion",
+            "ASTM D1384",
+            "Pass"
+          ],
+          [
+            "Foam Tendency",
+            "ASTM D1881",
+            "Low"
+          ],
+          [
+            "Water Compatibility",
+            "—",
+            "Excellent"
+          ],
+          [
+            "Hard Water Stability",
+            "In-house",
+            "Good"
+          ],
+          [
+            "Service Life",
+            "—",
+            "Long Life"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "AUTOMOTIVE GEAR OILS – TECHNOFLUID EP SERIES",
+      "displayName": "TECHNOFLUID GEAR EP SERIES",
+      "productType": "Automotive Gear Oils",
+      "subtitle": "(SAE 90 GL-4, SAE 140 GL-4, SAE 75W-90 GL-4 / GL-5, SAE 80W-90 GL-4 / GL-5, SAE 85W-140 GL-4)",
+      "commercialName": "GEAR EP ( 90 GL4 / 140 GL4 / 75W90 GL4 / 75W90 GL5 / 80W90 GL4 / 80W90 GL5 / 85W140 GL4 )",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "benefits",
+        "applications",
+        "typicalUses",
+        "performanceStandards",
+        "operatingCharacteristics",
+        "monograde",
+        "multigrade"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Automotive Gear Oils EP are high-performance extreme-pressure (EP) lubricants specially formulated for automotive gearboxes and axles.",
+          "Manufactured from high-quality base oils and advanced EP additive technology to protect gears operating under high load, shock, and sliding conditions.",
+          "Designed to provide superior wear protection, smooth power transmission, and long service life of gear components.",
+          "Offer excellent thermal and oxidation stability, ensuring consistent performance over extended drain intervals.",
+          "Available in multiple monograde and multigrade viscosities to suit a wide range of automotive and commercial vehicle applications."
+        ],
+        "benefits": [
+          "Excellent extreme-pressure properties protect hypoid, bevel, and spur gears.",
+          "Superior anti-wear performance reduces gear tooth wear, scuffing, and pitting.",
+          "Provides smooth gear shifting and reduced transmission noise.",
+          "Good oxidation and thermal stability minimize sludge and deposit formation.",
+          "Effective rust and corrosion protection safeguards gear components during operation and idle periods.",
+          "Stable viscosity ensures reliable lubrication under varying load and temperature conditions.",
+          "Low foaming tendency ensures uninterrupted oil film and smooth gear operation."
+        ],
+        "applications": [
+          "Recommended for use in:",
+          "Manual transmissions",
+          "Differentials and final drive units",
+          "Hypoid gear assemblies",
+          "Steering gearboxes (where specified)",
+          "Suitable for passenger cars, commercial vehicles, tractors, and off-highway equipment.",
+          "GL-4 grades are recommended for synchromesh gearboxes.",
+          "GL-5 grades are suitable for hypoid gears operating under severe conditions (as per OEM recommendation).",
+          "Vehicles operating in varied climatic and operating conditions."
+        ],
+        "typicalUses": [
+          "Automotive gear systems operating under moderate to severe load and shock conditions."
+        ],
+        "performanceStandards": [
+          "Meets or exceeds:",
+          "API GL-4",
+          "API GL-5 (for applicable grades)",
+          "IS 1118 : 1992 (EP Type Gear Oils)",
+          "MIL-L-2105D (where applicable)"
+        ],
+        "operatingCharacteristics": [
+          "Maintains stable viscosity and EP performance over extended service intervals.",
+          "Non-corrosive to copper and bronze components when used as recommended.",
+          "Compatible with commonly used automotive seals and gasket materials."
+        ],
+        "monograde": [],
+        "multigrade": []
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "SAE 90 (GL-4)",
+            "SAE 140 (GL-4)"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "ASTM D1500",
+            "≤ 4.0",
+            "≤ 4.0"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "Mineral",
+            "Mineral"
+          ],
+          [
+            "API Service Level",
+            "—",
+            "GL-4",
+            "GL-4"
+          ],
+          [
+            "Density @ 29.5°C, g/ml",
+            "ASTM D4052",
+            "0.880",
+            "0.880"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C, cSt",
+            "ASTM D445",
+            "180 – 220",
+            "400 – 460"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C, cSt",
+            "ASTM D445",
+            "18 – 20",
+            "25 – 30"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 95",
+            "≥ 95"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "≥ 220",
+            "≥ 230"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "-6",
+            "-6"
+          ],
+          [
+            "Copper Corrosion (3 hrs @ 100°C)",
+            "ASTM D130",
+            "1b",
+            "1b"
+          ],
+          [
+            "Four Ball Weld Load, kg",
+            "ASTM D2596",
+            "≥ 250",
+            "≥ 250"
+          ],
+          [
+            "Rust Prevention",
+            "ASTM D665",
+            "Pass",
+            "Pass"
+          ]
+        ],
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "75W-90 (GL-4/GL-5)",
+            "80W-90 (GL-4/GL-5)",
+            "85W-140 (GL-4)"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright",
+            "Clear & Bright",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "ASTM D1500",
+            "≤ 4.0",
+            "≤ 4.0",
+            "≤ 4.0"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "Mineral",
+            "Mineral",
+            "Mineral"
+          ],
+          [
+            "API Service Level",
+            "—",
+            "GL-4 / GL-5",
+            "GL-4 / GL-5",
+            "GL-4"
+          ],
+          [
+            "Density @ 29.5°C, g/ml",
+            "ASTM D4052",
+            "0.880",
+            "0.880",
+            "0.880"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C, cSt",
+            "ASTM D445",
+            "90 – 110",
+            "130 – 150",
+            "380 – 420"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C, cSt",
+            "ASTM D445",
+            "14 – 16",
+            "14 – 16",
+            "26 – 30"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "≥ 140",
+            "≥ 135",
+            "≥ 95"
+          ],
+          [
+            "Flash Point (COC), °C",
+            "ASTM D92",
+            "≥ 210",
+            "≥ 215",
+            "≥ 225"
+          ],
+          [
+            "Pour Point, °C",
+            "ASTM D97",
+            "-36",
+            "-27",
+            "-12"
+          ],
+          [
+            "Copper Corrosion (3 hrs @ 100°C)",
+            "ASTM D130",
+            "1b",
+            "1b",
+            "1b"
+          ],
+          [
+            "Four Ball Weld Load, kg",
+            "ASTM D2596",
+            "≥ 315",
+            "≥ 315",
+            "≥ 250"
+          ],
+          [
+            "FZG Load Stage",
+            "DIN 51354",
+            "≥ 12",
+            "≥ 12",
+            "≥ 12"
+          ],
+          [
+            "Rust Prevention",
+            "ASTM D665",
+            "Pass",
+            "Pass",
+            "Pass"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "BRAKE FLUIDS – TECHNOFLUID BRAKE FLUID (DOT 3 / DOT 4 / DOT 5)",
+      "displayName": "TECHNOFLUID BRAKE FLUID",
+      "productType": "Brake Fluid",
+      "subtitle": "(DOT 3, DOT 4 & DOT 5)",
+      "commercialName": "BRAKE FLUID DOT 3 / DOT 4 / DOT 5",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Brake Fluid is a high-performance hydraulic brake fluid range developed for reliable and safe operation of automotive and hydraulic braking systems.",
+          "Available in DOT 3, DOT 4 and DOT 5 grades to suit the requirements specified by vehicle manufacturers.",
+          "DOT 3 and DOT 4 are glycol-ether based fluids with high boiling points, excellent corrosion protection and good compatibility with brake-system seals and hoses.",
+          "DOT 5 is a silicone-based brake fluid intended only for systems specifically designed for silicone brake fluid, and must not be mixed with glycol-based DOT 3 / DOT 4 fluids."
+        ],
+        "gradesAvailable": [
+          "DOT 3 — glycol ether; dry boiling point >230°C, wet >145°C.",
+          "DOT 4 — glycol ether / borate ester; dry boiling point ≥250°C, wet ≥160°C.",
+          "DOT 5 — silicone; dry boiling point ≥260°C, wet ≥180°C. Not to be mixed with DOT 3 or DOT 4."
+        ],
+        "benefits": [
+          "High dry and wet boiling points for consistent pedal feel under heavy braking.",
+          "Excellent corrosion protection for brake-system components.",
+          "Good compatibility with commonly used brake seals and hoses.",
+          "Stable low-temperature viscosity for reliable cold-start braking.",
+          "Meets FMVSS 116 performance requirements for the respective grade."
+        ],
+        "applications": [
+          "Hydraulic disc and drum braking systems.",
+          "Passenger cars, commercial vehicles and two-wheelers.",
+          "Clutch hydraulic systems where a compatible brake fluid is specified.",
+          "Systems specifying DOT 3, DOT 4 or DOT 5 to FMVSS 116 / SAE J1703 / J1704."
+        ],
+        "industryPerformanceCharacteristics": [
+          "High boiling point",
+          "Excellent corrosion protection",
+          "Good seal compatibility",
+          "Stable low-temperature viscosity",
+          "Meets FMVSS 116"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Property",
+            "Test Method",
+            "DOT 3",
+            "DOT 4",
+            "DOT 5"
+          ],
+          [
+            "Product Type",
+            "—",
+            "Glycol-Ether Brake Fluid",
+            "Glycol-Ether Brake Fluid",
+            "Silicone Brake Fluid"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear to Amber",
+            "Clear to Amber",
+            "Clear / Translucent"
+          ],
+          [
+            "Density @ 20°C",
+            "ASTM D4052",
+            "1.04–1.07 g/cm³",
+            "1.04–1.08 g/cm³",
+            "0.96–1.00 g/cm³"
+          ],
+          [
+            "Dry Equilibrium Reflux Boiling Point",
+            "FMVSS 116 / SAE J1703 / J1704",
+            ">230°C",
+            "≥250°C",
+            "≥260°C"
+          ],
+          [
+            "Wet Equilibrium Reflux Boiling Point",
+            "FMVSS 116 / SAE J1703 / J1704",
+            ">145°C",
+            "≥160°C",
+            "≥180°C"
+          ],
+          [
+            "Kinematic Viscosity @ -40°C",
+            "FMVSS 116",
+            "≤1500 cSt",
+            "≤1500 cSt",
+            "≤900 cSt"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C",
+            "FMVSS 116",
+            "≥1.5 cSt",
+            "≥1.5 cSt",
+            "≥1.5 cSt"
+          ],
+          [
+            "pH Value",
+            "FMVSS 116",
+            "7.0–11.5",
+            "7.0–11.5",
+            "7.0–11.0"
+          ],
+          [
+            "Water Content",
+            "ASTM D1123 / equivalent",
+            "≤0.20%",
+            "≤0.20%",
+            "≤0.20%"
+          ],
+          [
+            "Base Fluid Type",
+            "—",
+            "Glycol Ether",
+            "Glycol Ether / Borate Ester",
+            "Silicone"
+          ],
+          [
+            "Performance Level",
+            "—",
+            "DOT 3 / FMVSS 116",
+            "DOT 4 / FMVSS 116",
+            "DOT 5 / FMVSS 116"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "SHOCK ABSORBER OILS – TECHNOFLUID SHOCK ABSORBER OIL",
+      "displayName": "TECHNOFLUID SHOCK ABSORBER OIL",
+      "productType": "Shock Absorber / Suspension Fluid",
+      "subtitle": "(2.5W, 5W, 7.5W, 10W, 15W, 20W & 30W)",
+      "commercialName": "SHOCK ABSORBER OIL 2.5W / 5W / 7.5W / 10W / 15W / 20W / 30W",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "TECHNOFLUID Shock Absorber Oil is a premium-quality suspension and shock absorber fluid formulated for smooth, consistent and reliable damping performance.",
+          "Designed for automotive and two-wheeler shock absorbers, telescopic forks and other hydraulic suspension systems where controlled viscosity, thermal stability and seal compatibility are required.",
+          "Available in a range of viscosity grades to provide different damping characteristics according to vehicle and suspension requirements.",
+          "Provides good oxidation resistance, low foaming tendency, excellent low-temperature fluidity and consistent performance across a wide operating temperature range."
+        ],
+        "gradesAvailable": [
+          "2.5W (10–15 cSt), 5W (15–20 cSt), 7.5W (20–25 cSt) @ 40°C.",
+          "10W (30–35 cSt), 15W (45–50 cSt) @ 40°C.",
+          "20W (60–70 cSt), 30W (90–110 cSt) @ 40°C.",
+          "Suspension-oil 'weight' labels vary between manufacturers — kinematic viscosity is the preferred basis for selecting an equivalent fluid."
+        ],
+        "benefits": [
+          "Consistent, predictable damping across the operating temperature range.",
+          "Good oxidation resistance for long fluid life.",
+          "Low foaming tendency for stable damping response.",
+          "Excellent low-temperature fluidity.",
+          "Good anti-wear and corrosion protection for suspension components."
+        ],
+        "applications": [
+          "Motorcycle and scooter telescopic forks.",
+          "Two-wheeler shock absorbers and automotive shock absorbers.",
+          "Suspension struts, damping units and steering dampers.",
+          "Hydraulic suspension systems, including off-road and recreational vehicles.",
+          "General-purpose hydraulic damping applications."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Controlled viscosity for predictable damping",
+          "High oxidation stability",
+          "Low foaming tendency",
+          "Excellent low-temperature fluidity",
+          "Good seal compatibility"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Property",
+            "Test Method",
+            "Typical Value"
+          ],
+          [
+            "Product Type",
+            "—",
+            "Shock Absorber / Suspension Fluid"
+          ],
+          [
+            "Viscosity Grades",
+            "—",
+            "2.5W, 5W, 7.5W, 10W, 15W, 20W, 30W"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Colour",
+            "Visual",
+            "Water White to Pale Amber"
+          ],
+          [
+            "Density @ 15°C",
+            "ASTM D4052",
+            "0.83–0.87 g/cm³"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C",
+            "ASTM D445",
+            "Grade dependent"
+          ],
+          [
+            "Viscosity @ 100°C",
+            "ASTM D445",
+            "Grade dependent"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "High"
+          ],
+          [
+            "Flash Point (COC)",
+            "ASTM D92",
+            ">150°C"
+          ],
+          [
+            "Pour Point",
+            "ASTM D97",
+            "Low / Grade dependent"
+          ],
+          [
+            "Foaming Tendency",
+            "ASTM D892",
+            "Low"
+          ],
+          [
+            "Oxidation Stability",
+            "—",
+            "Excellent"
+          ],
+          [
+            "Rust / Corrosion Protection",
+            "—",
+            "Good"
+          ],
+          [
+            "Seal Compatibility",
+            "—",
+            "Suitable for commonly used suspension seals"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "REAR AXLE OIL – TECHNOFLUID REAR AXLE OIL",
+      "displayName": "TECHNOFLUID REAR AXLE OIL",
+      "productType": "Rear Axle Oil",
+      "subtitle": "(SAE 80W & SAE 90)",
+      "commercialName": "REAR AXLE OIL (JCB) SAE 80W / SAE 90",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium rear axle oil formulated with high quality mineral base oils and advanced extreme pressure (EP) additives.",
+          "Designed for rear axles, differentials and final drives used in JCB construction equipment and off-highway machinery.",
+          "Provides outstanding protection under heavy shock loads and severe operating conditions.",
+          "Excellent oxidation stability, rust and corrosion protection for extended service life."
+        ],
+        "gradesAvailable": [
+          "SAE 80W and SAE 90."
+        ],
+        "benefits": [
+          "Excellent extreme pressure and anti-wear performance.",
+          "High load carrying capability for heavily loaded gears.",
+          "Reduces gear scuffing, pitting and wear.",
+          "Excellent thermal and oxidation stability.",
+          "Protects against rust, corrosion and foam formation."
+        ],
+        "applications": [
+          "JCB backhoe loaders and construction equipment.",
+          "Rear axle assemblies and final drives.",
+          "Differentials of earthmoving and off-highway equipment.",
+          "Suitable where EP gear lubricants meeting API GL-5 or equipment manufacturer recommendations are specified."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Outstanding EP protection",
+          "Excellent load carrying capability",
+          "Superior wear protection",
+          "Excellent oxidation stability",
+          "Extended component life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "SAE 80W",
+            "SAE 90"
+          ],
+          [
+            "Appearance",
+            "Bright & Clear",
+            "Bright & Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.890",
+            "0.895"
+          ],
+          [
+            "K.V @40°C cSt",
+            "75",
+            "180"
+          ],
+          [
+            "Viscosity Index",
+            "105",
+            "95"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "210",
+            "220"
+          ],
+          [
+            "Pour Point °C",
+            "-27",
+            "-12"
+          ]
+        ]
+      ]
+    },
+    {
       "title": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
       "displayName": "TECHNOFLUID CALCIUM BASE GREASE",
       "productType": "Grease",
       "subtitle": null,
       "commercialName": "GREASE C RED GEL / MP3 /  SLR",
-      "category": "Greases",
+      "category": "Grease",
       "aspirational": false,
       "sectionsOrder": [
         "description",
@@ -4774,7 +5199,7 @@
       "productType": "Grease",
       "subtitle": null,
       "commercialName": "LITHIUM GREASE AP3 / LITHIUM GREASE APLR",
-      "category": "Greases",
+      "category": "Grease",
       "aspirational": false,
       "sectionsOrder": [
         "description",
@@ -4941,7 +5366,7 @@
       "productType": "Grease",
       "subtitle": null,
       "commercialName": "LITHIUM COMPLEX GREASE (  RED GEL / BLUE GEL / 222 )",
-      "category": "Greases",
+      "category": "Grease",
       "aspirational": false,
       "sectionsOrder": [
         "description",
@@ -5108,7 +5533,7 @@
       "productType": "Grease",
       "subtitle": "(NLGI 000, 00, 0, 1, 2 & 3)",
       "commercialName": "GREASE EP ( 000/  00 /  0 /  1 /  2 / 3)",
-      "category": "Greases",
+      "category": "Grease",
       "aspirational": false,
       "sectionsOrder": [
         "description",
@@ -5314,7 +5739,7 @@
       "productType": null,
       "subtitle": null,
       "commercialName": "GREASE WR2",
-      "category": "Greases",
+      "category": "Grease",
       "aspirational": true,
       "sectionsOrder": [
         "description",
@@ -5905,7 +6330,7 @@
       "productType": null,
       "subtitle": null,
       "commercialName": "GIRTH GEAR GREASE",
-      "category": "Greases",
+      "category": "Grease",
       "aspirational": true,
       "sectionsOrder": [
         "description",
@@ -6028,6 +6453,1036 @@
             "Operating Temperature Range, °C",
             "—",
             "-10 to 120"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "COMPRESSOR OILS – TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+      "displayName": "TECHNOFLUID SCREW & AIR COMPRESSOR OILS",
+      "productType": "Compressor Oil",
+      "subtitle": "(SCREW 32 / 46 / 68 & AIR 100 / 150 / 220)",
+      "commercialName": "SCREW COMPRESSOR OIL 32 / 46 / 68, AIR COMPRESSOR OIL 100 / 150 / 220",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium compressor lubricants formulated from highly refined base oils and advanced additives.",
+          "Designed for rotary screw and reciprocating air compressors.",
+          "Excellent oxidation and thermal stability.",
+          "Low deposit formation for clean compressor operation.",
+          "Superior anti-wear, rust and corrosion protection."
+        ],
+        "gradesAvailable": [
+          "Screw Compressor Oil: ISO VG 32, 46 & 68.",
+          "Air Compressor Oil: ISO VG 100, 150 & 220.",
+          "Screw Compressor Oil 32 packs: 26 L, 50 L and 210 L.",
+          "Screw Compressor Oil 46 packs: 1 L, 5 L, 20 L, 26 L, 50 L and 210 L."
+        ],
+        "benefits": [
+          "Extended oil service life.",
+          "Excellent air release and anti-foam performance.",
+          "Minimizes sludge and varnish.",
+          "Reduces maintenance costs.",
+          "Reliable protection under severe operating conditions."
+        ],
+        "applications": [
+          "Rotary screw compressors.",
+          "Reciprocating air compressors.",
+          "Industrial compressed air systems.",
+          "Manufacturing, textile, mining and engineering industries."
+        ],
+        "industryPerformanceCharacteristics": [
+          "High oxidation stability",
+          "Excellent thermal stability",
+          "Rapid air release",
+          "Low foaming tendency",
+          "Excellent wear protection",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "SC 32",
+            "SC 46",
+            "SC 68",
+            "AC 100",
+            "AC 150",
+            "AC 220"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.845",
+            "0.850",
+            "0.858",
+            "0.865",
+            "0.870",
+            "0.875"
+          ],
+          [
+            "K.V @40°C cSt",
+            "32",
+            "46",
+            "68",
+            "100",
+            "150",
+            "220"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "98",
+            "98",
+            "95"
+          ],
+          [
+            "Pour Point °C",
+            "-18",
+            "-18",
+            "-15",
+            "-12",
+            "-9",
+            "-6"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "210",
+            "220",
+            "230",
+            "235",
+            "235",
+            "235"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "TURBINE OIL – TECHNOFLUID TURBINE OILS",
+      "displayName": "TECHNOFLUID TURBINE OILS",
+      "productType": "Turbine Oil",
+      "subtitle": "(ISO VG 32, 46, 68 & 100)",
+      "commercialName": "TURBINE OIL ( 32 / 46 / 68 / 100 )",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium turbine oils formulated from highly refined base oils and advanced anti-oxidant technology.",
+          "Designed for steam, gas and hydro turbine lubrication systems.",
+          "Excellent oxidation stability and long service life.",
+          "Superior rust, corrosion and foam protection."
+        ],
+        "gradesAvailable": [
+          "ISO VG 32, 46, 68 & 100."
+        ],
+        "benefits": [
+          "Outstanding oxidation and thermal stability.",
+          "Excellent water separation characteristics.",
+          "Rapid air release and low foaming tendency.",
+          "Reliable rust and corrosion protection.",
+          "Extended oil drain intervals and reduced maintenance."
+        ],
+        "applications": [
+          "Steam turbines.",
+          "Gas turbines.",
+          "Hydroelectric turbines.",
+          "Industrial circulating lubrication systems.",
+          "Power generation and process industries."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Excellent oxidation stability",
+          "High demulsibility",
+          "Rapid air release",
+          "Low foaming tendency",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "ISO VG 32",
+            "ISO VG 46",
+            "ISO VG 68",
+            "ISO VG 100"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.845",
+            "0.850",
+            "0.855",
+            "0.865"
+          ],
+          [
+            "K.V @40°C cSt",
+            "32",
+            "46",
+            "68",
+            "100"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "98"
+          ],
+          [
+            "Pour Point °C",
+            "-18",
+            "-15",
+            "-12",
+            "-9"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "210",
+            "220",
+            "230",
+            "240"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "SPINDLE OIL – TECHNOFLUID SPINDLE OIL",
+      "displayName": "TECHNOFLUID SPINDLE OIL",
+      "productType": "Spindle Oil",
+      "subtitle": "(ISO VG 2, 5, 10, 12 & 22)",
+      "commercialName": "SPIN ( 2 / 5 / 10 / 12 / 22 )",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium low-viscosity spindle oils formulated from highly refined base oils.",
+          "Designed for high-speed textile spindles, precision bearings and light-duty machine tools.",
+          "Excellent oxidation stability and rust protection.",
+          "Low friction characteristics ensure smooth operation and reduced power consumption."
+        ],
+        "gradesAvailable": [
+          "ISO VG 2, 5, 10, 12 & 22."
+        ],
+        "benefits": [
+          "Excellent lubrication of high-speed bearings.",
+          "Superior oxidation stability for long oil life.",
+          "Excellent anti-rust and anti-corrosion protection.",
+          "Low foaming and rapid air release.",
+          "Minimizes wear and improves equipment efficiency."
+        ],
+        "applications": [
+          "Textile spinning and weaving machinery.",
+          "High-speed spindles and precision bearings.",
+          "Machine tool spindles and light-duty circulating systems.",
+          "General low-viscosity industrial lubrication."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Excellent oxidation stability",
+          "Low friction characteristics",
+          "Excellent rust protection",
+          "Low foaming tendency",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "ISO VG 2",
+            "ISO VG 5",
+            "ISO VG 10",
+            "ISO VG 12",
+            "ISO VG 22"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.830",
+            "0.835",
+            "0.840",
+            "0.842",
+            "0.845"
+          ],
+          [
+            "K.V @40°C cSt",
+            "2",
+            "5",
+            "10",
+            "12",
+            "22"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "100",
+            "100"
+          ],
+          [
+            "Pour Point °C",
+            "-24",
+            "-21",
+            "-18",
+            "-18",
+            "-15"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "120",
+            "145",
+            "165",
+            "175",
+            "195"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
+      "displayName": "TECHNOFLUID CIRCULATING OIL",
+      "productType": "Circulating Oil",
+      "subtitle": null,
+      "commercialName": "CIRCULATING OIL",
+      "category": "Industrial Oils",
+      "aspirational": true,
+      "sectionsOrder": [
+        "description",
+        "applications"
+      ],
+      "sections": {
+        "description": [
+          "Industrial circulating oils for bearing, gear and general circulating lubrication systems.",
+          "Formulated from highly refined base oils with rust, oxidation and foam protection.",
+          "Offered on request — contact us with your viscosity grade and application details."
+        ],
+        "applications": [
+          "Circulating lubrication systems in steel, sugar, paper and process plants.",
+          "Bearing and gear lubrication in industrial machinery."
+        ]
+      },
+      "specTables": []
+    },
+    {
+      "title": "TRACTOR ENGINE OILS – TECHNOFLUID TRACTOR ENGINE OILS",
+      "displayName": "TECHNOFLUID TRACTOR ENGINE OILS",
+      "productType": "Tractor Engine Oil",
+      "subtitle": "(15W-40 CH-4 & 20W-40 CF)",
+      "commercialName": "TRACTOR ENGINE OIL 15W-40 CH-4 / 20W-40 CF",
+      "category": "Agricultural Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium tractor engine oils formulated with high quality base oils and advanced additive technology.",
+          "Designed for naturally aspirated and turbocharged diesel tractor engines.",
+          "Excellent detergency, dispersancy and oxidation stability.",
+          "Provides outstanding protection against wear, rust and corrosion."
+        ],
+        "gradesAvailable": [
+          "15W-40 CH-4 and 20W-40 CF."
+        ],
+        "benefits": [
+          "Excellent engine cleanliness and sludge control.",
+          "Superior wear protection for extended engine life.",
+          "High thermal and oxidation stability.",
+          "Reliable performance under heavy agricultural operations.",
+          "Reduces maintenance and oil consumption."
+        ],
+        "applications": [
+          "Agricultural tractors and farm equipment.",
+          "Diesel engines operating in tractors, harvesters and allied machinery.",
+          "Suitable where API CH-4 or API CF performance is recommended."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Excellent soot handling",
+          "Superior wear protection",
+          "High oxidation stability",
+          "Good corrosion resistance",
+          "Extended engine life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "15W-40 CH-4",
+            "20W-40 CF"
+          ],
+          [
+            "Appearance",
+            "Bright & Clear",
+            "Bright & Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.860",
+            "0.880"
+          ],
+          [
+            "K.V @100°C cSt",
+            "14.8",
+            "14.5"
+          ],
+          [
+            "Viscosity Index",
+            "140",
+            "130"
+          ],
+          [
+            "TBN",
+            "9.5",
+            "7.0"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "225",
+            "220"
+          ],
+          [
+            "Pour Point °C",
+            "-27",
+            "-21"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "RUBBER PROCESS OILS – TECHNOFLUID RPO & ELASTOL SERIES",
+      "displayName": "TECHNOFLUID RUBBER PROCESS OILS",
+      "productType": "Rubber Process Oil",
+      "subtitle": "(RPO 710, ELASTOL 245, ELASTOL 541 & P 165)",
+      "commercialName": "RPO 710 / ELASTOL 245 / ELASTOL 541 / P 165",
+      "category": "Specialty Lubricants & Process Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium rubber process oils manufactured from highly refined mineral base oils.",
+          "Developed to improve processing efficiency and compound dispersion in rubber manufacturing.",
+          "Excellent compatibility with natural and synthetic rubber compounds.",
+          "Provides good thermal stability, low volatility and consistent processing performance.",
+          "TECHNOFLUID P 165 is a premium grade manufactured from API Group II base oils with very low aromatic content, high flash point (>260°C) and clear, transparent appearance for modern rubber compounding."
+        ],
+        "gradesAvailable": [
+          "RPO 710 — dark green, high-viscosity aromatic grade.",
+          "ELASTOL 245 and ELASTOL 541 — yellow clear grades for general compounding.",
+          "P 165 — API Group II, water-white premium grade (120–130 cSt @40°C)."
+        ],
+        "benefits": [
+          "Improves filler dispersion and processability.",
+          "Enhances flexibility and finished product quality.",
+          "Excellent oxidation and thermal stability.",
+          "Low aromatic content and consistent viscosity.",
+          "Reduces energy consumption during mixing and processing."
+        ],
+        "applications": [
+          "Tyre and tube manufacturing.",
+          "Rubber hoses, belts, footwear and moulded rubber goods.",
+          "Automotive rubber components.",
+          "General natural and synthetic rubber compounding."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Excellent compatibility with rubber polymers",
+          "Good thermal stability",
+          "Low volatility",
+          "Consistent processing characteristics",
+          "Improved compound flow"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "RPO 710",
+            "ELASTOL 245",
+            "ELASTOL 541"
+          ],
+          [
+            "Appearance",
+            "Dark green",
+            "Yellow clear",
+            "Yellow clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.940",
+            "0.865",
+            "0.850"
+          ],
+          [
+            "K.V @40°C cSt",
+            "70",
+            "30-32",
+            "18-23"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "220",
+            "210",
+            "175"
+          ],
+          [
+            "Pour Point °C",
+            "-6",
+            "-3",
+            "-3"
+          ],
+          [
+            "Aniline Point °C",
+            "90",
+            "95",
+            "100"
+          ]
+        ],
+        [
+          [
+            "P 165 — Property",
+            "Test Method",
+            "Typical Value"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "API Group II"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Transparent"
+          ],
+          [
+            "Colour",
+            "Visual",
+            "Water White to Pale"
+          ],
+          [
+            "Density @ 15°C",
+            "ASTM D4052",
+            "0.860 g/cm³"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C",
+            "ASTM D445",
+            "120–130 cSt"
+          ],
+          [
+            "Flash Point (COC)",
+            "ASTM D92",
+            ">260°C"
+          ],
+          [
+            "Pour Point",
+            "ASTM D97",
+            "Below -6°C"
+          ],
+          [
+            "Aromatic Content",
+            "—",
+            "Very Low"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "WHITE OILS – TECHNOFLUID WHITE OIL",
+      "displayName": "TECHNOFLUID WHITE OILS",
+      "productType": "White Mineral Oil",
+      "subtitle": "(ISO VG 12, 32 & 100)",
+      "commercialName": "WHITE OIL ISO VG 12 / 32 / 100",
+      "category": "Specialty Lubricants & Process Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Highly refined, colourless, odourless and chemically stable white mineral oils manufactured from premium quality base oils.",
+          "Excellent purity with low aromatic content and high oxidation stability.",
+          "Provides outstanding lubricity, water-white appearance and long service life.",
+          "Non-staining and suitable where clean lubrication is essential."
+        ],
+        "gradesAvailable": [
+          "ISO VG 12, 32 and 100."
+        ],
+        "benefits": [
+          "High oxidation resistance and thermal stability.",
+          "Excellent colour stability and low volatility.",
+          "Good rust protection and anti-foam characteristics.",
+          "Safe for applications requiring clean, non-staining mineral oil.",
+          "Consistent performance over a wide operating temperature range."
+        ],
+        "applications": [
+          "Textile machinery and fibre processing.",
+          "Pharmaceutical, cosmetic and personal care manufacturing (technical-grade applications as specified).",
+          "Food packaging machinery and general clean lubrication applications where appropriate.",
+          "Plastic, rubber and chemical processing.",
+          "General industrial lubrication requiring colourless mineral oil."
+        ],
+        "industryPerformanceCharacteristics": [
+          "High purity and water-white appearance",
+          "Excellent oxidation stability",
+          "Low odour and non-staining performance",
+          "Reliable viscosity characteristics",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "ISO VG 12",
+            "ISO VG 32",
+            "ISO VG 100"
+          ],
+          [
+            "Appearance",
+            "Water White",
+            "Water White",
+            "Water White"
+          ],
+          [
+            "Density @29.5°C",
+            "0.805-0.85",
+            "0.830-0.845",
+            "0.865"
+          ],
+          [
+            "K.V @40°C cSt",
+            "11-14",
+            "30-32",
+            "95-105"
+          ],
+          [
+            "Viscosity Index",
+            "95",
+            "98",
+            "100"
+          ],
+          [
+            "Pour Point °C",
+            "-9",
+            "-9",
+            "-6"
+          ],
+          [
+            "Flash Point COC °C",
+            ">160",
+            "210",
+            ">250"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "FOOD GRADE LUBRICANTS – TECHNOFLUID FOOD GRADE RANGE",
+      "displayName": "TECHNOFLUID FOOD GRADE LUBRICANTS",
+      "productType": "Food Grade Lubricant",
+      "subtitle": "(HYDRAULIC · GEAR · GREASE EP 2 H1 · WHITE OIL · CHAIN OIL 150)",
+      "commercialName": "FOOD GRADE HYDRAULIC / GEAR / GREASE EP 2 (H1) / WHITE OIL / CHAIN OIL 150",
+      "category": "Specialty Lubricants & Process Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "A complete range of food-grade lubricants formulated from highly refined white mineral base oils and food-grade performance additives.",
+          "Designed for equipment where incidental food contact may occur.",
+          "Excellent oxidation stability, wear protection and long service life across the range.",
+          "Non-staining, clean lubrication for food, beverage, pharmaceutical and cosmetic plants."
+        ],
+        "gradesAvailable": [
+          "Food Grade Hydraulic Oil — ISO VG 22, 32, 46, 68 & 100.",
+          "Food Grade Gear Oil — ISO VG 220 & 320.",
+          "Food Grade Grease EP 2 (H1) — NLGI 2, aluminium complex, -20°C to +160°C.",
+          "Food Grade White Oil — ISO VG 32, 46, 68 & 100.",
+          "Food Grade Chain Oil 150."
+        ],
+        "benefits": [
+          "Excellent anti-wear and EP performance across hydraulic, gear and grease products.",
+          "High oxidation and thermal stability for long service life.",
+          "Outstanding water resistance and washout protection (grease).",
+          "Superior rust and corrosion protection.",
+          "Reduced maintenance with clean, non-staining lubrication."
+        ],
+        "applications": [
+          "Food and beverage processing plants.",
+          "Bakery, dairy, confectionery and meat processing equipment.",
+          "Beverage bottling, packaging and conveyor systems.",
+          "Pharmaceutical and cosmetic manufacturing machinery.",
+          "Hydraulic systems, gearboxes, bearings and chains requiring food-grade lubricants."
+        ],
+        "industryPerformanceCharacteristics": [
+          "Formulated for incidental food contact applications",
+          "High purity white-oil base stocks",
+          "Excellent anti-wear protection",
+          "High oxidation stability",
+          "Long service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Hydraulic Oil — Characteristics",
+            "ISO VG 22",
+            "ISO VG 32",
+            "ISO VG 46",
+            "ISO VG 68",
+            "ISO VG 100"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.845",
+            "0.850",
+            "0.855",
+            "0.860",
+            "0.865"
+          ],
+          [
+            "K.V @40°C cSt",
+            "22",
+            "32",
+            "46",
+            "68",
+            "100"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "100",
+            "100"
+          ],
+          [
+            "Pour Point °C",
+            "-18",
+            "-18",
+            "-15",
+            "-12",
+            "-9"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "200",
+            "210",
+            "220",
+            "230",
+            "240"
+          ]
+        ],
+        [
+          [
+            "Gear Oil — Characteristics",
+            "ISO VG 220",
+            "ISO VG 320"
+          ],
+          [
+            "Appearance",
+            "Clear",
+            "Clear"
+          ],
+          [
+            "Density @29.5°C",
+            "0.870",
+            "0.875"
+          ],
+          [
+            "K.V @40°C cSt",
+            "220",
+            "320"
+          ],
+          [
+            "Viscosity Index",
+            "95",
+            "95"
+          ],
+          [
+            "Pour Point °C",
+            "-9",
+            "-6"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "250",
+            "260"
+          ]
+        ],
+        [
+          [
+            "Grease — Characteristics",
+            "EP 2 (H1)"
+          ],
+          [
+            "Appearance",
+            "White"
+          ],
+          [
+            "NLGI Grade",
+            "2"
+          ],
+          [
+            "Thickener",
+            "Aluminium Complex"
+          ],
+          [
+            "Base Oil Viscosity @40°C",
+            "220 cSt"
+          ],
+          [
+            "Worked Penetration",
+            "265-295"
+          ],
+          [
+            "Dropping Point",
+            "260°C Min"
+          ],
+          [
+            "Operating Temperature",
+            "-20°C to +160°C"
+          ]
+        ],
+        [
+          [
+            "White Oil — Characteristics",
+            "ISO VG 32",
+            "ISO VG 46",
+            "ISO VG 68",
+            "ISO VG 100"
+          ],
+          [
+            "Appearance",
+            "Water White",
+            "Water White",
+            "Water White",
+            "Water White"
+          ],
+          [
+            "Density @29.5°C",
+            "0.845",
+            "0.850",
+            "0.855",
+            "0.860"
+          ],
+          [
+            "K.V @40°C cSt",
+            "32",
+            "46",
+            "68",
+            "100"
+          ],
+          [
+            "Viscosity Index",
+            "100",
+            "100",
+            "100",
+            "100"
+          ],
+          [
+            "Pour Point °C",
+            "-12",
+            "-12",
+            "-9",
+            "-6"
+          ],
+          [
+            "Flash Point (COC) °C",
+            "210",
+            "220",
+            "230",
+            "245"
+          ]
+        ]
+      ]
+    },
+    {
+      "title": "MARINE ENGINE OILS – TECHNOFLUID MARINE SERIES",
+      "displayName": "TECHNOFLUID MARINE ENGINE OILS",
+      "productType": "Marine Engine Oil",
+      "subtitle": "(SAE 30, SAE 40, 15W-40, CYLINDER OILS & SYSTEM OIL)",
+      "commercialName": "MARINE SAE 30 (TBN 12/15) / SAE 40 (TBN 20/30/40) / 15W-40 / CYLINDER OIL 50 & 70 TBN / SYSTEM OIL SAE 30",
+      "category": "Specialty Lubricants & Process Oils",
+      "aspirational": false,
+      "sectionsOrder": [
+        "description",
+        "gradesAvailable",
+        "benefits",
+        "applications",
+        "industryPerformanceCharacteristics"
+      ],
+      "sections": {
+        "description": [
+          "Premium marine lubricants formulated from high quality base oils and advanced additive technology.",
+          "Designed for trunk piston and marine diesel engines operating under severe service conditions.",
+          "Excellent detergency, dispersancy and oxidation stability.",
+          "Available for main engine, cylinder lubrication and marine system lubrication."
+        ],
+        "gradesAvailable": [
+          "SAE 30 (TBN 12/15) and SAE 40 (TBN 20/30/40) — trunk piston engine oils.",
+          "15W-40 — multigrade marine diesel engine oil.",
+          "Cylinder Oil 50 TBN and 70 TBN — crosshead engine cylinder lubrication.",
+          "System Oil SAE 30 — marine crankcase/system lubrication."
+        ],
+        "benefits": [
+          "Controls piston deposits and sludge formation.",
+          "Excellent acid neutralization through optimized TBN levels.",
+          "Superior oxidation and thermal stability.",
+          "Extends engine life and minimizes wear.",
+          "Reliable performance in coastal and ocean-going vessels."
+        ],
+        "applications": [
+          "Medium and high-speed marine diesel engines.",
+          "Fishing boats, cargo vessels and marine auxiliary engines.",
+          "Crosshead engine cylinder lubrication (Cylinder Oils).",
+          "Marine crankcase/system lubrication (System Oil SAE 30)."
+        ],
+        "industryPerformanceCharacteristics": [
+          "High detergency and dispersancy",
+          "Excellent wear protection",
+          "Superior corrosion resistance",
+          "High thermal and oxidation stability",
+          "Extended oil service life"
+        ]
+      },
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "SAE30 TBN12/15",
+            "SAE40 TBN20/30/40",
+            "15W-40",
+            "Cyl 50",
+            "Cyl 70",
+            "System SAE30"
+          ],
+          [
+            "Appearance",
+            "Bright",
+            "Bright",
+            "Bright",
+            "Bright",
+            "Bright",
+            "Bright"
+          ],
+          [
+            "Density @29.5°C",
+            "0.865",
+            "0.870",
+            "0.870",
+            "0.890",
+            "0.890",
+            "0.865"
+          ],
+          [
+            "K.V @40°C cSt",
+            "100",
+            "150",
+            "110",
+            "220",
+            "240",
+            "100"
+          ],
+          [
+            "Viscosity Index",
+            "98",
+            "98",
+            "135",
+            "95",
+            "95",
+            "98"
+          ],
+          [
+            "Flash Point °C",
+            "230",
+            "235",
+            "225",
+            "240",
+            "245",
+            "230"
+          ],
+          [
+            "TBN",
+            "12/15",
+            "20/30/40",
+            "12",
+            "50",
+            "70",
+            "5"
           ]
         ]
       ]

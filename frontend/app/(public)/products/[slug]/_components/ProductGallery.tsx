@@ -22,13 +22,15 @@ export default function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-border bg-white">
+      {/* 4:3 frame with the same padding as the product cards, so a photo
+          renders at exactly the standard size (and tilt) it does elsewhere. */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-border bg-white">
         <Image
           src={selected.src}
           alt={selectedAlt}
           fill
           sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
-          className="object-contain p-6"
+          className="object-contain p-4"
           priority
         />
       </div>
@@ -54,7 +56,7 @@ export default function ProductGallery({
                 onClick={() => setSelectedIndex(i)}
                 aria-label={`Show image: ${thumbAlt}`}
                 aria-pressed={isActive}
-                className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border bg-white transition-opacity"
+                className="relative h-16 w-[85px] shrink-0 overflow-hidden rounded-xl border bg-white transition-opacity"
                 style={{
                   borderColor: isActive ? BRAND.orange : undefined,
                   borderWidth: isActive ? "2px" : "1px",

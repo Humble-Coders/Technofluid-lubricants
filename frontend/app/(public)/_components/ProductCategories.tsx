@@ -14,7 +14,7 @@ const CATEGORY_STYLE: Record<
   // Oil drum — industrial oils
   "/products?category=industrial-oils": {
     gradient: `linear-gradient(135deg, ${BRAND.red}, ${BRAND.orange})`,
-    image: "/industrial-card-2.png",
+    image: "/category-industrial.png",
     icon: (
       <>
         <rect x="6" y="4" width="12" height="17" rx="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -26,7 +26,7 @@ const CATEGORY_STYLE: Record<
   // Engine oil can with pour spout — automotive lubricants
   "/products?category=automotive-lubricants": {
     gradient: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.red})`,
-    image: "/automobiles-card-2.png",
+    image: "/category-automotive.png",
     icon: (
       <>
         <path
@@ -39,10 +39,24 @@ const CATEGORY_STYLE: Record<
       </>
     ),
   },
-  // Grease-gun cartridge — greases
-  "/products?category=greases": {
+  // Tractor — agricultural lubricants
+  "/products?category=agricultural-lubricants": {
+    gradient: `linear-gradient(135deg, ${BRAND.orangeDark}, ${BRAND.peach})`,
+    image: "/category-agricultural.png",
+    icon: (
+      <>
+        <circle cx="7" cy="16" r="4" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="18" cy="17.5" r="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7 12V7h6l2 5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13 7V4h3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M11 16h4.5" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
+  },
+  // Grease-gun cartridge — grease
+  "/products?category=grease": {
     gradient: `linear-gradient(135deg, ${BRAND.peach}, ${BRAND.orange})`,
-    image: "/greases-bg-2.png",
+    image: "/category-grease.png",
     icon: (
       <>
         <path d="M9 2h6v3H9V2Z" strokeLinecap="round" strokeLinejoin="round" />
@@ -55,10 +69,10 @@ const CATEGORY_STYLE: Record<
       </>
     ),
   },
-  // Lab flask — specialty oils
-  "/products?category=specialty-oils": {
+  // Lab flask — specialty lubricants & process oils
+  "/products?category=specialty-lubricants-process-oils": {
     gradient: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.peach})`,
-    image: "/special-card-2.png",
+    image: "/category-specialty.png",
     icon: (
       <>
         <path d="M9 2h6M10 2v6l-5.5 10a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8V2" strokeLinecap="round" strokeLinejoin="round" />
@@ -137,7 +151,7 @@ export default function ProductCategories() {
           />
         </motion.div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {PRODUCT_CATEGORIES.map((category, index) => {
             const style = CATEGORY_STYLE[category.href];
             return (

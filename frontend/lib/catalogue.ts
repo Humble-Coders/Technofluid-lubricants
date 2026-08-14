@@ -2,6 +2,7 @@
 import catalogueData from "@/content/catalogue.json";
 import crosswalkData from "@/content/catalogue-crosswalk.json";
 import productImagesData from "@/content/product-images.json";
+import productDataSheetsData from "@/content/product-datasheets.json";
 import { BRAND } from "@/content/brand";
 import { slugify } from "@/lib/services/productImport";
 import type {
@@ -10,6 +11,8 @@ import type {
   CatalogueSeries,
   CrosswalkContent,
   CrosswalkSeries,
+  ProductDataSheet,
+  ProductDataSheetsManifest,
   ProductImages,
   ProductImagesManifest,
 } from "@/types/content";
@@ -17,12 +20,15 @@ import type {
 export const catalogue = catalogueData as unknown as CatalogueContent;
 export const crosswalk = crosswalkData as unknown as CrosswalkContent;
 const productImages = productImagesData as unknown as ProductImagesManifest;
+const productDataSheets =
+  productDataSheetsData as unknown as ProductDataSheetsManifest;
 
 const CATEGORY_ACCENT: Record<CatalogueCategory, string> = {
   "Industrial Oils": BRAND.orange,
   "Automotive Lubricants": BRAND.red,
-  Greases: BRAND.orangeDark,
-  "Specialty Oils": BRAND.charcoal,
+  "Agricultural Lubricants": BRAND.orangeDark,
+  "Specialty Lubricants & Process Oils": BRAND.charcoal,
+  Grease: BRAND.orangeDark,
 };
 
 export function categoryAccent(category: CatalogueCategory): string {
@@ -58,6 +64,21 @@ export function categorySlug(category: string): string {
   return slugify(category);
 }
 
+/** True when the series belongs to a category, including secondary ones. */
+export function seriesInCategory(
+  series: CatalogueSeries,
+  slug: string,
+): boolean {
+  return [series.category, ...(series.alsoInCategories ?? [])].some(
+    (category) => categorySlug(category) === slug,
+  );
+}
+
 export function imagesForSeries(slug: string): ProductImages | null {
   return productImages[slug] ?? null;
+}
+
+/** Client-supplied data sheets for a series; empty when none exists yet. */
+export function dataSheetsForSeries(slug: string): ProductDataSheet[] {
+  return productDataSheets.sheets[slug] ?? [];
 }

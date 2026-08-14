@@ -11,11 +11,12 @@ export default function ProductsHero() {
         Products
       </span>
       <h1 className="mt-4 text-[2.2rem] font-extrabold leading-tight tracking-tight text-textPrimary sm:text-[2.8rem]">
-        Our full lubricant catalogue
+        Our Product Range
       </h1>
       <p className="mt-4 text-[15px] leading-relaxed text-textSecondary">
-        Industrial oils, automotive lubricants, greases and specialty oils —
-        browse what we make, in the pack sizes we actually sell.
+        Automotive, industrial and agricultural lubricants, specialty &amp;
+        process oils and grease — browse what we make, in the pack sizes we
+        actually sell.
       </p>
     </section>
   );
