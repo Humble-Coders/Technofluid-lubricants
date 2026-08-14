@@ -1,5 +1,8 @@
 // File: frontend/app/(public)/products/_components/CategoryFilterTabs.tsx
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { BRAND } from "@/content/brand";
 import { categorySlug } from "@/lib/catalogue";
 import { PRODUCT_CATEGORIES } from "@/content/productCategories";
@@ -17,6 +20,9 @@ export default function CategoryFilterTabs({
 }: {
   activeSlug: string | null;
 }) {
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q");
+
   return (
     <nav
       aria-label="Filter by category"
@@ -24,7 +30,11 @@ export default function CategoryFilterTabs({
     >
       {TABS.map((tab) => {
         const isActive = tab.slug === activeSlug;
-        const href = tab.slug ? `/products?category=${tab.slug}` : "/products";
+        const params = new URLSearchParams();
+        if (tab.slug) params.set("category", tab.slug);
+        if (q) params.set("q", q);
+        const qs = params.toString();
+        const href = qs ? `/products?${qs}` : "/products";
         return (
           <Link
             key={tab.label}

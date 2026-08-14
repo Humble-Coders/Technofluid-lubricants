@@ -3,30 +3,25 @@ import { catalogue, categorySlug } from "@/lib/catalogue";
 import { BRAND } from "@/content/brand";
 import ProductsHero from "./_components/ProductsHero";
 import CategoryFilterTabs from "./_components/CategoryFilterTabs";
-import ProductSeriesCard from "./_components/ProductSeriesCard";
-import ProductsPagination from "./_components/ProductsPagination";
-
-const PAGE_SIZE = 9;
+import ProductSearchBar from "./_components/ProductSearchBar";
+import ProductsGrid from "./_components/ProductsGrid";
 
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; page?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
-  const { category, page: pageParam } = await searchParams;
+  const { category, q } = await searchParams;
   const activeSlug = category ?? null;
+  const query = q?.trim().toLowerCase() ?? "";
 
-  const series = catalogue.products.filter(
-    (p) => !activeSlug || categorySlug(p.category) === activeSlug,
-  );
-
-  const totalPages = Math.max(1, Math.ceil(series.length / PAGE_SIZE));
-  const requestedPage = Number(pageParam) || 1;
-  const page = Math.min(Math.max(1, requestedPage), totalPages);
-  const paginatedSeries = series.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
-  );
+  const series = catalogue.products.filter((p) => {
+    if (activeSlug && categorySlug(p.category) !== activeSlug) return false;
+    if (!query) return true;
+    return [p.displayName, p.productType, p.subtitle, p.category]
+      .filter(Boolean)
+      .some((field) => field!.toLowerCase().includes(query));
+  });
 
   return (
     <div className="relative overflow-hidden">
@@ -71,24 +66,16 @@ export default async function ProductsPage({
 
       <div className="relative">
         <ProductsHero />
+        <ProductSearchBar />
         <CategoryFilterTabs activeSlug={activeSlug} />
         <section className="mx-auto max-w-7xl px-6 pb-20 lg:px-8">
-          {paginatedSeries.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
-                {paginatedSeries.map((s) => (
-                  <ProductSeriesCard key={s.title} series={s} />
-                ))}
-              </div>
-              <ProductsPagination
-                activeSlug={activeSlug}
-                page={page}
-                totalPages={totalPages}
-              />
-            </>
+          {series.length > 0 ? (
+            <ProductsGrid series={series} />
           ) : (
             <p className="py-16 text-center text-[14px] text-textSecondary">
-              No products found in this category.
+              {query
+                ? `No products found matching "${q}".`
+                : "No products found in this category."}
             </p>
           )}
         </section>
