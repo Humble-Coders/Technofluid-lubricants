@@ -3,7 +3,7 @@ import { BRAND } from "@/content/brand";
 
 export default function ProductsHero() {
   return (
-    <section className="mx-auto max-w-3xl px-6 py-16 text-center lg:px-8 lg:py-20">
+    <section className="mx-auto max-w-3xl px-6 py-12 text-center lg:px-8 lg:py-16">
       <span
         className="text-[11px] font-bold uppercase tracking-[0.28em]"
         style={{ color: BRAND.orange }}
