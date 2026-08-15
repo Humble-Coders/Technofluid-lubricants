@@ -88,6 +88,218 @@
         "file": "/data-sheets/technofluid-brake-fluid-dot3-dot4-dot5.pdf",
         "label": "Brake Fluid (DOT 3 / DOT 4 / DOT 5)"
       }
+    ],
+    "4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils": [
+      {
+        "file": "/data-sheets/4t-engine-oils-technofluid-four-stroke-motorcycle-engine-oils.pdf",
+        "label": "Four-Stroke Motorcycle Engine Oils"
+      }
+    ],
+    "agricultural-gear-oil-technofluid-rotavator-oil-sae-140": [
+      {
+        "file": "/data-sheets/agricultural-gear-oil-technofluid-rotavator-oil-sae-140.pdf",
+        "label": "Rotavator Oil (Sae 140)"
+      }
+    ],
+    "automotive-engine-oils-technofluid-pcmo": [
+      {
+        "file": "/data-sheets/automotive-engine-oils-technofluid-pcmo.pdf",
+        "label": "Pcmo"
+      }
+    ],
+    "chain-lubricant-technofluid-chain-oil": [
+      {
+        "file": "/data-sheets/chain-lubricant-technofluid-chain-oil.pdf",
+        "label": "Chain Oil"
+      }
+    ],
+    "electrical-motor-oil-technofluid-submersible-motor-oil": [
+      {
+        "file": "/data-sheets/electrical-motor-oil-technofluid-submersible-motor-oil.pdf",
+        "label": "Submersible Motor Oil"
+      }
+    ],
+    "grease-technofluid-calcium-base-grease": [
+      {
+        "file": "/data-sheets/grease-technofluid-calcium-base-grease.pdf",
+        "label": "Calcium Base Grease"
+      }
+    ],
+    "grease-technofluid-ep-grease-series": [
+      {
+        "file": "/data-sheets/grease-technofluid-ep-grease-series.pdf",
+        "label": "Ep Grease Series"
+      }
+    ],
+    "grease-technofluid-lithium-complex-grease": [
+      {
+        "file": "/data-sheets/grease-technofluid-lithium-complex-grease.pdf",
+        "label": "Lithium Complex Grease"
+      }
+    ],
+    "grease-technofluid-lithium-grease-ap3-aplr": [
+      {
+        "file": "/data-sheets/grease-technofluid-lithium-grease-ap3-aplr.pdf",
+        "label": "Lithium Grease Ap3 & Aplr"
+      }
+    ],
+    "heat-transfer-fluid-technofluid-ht-32-premium": [
+      {
+        "file": "/data-sheets/heat-transfer-fluid-technofluid-ht-32-premium.pdf",
+        "label": "Ht 32 Premium"
+      }
+    ],
+    "hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460": [
+      {
+        "file": "/data-sheets/hydraulic-oil-technofluid-hydraulic-oil-aw-iso-vg-32-46-68-100-150-220-320-460.pdf",
+        "label": "Hydraulic Oil Aw (Iso Vg 32, 46,68,100,150,220,320 & 460)"
+      }
+    ],
+    "hydraulic-oil-technofluid-hydraulic-oil-hlp": [
+      {
+        "file": "/data-sheets/hydraulic-oil-technofluid-hydraulic-oil-hlp.pdf",
+        "label": "Hydraulic Oil Hlp"
+      }
+    ],
+    "hydraulic-oil-technofluid-hydraulic-oil-hvi": [
+      {
+        "file": "/data-sheets/hydraulic-oil-technofluid-hydraulic-oil-hvi.pdf",
+        "label": "Hydraulic Oil Hvi"
+      }
+    ],
+    "industrial-engine-oils-technofluid-diesel-engine-oils": [
+      {
+        "file": "/data-sheets/industrial-engine-oils-technofluid-diesel-engine-oils.pdf",
+        "label": "Diesel Engine Oils"
+      }
+    ],
+    "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460": [
+      {
+        "file": "/data-sheets/industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460.pdf",
+        "label": "Gear Oils (Iso Vg 100, 150, 220, 320 & 460)"
+      }
+    ],
+    "insulating-oil-technofluid-transformer-oil": [
+      {
+        "file": "/data-sheets/insulating-oil-technofluid-transformer-oil.pdf",
+        "label": "Transformer Oil"
+      }
+    ],
+    "lubricating-oils-technofluid-lube-series": [
+      {
+        "file": "/data-sheets/lubricating-oils-technofluid-lube-series.pdf",
+        "label": "Lube (Slideway) Series"
+      }
+    ],
+    "metal-working-fluid-technofluid-cutting-oil": [
+      {
+        "file": "/data-sheets/metal-working-fluid-technofluid-cutting-oil.pdf",
+        "label": "Cutting Oil"
+      }
+    ],
+    "neat-cutting-oil-technofluid-neat-cutting-oil-55": [
+      {
+        "file": "/data-sheets/neat-cutting-oil-technofluid-neat-cutting-oil-55.pdf",
+        "label": "Neat Cutting Oil 55"
+      }
+    ],
+    "process-oil-technofluid-pvc-oil": [
+      {
+        "file": "/data-sheets/process-oil-technofluid-pvc-oil.pdf",
+        "label": "Pvc Oil"
+      }
+    ],
+    "quenching-oil-technofluid-q-39-qlp-32": [
+      {
+        "file": "/data-sheets/quenching-oil-technofluid-q-39-qlp-32.pdf",
+        "label": "Q 39 & Qlp 32"
+      }
+    ],
+    "refrigeration-oil-technofluid-refrigeration-oil-grades-46-68": [
+      {
+        "file": "/data-sheets/refrigeration-oil-technofluid-refrigeration-oil-grades-46-68.pdf",
+        "label": "Refrigeration Oil (Grades 46 & 68)"
+      }
+    ],
+    "rust-preventive-oil-technofluid-rust-preventive-oil-906": [
+      {
+        "file": "/data-sheets/rust-preventive-oil-technofluid-rust-preventive-oil-906.pdf",
+        "label": "Rust Preventive Oil 906"
+      }
+    ],
+    "semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil": [
+      {
+        "file": "/data-sheets/semi-synthetic-cutting-oil-technofluid-semi-synthetic-cutting-oil.pdf",
+        "label": "Semi Synthetic Cutting Oil"
+      }
+    ],
+    "technofluid-gear-lube-ep-series": [
+      {
+        "file": "/data-sheets/technofluid-gear-lube-ep-series.pdf",
+        "label": "Gear Lube EP Series"
+      },
+      {
+        "file": "/data-sheets/technofluid-gear-ep-320.pdf",
+        "label": "Gear EP 320"
+      },
+      {
+        "file": "/data-sheets/technofluid-gear-ep-460.pdf",
+        "label": "Gear EP 460"
+      }
+    ],
+    "technofluid-girth-gear-grease": [
+      {
+        "file": "/data-sheets/technofluid-girth-gear-grease.pdf",
+        "label": "Girth Gear Grease"
+      }
+    ],
+    "technofluid-grease-wr-2-water-resistant-grease": [
+      {
+        "file": "/data-sheets/technofluid-grease-wr-2-water-resistant-grease.pdf",
+        "label": "Grease Wr-2 (Water Resistant Grease)"
+      }
+    ],
+    "technofluid-roll-perfect-22": [
+      {
+        "file": "/data-sheets/technofluid-roll-perfect-22.pdf",
+        "label": "Roll Perfect 22"
+      }
+    ],
+    "technofluid-roll-perfect-46-soluble": [
+      {
+        "file": "/data-sheets/technofluid-roll-perfect-46-soluble.pdf",
+        "label": "Roll Perfect 46 (Soluble)"
+      }
+    ],
+    "textile-lubricant-technofluid-coning-oil": [
+      {
+        "file": "/data-sheets/textile-lubricant-technofluid-coning-oil.pdf",
+        "label": "Coning Oil"
+      }
+    ],
+    "textile-lubricant-technofluid-knitting-oil": [
+      {
+        "file": "/data-sheets/textile-lubricant-technofluid-knitting-oil.pdf",
+        "label": "Knitting Oil"
+      }
+    ],
+    "textile-lubricant-technofluid-warping-oil": [
+      {
+        "file": "/data-sheets/textile-lubricant-technofluid-warping-oil.pdf",
+        "label": "Warping Oil"
+      }
+    ],
+    "wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil": [
+      {
+        "file": "/data-sheets/wet-brake-oil-technofluid-utto-universal-tractor-transmission-oil.pdf",
+        "label": "Utto (Universal Tractor Transmission Oil)"
+      }
+    ],
+    "circulating-oil-technofluid-circulating-oil": [
+      {
+        "file": "/data-sheets/technofluid-circulating-oil.pdf",
+        "label": "Circulating Oil"
+      }
     ]
   }
 }
