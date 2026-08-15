@@ -16,6 +16,14 @@ const WHATSAPP_TEXT =
   "Hello TECHNOFLUID! I visited your website and would like to enquire about your lubricants. Please get in touch.";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_TEXT)}`;
 
+// Path per detail row, in order (Address, Phone, Email, Hours).
+const DETAIL_ICON_PATHS = [
+  "M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21z M12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  "M4 4.5c0-.6.4-1 1-1h2.7c.5 0 .9.3 1 .8l.7 3a1 1 0 0 1-.3 1L7.8 9.6a12 12 0 0 0 5.6 5.6l1.3-1.3a1 1 0 0 1 1-.3l3 .7c.5.1.8.5.8 1V18c0 .6-.4 1-1 1h-1C9.5 19 4 13.5 4 6.5v-1z",
+  "M4 6h16v12H4V6z M4 6l8 7 8-7",
+  "M12 7v5.5l3.5 2 M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16z",
+];
+
 const DETAIL_ITEMS = [
   { label: "Address", value: ASSETS.contact.address },
   { label: "Phone", value: ASSETS.contact.phone },
@@ -110,14 +118,31 @@ export default function ContactScreen() {
                 Reach us directly
               </h2>
               <div className="mt-5 flex flex-col gap-5">
-                {DETAIL_ITEMS.map((item) => (
-                  <div key={item.label}>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
-                      {item.label}
-                    </p>
-                    <p className="mt-1 text-[13.5px] font-medium leading-relaxed text-white">
-                      {item.value}
-                    </p>
+                {DETAIL_ITEMS.map((item, i) => (
+                  <div key={item.label} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15">
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="1.6"
+                      >
+                        <path
+                          d={DETAIL_ICON_PATHS[i % DETAIL_ICON_PATHS.length]}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-[13.5px] font-medium leading-relaxed text-white">
+                        {item.value}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>

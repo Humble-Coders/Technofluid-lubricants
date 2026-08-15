@@ -11,6 +11,13 @@ const COMPANY = company as CompanyContent;
 const INDUSTRIES = (industriesData as IndustriesContent).industries;
 const FEATURED_INDUSTRIES = INDUSTRIES.slice(0, 6);
 
+// Path per contact row, in order (Address, Phone, Email) — mirrors ContactScreen's icons.
+const CONTACT_ICON_PATHS = [
+  "M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21z M12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  "M4 4.5c0-.6.4-1 1-1h2.7c.5 0 .9.3 1 .8l.7 3a1 1 0 0 1-.3 1L7.8 9.6a12 12 0 0 0 5.6 5.6l1.3-1.3a1 1 0 0 1 1-.3l3 .7c.5.1.8.5.8 1V18c0 .6-.4 1-1 1h-1C9.5 19 4 13.5 4 6.5v-1z",
+  "M4 6h16v12H4V6z M4 6l8 7 8-7",
+];
+
 export default function Footer() {
   return (
     <footer className="border-t border-border bg-page">
@@ -86,9 +93,26 @@ export default function Footer() {
               Contact
             </h3>
             <ul className="mt-4 space-y-2.5 text-[13px] text-textSecondary">
-              <li>{ASSETS.contact.address}</li>
-              <li>{ASSETS.contact.phone}</li>
-              <li>{ASSETS.contact.email}</li>
+              {[ASSETS.contact.address, ASSETS.contact.phone, ASSETS.contact.email].map(
+                (value, i) => (
+                  <li key={value} className="flex items-start gap-2.5">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                      fill="none"
+                      stroke={BRAND.orange}
+                      strokeWidth="1.8"
+                    >
+                      <path
+                        d={CONTACT_ICON_PATHS[i]}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span>{value}</span>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
         </div>

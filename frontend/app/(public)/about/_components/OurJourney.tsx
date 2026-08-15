@@ -8,6 +8,19 @@ import type { CompanyContent } from "@/types/content";
 const COMPANY = company as CompanyContent;
 const JOURNEY = COMPANY.journey;
 
+// One icon per milestone, in order: founding, second generation, brand
+// launch, current chapter. Falls back by cycling if more milestones are added.
+const MILESTONE_ICON_PATHS = [
+  // Flag — the beginning
+  "M5 21V4 M5 4h13l-3 4 3 4H5",
+  // Person with upward arrow — second generation, growth
+  "M9 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M4.5 20c.5-4 2.3-6.5 4.5-6.5s4 2.5 4.5 6.5 M17 14l3-3 3 3 M20 11v8",
+  // Star burst — brand launch
+  "M12 3l2.2 5.6L20 10l-4.6 3.6L16.6 20 12 16.6 7.4 20l1.2-6.4L4 10l5.8-1.4L12 3z",
+  // Globe — today, international reach
+  "M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M4 12h16 M12 4c2.2 2.2 3.2 5 3.2 8s-1 5.8-3.2 8c-2.2-2.2-3.2-5-3.2-8s1-5.8 3.2-8z",
+];
+
 export default function OurJourney() {
   return (
     <section className="relative overflow-hidden bg-white py-16 lg:py-24">
@@ -96,9 +109,23 @@ export default function OurJourney() {
                   />
                   <div
                     aria-hidden
-                    className="absolute left-0 top-1 h-4 w-4 -translate-x-1/2 rounded-full border-4 border-white shadow sm:left-1/2"
+                    className="absolute left-0 top-1 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border-4 border-white shadow sm:left-1/2"
                     style={{ background: accent }}
-                  />
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-3 w-3"
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="2.2"
+                    >
+                      <path
+                        d={MILESTONE_ICON_PATHS[i % MILESTONE_ICON_PATHS.length]}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
 
                   {/* Faint rotated accent shape behind the card, alternating sides */}
                   <div

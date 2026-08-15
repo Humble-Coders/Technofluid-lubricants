@@ -10,6 +10,20 @@ const COMPANY = company as CompanyContent;
 
 const CARD_ANIMATION_QUERY = "(min-width: 640px)";
 
+// One distinct icon per strength point (COMPANY.whyChooseUs.points), in order:
+// Reliability, Customer trust, Technical excellence, Application-specific.
+// Falls back to a plain checkmark if more points are added than icons defined.
+const POINT_ICON_PATHS = [
+  // Shield-check — reliability & consistency
+  "M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z M9 12l2 2 4-4",
+  // Two overlapping people — customer trust
+  "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M2.5 20c.5-3.5 3-5.5 5.5-5.5s5 2 5.5 5.5 M11.5 14.8c.6-.2 1.3-.3 2-.3 2.5 0 5 2 5.5 5.5",
+  // Gear — technical excellence
+  "M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z M12 3v2.2M12 18.8V21M4.9 6.5l1.6 1.6M17.5 15.9l1.6 1.6M3 12h2.2M18.8 12H21M4.9 17.5l1.6-1.6M17.5 8.1l1.6-1.6",
+  // Target — application-specific solutions
+  "M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+];
+
 function subscribeToCardAnimationQuery(callback: () => void) {
   const mq = window.matchMedia(CARD_ANIMATION_QUERY);
   mq.addEventListener("change", callback);
@@ -199,10 +213,10 @@ export default function WhyChooseUs() {
                   className="h-7 w-7"
                   fill="none"
                   stroke={BRAND.orange}
-                  strokeWidth="2"
+                  strokeWidth="1.6"
                 >
                   <path
-                    d="M5 13l4 4L19 7"
+                    d={POINT_ICON_PATHS[i % POINT_ICON_PATHS.length]}
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
