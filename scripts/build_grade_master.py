@@ -284,6 +284,33 @@ def main() -> None:
             })
             stats["new_series"] += 1
 
+    # Group the sheet so a product's every grade and pack sit together — the
+    # client reviews product by product, so scattering them across three
+    # sections (existing rows, missing grades, absent products) is unusable.
+    grade_rank: dict[tuple[str, str], int] = {}
+    for series, glist in GRADES.items():
+        for i, g in enumerate(glist):
+            grade_rank[(series, g)] = i
+
+    def pack_size(r: dict) -> float:
+        try:
+            return float(r.get("Pack qty") or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    def sort_key(r: dict):
+        grade = str(r.get("Grade") or "")
+        unstated = grade in ("", "None")        # questions first within a product
+        return (
+            str(r.get("Product") or "").upper(),
+            0 if unstated else 1,
+            grade_rank.get((r.get("Website series") or "", grade), 99),
+            pack_size(r),
+            str(r.get("Pack") or ""),
+        )
+
+    out.sort(key=sort_key)
+
     write(out_path, out, stats, len(master))
 
     print(f"wrote {out_path}\n  old master {len(master)} rows -> gap sheet {len(out)} rows")
@@ -377,10 +404,15 @@ def write(path: Path, rows: list[dict], stats: dict, old: int) -> None:
     ms.freeze_panes = "D2"
     ms.row_dimensions[1].height = 30
 
+    group_top = Border(left=THIN, right=THIN, bottom=THIN,
+                       top=Side(style="medium", color="808080"))
+    prev_product = None
     for i, r in enumerate(rows, start=2):
+        new_group = r.get("Product") != prev_product
+        prev_product = r.get("Product")
         for j, name in enumerate(COLUMNS, start=1):
             c = ms.cell(row=i, column=j, value=r.get(name, ""))
-            c.border = BORDER
+            c.border = group_top if new_group else BORDER
             c.alignment = Alignment(vertical="center",
                                     wrap_text=name in ("Action needed", "Original master row"))
             if name in r["_need"]:
