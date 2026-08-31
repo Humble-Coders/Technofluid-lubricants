@@ -114,6 +114,23 @@ PACK_PREFIX = re.compile(
     r"^\s*(\d+(\.\d+)?\s*[xX]\s*)?\d+(\.\d+)?\s*(ml|ML|g|gm|l|L|ltr|litre|liter|Liter|kg|Kg|KG)\b\.?\s*",
 )
 PACK_WORDS = re.compile(r"\b(bucket|barrel|cane|bottle|pail|tin|box|case|jar|drum)\b", re.I)
+# "12 x 1 Kg Grease…" and "24 x 500 g Grease…" both have Orderable unit "12 kg",
+# so the unit column alone makes different packs look identical. Recover the
+# configuration the client actually wrote.
+PACK_CONFIG = re.compile(
+    r"^\s*((?:\d+(?:\.\d+)?\s*[xX]\s*)?\d+(?:\.\d+)?\s*"
+    r"(?:ml|ML|g|gm|l|L|ltr|litre|liter|Liter|kg|Kg|KG)\b\.?"
+    r"(?:\s*(?:bucket|barrel|cane|bottle|pail|tin|box|case|jar|drum))?)", re.I)
+
+
+def pack_label(original_name: str, unit) -> str:
+    """How the client would recognise this pack (falls back to the unit column)."""
+    m = PACK_CONFIG.match(str(original_name or ""))
+    if m:
+        label = re.sub(r"\s+", " ", m.group(1)).strip()
+        if squash(label) != squash(str(unit or "")):
+            return f"{label} ({unit})" if unit else label
+    return str(unit or "")
 SLASH_GRADES = re.compile(r"(\d+(?:\s*/\s*\d+)+)")
 
 
@@ -126,6 +143,56 @@ def clean_family(name: str) -> str:
     for _ in range(2):                     # "4 x 3 Kg", "24 x 500 g"
         s = PACK_PREFIX.sub("", s)
     return PACK_WORDS.sub("", s).strip(" -–()")
+
+
+def _candidates(text: str) -> set[str]:
+    """Words in the name, plus adjacent words joined — so "10w 40" also reads
+    as "10w40" — without letting a grade match across a token boundary the way
+    a plain substring test does (which made "90 GL4" match "80W90 GL4")."""
+    words = re.findall(r"[a-z0-9]+", text.lower())
+    out = set(words)
+    for i in range(len(words) - 1):
+        out.add(words[i] + words[i + 1])
+        if i + 2 < len(words):
+            out.add(words[i] + words[i + 1] + words[i + 2])
+    return out
+
+
+def _part_present(part: str, cand: set[str]) -> bool:
+    """Is this piece of a grade in the name?
+
+    Exact match normally. A piece carrying both letters and digits ("15w40")
+    may also sit glued to a neighbour — the client writes "Engine oil15w40 CF4"
+    — so allow it at a token edge. Pure numbers must match exactly, otherwise
+    "90 GL4" would match "80W90 GL4".
+    """
+    if part in cand:
+        return True
+    if any(c.isalpha() for c in part) and any(c.isdigit() for c in part):
+        return any(t.endswith(part) or t.startswith(part) for t in cand)
+    return False
+
+
+def _match(text: str, grades: list[str], numeric: set[str]) -> tuple[list[str], list[str]]:
+    cand = _candidates(text)
+    tokens = set(re.findall(r"\d+(?:\.\d+)?", text))
+    hits: list[str] = []
+    loose: list[str] = []
+    for g in grades:
+        if g in numeric:
+            if g in tokens:
+                hits.append(g)
+            continue
+        parts = [squash(x) for x in re.split(r"[ /]+", g) if squash(x)]
+        if parts and (all(_part_present(t, cand) for t in parts) or squash(g) in cand):
+            hits.append(g)
+            continue
+        # "20W-40 SM" may also appear as a bare "20W40" — but "Air 100" must
+        # NOT match on the word "Air", so only fall back to a grade-like part.
+        raw = re.split(r"[ /]+", g)
+        if len(raw) > 1 and any(ch.isdigit() for ch in raw[0]) and squash(raw[0]) in cand:
+            loose.append(g)
+    return hits, loose
 
 
 def detect_grades(name: str, grades: list[str]) -> tuple[list[str], bool]:
@@ -149,37 +216,31 @@ def detect_grades(name: str, grades: list[str]) -> tuple[list[str], bool]:
         if len(hit) > 1:
             return hit, True
 
-    tokens = set(re.findall(r"\d+(?:\.\d+)?", cleaned))
-    sq = squash(cleaned)
-    hits: list[str] = []
-    loose: list[str] = []
-    for g in grades:
-        if g in numeric:
-            if g in tokens:
-                hits.append(g)
-            continue
-        if squash(g) in sq:                 # the whole grade is spelled out
-            hits.append(g)
-            continue
-        # "20W-40 SM" may also appear as a bare "20W40" — but "Air 100" must
-        # NOT match on the word "Air", so only fall back to a grade-like part.
-        parts = re.split(r"[ /]+", g)
-        if len(parts) > 1 and any(ch.isdigit() for ch in parts[0]) and squash(parts[0]) in sq:
-            loose.append(g)
-    if not hits:                            # only the vaguer match applied
-        hits = loose
+    # Match against the name BEFORE any bracket first: "Gel Grease 222 (…blue
+    # colour grease)" is the 222, and the wording inside the bracket is exactly
+    # the sort of contradiction already queried on the master's own
+    # "Confirm with client" sheet.
+    for scope in (cleaned.split("(")[0].strip() or cleaned, cleaned):
+        hits, loose = _match(scope, grades, numeric)
+        if hits or loose:
+            break
+    if not hits:
+        return loose, False
     # prefer the most specific match (20W-40 SN over 20W-40)
     if len(hits) > 1 and not numeric:
-        longest = max(len(squash(h)) for h in hits)
-        specific = [h for h in hits if len(squash(h)) == longest]
+        # Both matched properly (e.g. "20W-40" and "20W-40 SM"); the more
+        # specific one is the real grade.
+        most = max(len(re.split(r"[ /]+", h)) for h in hits)
+        specific = [h for h in hits if len(re.split(r"[ /]+", h)) == most]
         if len(specific) == 1:
             return specific, False
     return hits, False
 
 
-COLUMNS = ["SKU", "Product", "Grade", "Pack", "Pack qty", "Base unit", "Price per",
-           "Dealer price", "Distributor price", "GST %", "Visible to",
-           "Website series", "Action needed", "Original master row"]
+COLUMNS = ["SKU", "Product", "Grade", "Pack", "Do you sell this? (Y/N)",
+           "Pack qty", "Base unit", "Price per", "Dealer price",
+           "Distributor price", "GST %", "Visible to", "Shown on website as",
+           "Action needed", "Original master row"]
 
 
 def main() -> None:
@@ -259,7 +320,8 @@ def main() -> None:
                     continue
                 out.append(row_from(sample, product_name(series, ""), g, series,
                                     "MISSING GRADE — do you sell this grade in this pack? If yes, give the price",
-                                    need={"Dealer price", "Distributor price"}, new=True))
+                                    need={"Dealer price", "Distributor price",
+                                          "Do you sell this? (Y/N)"}, new=True))
                 stats["missing_grade"] += 1
 
     # products on the website with no SKUs at all
@@ -275,11 +337,12 @@ def main() -> None:
                 "SKU": "", "Product": product_name(title, ""), "Grade": g, "Pack": "",
                 "Pack qty": "", "Base unit": "", "Price per": "", "Dealer price": "",
                 "Distributor price": "", "GST %": 18, "Visible to": "",
-                "Website series": title,
+                "Shown on website as": title,
+                "Do you sell this? (Y/N)": "",
                 "Action needed": action,
                 "Original master row": "",
                 "_need": {"Pack", "Pack qty", "Base unit", "Price per", "Dealer price",
-                          "Distributor price", "Visible to"},
+                          "Distributor price", "Visible to", "Do you sell this? (Y/N)"},
                 "_confirm": set(), "_new": True,
             })
             stats["new_series"] += 1
@@ -304,10 +367,28 @@ def main() -> None:
         return (
             str(r.get("Product") or "").upper(),
             0 if unstated else 1,
-            grade_rank.get((r.get("Website series") or "", grade), 99),
+            grade_rank.get((r.get("Shown on website as") or "", grade), 99),
             pack_size(r),
             str(r.get("Pack") or ""),
         )
+
+    # Two master rows can land on the same product+grade+pack and still be
+    # different products (knitting oil non-washable vs water soluble). Carry the
+    # client's own distinguishing wording into the product name so no two rows
+    # look identical.
+    groups: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
+    for r in out:
+        groups[(str(r["Product"]), str(r["Grade"]), str(r["Pack"]))].append(r)
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        originals = {str(m["Original master row"]) for m in members}
+        if len(originals) < 2:
+            continue
+        for m in members:
+            tag = _variant_tag(str(m["Original master row"]))
+            if tag:
+                m["Product"] = f"{m['Product']} ({tag})"
 
     out.sort(key=sort_key)
 
@@ -325,6 +406,17 @@ def main() -> None:
               + (f"   MISSING: {', '.join(miss)}" if miss else ""))
 
 
+def _variant_tag(original: str) -> str:
+    """The wording that tells two otherwise identical rows apart."""
+    m = re.search(r"\(([^)]+)\)", original or "")
+    if m:
+        tag = re.sub(r"\s+", " ", m.group(1)).strip(" .")
+        if tag and not re.fullmatch(r"[\d\s.]+", tag):
+            return tag[:38]
+    words = re.findall(r"[A-Za-z0-9]+", original or "")
+    return " ".join(words[-2:]) if len(words) > 3 else ""
+
+
 def row_from(d: dict, name: str, grade: str, series, action: str, *,
              need: set[str] | None = None, confirm: set[str] | None = None,
              new: bool = False) -> dict:
@@ -333,7 +425,7 @@ def row_from(d: dict, name: str, grade: str, series, action: str, *,
         "SKU": "" if new else d.get("SKU"),
         "Product": name,
         "Grade": grade,
-        "Pack": d.get("Orderable unit"),
+        "Pack": pack_label(d.get("Product"), d.get("Orderable unit")),
         "Pack qty": d.get("Pack qty"),
         "Base unit": d.get("Base unit"),
         "Price per": d.get("Price per"),
@@ -341,7 +433,8 @@ def row_from(d: dict, name: str, grade: str, series, action: str, *,
         "Distributor price": "" if "Distributor price" in need else d.get("Distributor price"),
         "GST %": d.get("GST %"),
         "Visible to": d.get("Visible to"),
-        "Website series": series or "",
+        "Shown on website as": series or "",
+        "Do you sell this? (Y/N)": "",
         "Action needed": action,
         "Original master row": "" if new else d.get("Product"),
         "_need": need, "_confirm": confirm or set(), "_new": new,
@@ -368,6 +461,10 @@ def write(path: Path, rows: list[dict], stats: dict, old: int) -> None:
         ("RED — we need this from you. Nobody can work it out from what we already have.", False),
         ("AMBER — we carried your existing value over; please confirm it is right for that grade.", False),
         ("WHITE — straight from your existing master, unchanged.", False),
+        ("", False),
+        ("A dash (—) in the Grade column means the product has only one grade.", False),
+        ("'Do you sell this? (Y/N)' — for rows we are proposing. Put N and skip it;", False),
+        ("there is no need to delete anything.", False),
         ("", False),
         ("What to do", True),
         ("1. Filter the 'Action needed' column — every row that needs you is labelled there.", False),
@@ -401,7 +498,7 @@ def write(path: Path, rows: list[dict], stats: dict, old: int) -> None:
         c.font = Font(bold=True, color="FFFFFF")
         c.fill = HEAD
         c.alignment = Alignment(vertical="center", wrap_text=True)
-    ms.freeze_panes = "D2"
+    ms.freeze_panes = "E2"
     ms.row_dimensions[1].height = 30
 
     group_top = Border(left=THIN, right=THIN, bottom=THIN,
@@ -423,13 +520,58 @@ def write(path: Path, rows: list[dict], stats: dict, old: int) -> None:
             ms.cell(row=i, column=COLUMNS.index("Action needed") + 1).font = Font(
                 bold=True, color="9C0006" if r["_need"] else "9C6500")
 
-    widths = {"SKU": 22, "Product": 30, "Grade": 17, "Pack": 17, "Pack qty": 9,
+    widths = {"SKU": 22, "Product": 30, "Grade": 17, "Pack": 22,
+              "Do you sell this? (Y/N)": 13, "Pack qty": 9,
               "Base unit": 10, "Price per": 11, "Dealer price": 12,
               "Distributor price": 14, "GST %": 8, "Visible to": 12,
-              "Website series": 40, "Action needed": 54, "Original master row": 38}
+              "Shown on website as": 38, "Action needed": 54,
+              "Original master row": 38}
     for j, name in enumerate(COLUMNS, start=1):
         ms.column_dimensions[get_column_letter(j)].width = widths.get(name, 16)
     ms.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{len(rows) + 1}"
+
+    # ── per-product summary, so he can see the workload and tick products off ──
+    ss = wb.create_sheet("Summary by product")
+    per: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    for r in rows:
+        prod = str(r["Product"])
+        per[prod]["rows"] += 1
+        a = str(r["Action needed"])
+        if not a:
+            per[prod]["done"] += 1
+        elif a.startswith("MISSING GRADE"):
+            per[prod]["need_price"] += 1
+        elif a.startswith(("NOT IN MASTER", "AVAILABLE ON REQUEST")):
+            per[prod]["no_sku"] += 1
+        elif a.startswith("SPLIT"):
+            per[prod]["confirm"] += 1
+        else:
+            per[prod]["which_grade"] += 1
+
+    head = ["Product", "Rows", "Nothing to do", "Confirm price (amber)",
+            "Which grade?", "Need price for a grade", "No SKU at all", "Needs you"]
+    for j, h in enumerate(head, start=1):
+        c = ss.cell(row=1, column=j, value=h)
+        c.font = Font(bold=True, color="FFFFFF")
+        c.fill = HEAD
+        c.alignment = Alignment(vertical="center", wrap_text=True)
+    ss.row_dimensions[1].height = 30
+    for i, (prod, v) in enumerate(sorted(per.items()), start=2):
+        todo = v["need_price"] + v["no_sku"] + v["confirm"] + v["which_grade"]
+        for j, val in enumerate([prod, v["rows"], v["done"], v["confirm"],
+                                 v["which_grade"], v["need_price"], v["no_sku"], todo],
+                                start=1):
+            c = ss.cell(row=i, column=j, value=val)
+            c.border = BORDER
+        if todo:
+            ss.cell(row=i, column=8).fill = NEED
+            ss.cell(row=i, column=8).font = NEED_FONT
+    ss.column_dimensions["A"].width = 42
+    for j in range(2, 9):
+        ss.column_dimensions[get_column_letter(j)].width = 13
+    ss.freeze_panes = "B2"
+    ss.auto_filter.ref = f"A1:H{len(per) + 1}"
+
     wb.save(path)
 
 
