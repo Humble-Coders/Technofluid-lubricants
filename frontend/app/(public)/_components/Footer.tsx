@@ -117,12 +117,33 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Trust line */}
-        <div className="mt-12 border-t border-border pt-6">
+        {/* Trust line + build credit */}
+        <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[12px] text-textSecondary">
             A brand of {COMPANY.parentCompany} · {COMPANY.certification} ·
             Since {COMPANY.since}
           </p>
+          <a
+            href="https://humblesolutions.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[12px] text-textSecondary no-underline transition-colors hover:text-textPrimary"
+          >
+            Made with
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5 shrink-0"
+              fill={BRAND.red}
+              aria-label="love"
+              role="img"
+            >
+              <path d="M12 20.5s-7.5-4.7-7.5-9.7a4.3 4.3 0 0 1 7.5-2.9 4.3 4.3 0 0 1 7.5 2.9c0 5-7.5 9.7-7.5 9.7z" />
+            </svg>
+            by
+            <span className="font-semibold" style={{ color: BRAND.orange }}>
+              Humble Solutions
+            </span>
+          </a>
         </div>
       </div>
     </footer>
