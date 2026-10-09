@@ -47,7 +47,7 @@ UI (components/pages)  →  hooks (lib/…useX)  →  services (lib/services/*Se
 
 ## Roles & the two-axis model
 
-Roles: **admin · salesperson · distributor · supervisor · manufacturing**. Manufacturing is a **separate login role** that sees only aggregated demand (never orders/customers). *(supervisor + manufacturing roles are not yet wired — adding them is pending work.)*
+Roles: **admin · accounts · supervisor · salesperson · distributor**. **Supervisor and Manufacturing are one role** ("Stock & Production", role key `supervisor`): stock in/out, production, demand totals in base units — never customers, prices, orders or invoices. **Accounts** (new, 2026-10-09) raises sales/invoices to distributors or any customer and records payments; no product/price/user/stock-adjust rights. Admin, Accounts and Supervisor use the **desktop accounting app** (Electron, PRD §11); salesperson/distributor use the web ordering system (built later). *(accounts + merged supervisor roles are not yet wired — pending work.)*
 
 Distributors are classified on **two orthogonal axes — never conflate them** (PRD §3):
 - **Segment (visibility)** = which products they see: `Automotive` | `Industrial` | `Combined` (Combined = Automotive ∪ Industrial, exactly).
@@ -90,8 +90,8 @@ Cloud Functions (verify `caller.role` server-side) own: **account approval, role
 /admin/*          guard: role == admin
 /salesperson/*    guard: role == salesperson
 /distributor/*    guard: role == distributor
-/supervisor/*     guard: role == supervisor       (to be added)
-/manufacturing/*  guard: role == manufacturing     (to be added)
+/supervisor/*     guard: role == supervisor       (to be added; = Stock & Production, merged with manufacturing)
+/accounts/*       guard: role == accounts         (to be added)
 ```
 
 Retire the shared `/dashboard/*` area. Every new page goes under its role segment; the segment's `layout.tsx` checks `approved && active && role == <segment>`. Tailwind classes stay internal — never expose them to users (AGENTS.md §4).

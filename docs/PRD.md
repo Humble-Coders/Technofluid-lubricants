@@ -15,13 +15,17 @@ An end-to-end web platform covering Technofluid's full order lifecycle: field sa
 
 ## 2. Users & roles
 
-| Role | What they do |
-|---|---|
-| **Admin** | Technofluid HQ. Full visibility; approves accounts; manages catalog, inventory, dispatch, invoicing. |
-| **Salesperson** | Field staff. Logs visits, onboards distributors, places orders on distributors' behalf. |
-| **Distributor** | Customer. Browses their catalog, places orders. Has a **segment** (Automotive / Industrial / Combined) and a **price tier** (Dealer / Distributor). |
-| **Supervisor** | Inputs/updates inventory (base-unit stock levels). Confirm division of labour with Manufacturing — both can write inventory. |
-| **Manufacturing** | **Separate login role.** Sees aggregated product demand in base units (never orders/customers); logs production by editing inventory upward. |
+> **Updated 2026-10-09 (Ansh):** Supervisor and Manufacturing are **one role**, and a new **Accounts** role is added. Accounting/inventory is built **first**, as a desktop app (see §11); the ordering system follows.
+
+| Role | Where | What they do |
+|---|---|---|
+| **Admin** | Desktop + web | Technofluid HQ. Everything: products & prices, stock, sales, invoices, payments, reports, users, approvals. |
+| **Accounts** | Desktop | Creates sales/invoices to **any customer** (distributors or walk-in/one-off), records payments, sees ledger & reports. **Cannot** change products, prices, users, or adjust stock by hand. |
+| **Stock & Production** (Supervisor + Manufacturing merged) | Desktop | One login. Logs production (stock in), purchases in, damage/loss/corrections; sees demand totals in base units. **Never sees customers, prices, orders or invoices.** Every stock change records who + why. |
+| **Salesperson** | Web/phone (ordering, later) | Field staff. Logs visits, onboards distributors, places orders on distributors' behalf. |
+| **Distributor** | Website (ordering, later) | Customer. Browses their catalog, places orders. Has a **segment** (Automotive / Industrial / Combined) and a **price tier** (Dealer / Distributor). |
+
+**Customers:** sales can be made to **distributors** (with their segment + price tier) **and to any other customer** — a simple record (name, phone, address, optional GSTIN), priced at Dealer price unless changed on the invoice. Sales reduce stock automatically.
 
 ## 3. The two independent axes (critical concept)
 
@@ -191,17 +195,22 @@ After each task: a post-action summary/preview the PM can check (e.g. import sum
 | 6 | Partial dispatch | **Supported** — line-level fulfillment, status rolls up |
 | 7 | Inventory unit | **Base units (L/kg/piece)**; packs derived, never stored |
 | 8 | Pack-size contention | Pack sizes of one product share one base-unit pool; dispatch math in base units |
-| 9 | Supervisor role | Inputs inventory |
+| 9 | Supervisor role | ~~Inputs inventory~~ → **merged with Manufacturing into one "Stock & Production" role** (2026-10-09) |
 | 10 | Loose/store sales | Sell any loose qty from same pool; sealed vs opened not distinguished |
 | 11 | Accounting | In-system, no Tally |
 | 12 | Batch/expiry | Add field, no logic yet |
+| 13 | Supervisor vs Manufacturing (was open B) | **One role, one login** — "Stock & Production" (2026-10-09) |
+| 14 | Billing role | New **Accounts** role: sales, invoices, payments, ledger, reports; no product/price/user/stock-adjust rights (2026-10-09) |
+| 15 | Who we sell to | **Distributors + any customer** (simple customer record, Dealer price by default) (2026-10-09) |
+| 16 | Build order | **Accounting + inventory first** (desktop), ordering system after; missing prices may be entered in the app (2026-10-06) |
+| 17 | Desktop platform | **Electron + React + official Firebase JS SDK**, Windows **and** Mac, sharing a TypeScript core with the website (2026-10-09) |
+| 18 | Code signing | **Mac: Apple Developer account** (needed for Gatekeeper + auto-update). **Windows: unsigned for now** (one-time "Run anyway" per office PC); no Microsoft signing service (2026-10-09) |
 
 **Still open:**
 
 | # | Question | Blocks | Owner |
 |---|---|---|---|
 | A | Production logging granularity (batch vs daily) | M2 production logging | Client (next discussion) |
-| B | Manufacturing vs Supervisor inventory write division | M2 inventory permissions | PM/Client |
 | C | Invoice number format/series | M4 | Client's CA (deferred) |
 | D | Freight calculation rule | M4 | Client (deferred) |
 | E | Invoice per-shipment vs per-order | M4 | Client (created by partial dispatch) |
@@ -211,3 +220,16 @@ After each task: a post-action summary/preview the PM can check (e.g. import sum
 
 ---
 *Settled facts in §3 and §5 are confirmed against the client's data. Everything marked ⚠️ is a real open question — building past it without an answer produces rework.*
+
+## 11. Desktop accounting app (decided 2026-10-09)
+
+Office software for Admin, Accounts and Stock & Production, installed on **Windows and Mac**.
+
+- **Shell:** Electron. The window runs our React screens; the small Electron "main" side only does printing/PDF, saving files and auto-updates.
+- **Data:** the **official Firebase JS SDK** inside the window — live listeners, offline cache, security rules enforced per user. No server library, no service-account tokens on the client.
+- **Shared code:** a TypeScript `core` (models, money in paise, GST, base-unit stock maths, Firestore mappers, zod) used by both the desktop app and the Next.js website, so prices and stock can never disagree.
+- **Privileged steps** (invoice numbers, stock movements, final totals) run in Cloud Functions, per the security model in CLAUDE.md.
+- **Login:** email + password (Google sign-in is awkward inside Electron).
+- **Offline:** staff can keep working and draft; final invoice numbers are issued once back online.
+- **Releases:** Windows installer (unsigned for now) + Mac app (signed & notarised with the Apple Developer account); auto-update for both.
+
