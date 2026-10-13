@@ -1,0 +1,23 @@
+{
+  "name": "technofluid-office",
+  "private": true,
+  "description": "Technofluid Office — desktop accounting, stock and billing app (Electron) + shared core",
+  "workspaces": [
+    "core",
+    "desktop"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev": "npm run dev -w desktop",
+    "build": "npm run build -w desktop",
+    "emulators": "node emulator/start.mjs",
+    "seed": "node emulator/seed.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "firebase-admin": "^13.6.0"
+  }
+}

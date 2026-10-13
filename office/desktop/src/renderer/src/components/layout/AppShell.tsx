@@ -1,0 +1,224 @@
+import clsx from "clsx";
+import { ChevronsUpDown, LogOut, Search, Wifi, WifiOff } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import mark from "@/assets/logo-mark.png";
+import { Badge, Kbd, modKey } from "@/components/ui";
+import { navFor, ROLE_LABEL, type NavItem } from "@/lib/access";
+import { usingEmulators } from "@/lib/firebase";
+import { useOnline } from "@/hooks/useConnection";
+import { useSession, useStaff } from "@/features/auth/session";
+import { CommandPalette } from "./CommandPalette";
+
+const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
+const inDesktopApp = Boolean(window.office);
+
+export function AppShell() {
+  const { role } = useStaff();
+  const navigate = useNavigate();
+  const items = useMemo(() => navFor(role), [role]);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // Keyboard: ⌘/Ctrl+K opens the palette; ⌘/Ctrl+1…6 jumps to a screen.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = isMac ? e.metaKey : e.ctrlKey;
+      if (!mod || e.altKey || e.shiftKey) return;
+      if (e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((open) => !open);
+        return;
+      }
+      const target = items.find((i) => i.shortcut === e.key);
+      if (target) {
+        e.preventDefault();
+        navigate(target.path);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [items, navigate]);
+
+  return (
+    <div className="flex h-full">
+      <Sidebar items={items} onSearch={() => setPaletteOpen(true)} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar items={items} />
+        <main className="min-h-0 flex-1 overflow-auto">
+          <Outlet />
+        </main>
+      </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} items={items} />
+    </div>
+  );
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────────── */
+
+function Sidebar({ items, onSearch }: { items: NavItem[]; onSearch: () => void }) {
+  const groups = useMemo(() => {
+    const map = new Map<string, NavItem[]>();
+    for (const item of items) map.set(item.group, [...(map.get(item.group) ?? []), item]);
+    return [...map.entries()];
+  }, [items]);
+
+  return (
+    <aside className="flex w-[232px] shrink-0 flex-col bg-brand-charcoal text-white/80">
+      {/* Room for the Mac traffic lights; draggable. */}
+      <div className={clsx("app-drag flex shrink-0 items-end px-4 pb-3", isMac && inDesktopApp ? "h-[68px]" : "h-14")}>
+        <div className="flex items-center gap-2.5">
+          <img src={mark} alt="" aria-hidden className="size-6" />
+          <span className="text-[13px] font-semibold tracking-wide text-white">Technofluid Office</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onSearch}
+        className="mx-3 mb-3 flex h-8 items-center gap-2 rounded-md bg-white/[0.07] px-2.5 text-[12px] text-white/50 transition-colors hover:bg-white/[0.12] hover:text-white/80"
+      >
+        <Search className="size-3.5" />
+        <span className="flex-1 text-left">Search or jump to…</span>
+        <span className="text-2xs text-white/40">{modKey()} K</span>
+      </button>
+
+      <nav className="flex-1 overflow-y-auto px-2 pb-3" aria-label="Main">
+        {groups.map(([group, groupItems]) => (
+          <div key={group} className="mb-3">
+            <p className="px-2.5 pb-1 pt-2 text-2xs font-medium tracking-wider text-white/35 uppercase">{group}</p>
+            {groupItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/"}
+                className={({ isActive }) =>
+                  clsx(
+                    "group relative flex h-8 items-center gap-2.5 rounded-md px-2.5 text-[13px] transition-colors",
+                    isActive ? "bg-white/[0.1] font-medium text-white" : "hover:bg-white/[0.06] hover:text-white",
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive ? <span className="absolute left-0 h-4 w-[3px] rounded-r bg-brand-orange" aria-hidden /> : null}
+                    <item.icon className={clsx("size-4", isActive ? "text-brand-orange" : "text-white/50 group-hover:text-white/80")} />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.shortcut ? (
+                      <span className="text-2xs text-white/25 opacity-0 transition-opacity group-hover:opacity-100">
+                        {modKey()}
+                        {item.shortcut}
+                      </span>
+                    ) : null}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
+        ))}
+      </nav>
+
+      <UserMenu />
+    </aside>
+  );
+}
+
+function UserMenu() {
+  const { profile, role } = useStaff();
+  const { signOut } = useSession();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  const initials = profile.name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <div ref={ref} className="relative border-t border-white/[0.08] p-2">
+      {open ? (
+        <div className="absolute right-2 bottom-full left-2 mb-1 rounded-md border border-line bg-surface p-1 text-ink shadow-pop">
+          <div className="px-2.5 py-2">
+            <p className="truncate text-[13px] font-medium">{profile.name}</p>
+            <p className="truncate text-[12px] text-ink-muted">{profile.email || ROLE_LABEL[role]}</p>
+          </div>
+          <div className="my-1 h-px bg-line" />
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="flex h-8 w-full items-center gap-2 rounded px-2.5 text-[13px] text-ink hover:bg-hover"
+          >
+            <LogOut className="size-3.5 text-ink-muted" />
+            Sign out
+          </button>
+        </div>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
+      >
+        <span className="flex size-7 items-center justify-center rounded-full bg-brand-orange text-2xs font-semibold text-white">
+          {initials || "?"}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-medium text-white">{profile.name}</span>
+          <span className="block truncate text-2xs text-white/45">{ROLE_LABEL[role]}</span>
+        </span>
+        <ChevronsUpDown className="size-3.5 text-white/40" />
+      </button>
+    </div>
+  );
+}
+
+/* ─── Top bar ─────────────────────────────────────────────────────────────────── */
+
+function TopBar({ items }: { items: NavItem[] }) {
+  const { pathname } = useLocation();
+  const online = useOnline();
+  const current = items.find((i) => (i.path === "/" ? pathname === "/" : pathname.startsWith(i.path)));
+
+  return (
+    <header
+      className={clsx(
+        "app-drag flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface px-5",
+        // Leave room for the Windows minimise/maximise/close overlay.
+        !isMac && inDesktopApp && "pr-[150px]",
+      )}
+    >
+      <h1 className="text-[14px] font-semibold text-ink">{current?.label ?? "Technofluid Office"}</h1>
+      <div className="flex-1" />
+      {usingEmulators ? <Badge tone="info">Test data</Badge> : null}
+      <span
+        className={clsx(
+          "app-no-drag inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-2xs font-medium",
+          online ? "bg-success-soft text-success" : "bg-warning-soft text-warning",
+        )}
+        title={online ? "Connected — changes save instantly" : "Offline — you can keep working; changes sync when the internet is back"}
+      >
+        {online ? <Wifi className="size-3" /> : <WifiOff className="size-3" />}
+        {online ? "Online" : "Offline — will sync"}
+      </span>
+      <span className="hidden items-center gap-1 text-2xs text-ink-faint lg:flex">
+        <Kbd>{modKey()}</Kbd>
+        <Kbd>K</Kbd>
+      </span>
+    </header>
+  );
+}
