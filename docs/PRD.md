@@ -55,7 +55,9 @@ A given account is one segment **and** one tier (e.g. "Combined Distributor"). T
 
 ## 5. The product catalog (SETTLED — built and ready)
 
-The product master has been cleaned from the client's six source sheets into **320 unique orderable variants**. This is the source of truth for the catalog. Source file: `Technofluid-Product-Master-DRAFT.xlsx` (pending final client sign-off on 5 items).
+> **Updated Oct 2026:** the source of truth is now the client's live Google Sheet **"Technofluid-Product-Master-GRADES"** — one row per product × grade × pack (782 rows, 171 stock pools, recipes, densities), cleaned 6 Oct 2026. See `docs/TECHNOFLUID-HANDOVER.md` §3.
+
+*(History:)* the product master was first cleaned from the client's six source sheets into **320 unique orderable variants** (`Technofluid-Product-Master-DRAFT.xlsx`).
 
 Key facts the system must honor:
 - A **product variant** = product + pack size (e.g. "Gear EP 150 / 20L bucket"). Each variant is independently orderable and priced.
@@ -66,7 +68,7 @@ Key facts the system must honor:
 - **Ordering unit = the pack** (case/bucket/barrel/piece). Minimum 1, whole units only. No loose quantities.
 - **Pack quantity** is a number (e.g. 210L barrel → 210) used to compute totals and production demand.
 - **Case size is a product-level attribute** — fixed per product, editable going forward, never variable per order.
-- **GST 18% exclusive; freight extra.**
+- **GST exclusive; freight extra.** 18% is a **placeholder** on every product until the client/CA supplies the GST rate + HSN code per product.
 
 ## 6. Out of scope (v1)
 Live Google Sheets API sync (CSV upload instead) · native mobile apps (responsive web only) · payment gateway · multi-warehouse · e-way bill / e-invoice government APIs.
@@ -89,7 +91,7 @@ One document per orderable variant.
   pricePer: "per litre" | "per kg" | "per case" | "per bucket" | "per piece",
   dealerPrice: number,      // ₹, GST-exclusive
   distributorPrice: number, // ₹, GST-exclusive
-  gstPct: number,           // 18
+  gstPct: number,           // 18 today — placeholder until per-product GST/HSN arrives
   segment: "Automotive" | "Industrial" | "Both",
   active: boolean
 }
@@ -114,7 +116,7 @@ Stock is tracked per **product** in **base units (litres / kg / pieces)** — NO
 Why base units, not packs: one product is sold in several pack sizes (20L bucket, 210L barrel, …) that all draw from the **same physical pool**. 500 litres of an oil is simultaneously 25 buckets OR 2 barrels OR a mix — you cannot store "available packs" as a number because the pack sizes contend for the same litres. Base units dissolve this; packs are computed only for display: `availablePacks(variant) = floor(onHand / variant.packQty)`.
 
 Two drains, one source:
-- **Producer:** Manufacturing edits `onHand` upward when production happens (direct edit allowed; the Supervisor role also inputs inventory).
+- **Producer:** Stock & Production logs production, which **adds a movement** to the append-only `stockMovements` diary through a Cloud Function (updated Oct 2026 — no direct edits of `onHand`; corrections are reversing movements, each with who + why).
 - **Drain 1 — online dispatch:** dispatching an order line of `qty` packs reduces `onHand` by `qty × packQty`.
 - **Drain 2 — loose/store sales:** the (future) POS sells loose quantities, reducing `onHand` directly by base units. M2 must expose a clean `deductBaseUnits(productKey, amount, reason)` operation for this; the POS itself is a later milestone.
 
@@ -143,9 +145,9 @@ PM tests every existing flow; findings become `bug`/`tech-debt` issues. Code rev
 
 ### M2 — Product master import + inventory + manufacturing demand
 1. **CSV importer (admin):** upload CSV matching the product-master schema → preview table → per-row validation (required fields, numeric prices, valid segment/category/pricePer) → invalid rows highlighted with reason and excluded → on confirm, upsert into `products` keyed by `sku` (update existing, don't duplicate) → import summary (created / updated / skipped with reasons). Malformed file shows clear error, never partial import. **Strictly reject rows that don't match the schema** — do not guess or coerce.
-2. **Inventory model & views:** per-product `onHand` in base units (see §7). Admin sees full inventory in litres/kg plus computed available-packs per variant. Manufacturing and Supervisor can edit `onHand` upward. Expose `deductBaseUnits(productKey, amount, reason)` for dispatch and future POS.
+2. **Inventory model & views:** per-product `onHand` in base units (see §7), maintained from the append-only `stockMovements` diary written only by Cloud Functions (quantities in whole milli base units). Admin sees full inventory in litres/kg plus computed available-packs per variant. Stock & Production records production and adjustments as movements. Expose `deductBaseUnits(productKey, amount, reason)` for dispatch and future POS.
 3. **Manufacturing demand view:** aggregated **approved**-order demand per product in base units (needed, on hand, shortfall); cancelling an approved order removes its demand; no order/customer data shown.
-4. **Production logging:** ⚠️ DECIDE FIRST — batch-level vs daily-total (client discussion pending). For now manufacturing edits `onHand` directly; the logging granularity around it is the open part.
+4. **Production logging:** ⚠️ DECIDE FIRST — batch-level vs daily-total (client discussion pending). Production is recorded as stock movements; the logging granularity around it is the open part.
 5. **Batch/expiry:** ✅ add `batchNo` / `expiry` fields to inventory writes, but build no logic on them yet (client may refine).
 
 ### M3 — ERP matching & dispatch
@@ -156,7 +158,7 @@ Matching engine works **in base units**: for each approved order line, check whe
 Dispatch decrements `onHand` by the dispatched base units.
 
 ### M4 — Invoicing & accounting
-Invoice per dispatched order (or per shipment — see below): line items, prices captured at order time, GST breakup (CGST/SGST/IGST by state), invoice number series, freight line, PDF. Ledger: payments vs invoices, per-distributor outstanding. ✅ Accounting is **in-system** — no Tally/external integration.
+Invoice per dispatched order (or per shipment — see below): line items, prices captured at order time, GST breakup (CGST/SGST/IGST by state), invoice number series, freight line, PDF. Ledger: payments vs invoices, per-distributor outstanding. ✅ Accounting is **in-system** — no Tally. Books are kept in **Humble Ledger** (our own accounting engine, `https://hl.humblesolutions.in/docs`), posted from Cloud Functions; invoices/PDFs via our billing engine (access pending). See PRD §11 and `docs/TECHNOFLUID-HANDOVER.md` §6.
 ⚠️ DECIDE FIRST (deferrable, PM will resolve later): invoice number format/series (client's CA); freight calc rule (flat / per-km / per-order quote); invoice-per-shipment vs per-order (created by partial dispatch).
 
 ### M5 — Store / counter billing (POS) — DEFERRED, build later
@@ -174,7 +176,7 @@ Work in feature branches, one PR per task, against the existing Next.js + Fireba
 1. Add the `products` collection + admin "Import Products" page (CSV → preview → validate → upsert). Seed it with the signed-off product master.
 2. Refactor the existing rate-list / place-order screens to read from `products`, filtering by the logged-in distributor's `segment` and showing the `priceTier` price. (Verify current order shape first; capture unit price at order time.)
 3. Add `inventory` collection + admin inventory view + manual adjustment.
-4. Build the manufacturing demand aggregation (read-only, derived, base units, approved orders only) and production/inventory editing that writes `onHand`.
+4. Build the manufacturing demand aggregation (read-only, derived, base units, approved orders only) and production logging that writes `stockMovements` (via Cloud Functions).
 5. (After M2 decisions) matching engine + dispatch — base-unit math, partial dispatch, admin allocation screen.
 6. (After M3) invoicing + ledger.
 7. (Deferred, M5) store/counter POS for loose sales — wires to existing accounting/bill engines + `deductBaseUnits`.

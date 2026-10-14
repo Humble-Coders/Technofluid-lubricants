@@ -1,7 +1,7 @@
 # Technofluid — complete handover (decisions, data, progress, plan)
 
 **Written:** 14 Oct 2026 · **Owner:** Ansh (Humble Solutions) · **Client:** Gaurav Verma, Technofluid / Lube Chem Industries, Karnal, Haryana
-**Read this first if you are a developer (or a Claude session) joining the Technofluid work.** Then read `CLAUDE.md` (rules), `docs/PRD.md` (product spec — §2 roles, §10 decisions, §11 desktop app).
+**Read this first if you are a developer (or a Claude session) joining the Technofluid work.** Then read `CLAUDE.md` (rules), `docs/PRD.md` (product spec — §2 roles, §10 decisions, §11 desktop app). The office app code is on branch `feat/office-foundation` until merged.
 
 ---
 
@@ -231,7 +231,7 @@ Added for the office app: `grade, densityKgPerL, recipe[]` (+ `deleted:false`). 
 7. **HSN code + GST rate per product** (needed on invoices); **invoice number format** (financial year?); **e-way bill** manual or automated?
 
 **Waiting on Ansh / Humble**
-- Humble Ledger company account for Technofluid · billing-engine access · **Apple Developer account** (company name; takes days) · fix Vercel env vars · decide when to deploy the security rules.
+- Humble Ledger company account for Technofluid · billing-engine access · **Apple Developer account** (company name; takes days) · fix Vercel env vars.
 
 ---
 
@@ -239,22 +239,15 @@ Added for the office app: `grade, densityKgPerL, recipe[]` (+ `deleted:false`). 
 
 - **Branches:** office work is on `feat/office-foundation`. Make your own branch from it for parallel work; keep PRs small. `main` auto-deploys the **website** to Vercel — anything merged to `main` that touches `frontend/` goes live.
 - **Don't edit Gaurav's Google Sheet** without: fresh download → backup → scripted, guarded change → cell-by-cell verification.
-- **Never deploy Firestore rules or Functions** to `techno-fluid` without telling Ansh — the live website uses them.
+- **Any developer may deploy** Firestore rules and Functions (decision 14 Oct 2026) — but be deliberate: the **live website depends on them**, so test in the emulators first (they run the real rules) and deploy from `firebase/`.
 - **Follow the layering** (UI → hooks → services → Firestore/Functions) and the rules in §5.
 - Good parallel tasks that don't collide with the office foundation: the **product importer upgrade** (step 2), **rule tests + C1 fix** (step 1, coordinate on deploy), **Humble Ledger Cloud Function client** (step 4 groundwork), website **TD-1 catch-up** for new products.
 
 ---
 
-## 10a. Where older docs disagree with this one (until Ansh approves fixes)
+## 10a. Older docs — now in sync
 
-`CLAUDE.md` and `docs/PRD.md` predate some decisions. Where they conflict, **this handover reflects the latest decisions**:
-- **Website hosting:** CLAUDE.md says Firebase Hosting; the website actually deploys to **Vercel** from `main` (`firebase/firebase.json` has no hosting block).
-- **Deploying:** CLAUDE.md says "any developer may deploy". For now, **tell Ansh before deploying Firestore rules or Functions to `techno-fluid`** — the live website depends on them.
-- **GST 18% everywhere** (CLAUDE.md, PRD §5/§8) is a placeholder until per-product GST/HSN arrives.
-- **Product master:** CLAUDE.md/PRD §5 describe the old 320-variant DRAFT; the live source is the Google Sheet (782 rows, §3).
-- **Inventory:** PRD §7 describes an editable `inventory.onHand` that Manufacturing edits directly; the office app replaces this with the append-only **`stockMovements`** diary written only by Cloud Functions (§5).
-- **Tickets:** the `/draft-ticket` workflow in CLAUDE.md applies to website work; the office app is built without tickets (decision 13 Oct).
-- **Segment:** `Combined` is an *account* setting (sees Automotive + Industrial); products are tagged `Automotive | Industrial | Both` — same as CLAUDE.md, no conflict.
+On 14 Oct 2026 Sharnya's session cross-checked this handover against `CLAUDE.md`, `docs/PRD.md` and the code and found 5 stale places. With Ansh's approval, `CLAUDE.md` and the PRD were updated to match: website on **Vercel**; **18% GST is a placeholder** until per-product GST/HSN arrives; the live master is the **Google Sheet** (not the 320-variant DRAFT); stock is the append-only **`stockMovements`** diary written by Cloud Functions (not hand-edited `onHand`); the **ticket workflow applies to website work only**; accounting runs through **Humble Ledger**. Deploy rule stays as in CLAUDE.md: **any developer may deploy** — be deliberate.
 
 ## 11. Glossary (plain words)
 

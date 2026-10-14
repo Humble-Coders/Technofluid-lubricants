@@ -30,7 +30,7 @@ scripts/, Product master resources/   Catalog seed + source data.
 
 ## Stack
 
-Next.js 16 (App Router, React 19) · Firebase Auth + Firestore (web SDK v12) · Cloud Functions (TypeScript, **v2 `onCall`, region `us-central1`**) · Tailwind v4 · `react-hook-form` + `zod`. **Deploy target: Firebase Hosting** (frontend) + `firebase deploy` (rules + functions). This is a **modified Next.js environment** — verify Next features against `node_modules/next/dist/docs/` before using them (see AGENTS.md §1).
+Next.js 16 (App Router, React 19) · Firebase Auth + Firestore (web SDK v12) · Cloud Functions (TypeScript, **v2 `onCall`, region `us-central1`**) · Tailwind v4 · `react-hook-form` + `zod`. **Deploy target: Vercel** (frontend — auto-deploys from `main`) + `firebase deploy` (rules + functions). The desktop office app is a separate Electron project in `office/` (PRD §11). This is a **modified Next.js environment** — verify Next features against `node_modules/next/dist/docs/` before using them (see AGENTS.md §1).
 
 ## Architecture & data flow (STRICT)
 
@@ -72,10 +72,10 @@ Cloud Functions (verify `caller.role` server-side) own: **account approval, role
 ## Data model rules (source of truth: PRD §7)
 
 - **Money: store as integer minor units (paise).** `₹1.00 → 100`. All arithmetic (line totals, GST, discount, freight) in integer paise; round explicitly at each boundary (`Math.round`). **No floats for money.** Display in **₹** via a shared formatter — never `$`.
-- **GST 18%, exclusive; freight extra.** Compute GST on top of line totals.
+- **GST exclusive; freight extra.** Compute GST on top of line totals. **18% is a placeholder** on every product today — the real GST rate + HSN code per product is still awaited from the client/CA. Same state as the seller (Haryana, code 06) → CGST + SGST; other states → IGST.
 - **Orders carry line items.** Each line: `sku`, `qty` (in packs, whole units ≥1), `packQty`, `unitPrice` **captured at order time** (catalog prices change; invoices must reflect order-time price), `lineTotal`. A free-text `itemsSummary` is **display only**, never the source of truth. `lineTotal = qty × packQty × unitPrice(tier)`.
 - **Products** = one doc per orderable variant; carries `dealerPrice`, `distributorPrice`, `segment`, `category`, `packQty`, `baseUnit`, `productKey` (links variants of one product to one inventory pool). Keyed by stable `sku` (upsert, never duplicate).
-- **Inventory in BASE UNITS (L/kg/piece), never packs.** `onHand` is the single source of truth; available packs are *derived* (`floor(onHand / packQty)`). No reservation — availability is live `onHand`; admin allocates manually on conflict (PRD §7, decisions #4/#5/#7/#8).
+- **Inventory in BASE UNITS (L/kg/piece), never packs.** Stock is an **append-only diary** (`stockMovements`: what, how much, who, why), written **only by Cloud Functions**; the per-pool `onHand` is maintained from it and is never edited by hand — mistakes are fixed with a reversing movement. Quantities are stored as whole **milli base units** (mL / g). Available packs are *derived* (`floor(onHand / packQty)`). No reservation — availability is live `onHand`; admin allocates manually on conflict (PRD §7, decisions #4/#5/#7/#8).
 - **Demand is derived, not stored** — aggregate *approved* open-order lines by product in base units; cancelling an approved order removes its demand.
 - **Referenced entities store both id and name** (`{ productId, productName }`), plus `createdAt` / `updatedAt` (AGENTS.md §3).
 - **Soft delete:** always write `deleted: false` on create. Firestore `where("deleted","!=",true)` **excludes docs missing the field** — a doc created without `deleted` becomes invisible. Every soft-deletable doc must set the field at creation.
@@ -98,7 +98,8 @@ Retire the shared `/dashboard/*` area. Every new page goes under its role segmen
 
 ## Deploy & infra
 
-- **Frontend:** Firebase Hosting. **Rules + Functions:** `firebase deploy`. **Any developer may deploy** — be deliberate; deploys hit the live project.
+- **Frontend:** Vercel, auto-deploys from `main` — anything merged to `main` that touches `frontend/` goes live. **Rules + Functions:** `firebase deploy` (from `firebase/`). **Any developer may deploy** — be deliberate; deploys hit the live project and the live website depends on the rules and functions.
+- **Desktop office app:** `office/` (own npm workspace). Develops against the local Firebase emulators with project id `demo-technofluid`, so development never touches live data. Run instructions: `docs/TECHNOFLUID-HANDOVER.md` §7.
 - **Dedicated Technofluid Firebase project:** `techno-fluid` (Firestore region `asia-south1`; default Storage bucket is `US-EAST1` — auto-provisioned, left as-is). This is the live project — no more shared-placeholder caveat.
 - **Secrets never live in this repo or in `CLAUDE.md`.** Firebase web config via `NEXT_PUBLIC_*` env vars; Function secrets (e.g. GST provider keys) via Firebase Functions params/config. Reference locations only.
 
@@ -122,12 +123,13 @@ Current code contains these defects — fix on the relevant ticket; never replic
 
 ## How we work (ticket workflow)
 
-See **`docs/PROCESS.md`**. Per ticket: `/draft-ticket <thing>` → `/start-ticket` → build (feature branch, one PR per task) → `/handoff` → `/manager-review`. Match existing conventions; don't introduce SQL/ORMs, extra state libraries, or backend servers (AGENTS.md §2).
+**Website work** follows **`docs/PROCESS.md`**. The **desktop office app (`office/`) is built without tickets** (decision 13 Oct 2026). Per ticket: `/draft-ticket <thing>` → `/start-ticket` → build (feature branch, one PR per task) → `/handoff` → `/manager-review`. Match existing conventions; don't introduce SQL/ORMs, extra state libraries, or backend servers (AGENTS.md §2).
 
 ## References
 
 - `docs/PRD.md` — product spec & build sequence (the source of truth; honor ⚠️ open decisions — ask Ansh, don't invent).
 - `docs/PROCESS.md` — ticket pipeline.
 - `frontend/AGENTS.md` — frontend coding rules.
-- Product master: `Product master resources/` + `Technofluid-Product-Master-DRAFT.xlsx` (320 variants).
-- External: Firebase (Auth/Firestore/Functions/Storage/Hosting), GST lookup provider (via `verifyGST` function).
+- Product master: the client's live **Google Sheet "Technofluid-Product-Master-GRADES"** (one row per product × grade × pack; 782 rows, recipes in columns F–L) — see `docs/TECHNOFLUID-HANDOVER.md` §3. The old `docs/Technofluid-Product-Master-DRAFT.xlsx` (320 variants) and the raw sheets in `Product master resources/` are history.
+- Handover / current state of everything: `docs/TECHNOFLUID-HANDOVER.md`.
+- External: Firebase (Auth/Firestore/Functions/Storage), Vercel (website), Humble Ledger accounting API (`https://hl.humblesolutions.in/docs`), Humble billing engine (access pending), GST lookup provider (via `verifyGST` function).
