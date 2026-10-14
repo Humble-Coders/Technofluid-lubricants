@@ -108,7 +108,7 @@ Technofluid makes and sells lubricants (engine oils, gear oils, hydraulic oils, 
 5. **Stock is a diary** (`stockMovements`, append-only: what, how much, who, why). Mistakes are fixed with a reversing entry, never by editing.
 6. **Everything is safely retryable** — one id per sale/payment/movement; Humble Ledger is idempotent on `(appId, sourceId)`.
 7. **Ledger posting goes through a queue:** sale saved in Firebase first (stock moved) → status `PENDING` → server posts to Humble Ledger → `SYNCED` or `FAILED` (auto-retry, visible badge). The desktop app **never holds Ledger credentials**.
-8. **GST:** seller in Haryana (06). Same state → CGST + SGST (each computed at half the rate, so they print equal); other state → IGST. Rates in **basis points** (18% = 1800). Invoice total rounded to the rupee with a "Round off" line.
+8. **GST:** the 18% on every product today is a **placeholder** (website rule + all 781 seed rows) — the real GST rate and HSN code per product are still awaited from Gaurav/CA (§9). Seller in Haryana (06). Same state → CGST + SGST (each computed at half the rate, so they print equal); other state → IGST. Rates in **basis points** (18% = 1800). Invoice total rounded to the rupee with a "Round off" line.
 9. **Test before screens** for anything with money, GST, units or permissions; security-rule tests in the emulator.
 10. **Development never touches live data:** the app uses project id `demo-technofluid` when `VITE_USE_EMULATORS=true` (Firebase refuses to connect `demo-` projects to the cloud).
 11. Prices are **never shown to Stock & Production** — and (to do) must also be **unreadable** by them at the rules level.
@@ -244,6 +244,17 @@ Added for the office app: `grade, densityKgPerL, recipe[]` (+ `deleted:false`). 
 - Good parallel tasks that don't collide with the office foundation: the **product importer upgrade** (step 2), **rule tests + C1 fix** (step 1, coordinate on deploy), **Humble Ledger Cloud Function client** (step 4 groundwork), website **TD-1 catch-up** for new products.
 
 ---
+
+## 10a. Where older docs disagree with this one (until Ansh approves fixes)
+
+`CLAUDE.md` and `docs/PRD.md` predate some decisions. Where they conflict, **this handover reflects the latest decisions**:
+- **Website hosting:** CLAUDE.md says Firebase Hosting; the website actually deploys to **Vercel** from `main` (`firebase/firebase.json` has no hosting block).
+- **Deploying:** CLAUDE.md says "any developer may deploy". For now, **tell Ansh before deploying Firestore rules or Functions to `techno-fluid`** — the live website depends on them.
+- **GST 18% everywhere** (CLAUDE.md, PRD §5/§8) is a placeholder until per-product GST/HSN arrives.
+- **Product master:** CLAUDE.md/PRD §5 describe the old 320-variant DRAFT; the live source is the Google Sheet (782 rows, §3).
+- **Inventory:** PRD §7 describes an editable `inventory.onHand` that Manufacturing edits directly; the office app replaces this with the append-only **`stockMovements`** diary written only by Cloud Functions (§5).
+- **Tickets:** the `/draft-ticket` workflow in CLAUDE.md applies to website work; the office app is built without tickets (decision 13 Oct).
+- **Segment:** `Combined` is an *account* setting (sees Automotive + Industrial); products are tagged `Automotive | Industrial | Both` — same as CLAUDE.md, no conflict.
 
 ## 11. Glossary (plain words)
 
