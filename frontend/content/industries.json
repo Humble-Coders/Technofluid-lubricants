@@ -88,8 +88,8 @@
         },
         {
           "label": "Open gear lubricant (for heavy drives)",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Transformer oil (for induction furnace)",
@@ -134,8 +134,8 @@
         },
         {
           "label": "Open gear lubricant (high viscosity / asphaltic)",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Engine oil (SAE 15W-40, 20W-40, etc.)",
@@ -235,8 +235,8 @@
         },
         {
           "label": "Open gear lubricant",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Circulating oil",
@@ -412,8 +412,8 @@
         },
         {
           "label": "Neat cutting oil (straight cutting oil)",
-          "series": "NEAT CUTTING OIL – TECHNOFLUID NEAT CUTTING OIL 55",
-          "seriesSlug": "neat-cutting-oil-technofluid-neat-cutting-oil-55"
+          "series": "NEAT CUTTING OILS – TECHNOFLUID NEAT CUTTING OIL 55 & MEGACUT 150",
+          "seriesSlug": "neat-cutting-oils-technofluid-neat-cutting-oil-55-megacut-150"
         },
         {
           "label": "Grinding oil",
@@ -517,9 +517,9 @@
           "seriesSlug": "industrial-gear-oils-technofluid-gear-oils-iso-vg-100-150-220-320-460"
         },
         {
-          "label": "Girth Gear Grease",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "label": "Girth Gear Lubricant",
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Roll Perfect 22/46",
@@ -614,8 +614,8 @@
         },
         {
           "label": "Open gear lubricant (kiln girth gear)",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Circulating oil",
@@ -705,8 +705,8 @@
         },
         {
           "label": "Open gear lubricant",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Circulating oil",
@@ -1033,8 +1033,8 @@
         },
         {
           "label": "Open gear lubricant (kiln girth gear)",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Circulating oil",
@@ -1629,8 +1629,8 @@
         },
         {
           "label": "Open gear lubricant",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Chain oil / conveyor lubricant",
@@ -1665,8 +1665,8 @@
         },
         {
           "label": "Open gear lubricant",
-          "series": "TECHNOFLUID GIRTH GEAR GREASE",
-          "seriesSlug": "technofluid-girth-gear-grease"
+          "series": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+          "seriesSlug": "technofluid-girth-gear-lubricant"
         },
         {
           "label": "Circulating oil",
