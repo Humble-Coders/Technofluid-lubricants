@@ -10,3 +10,5 @@ export { checkTerritoryConflict } from "./distributors/checkTerritoryConflict";
 export { importProducts } from "./products/importProducts";
 export { updateProduct } from "./products/updateProduct";
 export { createProduct } from "./products/createProduct";
+export { editProduct } from "./products/editProduct";
+export { addProduct } from "./products/addProduct";

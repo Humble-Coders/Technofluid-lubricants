@@ -1,7 +1,7 @@
 {
   "name": "technofluid-office",
   "private": true,
-  "description": "Technofluid Office — desktop accounting, stock and billing app (Electron) + shared core",
+  "description": "Technofluid Office \u2014 desktop accounting, stock and billing app (Electron) + shared core",
   "workspaces": [
     "core",
     "desktop"
@@ -12,7 +12,8 @@
     "dev": "npm run dev -w desktop",
     "build": "npm run build -w desktop",
     "emulators": "node emulator/start.mjs",
-    "seed": "node emulator/seed.mjs"
+    "seed": "node emulator/seed.mjs",
+    "test:emulator": "node --test emulator/tests/"
   },
   "engines": {
     "node": ">=20"

@@ -97,12 +97,17 @@ export const importProducts = onCall(
       }),
     );
 
+    // Fields an Admin changed in Technofluid Office (`appEdited`, set by
+    // editProduct) belong to the office app now — the import keeps those
+    // values and reports them, instead of overwriting them with the sheet's.
+    const keptAppEdits: { sku: string; fields: string[] }[] = [];
+
     for (const { product: row } of validated) {
       const existing = existingBySku.get(row.sku);
       const isNew = !existing;
       const ref = db.collection("products").doc(row.sku);
 
-      const catalogFields = {
+      const sheetFields: Record<string, unknown> = {
         product: row.product,
         productKey: row.productKey,
         category: row.category,
@@ -114,8 +119,24 @@ export const importProducts = onCall(
         distributorPrice: row.distributorPrice,
         gstPct: row.gstPct,
         segment: row.segment,
-        updatedAt: now,
       };
+
+      const appEdited = new Set<string>(
+        Array.isArray(existing?.appEdited) ? existing!.appEdited : [],
+      );
+      // Only report fields where the sheet actually disagrees with the office value.
+      const kept = Object.keys(sheetFields).filter(
+        (f) => appEdited.has(f) && sheetFields[f] !== existing?.[f],
+      );
+      if (!isNew && kept.length > 0) keptAppEdits.push({ sku: row.sku, fields: kept });
+
+      const catalogFields: Record<string, unknown> = { updatedAt: now };
+      for (const [field, value] of Object.entries(sheetFields)) {
+        if (isNew || !appEdited.has(field)) catalogFields[field] = value;
+      }
+      // What the product looks like after this write (kept office values win).
+      const effective = (field: string) =>
+        field in catalogFields ? catalogFields[field] : existing?.[field];
 
       if (isNew) {
         created += 1;
@@ -137,10 +158,10 @@ export const importProducts = onCall(
       const deleted = isNew ? false : (existing!.deleted ?? false);
       mergedBySku.set(row.sku, {
         productKey: row.productKey,
-        product: row.product,
+        product: effective("product") as string,
         category: row.category,
-        segment: row.segment,
-        orderableUnit: row.orderableUnit,
+        segment: effective("segment") as string,
+        orderableUnit: effective("orderableUnit") as string,
         active,
         deleted,
       });
@@ -185,6 +206,7 @@ export const importProducts = onCall(
       skipped: invalid.length,
       invalid,
       families: affectedProductKeys.size,
+      keptAppEdits,
     };
   },
 );

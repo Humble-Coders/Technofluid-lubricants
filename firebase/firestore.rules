@@ -119,6 +119,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /productChanges/{changeId} {
+      // Append-only log of product edits from Technofluid Office (who, when,
+      // old → new). Holds prices, so admin only. Written only by editProduct.
+      allow read:  if isAdmin();
+      allow write: if false;
+    }
+
     // ─── Coupons ──────────────────────────────────────────────────────────────
 
     match /coupons/{couponId} {

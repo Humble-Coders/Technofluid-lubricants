@@ -18,6 +18,7 @@ type ImportSummary = {
   updated: number;
   skipped: number;
   invalid: { rowNumber: number; reason: string }[];
+  keptAppEdits: { sku: string; fields: string[] }[];
 };
 
 export function ImportProductsTab() {
@@ -60,10 +61,15 @@ export function ImportProductsTab() {
 
     setIsImporting(true);
     try {
-      const { created, updated, skipped, invalid } = await importProducts(
-        result.valid,
-      );
-      setSummary({ created, updated, skipped, invalid });
+      const { created, updated, skipped, invalid, keptAppEdits } =
+        await importProducts(result.valid);
+      setSummary({
+        created,
+        updated,
+        skipped,
+        invalid,
+        keptAppEdits: keptAppEdits ?? [],
+      });
     } catch (err) {
       setError(
         err instanceof Error
@@ -157,6 +163,22 @@ export function ImportProductsTab() {
                 </li>
               ))}
             </ul>
+          )}
+          {summary.keptAppEdits.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-textPrimary">
+                Kept values edited in Technofluid Office (the sheet was not
+                applied for these fields): {summary.keptAppEdits.length}{" "}
+                {summary.keptAppEdits.length === 1 ? "product" : "products"}
+              </p>
+              <ul className="mt-2 space-y-1 text-sm text-textSecondary">
+                {summary.keptAppEdits.map((row) => (
+                  <li key={row.sku}>
+                    {row.sku}: {row.fields.join(", ")}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </Card>
       )}
