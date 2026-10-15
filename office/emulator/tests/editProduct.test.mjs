@@ -229,3 +229,46 @@ test("Copy adds a new pack to the same stock pool and can switch the original of
 test("an SKU that already exists is refused", async () => {
   await rejectsWith(admin.call("addProduct", { product: NEW_PACK }), "already-exists", /already used/);
 });
+
+test("only Admin can delete products", async () => {
+  await rejectsWith(accounts.call("setProductDeleted", { sku: COPY_SKU, deleted: true }), "permission-denied");
+  await rejectsWith(stock.call("setProductDeleted", { sku: COPY_SKU, deleted: true }), "permission-denied");
+});
+
+test("delete hides the product, switches selling off, logs it and updates the website's pack list", async () => {
+  await adminDb.doc(`products/${SKU}`).update({ active: false });
+  // Before: the copy (210 L) is the only selling pack of this pool on the public catalogue.
+  await admin.call("editProduct", { sku: COPY_SKU, changes: { orderableUnit: "210 L barrel (drum)" } });
+  assert.deepEqual((await adminDb.doc(`public_catalog/${BASE.productKey}`).get()).data().packSizes, ["210 L barrel (drum)"]);
+
+  assert.deepEqual(await admin.call("setProductDeleted", { sku: COPY_SKU, deleted: true, reason: "Added by mistake" }), {
+    changed: true,
+  });
+  const p = await product(COPY_SKU);
+  assert.equal(p.deleted, true);
+  assert.equal(p.active, false);
+  assert.ok(await prices(COPY_SKU), "prices are kept, not erased");
+  assert.equal((await adminDb.doc(`public_catalog/${BASE.productKey}`).get()).exists, false, "no selling packs left");
+
+  const log = (await changeLog(COPY_SKU)).find((c) => c.field === "deleted");
+  assert.equal(log.new, true);
+  assert.equal(log.reason, "Added by mistake");
+
+  // Same request again: nothing changes, nothing logged.
+  assert.deepEqual(await admin.call("setProductDeleted", { sku: COPY_SKU, deleted: true }), { changed: false });
+  assert.equal((await changeLog(COPY_SKU)).filter((c) => c.field === "deleted").length, 1);
+
+  // A deleted product can't be edited.
+  await rejectsWith(admin.call("editProduct", { sku: COPY_SKU, changes: { gstPct: 5 } }), "not-found");
+});
+
+test("a deleted product can be restored (selling stays off)", async () => {
+  assert.deepEqual(await admin.call("setProductDeleted", { sku: COPY_SKU, deleted: false, reason: "Undo" }), {
+    changed: true,
+  });
+  const p = await product(COPY_SKU);
+  assert.equal(p.deleted, false);
+  assert.equal(p.active, false);
+  await admin.call("editProduct", { sku: COPY_SKU, changes: { active: true } });
+  assert.equal((await adminDb.doc(`public_catalog/${BASE.productKey}`).get()).exists, true, "back on the website once selling");
+});

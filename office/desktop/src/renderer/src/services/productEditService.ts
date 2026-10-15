@@ -165,3 +165,17 @@ export async function addProduct(
     throw new Error(await friendlyError(error));
   }
 }
+
+const setProductDeletedCallable = httpsCallable<
+  { sku: string; deleted: boolean; reason?: string },
+  { changed: boolean }
+>(functions, "setProductDeleted");
+
+/** Soft-deletes (or restores) a product. Nothing is erased; it's logged in the change history. */
+export async function setProductDeleted(sku: string, deleted: boolean, reason?: string): Promise<void> {
+  try {
+    await setProductDeletedCallable({ sku, deleted, ...(reason ? { reason } : {}) });
+  } catch (error) {
+    throw new Error(await friendlyError(error));
+  }
+}

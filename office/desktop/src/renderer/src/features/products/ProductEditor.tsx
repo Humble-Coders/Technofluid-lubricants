@@ -1,4 +1,4 @@
-import { Lock } from "lucide-react";
+import { AlertTriangle, Lock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { formatINR, packPricePaise, piecesPerPackFromLabel, priceBasisFromLabel, toMilli } from "@technofluid/core";
 import { Button, Field, Input, Select, Switch, modKey } from "@/components/ui";
@@ -117,6 +117,19 @@ export function ProductEditor({
     }
   }, [values.dealerPrice, values.distributorPrice, values.pricePer, values.packLabel, values.packQty]);
 
+  // Distributors pay ~20% less than dealers — a higher distributor price is usually a typo.
+  const distributorAboveDealer = useMemo(() => {
+    const dealer = parsePrice(values.dealerPrice);
+    const distributor = parsePrice(values.distributorPrice);
+    return (
+      "paise" in dealer &&
+      "paise" in distributor &&
+      dealer.paise !== null &&
+      distributor.paise !== null &&
+      distributor.paise > dealer.paise
+    );
+  }, [values.dealerPrice, values.distributorPrice]);
+
   const unitWord = values.pricePer.startsWith("per ") ? values.pricePer.slice(4) : "unit";
   const gstOptions = (GST_SLABS as readonly number[]).includes(Number(initial.gstPct))
     ? [...GST_SLABS]
@@ -227,6 +240,11 @@ export function ProductEditor({
           </Field>
         </div>
         {packPreview ? <p className="num -mt-1 text-[12px] text-ink-muted">{packPreview}</p> : null}
+        {distributorAboveDealer ? (
+          <p className="-mt-1 flex items-center gap-1.5 text-[12px] text-warning">
+            <AlertTriangle className="size-3.5 shrink-0" /> Distributor price is higher than dealer — check it.
+          </p>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-2 pt-2">
           <Field label="GST" htmlFor="pf-gstPct" error={errors.gstPct}>
