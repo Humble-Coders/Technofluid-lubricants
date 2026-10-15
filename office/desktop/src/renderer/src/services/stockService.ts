@@ -109,11 +109,16 @@ export function watchStockItems(onChange: (items: StockItem[]) => void, onError:
   );
 }
 
-export type MovementFilter = { itemId: string } | { journalDate: string } | { latest: number };
+export type MovementFilter =
+  | { itemId: string }
+  | { journalDate: string }
+  | { latest: number }
+  /** Business dates from–to, inclusive ("YYYY-MM-DD"). */
+  | { from: string; to: string };
 
 /**
- * Diary lines, newest first: for one item, for one business date, or the latest N.
- * Filters use a single field each (no composite index); sorting happens here.
+ * Diary lines, newest first: for one item, one business date, a date range, or the
+ * latest N. Each query filters on a single field (no composite index); sorting happens here.
  */
 export function watchMovements(
   filter: MovementFilter,
@@ -125,7 +130,14 @@ export function watchMovements(
       ? [where("itemId", "==", filter.itemId)]
       : "journalDate" in filter
         ? [where("journalDate", "==", filter.journalDate)]
-        : [orderBy("createdAt", "desc"), limit(filter.latest)];
+        : "from" in filter
+          ? [
+              where("journalDate", ">=", filter.from),
+              where("journalDate", "<=", filter.to),
+              orderBy("journalDate", "desc"),
+              limit(2000),
+            ]
+          : [orderBy("createdAt", "desc"), limit(filter.latest)];
   return onSnapshot(
     query(collection(db, "stockMovements"), ...constraints),
     (snap) =>
