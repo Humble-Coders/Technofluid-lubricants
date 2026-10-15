@@ -207,6 +207,12 @@ After each task: a post-action summary/preview the PM can check (e.g. import sum
 | 16 | Build order | **Accounting + inventory first** (desktop), ordering system after; missing prices may be entered in the app (2026-10-06) |
 | 17 | Desktop platform | **Electron + React + official Firebase JS SDK**, Windows **and** Mac, sharing a TypeScript core with the website (2026-10-09) |
 | 18 | Code signing | **Mac: Apple Developer account** (needed for Gatekeeper + auto-update). **Windows: unsigned for now** (one-time "Run anyway" per office PC); no Microsoft signing service (2026-10-09) |
+| 19 | Order placed → stock? | **Nothing leaves stock when an order is placed.** The supervisor sees what it needs: finished products and, via recipes, raw materials ("commodity A: 5 L needed"). Stock goes down only on dispatch / sale (2026-10-15) |
+| 20 | Production → raw materials | **Auto-deduct by recipe, with confirmation:** logging production proposes the raw-material deductions from the recipe; the supervisor can adjust, then confirms (2026-10-15) |
+| 21 | What is stocked | **Three kinds of stock items:** finished products (the 781 variants), **raw materials** (base oils, additives — Sheet1/2/3) and **consumables** (cans, caps, cartons). Stock comes from **manufacturing** or **purchasing**; purchases are raw material, consumable, or **directly sellable** (bought-in finished goods) (2026-10-15) |
+| 22 | Books for stock | **Manufacturing → no Humble Ledger entry. Purchasing → Humble Ledger purchase** with supplier (who), item (what) and amount (₹) (2026-10-15) |
+| 23 | "Directly editable" stock | Stock **feels** directly editable, but every change is saved as a **correction entry** (who, when, old → new, why). In stock history, **edit = reverse the old entry + record the new one**; **reverse** is always available. Nothing is silently overwritten (2026-10-15) |
+| 24 | Supervisor's daily stock journal | A single **daily stock journal** screen where the supervisor enters the day's movements (e.g. +50 kg commodity B) (2026-10-15) |
 
 **Still open:**
 
