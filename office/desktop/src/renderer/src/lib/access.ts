@@ -83,6 +83,11 @@ export function canSeePrices(role: OfficeRole): boolean {
   return role !== "supervisor";
 }
 
+/** Admin and Stock & Production record stock; Accounts only looks (PRD §2). The stock functions check again. */
+export function canEditStock(role: OfficeRole): boolean {
+  return role === "admin" || role === "supervisor";
+}
+
 /** Only Admin changes products and prices (PRD §2). The editProduct Cloud Function checks again. */
 export function canEditProducts(role: OfficeRole): boolean {
   return role === "admin";

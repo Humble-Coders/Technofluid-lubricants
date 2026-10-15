@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   checkGstin,
+  indiaDate,
+  parseQuantityToMilli,
   formatINR,
   formatQuantity,
   formatRate,
@@ -97,6 +99,28 @@ describe("units (milli base units)", () => {
     expect(formatQuantity(26000, "L")).toBe("26 L");
     expect(formatQuantity(17500, "L")).toBe("17.5 L");
     expect(formatQuantity(1000, "piece")).toBe("1 piece");
+  });
+});
+
+describe("typed quantities and business dates", () => {
+  it("parses typed quantities into exact milli-units", () => {
+    expect(parseQuantityToMilli("26")).toBe(26_000);
+    expect(parseQuantityToMilli("17.5")).toBe(17_500);
+    expect(parseQuantityToMilli("0.001")).toBe(1);
+    expect(parseQuantityToMilli("1,250.25")).toBe(1_250_250);
+    expect(parseQuantityToMilli(".5")).toBe(500);
+  });
+
+  it("refuses what isn't a plain positive quantity", () => {
+    for (const bad of ["", ".", "-5", "1.2345", "abc", "1e3", "2,5.0.1"]) {
+      expect(() => parseQuantityToMilli(bad)).toThrow(RangeError);
+    }
+  });
+
+  it("uses India's date, not the computer's", () => {
+    // 20:00 UTC on 31 Oct is already 1 Nov in India (UTC+5:30).
+    expect(indiaDate(new Date("2026-10-31T20:00:00Z"))).toBe("2026-11-01");
+    expect(indiaDate(new Date("2026-10-31T18:00:00Z"))).toBe("2026-10-31");
   });
 });
 

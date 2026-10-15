@@ -1,0 +1,238 @@
+import clsx from "clsx";
+import { AlertTriangle, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { formatQuantity, indiaDate, parseQuantityToMilli } from "@technofluid/core";
+import { Button, Input, Select } from "@/components/ui";
+import { useMovements } from "@/hooks/useStock";
+import {
+  newRequestId,
+  recordStockMovements,
+  type JournalLine,
+  type RecordResult,
+  type StockItem,
+} from "@/services/stockService";
+import { ItemPicker } from "./ItemPicker";
+import { MovementList } from "./MovementList";
+import { unitWord } from "./stockFormat";
+
+type LineKind = "IN" | "OUT" | "COUNT" | "OPENING";
+interface Draft {
+  key: number;
+  item: StockItem | null;
+  kind: LineKind;
+  qty: string;
+  note: string;
+}
+
+const KIND_OPTIONS: Array<[LineKind, string]> = [
+  ["IN", "In"],
+  ["OUT", "Out"],
+  ["COUNT", "Counted (set to)"],
+  ["OPENING", "Opening stock"],
+];
+
+let nextKey = 1;
+const emptyLine = (): Draft => ({ key: nextKey++, item: null, kind: "IN", qty: "", note: "" });
+
+/**
+ * The supervisor's daily stock journal (decision #24): one business date, many lines,
+ * saved together. Below it, everything already recorded for that date.
+ */
+export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: boolean }) {
+  const today = indiaDate();
+  const [date, setDate] = useState(today);
+  const [lines, setLines] = useState<Draft[]>(() => [emptyLine()]);
+  const [errors, setErrors] = useState<Record<number, string>>({});
+  // Same id until it succeeds, so pressing Save again after a failure can't double-record.
+  const [requestId, setRequestId] = useState(newRequestId);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<RecordResult | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const recorded = useMovements({ journalDate: date });
+
+  const update = (key: number, patch: Partial<Draft>) => {
+    setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
+    setErrors((e) => ({ ...e, [key]: "" }));
+    setResult(null);
+  };
+
+  const save = async () => {
+    setSaveError(null);
+    setResult(null);
+    const found: Record<number, string> = {};
+    const out: JournalLine[] = [];
+    const filled = lines.filter((l) => l.item || l.qty.trim() || l.note.trim());
+    for (const l of filled) {
+      if (!l.item) {
+        found[l.key] = "Choose an item.";
+        continue;
+      }
+      let milli: number;
+      try {
+        milli = parseQuantityToMilli(l.qty);
+      } catch {
+        found[l.key] = "Enter a quantity like 26 or 17.5.";
+        continue;
+      }
+      if ((l.kind === "IN" || l.kind === "OUT") && milli === 0) {
+        found[l.key] = "Quantity must be above 0.";
+        continue;
+      }
+      if (l.kind !== "OPENING" && !l.note.trim()) {
+        found[l.key] = "Say why.";
+        continue;
+      }
+      const note = l.note.trim();
+      out.push(
+        l.kind === "COUNT"
+          ? { itemId: l.item.id, kind: "COUNT", countedMilli: milli, note }
+          : l.kind === "OPENING"
+            ? { itemId: l.item.id, kind: "OPENING", qtyMilli: milli, ...(note ? { note } : {}) }
+            : { itemId: l.item.id, kind: l.kind, qtyMilli: milli, note },
+      );
+    }
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+    if (out.length === 0) return setSaveError("Add at least one line.");
+
+    setBusy(true);
+    try {
+      const r = await recordStockMovements(requestId, date, out);
+      setResult(r);
+      setLines([emptyLine()]);
+      setRequestId(newRequestId());
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="mx-auto max-w-4xl space-y-6 px-5 py-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="journal-date" className="text-[13px] font-medium text-ink">
+            Stock journal for
+          </label>
+          <Input
+            id="journal-date"
+            type="date"
+            value={date}
+            max={today}
+            onChange={(e) => e.target.value && setDate(e.target.value)}
+            className="w-44"
+          />
+          {date !== today ? (
+            <Button size="sm" variant="ghost" onClick={() => setDate(today)}>
+              Back to today
+            </Button>
+          ) : null}
+        </div>
+
+        {canEdit ? (
+          <form
+            className="space-y-2 rounded-lg border border-line bg-surface p-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void save();
+            }}
+          >
+            <div className="grid grid-cols-[minmax(220px,2fr)_150px_140px_minmax(160px,2fr)_32px] gap-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
+              <span>Item</span>
+              <span>What happened</span>
+              <span>Quantity</span>
+              <span>Why</span>
+              <span />
+            </div>
+            {lines.map((l, i) => (
+              <div key={l.key}>
+                <div className="grid grid-cols-[minmax(220px,2fr)_150px_140px_minmax(160px,2fr)_32px] items-center gap-2">
+                  <ItemPicker items={items} value={l.item} onChange={(item) => update(l.key, { item })} autoFocus={i > 0 && i === lines.length - 1} />
+                  <Select value={l.kind} onChange={(e) => update(l.key, { kind: e.target.value as LineKind })} aria-label="What happened">
+                    {KIND_OPTIONS.map(([k, label]) => (
+                      <option key={k} value={k}>
+                        {label}
+                      </option>
+                    ))}
+                  </Select>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      value={l.qty}
+                      onChange={(e) => update(l.key, { qty: e.target.value })}
+                      inputMode="decimal"
+                      placeholder="0"
+                      className="num flex-1"
+                      aria-label="Quantity"
+                    />
+                    <span className="w-10 text-[12px] text-ink-muted">{l.item ? unitWord(l.item.baseUnit) : ""}</span>
+                  </div>
+                  <Input
+                    value={l.note}
+                    onChange={(e) => update(l.key, { note: e.target.value })}
+                    placeholder={l.kind === "OPENING" ? "Optional" : "e.g. filled from tank 2"}
+                    maxLength={200}
+                    aria-label="Why"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label="Remove line"
+                    className="px-1.5"
+                    disabled={lines.length === 1}
+                    onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+                {errors[l.key] ? <p className="mt-1 text-[12px] text-danger">{errors[l.key]}</p> : null}
+                {l.item && l.kind === "COUNT" ? (
+                  <p className="mt-1 text-[12px] text-ink-faint">
+                    Shows {formatQuantity(l.item.onHandMilli, l.item.baseUnit)} now — the difference is recorded.
+                  </p>
+                ) : null}
+              </div>
+            ))}
+            <div className="flex items-center gap-2 pt-1">
+              <Button size="sm" onClick={() => setLines((ls) => [...ls, emptyLine()])} icon={<Plus className="size-3.5" />}>
+                Add line
+              </Button>
+              <div className="flex-1" />
+              <Button type="submit" variant="primary" size="sm" loading={busy}>
+                Save journal
+              </Button>
+            </div>
+            {saveError ? <p role="alert" className="text-[12px] text-danger">{saveError}</p> : null}
+            {result ? <ResultNote result={result} /> : null}
+          </form>
+        ) : null}
+
+        <section>
+          <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
+            Recorded for {date === today ? "today" : date}
+          </h3>
+          <MovementList state={recorded} canEdit={canEdit} emptyText="Nothing recorded for this date." />
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function ResultNote({ result }: { result: RecordResult }) {
+  return (
+    <div className="space-y-1 text-[12px]">
+      <p className={clsx("flex items-center gap-1.5", result.recorded > 0 ? "text-success" : "text-ink-muted")}>
+        <CheckCircle2 className="size-3.5" />
+        {result.alreadyRecorded
+          ? "Already saved."
+          : `Saved ${result.recorded} ${result.recorded === 1 ? "line" : "lines"}.`}
+        {result.skipped.length > 0 ? ` ${result.skipped.length} unchanged (count already matched).` : ""}
+      </p>
+      {result.belowZero.map((b) => (
+        <p key={b.itemId} className="flex items-center gap-1.5 text-warning">
+          <AlertTriangle className="size-3.5" /> {b.name} is now below zero — count it and correct.
+        </p>
+      ))}
+    </div>
+  );
+}

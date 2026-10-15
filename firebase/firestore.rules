@@ -153,6 +153,27 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── Stock (Technofluid Office) ───────────────────────────────────────────
+    // Quantities only, no money. Admin, Accounts and Stock & Production can read;
+    // only Cloud Functions write (the diary is append-only, corrections are new lines).
+
+    function canSeeStock() { return isAdmin() || isAccounts() || isSupervisor(); }
+
+    match /stockItems/{itemId} {
+      allow read:  if canSeeStock();
+      allow write: if false;
+    }
+
+    match /stockMovements/{movementId} {
+      allow read:  if canSeeStock();
+      allow write: if false;
+    }
+
+    match /stockRequests/{requestId} {
+      // Retry bookkeeping for the stock functions — server only.
+      allow read, write: if false;
+    }
+
     // ─── Coupons ──────────────────────────────────────────────────────────────
 
     match /coupons/{couponId} {

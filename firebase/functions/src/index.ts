@@ -13,3 +13,7 @@ export { createProduct } from "./products/createProduct";
 export { editProduct } from "./products/editProduct";
 export { addProduct } from "./products/addProduct";
 export { setProductDeleted } from "./products/setProductDeleted";
+export { recordStockMovements } from "./stock/recordStockMovements";
+export { reverseStockMovement } from "./stock/reverseStockMovement";
+export { saveStockItem } from "./stock/saveStockItem";
+export { ensureProductPools } from "./stock/ensureProductPools";

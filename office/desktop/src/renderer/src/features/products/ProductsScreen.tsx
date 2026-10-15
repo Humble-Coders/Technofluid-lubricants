@@ -10,7 +10,7 @@ import {
   priceBasisFromLabel,
   toMilli,
 } from "@technofluid/core";
-import { Badge, Button, EmptyState, Input, Kbd, Spinner } from "@/components/ui";
+import { Badge, Button, EmptyState, Input, Kbd, Segmented, Spinner } from "@/components/ui";
 import { canEditProducts, canSeePrices } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
@@ -643,38 +643,6 @@ function PriceBox({ label, paise }: { label: string; paise: number | null }) {
       ) : (
         <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
       )}
-    </div>
-  );
-}
-
-/* ─── Segmented control ──────────────────────────────────────────────────────── */
-
-function Segmented<T extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: T;
-  onChange: (value: T) => void;
-  options: Array<[T, string]>;
-}) {
-  return (
-    <div className="inline-flex h-8 items-center rounded-md border border-line-strong bg-canvas p-0.5" role="radiogroup">
-      {options.map(([key, label]) => (
-        <button
-          key={key}
-          type="button"
-          role="radio"
-          aria-checked={value === key}
-          onClick={() => onChange(key)}
-          className={clsx(
-            "h-full rounded px-2.5 text-[12px] font-medium transition-colors",
-            value === key ? "bg-surface text-ink shadow-sm" : "text-ink-muted hover:text-ink",
-          )}
-        >
-          {label}
-        </button>
-      ))}
     </div>
   );
 }
