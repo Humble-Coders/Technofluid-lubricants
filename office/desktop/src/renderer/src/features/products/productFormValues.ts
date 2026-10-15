@@ -138,20 +138,31 @@ export function readEditForm(
   values: ProductFormValues,
   product: Product,
 ): { changes: ProductChanges; errors: ProductFormErrors } {
+  const allErrors: ProductFormErrors = {};
+  const v = readShared(values, allErrors);
+
+  // Only the fields the person touched are checked and sent — a product with, say, no
+  // "Sold to" yet can still get a price without fixing that first.
+  const initial = formValuesFor(product);
+  const touched = (key: keyof ProductFormValues) => values[key] !== initial[key];
   const errors: ProductFormErrors = {};
-  const v = readShared(values, errors);
+  for (const key of Object.keys(allErrors) as (keyof ProductFormValues)[]) {
+    if (touched(key)) errors[key] = allErrors[key];
+  }
+
   const changes: ProductChanges = {};
-  if (!errors.name && v.name !== product.name) changes.product = v.name;
-  if (!errors.packLabel && v.packLabel !== product.packLabel) changes.orderableUnit = v.packLabel;
-  if (!errors.pricePer && v.pricePer !== product.pricePer) changes.pricePer = v.pricePer;
-  if (!errors.dealerPrice && v.dealerPaise !== product.dealerPricePaise) changes.dealerPrice = v.dealerPaise;
-  if (!errors.distributorPrice && v.distributorPaise !== product.distributorPricePaise) {
+  const ok = (key: keyof ProductFormValues) => touched(key) && !errors[key];
+  if (ok("name") && v.name !== product.name) changes.product = v.name;
+  if (ok("packLabel") && v.packLabel !== product.packLabel) changes.orderableUnit = v.packLabel;
+  if (ok("pricePer") && v.pricePer !== product.pricePer) changes.pricePer = v.pricePer;
+  if (ok("dealerPrice") && v.dealerPaise !== product.dealerPricePaise) changes.dealerPrice = v.dealerPaise;
+  if (ok("distributorPrice") && v.distributorPaise !== product.distributorPricePaise) {
     changes.distributorPrice = v.distributorPaise;
   }
-  if (!errors.gstPct && v.gstPct !== product.gstPct) changes.gstPct = v.gstPct;
-  if (!errors.hsnCode && v.hsn !== product.hsnCode) changes.hsnCode = v.hsn;
-  if (!errors.segment && v.segment !== product.segment) changes.segment = v.segment;
-  if (!errors.density && v.density !== product.densityKgPerL) changes.densityKgPerL = v.density;
+  if (ok("gstPct") && v.gstPct !== product.gstPct) changes.gstPct = v.gstPct;
+  if (ok("hsnCode") && v.hsn !== product.hsnCode) changes.hsnCode = v.hsn;
+  if (ok("segment") && v.segment !== product.segment) changes.segment = v.segment;
+  if (ok("density") && v.density !== product.densityKgPerL) changes.densityKgPerL = v.density;
   if (values.active !== product.active) changes.active = values.active;
   return { changes, errors };
 }

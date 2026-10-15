@@ -406,14 +406,21 @@ function ProductPanel({
   }, [savedCount]);
 
   const packPrice = useMemo(() => {
-    if (!showPrices || p.dealerPricePaise === null || p.distributorPricePaise === null || !p.pricePer) return null;
+    // Each price is shown on its own — one may be set before the other.
+    if (!showPrices || (p.dealerPricePaise === null && p.distributorPricePaise === null) || !p.pricePer) return null;
     try {
       const basis = priceBasisFromLabel(p.pricePer);
       const piecesPerPack = piecesPerPackFromLabel(p.packLabel) ?? undefined;
       const packQtyMilli = toMilli(p.packQty);
       return {
-        dealer: packPricePaise({ basis, pricePaise: p.dealerPricePaise, packQtyMilli, piecesPerPack }),
-        distributor: packPricePaise({ basis, pricePaise: p.distributorPricePaise, packQtyMilli, piecesPerPack }),
+        dealer:
+          p.dealerPricePaise === null
+            ? null
+            : packPricePaise({ basis, pricePaise: p.dealerPricePaise, packQtyMilli, piecesPerPack }),
+        distributor:
+          p.distributorPricePaise === null
+            ? null
+            : packPricePaise({ basis, pricePaise: p.distributorPricePaise, packQtyMilli, piecesPerPack }),
       };
     } catch {
       return "unknown" as const;
@@ -547,11 +554,15 @@ function Detail({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function PriceBox({ label, paise }: { label: string; paise: number }) {
+function PriceBox({ label, paise }: { label: string; paise: number | null }) {
   return (
     <div className="rounded-md border border-line px-3 py-2">
       <p className="text-2xs text-ink-muted">{label}</p>
-      <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
+      {paise === null ? (
+        <p className="text-[13px] text-warning">No price</p>
+      ) : (
+        <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
+      )}
     </div>
   );
 }
