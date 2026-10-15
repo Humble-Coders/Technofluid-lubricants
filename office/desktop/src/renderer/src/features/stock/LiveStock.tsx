@@ -305,7 +305,7 @@ function ItemPanel({ item, products, canEdit, onClose }: {
           </p>
         </section>
 
-        {canEdit ? <CountForm item={item} /> : null}
+        {canEdit ? <StockActions item={item} /> : null}
 
         <section>
           <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">History</h3>
@@ -318,16 +318,28 @@ function ItemPanel({ item, products, canEdit, onClose }: {
   );
 }
 
+type Action = "IN" | "OUT" | "COUNT";
+
+const ACTION_TEXT: Record<Action, { label: string; qty: string; why: string; saved: string }> = {
+  IN: { label: "How much came in?", qty: "Quantity added", why: "Why? e.g. filled from tank 2", saved: "Stock in saved." },
+  OUT: { label: "How much went out?", qty: "Quantity removed", why: "Why? e.g. dispatched, damaged, sample", saved: "Stock out saved." },
+  COUNT: { label: "What's really there?", qty: "Quantity actually there", why: "Why? e.g. monthly count", saved: "Count saved." },
+};
+
 /**
- * "Feels directly editable" (decision #23): type what is really there; the server
- * records the difference as a correction line. With no history yet, it's the opening stock.
+ * Change one item's stock from its panel: Stock in / Stock out (an amount, with a reason)
+ * or Correct count — "feels directly editable" (decision #23): type what's really there
+ * and the server records only the difference. With no history yet it's the opening stock.
+ * Every save is a new diary line; nothing is overwritten.
  */
-function CountForm({ item }: { item: StockItem }) {
+function StockActions({ item }: { item: StockItem }) {
   const opening = !item.lastMovementAt && item.onHandMilli === 0;
+  const [action, setAction] = useState<Action>("IN");
   const [qty, setQty] = useState("");
   const [why, setWhy] = useState("");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{ tone: "ok" | "warn" | "error"; text: string } | null>(null);
+  const text = ACTION_TEXT[action];
 
   const save = async () => {
     setMessage(null);
@@ -337,20 +349,31 @@ function CountForm({ item }: { item: StockItem }) {
     } catch {
       return setMessage({ tone: "error", text: "Enter a quantity like 26 or 17.5." });
     }
-    if (!opening && !why.trim()) return setMessage({ tone: "error", text: "Say why the count is different." });
+    if (!opening && action !== "COUNT" && milli === 0) {
+      return setMessage({ tone: "error", text: "Quantity must be above 0." });
+    }
+    if (!opening && !why.trim()) return setMessage({ tone: "error", text: "Say why." });
     setBusy(true);
     try {
+      const note = why.trim();
       const result = await recordStockMovements(newRequestId(), indiaDate(), [
         opening
-          ? { itemId: item.id, kind: "OPENING", qtyMilli: milli, ...(why.trim() ? { note: why.trim() } : {}) }
-          : { itemId: item.id, kind: "COUNT", countedMilli: milli, note: why.trim() },
+          ? { itemId: item.id, kind: "OPENING", qtyMilli: milli, ...(note ? { note } : {}) }
+          : action === "COUNT"
+            ? { itemId: item.id, kind: "COUNT", countedMilli: milli, note }
+            : { itemId: item.id, kind: action, qtyMilli: milli, note },
       ]);
       setQty("");
       setWhy("");
-      setMessage({
-        tone: "ok",
-        text: result.recorded === 0 ? "Already matches — nothing to change." : opening ? "Opening stock saved." : "Count saved.",
-      });
+      const below = result.belowZero.find((b) => b.itemId === item.id);
+      setMessage(
+        below
+          ? { tone: "warn", text: `Saved — ${item.name} is now below zero. Count it and correct.` }
+          : {
+              tone: "ok",
+              text: result.recorded === 0 ? "Already matches — nothing to change." : opening ? "Opening stock saved." : text.saved,
+            },
+      );
     } catch (err) {
       setMessage({ tone: "error", text: err instanceof Error ? err.message : String(err) });
     } finally {
@@ -366,33 +389,57 @@ function CountForm({ item }: { item: StockItem }) {
         void save();
       }}
     >
-      <p className="text-[12px] font-medium text-ink">{opening ? "Opening stock" : "Correct the count"}</p>
-      <div className="flex items-center gap-2">
+      {opening ? (
+        <p className="text-[12px] font-medium text-ink">Opening stock</p>
+      ) : (
+        <Segmented
+          value={action}
+          onChange={(a) => {
+            setAction(a);
+            setMessage(null);
+          }}
+          options={[
+            ["IN", "Stock in"],
+            ["OUT", "Stock out"],
+            ["COUNT", "Correct count"],
+          ]}
+        />
+      )}
+      <div className="relative">
         <Input
-          aria-label={opening ? "Opening quantity" : "Quantity actually there"}
+          aria-label={opening ? "Opening quantity" : text.qty}
           value={qty}
           onChange={(e) => setQty(e.target.value)}
           inputMode="decimal"
-          placeholder={opening ? "How much is there?" : "What's really there?"}
-          className="num flex-1"
+          placeholder={opening ? "How much is there?" : text.label}
+          className="num [&_input]:pr-14"
         />
-        <span className="text-[12px] text-ink-muted">{unitWord(item.baseUnit)}</span>
+        <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
+          {unitWord(item.baseUnit)}
+        </span>
       </div>
       <Input
         aria-label="Reason"
         value={why}
         onChange={(e) => setWhy(e.target.value)}
-        placeholder={opening ? "Note (optional)" : "Why? e.g. monthly count"}
+        placeholder={opening ? "Note (optional)" : text.why}
         maxLength={200}
       />
       <div className="flex items-center gap-2">
         {message ? (
-          <p className={clsx("flex-1 text-[12px]", message.tone === "ok" ? "text-success" : "text-danger")}>{message.text}</p>
+          <p
+            className={clsx(
+              "flex-1 text-[12px]",
+              message.tone === "ok" ? "text-success" : message.tone === "warn" ? "text-warning" : "text-danger",
+            )}
+          >
+            {message.text}
+          </p>
         ) : (
           <span className="flex-1" />
         )}
         <Button size="sm" variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
-          Save
+          {opening ? "Save" : action === "IN" ? "Add stock" : action === "OUT" ? "Remove stock" : "Save count"}
         </Button>
       </div>
     </form>
