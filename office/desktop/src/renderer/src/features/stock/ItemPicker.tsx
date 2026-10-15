@@ -99,7 +99,7 @@ export function ItemPicker({
       {open && matches.length > 0 ? (
         <ul
           role="listbox"
-          className="absolute top-full right-0 left-0 z-30 mt-1 max-h-64 overflow-y-auto rounded-md border border-line bg-surface p-1 shadow-pop"
+          className="absolute top-full left-0 z-30 mt-1 max-h-64 w-max max-w-[min(440px,80vw)] min-w-full overflow-y-auto rounded-md border border-line bg-surface p-1 shadow-pop"
         >
           {matches.map((item, i) => (
             <li
@@ -116,7 +116,9 @@ export function ItemPicker({
                 i === active ? "bg-hover" : null,
               )}
             >
-              <span className="min-w-0 flex-1 truncate text-ink">{item.name}</span>
+              <span className="min-w-0 flex-1 truncate text-ink" title={item.name}>
+                {item.name}
+              </span>
               {item.code ? <span className="font-mono text-[11px] text-ink-faint">{item.code}</span> : null}
               <span className="text-2xs text-ink-faint">{KIND_LABEL[item.kind]}</span>
             </li>

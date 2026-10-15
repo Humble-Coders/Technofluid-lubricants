@@ -24,6 +24,9 @@ interface Draft {
   note: string;
 }
 
+/** One journal line: item · what happened · quantity (+unit) · why · remove. Fits the card at any width. */
+const LINE_GRID = "grid grid-cols-[minmax(150px,2fr)_minmax(120px,1fr)_minmax(110px,1fr)_minmax(120px,2fr)_28px] gap-2";
+
 const KIND_OPTIONS: Array<[LineKind, string]> = [
   ["IN", "In"],
   ["OUT", "Out"],
@@ -110,7 +113,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-4xl space-y-6 px-5 py-5">
+      <div className="mx-auto max-w-5xl space-y-6 px-5 py-5">
         <div className="flex flex-wrap items-center gap-3">
           <label htmlFor="journal-date" className="text-[13px] font-medium text-ink">
             Stock journal for
@@ -138,7 +141,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
               void save();
             }}
           >
-            <div className="grid grid-cols-[minmax(220px,2fr)_150px_140px_minmax(160px,2fr)_32px] gap-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
+            <div className={clsx(LINE_GRID, "text-2xs font-medium tracking-wide text-ink-muted uppercase")}>
               <span>Item</span>
               <span>What happened</span>
               <span>Quantity</span>
@@ -147,7 +150,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
             </div>
             {lines.map((l, i) => (
               <div key={l.key}>
-                <div className="grid grid-cols-[minmax(220px,2fr)_150px_140px_minmax(160px,2fr)_32px] items-center gap-2">
+                <div className={clsx(LINE_GRID, "items-center")}>
                   <ItemPicker items={items} value={l.item} onChange={(item) => update(l.key, { item })} autoFocus={i > 0 && i === lines.length - 1} />
                   <Select value={l.kind} onChange={(e) => update(l.key, { kind: e.target.value as LineKind })} aria-label="What happened">
                     {KIND_OPTIONS.map(([k, label]) => (
@@ -156,16 +159,20 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
                       </option>
                     ))}
                   </Select>
-                  <div className="flex items-center gap-1">
+                  <div className="relative">
                     <Input
                       value={l.qty}
                       onChange={(e) => update(l.key, { qty: e.target.value })}
                       inputMode="decimal"
                       placeholder="0"
-                      className="num flex-1"
+                      className="num [&_input]:pr-12"
                       aria-label="Quantity"
                     />
-                    <span className="w-10 text-[12px] text-ink-muted">{l.item ? unitWord(l.item.baseUnit) : ""}</span>
+                    {l.item ? (
+                      <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
+                        {unitWord(l.item.baseUnit)}
+                      </span>
+                    ) : null}
                   </div>
                   <Input
                     value={l.note}
