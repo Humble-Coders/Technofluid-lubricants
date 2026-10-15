@@ -197,7 +197,7 @@
         "label": "Cutting Oil"
       }
     ],
-    "neat-cutting-oil-technofluid-neat-cutting-oil-55": [
+    "neat-cutting-oils-technofluid-neat-cutting-oil-55-megacut-150": [
       {
         "file": "/data-sheets/neat-cutting-oil-technofluid-neat-cutting-oil-55.pdf",
         "label": "Neat Cutting Oil 55"
@@ -247,7 +247,7 @@
         "label": "Gear EP 460"
       }
     ],
-    "technofluid-girth-gear-grease": [
+    "technofluid-girth-gear-lubricant": [
       {
         "file": "/data-sheets/technofluid-girth-gear-grease.pdf",
         "label": "Girth Gear Grease"

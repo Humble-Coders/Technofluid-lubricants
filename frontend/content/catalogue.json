@@ -1,6 +1,6 @@
 {
   "source": "WEBSITE AND CATALOGUE 2026.docx",
-  "productCount": 48,
+  "productCount": 50,
   "products": [
     {
       "title": "QUENCHING OIL – TECHNOFLUID Q 39 & QLP 32",
@@ -1081,7 +1081,7 @@
       "subtitle": "(ISO VG 46 ,68 & 100)",
       "commercialName": "HYDRAULIC OIL 46 / 68 / 100  HVI",
       "category": "Industrial Oils",
-      "aspirational": true,
+      "aspirational": false,
       "sectionsOrder": [
         "description",
         "benefits",
@@ -2135,11 +2135,11 @@
       ]
     },
     {
-      "title": "NEAT CUTTING OIL – TECHNOFLUID NEAT CUTTING OIL 55",
-      "displayName": "TECHNOFLUID NEAT CUTTING OIL 55",
-      "productType": "Neat Cutting Oil",
-      "subtitle": null,
-      "commercialName": "NEAT CUTTING OIL 55",
+      "title": "NEAT CUTTING OILS – TECHNOFLUID NEAT CUTTING OIL 55 & MEGACUT 150",
+      "displayName": "TECHNOFLUID NEAT CUTTING OIL 55 & MEGACUT 150",
+      "productType": "Neat Cutting Oils",
+      "subtitle": "(Neat Cut 55 / Megacut 150)",
+      "commercialName": "NEAT CUTTING OIL 55 / MEGACUT 150",
       "category": "Industrial Oils",
       "aspirational": false,
       "sectionsOrder": [
@@ -2147,6 +2147,7 @@
         "benefits",
         "applications",
         "typicalUses",
+        "gradesAvailable",
         "operatingCharacteristics"
       ],
       "sections": {
@@ -2188,6 +2189,10 @@
           "Medium viscosity ensures effective lubrication and chip removal.",
           "Stable formulation minimizes oil degradation during continuous use.",
           "Compatible with common machine tool materials and sealing systems."
+        ],
+        "gradesAvailable": [
+          "TECHNOFLUID Neat Cutting Oil 55",
+          "TECHNOFLUID Megacut 150"
         ]
       },
       "specTables": [
@@ -2195,7 +2200,7 @@
           [
             "Characteristics",
             "Test Method",
-            "Typical Figures"
+            "Typical Figures (Neat Cut 55)"
           ],
           [
             "Appearance",
@@ -2432,8 +2437,8 @@
       "title": "TEXTILE LUBRICANT – TECHNOFLUID KNITTING OIL",
       "displayName": "TECHNOFLUID KNITTING OIL",
       "productType": "Textile Lubricant",
-      "subtitle": null,
-      "commercialName": "KNITTING OIL",
+      "subtitle": "(Non-washable & Water-soluble · Grades 22 / 32)",
+      "commercialName": "KNITTING OIL 22 / 32 (NON-WASHABLE / WATER SOLUBLE)",
       "category": "Industrial Oils",
       "aspirational": false,
       "sectionsOrder": [
@@ -2441,6 +2446,7 @@
         "benefits",
         "applications",
         "typicalUses",
+        "gradesAvailable",
         "operatingCharacteristics"
       ],
       "sections": {
@@ -2477,6 +2483,10 @@
           "Maintains stable viscosity during prolonged machine operation.",
           "Compatible with commonly used textile machine materials and seals.",
           "Low odor and operator-friendly formulation."
+        ],
+        "gradesAvailable": [
+          "TECHNOFLUID Knitting Oil (Non-washable) — 22 / 32",
+          "TECHNOFLUID Knitting Oil (Water-soluble) — 22 / 32"
         ]
       },
       "specTables": [
@@ -2573,8 +2583,8 @@
       "title": "TEXTILE LUBRICANT – TECHNOFLUID CONING OIL",
       "displayName": "TECHNOFLUID CONING OIL",
       "productType": "Textile Lubricant",
-      "subtitle": null,
-      "commercialName": "CONING OIL",
+      "subtitle": "(Grades 22 / 32)",
+      "commercialName": "CONING OIL 22 / 32",
       "category": "Industrial Oils",
       "aspirational": false,
       "sectionsOrder": [
@@ -2582,6 +2592,7 @@
         "benefits",
         "applications",
         "typicalUses",
+        "gradesAvailable",
         "operatingCharacteristics"
       ],
       "sections": {
@@ -2618,6 +2629,10 @@
           "Maintains stable viscosity during prolonged machine operation.",
           "Compatible with commonly used textile machine materials and seals.",
           "Low odor and operator-friendly formulation."
+        ],
+        "gradesAvailable": [
+          "TECHNOFLUID Coning Oil 22",
+          "TECHNOFLUID Coning Oil 32"
         ]
       },
       "specTables": [
@@ -2714,8 +2729,8 @@
       "title": "TEXTILE LUBRICANT – TECHNOFLUID WARPING OIL",
       "displayName": "TECHNOFLUID WARPING OIL",
       "productType": "Textile Lubricant",
-      "subtitle": null,
-      "commercialName": "WARPING OIL",
+      "subtitle": "(Grades 22 / 32)",
+      "commercialName": "WARPING OIL 22 / 32",
       "category": "Industrial Oils",
       "aspirational": false,
       "sectionsOrder": [
@@ -2723,6 +2738,7 @@
         "benefits",
         "applications",
         "typicalUses",
+        "gradesAvailable",
         "operatingCharacteristics"
       ],
       "sections": {
@@ -2758,6 +2774,10 @@
           "Maintains stable viscosity throughout prolonged machine operation.",
           "Compatible with commonly used textile machinery components and seals.",
           "Low odor and operator-friendly formulation."
+        ],
+        "gradesAvailable": [
+          "TECHNOFLUID Warping Oil 22",
+          "TECHNOFLUID Warping Oil 32"
         ]
       },
       "specTables": [
@@ -3019,6 +3039,18 @@
       ]
     },
     {
+      "title": "ELECTRICAL INSULATING OIL – TECHNOFLUID SUBMERSIBLE MOTOR STARTER OIL",
+      "displayName": "TECHNOFLUID SUBMERSIBLE MOTOR STARTER OIL",
+      "productType": "Electrical Insulating Oil",
+      "subtitle": null,
+      "commercialName": "SUBMERSIBLE MOTOR STARTER OIL",
+      "category": "Industrial Oils",
+      "aspirational": false,
+      "sectionsOrder": [],
+      "sections": {},
+      "specTables": []
+    },
+    {
       "title": "LUBRICATING OILS – TECHNOFLUID LUBE SERIES",
       "displayName": "TECHNOFLUID LUBE (SLIDEWAY) SERIES",
       "productType": "Lubricating Oils",
@@ -3217,8 +3249,8 @@
       "title": "4T ENGINE OILS – TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
       "displayName": "TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
       "productType": "4T Engine Oils",
-      "subtitle": "(20W-40 SM, 20W-40 SN, 15W-50 SN, 20W-50 SM, 10W-30 SM)",
-      "commercialName": "4T ( 20W40  API  SM / 20W40 API  SN / 15W50 API  SN / 20W50 API  SM  / 10W30 API SM )",
+      "subtitle": "(20W-40 SM, 20W-40 SN, 15W-50 SN, 20W-50 SM, 10W-30 SM, 10W-30 SN)",
+      "commercialName": "4T ( 20W40 API SM / 20W40 API SN / 15W50 API SN / 20W50 API SM / 10W30 API SM / 10W30 API SN )",
       "category": "Automotive Lubricants",
       "aspirational": false,
       "sectionsOrder": [
@@ -3263,7 +3295,7 @@
           "TECHNOFLUID 4T 20W-40 – API SM / SN",
           "TECHNOFLUID 4T 15W-50 – API SN",
           "TECHNOFLUID 4T 20W-50 – API SM",
-          "TECHNOFLUID 4T 10W-30 – API SM"
+          "TECHNOFLUID 4T 10W-30 – API SM / SN"
         ],
         "operatingCharacteristics": [
           "Maintains viscosity stability across a wide temperature range.",
@@ -3405,11 +3437,23 @@
       ]
     },
     {
+      "title": "2T ENGINE OIL – TECHNOFLUID 2T ENGINE OIL",
+      "displayName": "TECHNOFLUID 2T ENGINE OIL",
+      "productType": "2T Engine Oil",
+      "subtitle": null,
+      "commercialName": "2T ENGINE OIL",
+      "category": "Automotive Lubricants",
+      "aspirational": false,
+      "sectionsOrder": [],
+      "sections": {},
+      "specTables": []
+    },
+    {
       "title": "AUTOMOTIVE ENGINE OILS – TECHNOFLUID PCMO",
       "displayName": "TECHNOFLUID PCMO",
       "productType": "Automotive Engine Oils",
       "subtitle": "(For Cars, MUVs & SUVs)",
-      "commercialName": "PCMO ( 5W30  API SN / 10W40 API SN / 15W40 API CF4 / 15W40 API CI4 PLUS / 20W50 API SN )",
+      "commercialName": "PCMO ( 0W20 API SN / 5W30 API SN / 10W30 API SN / 10W40 API SN / 15W40 API CF4 / 15W40 API CI4 PLUS / 20W50 API SN / CNG 20W50 )",
       "category": "Automotive Lubricants",
       "aspirational": false,
       "sectionsOrder": [
@@ -3454,11 +3498,13 @@
         ],
         "gradesAvailable": [
           "Available in common viscosity grades such as:",
+          "SAE 0W-20",
           "SAE 5W-30",
           "SAE 10W-30",
           "SAE 10W-40",
           "SAE 15W-40",
           "SAE 20W-50",
+          "CNG 20W-50 (for CNG vehicles)",
           "Meets or exceeds:",
           "API  SM / SN",
           "API CF / CH-4/ CI-4 PLUS (for diesel variants)",
@@ -4942,8 +4988,8 @@
       "title": "REAR AXLE OIL – TECHNOFLUID REAR AXLE OIL",
       "displayName": "TECHNOFLUID REAR AXLE OIL",
       "productType": "Rear Axle Oil",
-      "subtitle": "(SAE 80W & SAE 90)",
-      "commercialName": "REAR AXLE OIL (JCB) SAE 80W / SAE 90",
+      "subtitle": "(SAE 80W, SAE 90 & SAE 10W-30)",
+      "commercialName": "REAR AXLE OIL (JCB) SAE 80W / SAE 90 / SAE 10W30",
       "category": "Automotive Lubricants",
       "aspirational": false,
       "sectionsOrder": [
@@ -4961,7 +5007,7 @@
           "Excellent oxidation stability, rust and corrosion protection for extended service life."
         ],
         "gradesAvailable": [
-          "SAE 80W and SAE 90."
+          "SAE 80W, SAE 90 and SAE 10W-30."
         ],
         "benefits": [
           "Excellent extreme pressure and anti-wear performance.",
@@ -5028,8 +5074,8 @@
       "title": "GREASE – TECHNOFLUID CALCIUM BASE GREASE",
       "displayName": "TECHNOFLUID CALCIUM BASE GREASE",
       "productType": "Grease",
-      "subtitle": null,
-      "commercialName": "GREASE C RED GEL / MP3 /  SLR",
+      "subtitle": "(C Red Gel / G Red Gel / MP3 / SLR)",
+      "commercialName": "GREASE C RED GEL / G RED GEL / MP3 / SLR",
       "category": "Grease",
       "aspirational": false,
       "sectionsOrder": [
@@ -5740,7 +5786,7 @@
       "subtitle": null,
       "commercialName": "GREASE WR2",
       "category": "Grease",
-      "aspirational": true,
+      "aspirational": false,
       "sectionsOrder": [
         "description",
         "benefits",
@@ -6057,7 +6103,7 @@
       "subtitle": "(NEAT COLD ROLLING OIL)",
       "commercialName": "ROLL PERFECT 22",
       "category": "Industrial Oils",
-      "aspirational": true,
+      "aspirational": false,
       "sectionsOrder": [
         "description",
         "benefits",
@@ -6184,7 +6230,7 @@
       "subtitle": null,
       "commercialName": "ROLL PERFECT 46",
       "category": "Industrial Oils",
-      "aspirational": true,
+      "aspirational": false,
       "sectionsOrder": [
         "description",
         "benefits",
@@ -6325,13 +6371,13 @@
       ]
     },
     {
-      "title": "TECHNOFLUID GIRTH GEAR GREASE",
-      "displayName": "TECHNOFLUID GIRTH GEAR GREASE",
+      "title": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+      "displayName": "TECHNOFLUID GIRTH GEAR LUBRICANT",
       "productType": null,
       "subtitle": null,
-      "commercialName": "GIRTH GEAR GREASE",
+      "commercialName": "GIRTH GEAR LUBRICANT",
       "category": "Grease",
-      "aspirational": true,
+      "aspirational": false,
       "sectionsOrder": [
         "description",
         "benefits",
@@ -6339,7 +6385,7 @@
       ],
       "sections": {
         "description": [
-          "TECHNOFLUID Girth Gear Grease is a heavy-duty, high-load lubricating grease specially formulated for open girth gears and large slow-speed gear drives.",
+          "TECHNOFLUID Girth Gear Lubricant is a heavy-duty, high-load lubricating grease specially formulated for open girth gears and large slow-speed gear drives.",
           "Manufactured using high-viscosity base oils, special thickeners, and advanced EP/solid lubricant additives to withstand extreme loads, shock loads, and boundary lubrication conditions.",
           "Forms a tenacious, adhesive lubricating film that protects gear teeth against wear, pitting, and scuffing.",
           "Designed to perform reliably in cement, steel, mining, sugar, and power plants under harsh operating environments."
@@ -6788,26 +6834,146 @@
       "title": "CIRCULATING OIL – TECHNOFLUID CIRCULATING OIL",
       "displayName": "TECHNOFLUID CIRCULATING OIL",
       "productType": "Circulating Oil",
-      "subtitle": null,
-      "commercialName": "CIRCULATING OIL",
+      "subtitle": "(ISO VG 32 / 46 / 68 / 100 / 150 / 220 / 320 / 460)",
+      "commercialName": "CIRCULATING OIL 32 / 46 / 68 / 100 / 150 / 220 / 320 / 460",
       "category": "Industrial Oils",
-      "aspirational": true,
+      "aspirational": false,
       "sectionsOrder": [
         "description",
-        "applications"
+        "benefits",
+        "applications",
+        "gradesAvailable"
       ],
       "sections": {
         "description": [
-          "Industrial circulating oils for bearing, gear and general circulating lubrication systems.",
-          "Formulated from highly refined base oils with rust, oxidation and foam protection.",
-          "Offered on request — contact us with your viscosity grade and application details."
+          "TECHNOFLUID CIRCULATING OIL is a premium-quality general-purpose industrial lubricating oil formulated for reliable lubrication of bearings, machine components and circulating lubrication systems.",
+          "It is available in a comprehensive range of ISO viscosity grades to suit different operating conditions and equipment requirements.",
+          "The product provides good lubricating performance, rust and corrosion protection, thermal and oxidation stability, good water separation and low foaming tendency.",
+          "Its clean and stable formulation makes it suitable for continuous circulation and general industrial lubrication where an EP-type lubricant is not specifically required."
+        ],
+        "benefits": [
+          "Available in a wide range of ISO VG grades for different operating requirements",
+          "Good oxidation and thermal stability for dependable service",
+          "Good rust and corrosion protection of lubricated components",
+          "Good demulsibility and water-separation characteristics",
+          "Low foaming tendency for stable circulation",
+          "Good natural lubricity and film-forming characteristics",
+          "Suitable for continuous circulation and general-purpose industrial lubrication",
+          "Helps maintain clean and reliable lubrication systems",
+          "Good compatibility with commonly used mineral-oil-compatible seals",
+          "Suitable for a wide range of industrial machinery and components"
         ],
         "applications": [
-          "Circulating lubrication systems in steel, sugar, paper and process plants.",
-          "Bearing and gear lubrication in industrial machinery."
+          "Circulating lubrication systems",
+          "Plain and sleeve bearings",
+          "Roller and other lightly to moderately loaded bearings",
+          "Machine tools and general machinery",
+          "Electric motors and generators",
+          "Gear reducers where a non-EP circulating oil is specified",
+          "Spindle and machine components requiring suitable ISO viscosity",
+          "Roller and drive chains where the specified viscosity is appropriate"
+        ],
+        "gradesAvailable": [
+          "ISO VG grade reference, kinematic viscosity @ 40°C:",
+          "VG 32 = 28.8–35.2 cSt",
+          "VG 46 = 41.4–50.6 cSt",
+          "VG 68 = 61.2–74.8 cSt",
+          "VG 100 = 90–110 cSt",
+          "VG 150 = 135–165 cSt",
+          "VG 220 = 198–242 cSt",
+          "VG 320 = 288–352 cSt",
+          "VG 460 = 414–506 cSt"
         ]
       },
-      "specTables": []
+      "specTables": [
+        [
+          [
+            "Characteristics",
+            "Test Method",
+            "Typical Figures"
+          ],
+          [
+            "Product Type",
+            "—",
+            "General-Purpose Circulating Oil"
+          ],
+          [
+            "Base Oil Type",
+            "—",
+            "Highly Refined Mineral Base Oil"
+          ],
+          [
+            "ISO Viscosity Grades",
+            "ISO 3448",
+            "VG 32, 46, 68, 100, 150, 220, 320, 460"
+          ],
+          [
+            "Appearance",
+            "Visual",
+            "Clear & Bright"
+          ],
+          [
+            "Color",
+            "Visual",
+            "Water White to Pale Amber"
+          ],
+          [
+            "Density @ 15°C",
+            "ASTM D4052",
+            "Grade dependent"
+          ],
+          [
+            "Kinematic Viscosity @ 40°C",
+            "ASTM D445",
+            "Grade dependent"
+          ],
+          [
+            "Kinematic Viscosity @ 100°C",
+            "ASTM D445",
+            "Grade dependent"
+          ],
+          [
+            "Viscosity Index",
+            "ASTM D2270",
+            "Typically 90–120"
+          ],
+          [
+            "Flash Point (COC)",
+            "ASTM D92",
+            "Typically >180°C"
+          ],
+          [
+            "Pour Point",
+            "ASTM D97",
+            "Grade dependent"
+          ],
+          [
+            "Foaming Tendency",
+            "ASTM D892",
+            "Low"
+          ],
+          [
+            "Rust Protection",
+            "ASTM D665",
+            "Pass / Good"
+          ],
+          [
+            "Copper Corrosion",
+            "ASTM D130",
+            "Typically 1a"
+          ],
+          [
+            "Oxidation Stability",
+            "—",
+            "Good"
+          ],
+          [
+            "Water Separability",
+            "ASTM D1401",
+            "Good"
+          ]
+        ]
+      ]
     },
     {
       "title": "TRACTOR ENGINE OILS – TECHNOFLUID TRACTOR ENGINE OILS",

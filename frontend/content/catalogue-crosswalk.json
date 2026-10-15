@@ -1,16 +1,17 @@
 {
   "generatedFrom": {
     "catalogue": "docs/catalogue-2026.json (36 series)",
-    "master": "docs/Technofluid-Product-Master-DRAFT.xlsx (320 SKUs / 199 families)"
+    "master": "docs/Technofluid-Product-Master-DRAFT.xlsx (320 SKUs / 199 families)",
+    "updated": "15 Oct 2026 \u2014 product gaps vs Gaurav's sheet (2T, Starter Oil, renamed Neat Cutting & Girth Gear, now-sold series)"
   },
   "summary": {
-    "seriesTotal": 36,
-    "seriesMapped": 31,
-    "seriesAvailableOnRequest": 5,
+    "seriesTotal": 38,
+    "seriesMapped": 37,
+    "seriesAvailableOnRequest": 1,
     "skusTotal": 320,
-    "skusMapped": 315,
-    "skusOrphan": 5,
-    "needsConfirmation": 6
+    "skusMapped": 314,
+    "skusOrphan": 6,
+    "needsConfirmation": 4
   },
   "series": [
     {
@@ -268,12 +269,12 @@
       "catalogueTitle": "HYDRAULIC OIL \u2013 TECHNOFLUID HYDRAULIC OIL HVI",
       "commercialName": "HYDRAULIC OIL 46 / 68 / 100  HVI",
       "productType": "Hydraulic Oil",
-      "aspirational": true,
-      "status": "available-on-request",
+      "aspirational": false,
+      "status": "mapped",
       "skuCount": 0,
       "masterFamilies": [],
       "needsConfirmation": false,
-      "confirmNote": null
+      "confirmNote": "Now sold (Gaurav's sheet, Oct 2026). Pack sizes appear after the product master is re-imported."
     },
     {
       "seriesId": 8,
@@ -442,8 +443,8 @@
     },
     {
       "seriesId": 14,
-      "catalogueTitle": "NEAT CUTTING OIL \u2013 TECHNOFLUID NEAT CUTTING OIL 55",
-      "commercialName": "NEAT CUTTING OIL 55",
+      "catalogueTitle": "NEAT CUTTING OILS \u2013 TECHNOFLUID NEAT CUTTING OIL 55 & MEGACUT 150",
+      "commercialName": "NEAT CUTTING OIL 55 / MEGACUT 150",
       "productType": "Neat Cutting Oil",
       "aspirational": false,
       "status": "mapped",
@@ -468,8 +469,8 @@
           ]
         }
       ],
-      "needsConfirmation": true,
-      "confirmNote": "Master has two neat-cutting families: 'Neat Cutting oil' and 'Neat Cutting oil Megacut 150'. Catalogue has one entry 'Neat Cutting Oil 55'. Confirm both belong here (i.e. '55' and 'Megacut 150' are the same series), or split them."
+      "needsConfirmation": false,
+      "confirmNote": "Confirmed (Ansh, 15 Oct 2026): Megacut 150 is a second grade on this page."
     },
     {
       "seriesId": 15,
@@ -496,7 +497,7 @@
     {
       "seriesId": 16,
       "catalogueTitle": "TEXTILE LUBRICANT \u2013 TECHNOFLUID KNITTING OIL",
-      "commercialName": "KNITTING OIL",
+      "commercialName": "KNITTING OIL 22 / 32 (NON-WASHABLE / WATER SOLUBLE)",
       "productType": "Textile Lubricant",
       "aspirational": false,
       "status": "mapped",
@@ -527,7 +528,7 @@
     {
       "seriesId": 17,
       "catalogueTitle": "TEXTILE LUBRICANT \u2013 TECHNOFLUID CONING OIL",
-      "commercialName": "CONING OIL",
+      "commercialName": "CONING OIL 22 / 32",
       "productType": "Textile Lubricant",
       "aspirational": false,
       "status": "mapped",
@@ -549,7 +550,7 @@
     {
       "seriesId": 18,
       "catalogueTitle": "TEXTILE LUBRICANT \u2013 TECHNOFLUID WARPING OIL",
-      "commercialName": "WARPING OIL",
+      "commercialName": "WARPING OIL 22 / 32",
       "productType": "Textile Lubricant",
       "aspirational": false,
       "status": "mapped",
@@ -1074,7 +1075,7 @@
     {
       "seriesId": 26,
       "catalogueTitle": "4T ENGINE OILS \u2013 TECHNOFLUID FOUR-STROKE MOTORCYCLE ENGINE OILS",
-      "commercialName": "4T ( 20W40  API  SM / 20W40 API  SN / 15W50 API  SN / 20W50 API  SM  / 10W30 API SM )",
+      "commercialName": "4T ( 20W40 API SM / 20W40 API SN / 15W50 API SN / 20W50 API SM / 10W30 API SM / 10W30 API SN )",
       "productType": "4T Engine Oils",
       "aspirational": false,
       "status": "mapped",
@@ -1170,7 +1171,7 @@
     {
       "seriesId": 27,
       "catalogueTitle": "AUTOMOTIVE ENGINE OILS \u2013 TECHNOFLUID PCMO",
-      "commercialName": "PCMO ( 5W30  API SN / 10W40 API SN / 15W40 API CF4 / 15W40 API CI4 PLUS / 20W50 API SN )",
+      "commercialName": "PCMO ( 0W20 API SN / 5W30 API SN / 10W30 API SN / 10W40 API SN / 15W40 API CF4 / 15W40 API CI4 PLUS / 20W50 API SN / CNG 20W50 )",
       "productType": "Automotive Engine Oils",
       "aspirational": false,
       "status": "mapped",
@@ -1256,7 +1257,7 @@
     {
       "seriesId": 28,
       "catalogueTitle": "GREASE \u2013 TECHNOFLUID CALCIUM BASE GREASE",
-      "commercialName": "GREASE C RED GEL / MP3 /  SLR",
+      "commercialName": "GREASE C RED GEL / G RED GEL / MP3 / SLR",
       "productType": "Grease",
       "aspirational": false,
       "status": "mapped",
@@ -1856,27 +1857,12 @@
       "catalogueTitle": "TECHNOFLUID GREASE WR-2 (Water Resistant Grease)",
       "commercialName": "GREASE WR2",
       "productType": null,
-      "aspirational": true,
+      "aspirational": false,
       "status": "mapped",
-      "skuCount": 2,
-      "masterFamilies": [
-        {
-          "product": "18 kg Grease WB (Dark green Color: Calcium)",
-          "skuCount": 1,
-          "skus": [
-            "18KGGRE-18KG"
-          ]
-        },
-        {
-          "product": "Grease Wheel Bearing (Calcium) (Green chassis 90 deg drop pt.)",
-          "skuCount": 1,
-          "skus": [
-            "GREWHEBEA-170KG"
-          ]
-        }
-      ],
-      "needsConfirmation": true,
-      "confirmNote": "Catalogue 'GREASE WR2' is aspirational (no obvious master). Tentatively mapped master 'Wheel Bearing'/'WB' grease here. Confirm WR2 = Wheel Bearing grease, or leave WR2 available-on-request and give WB its own home."
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": "Tentative Wheel Bearing (WB) grease mapping removed: Gaurav's Oct 2026 sheet lists GREASE WR-2 itself and no WB grease. Now sold (Gaurav's sheet, Oct 2026). Pack sizes appear after the product master is re-imported."
     },
     {
       "seriesId": 33,
@@ -1936,36 +1922,68 @@
       "catalogueTitle": "TECHNOFLUID ROLL PERFECT 22",
       "commercialName": "ROLL PERFECT 22",
       "productType": null,
-      "aspirational": true,
-      "status": "available-on-request",
+      "aspirational": false,
+      "status": "mapped",
       "skuCount": 0,
       "masterFamilies": [],
       "needsConfirmation": false,
-      "confirmNote": null
+      "confirmNote": "Now sold (Gaurav's sheet, Oct 2026). Pack sizes appear after the product master is re-imported."
     },
     {
       "seriesId": 35,
       "catalogueTitle": "TECHNOFLUID ROLL PERFECT 46 (SOLUBLE)",
       "commercialName": "ROLL PERFECT 46",
       "productType": null,
-      "aspirational": true,
-      "status": "available-on-request",
+      "aspirational": false,
+      "status": "mapped",
       "skuCount": 0,
       "masterFamilies": [],
       "needsConfirmation": false,
-      "confirmNote": null
+      "confirmNote": "Now sold (Gaurav's sheet, Oct 2026). Pack sizes appear after the product master is re-imported."
     },
     {
       "seriesId": 36,
-      "catalogueTitle": "TECHNOFLUID GIRTH GEAR GREASE",
-      "commercialName": "GIRTH GEAR GREASE",
+      "catalogueTitle": "TECHNOFLUID GIRTH GEAR LUBRICANT",
+      "commercialName": "GIRTH GEAR LUBRICANT",
       "productType": null,
-      "aspirational": true,
-      "status": "available-on-request",
+      "aspirational": false,
+      "status": "mapped",
       "skuCount": 0,
       "masterFamilies": [],
       "needsConfirmation": false,
-      "confirmNote": null
+      "confirmNote": "Renamed from Girth Gear Grease (Ansh, 15 Oct 2026). Now sold (Gaurav's sheet, Oct 2026). Pack sizes appear after the product master is re-imported."
+    },
+    {
+      "seriesId": 37,
+      "catalogueTitle": "2T ENGINE OIL \u2013 TECHNOFLUID 2T ENGINE OIL",
+      "commercialName": "2T ENGINE OIL",
+      "productType": "2T Engine Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 1,
+      "masterFamilies": [
+        {
+          "product": "500 ml 2T",
+          "skuCount": 1,
+          "skus": [
+            "500ML2T-35X500ML"
+          ]
+        }
+      ],
+      "needsConfirmation": false,
+      "confirmNote": "Added 15 Oct 2026 \u2014 was an orphan master product."
+    },
+    {
+      "seriesId": 38,
+      "catalogueTitle": "ELECTRICAL INSULATING OIL \u2013 TECHNOFLUID SUBMERSIBLE MOTOR STARTER OIL",
+      "commercialName": "SUBMERSIBLE MOTOR STARTER OIL",
+      "productType": "Electrical Insulating Oil",
+      "aspirational": false,
+      "status": "mapped",
+      "skuCount": 0,
+      "masterFamilies": [],
+      "needsConfirmation": false,
+      "confirmNote": "Added 15 Oct 2026 (own page, per Ansh). Not in the old master; pack sizes appear after the re-import."
     }
   ],
   "orphanMasterProducts": [
@@ -1994,10 +2012,16 @@
       "note": "Air Compressor Oil \u2014 NO catalogue series exists"
     },
     {
-      "sku": "500ML2T-35X500ML",
-      "product": "500 ml 2T",
-      "category": "Retail pack",
-      "note": "2T oil \u2014 NO catalogue series (catalogue has only 4T)"
+      "sku": "18KGGRE-18KG",
+      "product": "18 kg Grease WB (Dark green Color: Calcium)",
+      "category": "Grease",
+      "note": "Wheel Bearing (WB) grease \u2014 unmapped from WR-2 on 15 Oct 2026; not in Gaurav's Oct 2026 sheet"
+    },
+    {
+      "sku": "GREWHEBEA-170KG",
+      "product": "Grease Wheel Bearing (Calcium) (Green chassis 90 deg drop pt.)",
+      "category": "Grease",
+      "note": "Wheel Bearing (WB) grease \u2014 unmapped from WR-2 on 15 Oct 2026; not in Gaurav's Oct 2026 sheet"
     }
   ]
 }
