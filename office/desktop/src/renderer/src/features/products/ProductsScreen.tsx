@@ -25,9 +25,9 @@ const CATEGORY_LABEL: Record<string, string> = { bulk_oil: "Bulk oil", grease: "
 const ROW_HEIGHT = 40;
 
 export function ProductsScreen() {
-  const state = useProducts();
   const { role } = useStaff();
   const showPrices = canSeePrices(role);
+  const state = useProducts({ withPrices: showPrices });
   const canEdit = canEditProducts(role);
 
   const [search, setSearch] = useState("");

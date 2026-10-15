@@ -6,16 +6,20 @@ export type LoadState<T> =
   | { status: "error"; message: string }
   | { status: "ready"; data: T };
 
-/** Live product list. One listener per mounted screen; detached when the screen closes. */
-export function useProducts(): LoadState<Product[]> {
+/**
+ * Live product list. One listener per mounted screen; detached when the screen closes.
+ * Prices are only fetched for roles allowed to see them.
+ */
+export function useProducts({ withPrices }: { withPrices: boolean }): LoadState<Product[]> {
   const [state, setState] = useState<LoadState<Product[]>>({ status: "loading" });
   useEffect(
     () =>
       watchProducts(
+        { withPrices },
         (data) => setState({ status: "ready", data }),
         (err) => setState({ status: "error", message: err.message }),
       ),
-    [],
+    [withPrices],
   );
   return state;
 }

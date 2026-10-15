@@ -1,32 +1,13 @@
 /**
- * Tests the editProduct Cloud Function, the productChanges rules and the importer's
- * "keep office edits" rule against the LOCAL emulators — the real rules and functions.
+ * Tests the editProduct and addProduct Cloud Functions, the productChanges rules and the
+ * importer's "keep office edits" rule — real rules and functions, in throw-away emulators.
  *
- *   npm run emulators   (terminal 1)
- *   npm run seed        (once — creates the test logins)
  *   npm run test:emulator
- *
- * Uses its own test products (TEST-EDIT-26L, TEST-EDIT-210L) and removes them afterwards.
  */
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
-import { initializeApp as initAdmin } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import { deleteApp, initializeApp } from "firebase/app";
-import { connectAuthEmulator, getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import {
-  collection,
-  connectFirestoreEmulator,
-  getDocs,
-  getFirestore as getClientFirestore,
-  query,
-  where,
-} from "firebase/firestore";
-import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
-
-const PROJECT = "demo-technofluid";
-process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
-const adminDb = getFirestore(initAdmin({ projectId: PROJECT }, "tests-admin"));
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { adminDb, as, closeClients, rejectsWith, seedStaff } from "./helpers.mjs";
 
 const SKU = "TEST-EDIT-26L";
 const COPY_SKU = "TEST-EDIT-210L";
@@ -50,36 +31,19 @@ const BASE = {
   deleted: false,
 };
 
-const PASSWORD = "technofluid123"; // emulator-only test logins from emulator/seed.mjs
-const apps = [];
-
-/** A signed-in client for one test login, talking only to the emulators. */
-async function as(who) {
-  const app = initializeApp({ apiKey: "demo-api-key", projectId: PROJECT, appId: "demo-app" }, `tests-${who}`);
-  apps.push(app);
-  const auth = getAuth(app);
-  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
-  const db = getClientFirestore(app);
-  connectFirestoreEmulator(db, "127.0.0.1", 8080);
-  const functions = getFunctions(app, "us-central1");
-  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
-  await signInWithEmailAndPassword(auth, `${who}@technofluid.test`, PASSWORD);
-  return {
-    db,
-    editProduct: (data) => httpsCallable(functions, "editProduct")(data).then((r) => r.data),
-    importProducts: (data) => httpsCallable(functions, "importProducts")(data).then((r) => r.data),
-    addProduct: (data) => httpsCallable(functions, "addProduct")(data).then((r) => r.data),
-  };
-}
 
 async function changeLog(sku = SKU) {
   const snap = await adminDb.collection("productChanges").where("sku", "==", sku).get();
   return snap.docs.map((d) => d.data());
 }
 
+const prices = async (sku) => (await adminDb.doc(`product_prices/${sku}`).get()).data();
+const product = async (sku) => (await adminDb.doc(`products/${sku}`).get()).data();
+
 async function cleanUp() {
   for (const sku of [SKU, COPY_SKU]) {
     await adminDb.doc(`products/${sku}`).delete();
+    await adminDb.doc(`product_prices/${sku}`).delete();
     const log = await adminDb.collection("productChanges").where("sku", "==", sku).get();
     await Promise.all(log.docs.map((d) => d.ref.delete()));
   }
@@ -89,33 +53,28 @@ async function cleanUp() {
 let admin, accounts, stock;
 
 before(async () => {
+  await seedStaff();
   await cleanUp();
+  // Starts as a not-yet-migrated product: (empty) prices still on the product doc.
   await adminDb.doc(`products/${SKU}`).set(BASE);
   [admin, accounts, stock] = await Promise.all([as("admin"), as("accounts"), as("stock")]);
 });
 
 after(async () => {
   await cleanUp();
-  await Promise.all(apps.map((app) => deleteApp(app)));
+  await closeClients();
 });
-
-const rejectsWith = (promise, code, pattern) =>
-  assert.rejects(promise, (err) => {
-    assert.equal(err.code, `functions/${code}`);
-    if (pattern) assert.match(err.message, pattern);
-    return true;
-  });
 
 test("only Admin can edit products", async () => {
   const edit = { sku: SKU, changes: { dealerPrice: 10000 } };
-  await rejectsWith(accounts.editProduct(edit), "permission-denied");
-  await rejectsWith(stock.editProduct(edit), "permission-denied");
+  await rejectsWith(accounts.call("editProduct", edit), "permission-denied");
+  await rejectsWith(stock.call("editProduct", edit), "permission-denied");
 });
 
 test("locked and unknown fields are refused by name", async () => {
-  await rejectsWith(admin.editProduct({ sku: SKU, changes: { packQty: 20 } }), "invalid-argument", /packQty.*new product/);
-  await rejectsWith(admin.editProduct({ sku: SKU, changes: { grade: "46" } }), "invalid-argument", /grade/);
-  await rejectsWith(admin.editProduct({ sku: SKU, changes: { colour: "red" } }), "invalid-argument", /colour/);
+  await rejectsWith(admin.call("editProduct", { sku: SKU, changes: { packQty: 20 } }), "invalid-argument", /packQty.*new product/);
+  await rejectsWith(admin.call("editProduct", { sku: SKU, changes: { grade: "46" } }), "invalid-argument", /grade/);
+  await rejectsWith(admin.call("editProduct", { sku: SKU, changes: { colour: "red" } }), "invalid-argument", /colour/);
 });
 
 test("bad values are refused", async () => {
@@ -130,14 +89,14 @@ test("bad values are refused", async () => {
     [{ product: "   " }, /empty/],
   ];
   for (const [changes, pattern] of bad) {
-    await rejectsWith(admin.editProduct({ sku: SKU, changes }), "invalid-argument", pattern);
+    await rejectsWith(admin.call("editProduct", { sku: SKU, changes }), "invalid-argument", pattern);
   }
-  await rejectsWith(admin.editProduct({ sku: "NO-SUCH-SKU", changes: { gstPct: 5 } }), "not-found");
+  await rejectsWith(admin.call("editProduct", { sku: "NO-SUCH-SKU", changes: { gstPct: 5 } }), "not-found");
   assert.equal((await changeLog()).length, 0, "refused edits must not be logged");
 });
 
 test("Admin edit saves, logs each field, and marks it as office-owned", async () => {
-  const result = await admin.editProduct({
+  const result = await admin.call("editProduct", {
     sku: SKU,
     changes: { dealerPrice: 18550, distributorPrice: 15000, hsnCode: "27101980", gstPct: 18, active: false },
     reason: "New price list",
@@ -145,13 +104,20 @@ test("Admin edit saves, logs each field, and marks it as office-owned", async ()
   // gstPct was already 18 — not a change.
   assert.deepEqual([...result.changed].sort(), ["active", "dealerPrice", "distributorPrice", "hsnCode"]);
 
-  const product = (await adminDb.doc(`products/${SKU}`).get()).data();
-  assert.equal(product.dealerPrice, 18550);
-  assert.equal(product.distributorPrice, 15000);
-  assert.equal(product.hsnCode, "27101980");
-  assert.equal(product.active, false);
-  assert.equal(product.updatedBy.name, "Gaurav Verma");
-  assert.deepEqual([...product.appEdited].sort(), ["dealerPrice", "distributorPrice", "hsnCode"]);
+  const p = await product(SKU);
+  assert.equal(p.hsnCode, "27101980");
+  assert.equal(p.active, false);
+  assert.equal(p.updatedBy.name, "Gaurav Verma");
+  assert.deepEqual([...p.appEdited].sort(), ["dealerPrice", "distributorPrice", "hsnCode"]);
+
+  // Prices live in product_prices; the legacy fields left the product doc.
+  const pr = await prices(SKU);
+  assert.equal(pr.dealerPrice, 18550);
+  assert.equal(pr.distributorPrice, 15000);
+  assert.equal(pr.pricePer, "per litre", "untouched price fields move across too");
+  for (const field of ["pricePer", "dealerPrice", "distributorPrice"]) {
+    assert.ok(!(field in p), `${field} removed from products/${SKU}`);
+  }
 
   const log = await changeLog();
   assert.equal(log.length, 4);
@@ -163,15 +129,15 @@ test("Admin edit saves, logs each field, and marks it as office-owned", async ()
 });
 
 test("sending the same edit again changes and logs nothing", async () => {
-  const result = await admin.editProduct({ sku: SKU, changes: { dealerPrice: 18550, active: false } });
+  const result = await admin.call("editProduct", { sku: SKU, changes: { dealerPrice: 18550, active: false } });
   assert.deepEqual(result.changed, []);
   assert.equal((await changeLog()).length, 4);
 });
 
 test("a price can be cleared back to 'no price'", async () => {
-  const result = await admin.editProduct({ sku: SKU, changes: { distributorPrice: null } });
+  const result = await admin.call("editProduct", { sku: SKU, changes: { distributorPrice: null } });
   assert.deepEqual(result.changed, ["distributorPrice"]);
-  assert.equal((await adminDb.doc(`products/${SKU}`).get()).data().distributorPrice, null);
+  assert.equal((await prices(SKU)).distributorPrice, null);
 });
 
 test("change history is readable by Admin only", async () => {
@@ -197,14 +163,15 @@ test("re-importing the sheet keeps office edits and reports them", async () => {
     gstPct: 5, // never edited in the office — the sheet wins
     segment: "Industrial",
   };
-  const summary = await admin.importProducts({ rows: [row] });
+  const summary = await admin.call("importProducts", { rows: [row] });
   assert.equal(summary.updated, 1);
   assert.deepEqual(summary.keptAppEdits, [{ sku: SKU, fields: ["dealerPrice", "distributorPrice"] }]);
 
-  const product = (await adminDb.doc(`products/${SKU}`).get()).data();
-  assert.equal(product.dealerPrice, 18550, "office price kept");
-  assert.equal(product.distributorPrice, null, "office 'no price' kept");
-  assert.equal(product.gstPct, 5, "sheet value applied to a field the office never edited");
+  const pr = await prices(SKU);
+  assert.equal(pr.dealerPrice, 18550, "office price kept");
+  assert.equal(pr.distributorPrice, null, "office 'no price' kept");
+  assert.equal((await product(SKU)).gstPct, 5, "sheet value applied to a field the office never edited");
+  assert.ok(!("dealerPrice" in (await product(SKU))), "import doesn't put prices back on the product");
 });
 
 const NEW_PACK = {
@@ -225,13 +192,13 @@ const NEW_PACK = {
 };
 
 test("only Admin can add products", async () => {
-  await rejectsWith(accounts.addProduct({ product: NEW_PACK }), "permission-denied");
-  await rejectsWith(stock.addProduct({ product: NEW_PACK }), "permission-denied");
+  await rejectsWith(accounts.call("addProduct", { product: NEW_PACK }), "permission-denied");
+  await rejectsWith(stock.call("addProduct", { product: NEW_PACK }), "permission-denied");
 });
 
 test("a new pack must use the stock pool's unit", async () => {
   await rejectsWith(
-    admin.addProduct({ product: { ...NEW_PACK, baseUnit: "kg" } }),
+    admin.call("addProduct", { product: { ...NEW_PACK, baseUnit: "kg" } }),
     "invalid-argument",
     /counted in L/,
   );
@@ -239,19 +206,20 @@ test("a new pack must use the stock pool's unit", async () => {
 
 test("Copy adds a new pack to the same stock pool and can switch the original off", async () => {
   await adminDb.doc(`products/${SKU}`).update({ active: true });
-  const result = await admin.addProduct({ product: NEW_PACK, copyOf: SKU, switchOffOriginal: true });
+  const result = await admin.call("addProduct", { product: NEW_PACK, copyOf: SKU, switchOffOriginal: true });
   assert.deepEqual(result, { sku: COPY_SKU, productKey: BASE.productKey });
 
-  const copy = (await adminDb.doc(`products/${COPY_SKU}`).get()).data();
+  const copy = await product(COPY_SKU);
   assert.equal(copy.productKey, BASE.productKey, "same product + grade = same stock pool");
   assert.deepEqual(copy.recipe, BASE.recipe, "recipe carried over within the pool");
   assert.equal(copy.packQty, 210);
-  assert.equal(copy.dealerPrice, 17500);
-  assert.equal(copy.distributorPrice, null);
+  assert.ok(!("dealerPrice" in copy), "no prices on the product doc");
+  assert.equal((await prices(COPY_SKU)).dealerPrice, 17500);
+  assert.equal((await prices(COPY_SKU)).distributorPrice, null);
   assert.equal(copy.active, true);
   assert.equal(copy.deleted, false);
 
-  assert.equal((await adminDb.doc(`products/${SKU}`).get()).data().active, false, "original switched off");
+  assert.equal((await product(SKU)).active, false, "original switched off");
   const created = (await changeLog(COPY_SKU)).find((c) => c.field === "created");
   assert.equal(created.new, SKU);
   const switchedOff = (await changeLog(SKU)).find((c) => c.field === "active" && c.new === false && /Replaced/.test(c.reason ?? ""));
@@ -259,5 +227,5 @@ test("Copy adds a new pack to the same stock pool and can switch the original of
 });
 
 test("an SKU that already exists is refused", async () => {
-  await rejectsWith(admin.addProduct({ product: NEW_PACK }), "already-exists", /already used/);
+  await rejectsWith(admin.call("addProduct", { product: NEW_PACK }), "already-exists", /already used/);
 });

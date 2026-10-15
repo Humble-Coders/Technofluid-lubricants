@@ -25,7 +25,22 @@ service cloud.firestore {
     function isAdmin()       { return hasRole("admin"); }
     function isSalesperson() { return hasRole("salesperson"); }
     function isDistributor() { return hasRole("distributor"); }
-    function isSupervisor()  { return hasRole("supervisor"); }
+    function isSupervisor()  { return hasRole("supervisor"); }   // "Stock & Production"
+    function isAccounts()    { return hasRole("accounts"); }
+
+    // Prices are business-confidential: Admin and Accounts only (never Stock &
+    // Production, salespeople or distributors).
+    function canSeePrices()  { return isAdmin() || isAccounts(); }
+
+    // A record someone creates for themselves (or a salesperson creates for a
+    // distributor) must start unapproved — approval is an admin's decision.
+    function isUnapprovedOnCreate() {
+      let d = request.resource.data;
+      return d.status == "pending"
+          && d.get("approvedBy", null) == null
+          && d.get("approvedAt", null) == null
+          && d.get("deleted", false) == false;
+    }
 
     function isStaff() {
       return isAdmin() || isSupervisor() || isSalesperson();
@@ -37,8 +52,11 @@ service cloud.firestore {
       // Any signed-in user can read their own doc; admin/supervisor read all
       allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin() || isSupervisor());
 
-      // Users can create their own doc during signup (status will be "pending")
-      allow create: if isSignedIn() && request.auth.uid == uid;
+      // Users create their own doc during signup — only as a pending salesperson
+      // or distributor. Nobody can sign themselves up as admin/approved (C1).
+      allow create: if isSignedIn() && request.auth.uid == uid
+                    && isUnapprovedOnCreate()
+                    && request.resource.data.role in ["salesperson", "distributor"];
 
       // Only admin can update user docs (covers approval batch write from frontend)
       allow update: if isAdmin();
@@ -52,9 +70,10 @@ service cloud.firestore {
       allow read: if isStaff()
                   || (isDistributor() && request.auth.uid == distributorId);
 
-      // Salesperson creates on behalf of a distributor; distributor creates own doc during signup
-      allow create: if isSalesperson()
-                    || (isSignedIn() && request.auth.uid == distributorId);
+      // Salesperson creates on behalf of a distributor; distributor creates own doc
+      // during signup. Either way it starts pending — only admin approves.
+      allow create: if (isSalesperson() || (isSignedIn() && request.auth.uid == distributorId))
+                    && isUnapprovedOnCreate();
 
       allow update: if isAdmin() || isSupervisor()
                     || (isSalesperson() && resource.data.createdBy == request.auth.uid);
@@ -104,9 +123,17 @@ service cloud.firestore {
     // ─── Products ─────────────────────────────────────────────────────────────
 
     match /products/{productId} {
-      // All approved users can read the product catalogue
+      // All approved users can read the product catalogue (no prices in here —
+      // they live in product_prices).
       allow read:  if isSignedIn() && isApproved();
-      // Only the importProducts Cloud Function (Admin SDK) writes products.
+      // Only Cloud Functions (Admin SDK) write products.
+      allow write: if false;
+    }
+
+    match /product_prices/{sku} {
+      // Dealer / distributor prices per product: Admin and Accounts only.
+      allow read:  if canSeePrices();
+      // Only Cloud Functions (Admin SDK) write prices.
       allow write: if false;
     }
 
