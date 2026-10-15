@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ChevronsUpDown, LogOut, Search, Wifi, WifiOff } from "lucide-react";
+import { ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import mark from "@/assets/logo-mark.png";
@@ -13,13 +13,36 @@ import { CommandPalette } from "./CommandPalette";
 const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
 const inDesktopApp = Boolean(window.office);
 
+// Remembered per computer. Storage can be unavailable (private window, blocked site data),
+// so the sidebar simply starts open if it can't be read.
+const COLLAPSED_KEY = "office.sidebarCollapsed";
+
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function saveCollapsed(collapsed: boolean) {
+  try {
+    localStorage.setItem(COLLAPSED_KEY, collapsed ? "1" : "0");
+  } catch {
+    // Not remembered — fine.
+  }
+}
+
 export function AppShell() {
   const { role } = useStaff();
   const navigate = useNavigate();
   const items = useMemo(() => navFor(role), [role]);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(readCollapsed);
 
-  // Keyboard: ⌘/Ctrl+K opens the palette; ⌘/Ctrl+1…6 jumps to a screen.
+  useEffect(() => saveCollapsed(collapsed), [collapsed]);
+
+  // Keyboard: ⌘/Ctrl+K opens the palette; ⌘/Ctrl+B collapses the sidebar; ⌘/Ctrl+1…6 jumps to a screen.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = isMac ? e.metaKey : e.ctrlKey;
@@ -27,6 +50,11 @@ export function AppShell() {
       if (e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPaletteOpen((open) => !open);
+        return;
+      }
+      if (e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        setCollapsed((c) => !c);
         return;
       }
       const target = items.find((i) => i.shortcut === e.key);
@@ -41,7 +69,12 @@ export function AppShell() {
 
   return (
     <div className="flex h-full">
-      <Sidebar items={items} onSearch={() => setPaletteOpen(true)} />
+      <Sidebar
+        items={items}
+        collapsed={collapsed}
+        onToggle={() => setCollapsed((c) => !c)}
+        onSearch={() => setPaletteOpen(true)}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar items={items} />
         <main className="min-h-0 flex-1 overflow-auto">
@@ -55,7 +88,17 @@ export function AppShell() {
 
 /* ─── Sidebar ─────────────────────────────────────────────────────────────────── */
 
-function Sidebar({ items, onSearch }: { items: NavItem[]; onSearch: () => void }) {
+function Sidebar({
+  items,
+  collapsed,
+  onToggle,
+  onSearch,
+}: {
+  items: NavItem[];
+  collapsed: boolean;
+  onToggle: () => void;
+  onSearch: () => void;
+}) {
   const groups = useMemo(() => {
     const map = new Map<string, NavItem[]>();
     for (const item of items) map.set(item.group, [...(map.get(item.group) ?? []), item]);
@@ -63,37 +106,69 @@ function Sidebar({ items, onSearch }: { items: NavItem[]; onSearch: () => void }
   }, [items]);
 
   return (
-    <aside className="flex w-[232px] shrink-0 flex-col bg-brand-charcoal text-white/80">
+    // Collapsed width still clears the Mac traffic lights (they end at ~68px).
+    <aside
+      className={clsx(
+        "flex shrink-0 flex-col bg-brand-charcoal text-white/80 transition-[width] duration-150 ease-out",
+        collapsed ? "w-[72px]" : "w-[232px]",
+      )}
+    >
       {/* Room for the Mac traffic lights; draggable. */}
-      <div className={clsx("app-drag flex shrink-0 items-end px-4 pb-3", isMac && inDesktopApp ? "h-[68px]" : "h-14")}>
+      <div
+        className={clsx(
+          "app-drag flex shrink-0 items-end pb-3",
+          collapsed ? "justify-center px-2" : "px-4",
+          isMac && inDesktopApp ? "h-[68px]" : "h-14",
+        )}
+      >
         <div className="flex items-center gap-2.5">
           <img src={mark} alt="" aria-hidden className="size-6" />
-          <span className="text-[13px] font-semibold tracking-wide text-white">Technofluid Office</span>
+          {collapsed ? null : (
+            <span className="text-[13px] font-semibold tracking-wide whitespace-nowrap text-white">Technofluid Office</span>
+          )}
         </div>
       </div>
 
       <button
         type="button"
         onClick={onSearch}
-        className="mx-3 mb-3 flex h-8 items-center gap-2 rounded-md bg-white/[0.07] px-2.5 text-[12px] text-white/50 transition-colors hover:bg-white/[0.12] hover:text-white/80"
+        title={collapsed ? `Search or jump to… (${modKey()} K)` : undefined}
+        aria-label="Search or jump to"
+        className={clsx(
+          "mb-3 flex h-8 items-center gap-2 rounded-md bg-white/[0.07] text-[12px] text-white/50 transition-colors hover:bg-white/[0.12] hover:text-white/80",
+          collapsed ? "mx-auto w-10 justify-center" : "mx-3 px-2.5",
+        )}
       >
-        <Search className="size-3.5" />
-        <span className="flex-1 text-left">Search or jump to…</span>
-        <span className="text-2xs text-white/40">{modKey()} K</span>
+        <Search className="size-3.5 shrink-0" />
+        {collapsed ? null : (
+          <>
+            <span className="flex-1 truncate text-left">Search or jump to…</span>
+            <span className="text-2xs text-white/40">{modKey()} K</span>
+          </>
+        )}
       </button>
 
-      <nav className="flex-1 overflow-y-auto px-2 pb-3" aria-label="Main">
-        {groups.map(([group, groupItems]) => (
+      <nav className="flex-1 overflow-x-hidden overflow-y-auto px-2 pb-3" aria-label="Main">
+        {groups.map(([group, groupItems], index) => (
           <div key={group} className="mb-3">
-            <p className="px-2.5 pb-1 pt-2 text-2xs font-medium tracking-wider text-white/35 uppercase">{group}</p>
+            {collapsed ? (
+              index > 0 ? <div className="mx-3 mb-2 h-px bg-white/[0.08]" aria-hidden /> : null
+            ) : (
+              <p className="px-2.5 pt-2 pb-1 text-2xs font-medium tracking-wider whitespace-nowrap text-white/35 uppercase">
+                {group}
+              </p>
+            )}
             {groupItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 end={item.path === "/"}
+                title={collapsed ? (item.shortcut ? `${item.label} (${modKey()}${item.shortcut})` : item.label) : undefined}
+                aria-label={collapsed ? item.label : undefined}
                 className={({ isActive }) =>
                   clsx(
-                    "group relative flex h-8 items-center gap-2.5 rounded-md px-2.5 text-[13px] transition-colors",
+                    "group relative flex h-8 items-center gap-2.5 rounded-md text-[13px] transition-colors",
+                    collapsed ? "justify-center" : "px-2.5",
                     isActive ? "bg-white/[0.1] font-medium text-white" : "hover:bg-white/[0.06] hover:text-white",
                   )
                 }
@@ -101,14 +176,20 @@ function Sidebar({ items, onSearch }: { items: NavItem[]; onSearch: () => void }
                 {({ isActive }) => (
                   <>
                     {isActive ? <span className="absolute left-0 h-4 w-[3px] rounded-r bg-brand-orange" aria-hidden /> : null}
-                    <item.icon className={clsx("size-4", isActive ? "text-brand-orange" : "text-white/50 group-hover:text-white/80")} />
-                    <span className="flex-1 truncate">{item.label}</span>
-                    {item.shortcut ? (
-                      <span className="text-2xs text-white/25 opacity-0 transition-opacity group-hover:opacity-100">
-                        {modKey()}
-                        {item.shortcut}
-                      </span>
-                    ) : null}
+                    <item.icon
+                      className={clsx("size-4 shrink-0", isActive ? "text-brand-orange" : "text-white/50 group-hover:text-white/80")}
+                    />
+                    {collapsed ? null : (
+                      <>
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {item.shortcut ? (
+                          <span className="text-2xs text-white/25 opacity-0 transition-opacity group-hover:opacity-100">
+                            {modKey()}
+                            {item.shortcut}
+                          </span>
+                        ) : null}
+                      </>
+                    )}
                   </>
                 )}
               </NavLink>
@@ -117,12 +198,32 @@ function Sidebar({ items, onSearch }: { items: NavItem[]; onSearch: () => void }
         ))}
       </nav>
 
-      <UserMenu />
+      <button
+        type="button"
+        onClick={onToggle}
+        title={collapsed ? `Expand sidebar (${modKey()} B)` : undefined}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-expanded={!collapsed}
+        className={clsx(
+          "group mb-1 flex h-8 items-center gap-2.5 rounded-md text-[12px] text-white/45 transition-colors hover:bg-white/[0.06] hover:text-white",
+          collapsed ? "mx-auto w-10 justify-center" : "mx-2 px-2.5",
+        )}
+      >
+        {collapsed ? <PanelLeftOpen className="size-4 shrink-0" /> : <PanelLeftClose className="size-4 shrink-0" />}
+        {collapsed ? null : (
+          <>
+            <span className="flex-1 truncate text-left">Collapse sidebar</span>
+            <span className="text-2xs text-white/25 opacity-0 transition-opacity group-hover:opacity-100">{modKey()}B</span>
+          </>
+        )}
+      </button>
+
+      <UserMenu collapsed={collapsed} />
     </aside>
   );
 }
 
-function UserMenu() {
+function UserMenu({ collapsed }: { collapsed: boolean }) {
   const { profile, role } = useStaff();
   const { signOut } = useSession();
   const [open, setOpen] = useState(false);
@@ -152,7 +253,13 @@ function UserMenu() {
   return (
     <div ref={ref} className="relative border-t border-white/[0.08] p-2">
       {open ? (
-        <div className="absolute right-2 bottom-full left-2 mb-1 rounded-md border border-line bg-surface p-1 text-ink shadow-pop">
+        <div
+          className={clsx(
+            "absolute bottom-full left-2 z-20 mb-1 rounded-md border border-line bg-surface p-1 text-ink shadow-pop",
+            // Collapsed sidebar is too narrow for the menu — let it spill over the page.
+            collapsed ? "w-[220px]" : "right-2",
+          )}
+        >
           <div className="px-2.5 py-2">
             <p className="truncate text-[13px] font-medium">{profile.name}</p>
             <p className="truncate text-[12px] text-ink-muted">{profile.email || ROLE_LABEL[role]}</p>
@@ -172,16 +279,25 @@ function UserMenu() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.06]"
+        aria-label={collapsed ? `${profile.name}, ${ROLE_LABEL[role]}` : undefined}
+        title={collapsed ? `${profile.name} · ${ROLE_LABEL[role]}` : undefined}
+        className={clsx(
+          "flex w-full items-center gap-2.5 rounded-md py-1.5 text-left transition-colors hover:bg-white/[0.06]",
+          collapsed ? "justify-center" : "px-2",
+        )}
       >
-        <span className="flex size-7 items-center justify-center rounded-full bg-brand-orange text-2xs font-semibold text-white">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-orange text-2xs font-semibold text-white">
           {initials || "?"}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-medium text-white">{profile.name}</span>
-          <span className="block truncate text-2xs text-white/45">{ROLE_LABEL[role]}</span>
-        </span>
-        <ChevronsUpDown className="size-3.5 text-white/40" />
+        {collapsed ? null : (
+          <>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13px] font-medium text-white">{profile.name}</span>
+              <span className="block truncate text-2xs text-white/45">{ROLE_LABEL[role]}</span>
+            </span>
+            <ChevronsUpDown className="size-3.5 text-white/40" />
+          </>
+        )}
       </button>
     </div>
   );
