@@ -1,10 +1,18 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 
 import {
   buildPublicCatalogDoc,
   type PublicCatalogProduct,
 } from "./buildPublicCatalogDoc";
+import {
+  currentPrices,
+  isPriceField,
+  legacyPriceDeletes,
+  pricesRef,
+  PRICES_COLLECTION,
+} from "./prices";
 import { validateProductRow, type ProductRowInput } from "./validateProductRow";
 
 type ImportRow = ProductRowInput & { rowNumber: number };
@@ -67,10 +75,13 @@ export const importProducts = onCall(
     const existingBySku = new Map(
       existingSnap.docs.map((d) => [d.id, d.data()]),
     );
+    const existingPricesBySku = new Map(
+      (await db.collection(PRICES_COLLECTION).get()).docs.map((d) => [d.id, d.data()]),
+    );
 
     let created = 0;
     let updated = 0;
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = FieldValue.serverTimestamp();
 
     const productOps: ((batch: admin.firestore.WriteBatch) => void)[] = [];
     const affectedProductKeys = new Set<string>();
@@ -124,16 +135,25 @@ export const importProducts = onCall(
       const appEdited = new Set<string>(
         Array.isArray(existing?.appEdited) ? existing!.appEdited : [],
       );
+      const existingPrices: Record<string, unknown> = { ...currentPrices(existingPricesBySku.get(row.sku), existing) };
+      const existingValue = (field: string) =>
+        isPriceField(field) ? existingPrices[field] : existing?.[field];
       // Only report fields where the sheet actually disagrees with the office value.
       const kept = Object.keys(sheetFields).filter(
-        (f) => appEdited.has(f) && sheetFields[f] !== existing?.[f],
+        (f) => appEdited.has(f) && sheetFields[f] !== existingValue(f),
       );
       if (!isNew && kept.length > 0) keptAppEdits.push({ sku: row.sku, fields: kept });
 
+      // Prices go to product_prices (admin/accounts only); everything else to products.
       const catalogFields: Record<string, unknown> = { updatedAt: now };
+      const priceFields: Record<string, unknown> = isNew ? {} : { ...existingPrices };
       for (const [field, value] of Object.entries(sheetFields)) {
-        if (isNew || !appEdited.has(field)) catalogFields[field] = value;
+        if (!isNew && appEdited.has(field)) continue;
+        if (isPriceField(field)) priceFields[field] = value;
+        else catalogFields[field] = value;
       }
+      const priceRef = pricesRef(db, row.sku);
+      productOps.push((batch) => batch.set(priceRef, { ...priceFields, updatedAt: now }));
       // What the product looks like after this write (kept office values win).
       const effective = (field: string) =>
         field in catalogFields ? catalogFields[field] : existing?.[field];
@@ -151,7 +171,9 @@ export const importProducts = onCall(
         );
       } else {
         updated += 1;
-        productOps.push((batch) => batch.set(ref, catalogFields, { merge: true }));
+        productOps.push((batch) =>
+          batch.set(ref, { ...catalogFields, ...legacyPriceDeletes() }, { merge: true }),
+        );
       }
 
       const active = isNew ? true : (existing!.active ?? true);

@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 
+import { currentPrices, legacyPriceDeletes, pricesRef, splitPrices } from "./prices";
 import { rebuildFamilyProjection } from "./rebuildFamilyProjection";
 import { validateProductRow, type ProductRowInput } from "./validateProductRow";
 
@@ -63,6 +65,8 @@ export const updateProduct = onCall(
       throw new HttpsError("not-found", `Product "${sku}" does not exist`);
     }
     const existing = existingSnap.data()!;
+    const priceRef = pricesRef(db, sku);
+    const existingPrices = currentPrices((await priceRef.get()).data(), existing);
 
     const merged: ProductRowInput = {
       sku,
@@ -72,9 +76,9 @@ export const updateProduct = onCall(
       orderableUnit: fields.orderableUnit ?? existing.orderableUnit,
       packQty: fields.packQty ?? existing.packQty,
       baseUnit: fields.baseUnit ?? existing.baseUnit,
-      pricePer: fields.pricePer ?? existing.pricePer,
-      dealerPrice: fields.dealerPrice ?? existing.dealerPrice,
-      distributorPrice: fields.distributorPrice ?? existing.distributorPrice,
+      pricePer: fields.pricePer ?? existingPrices.pricePer,
+      dealerPrice: fields.dealerPrice ?? existingPrices.dealerPrice,
+      distributorPrice: fields.distributorPrice ?? existingPrices.distributorPrice,
       gstPct: fields.gstPct ?? existing.gstPct,
       segment: fields.segment ?? existing.segment,
     };
@@ -93,24 +97,32 @@ export const updateProduct = onCall(
       throw new HttpsError("invalid-argument", "deleted must be a boolean");
     }
 
-    await ref.set(
+    // Prices go to product_prices (admin/accounts only); the product doc keeps
+    // everything else and loses any legacy price fields.
+    const now = FieldValue.serverTimestamp();
+    const batch = db.batch();
+    batch.set(
+      ref,
       {
         product: result.product.product,
         category: result.product.category,
         orderableUnit: result.product.orderableUnit,
         packQty: result.product.packQty,
         baseUnit: result.product.baseUnit,
-        pricePer: result.product.pricePer,
-        dealerPrice: result.product.dealerPrice,
-        distributorPrice: result.product.distributorPrice,
         gstPct: result.product.gstPct,
         segment: result.product.segment,
         active,
         deleted,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: now,
+        ...legacyPriceDeletes(),
       },
       { merge: true },
     );
+    batch.set(priceRef, {
+      ...splitPrices(result.product).prices,
+      updatedAt: now,
+    });
+    await batch.commit();
 
     await rebuildFamilyProjection(db, existing.productKey);
 

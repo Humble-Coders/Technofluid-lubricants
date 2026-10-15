@@ -54,13 +54,21 @@ async function seedProducts() {
   let batch = db.batch();
   let n = 0;
   for (const p of products) {
+    // Prices live apart from the product (product_prices, Admin + Accounts only).
+    const { pricePer, dealerPrice, distributorPrice, ...product } = p;
     batch.set(db.doc(`products/${p.sku}`), {
-      ...p,
+      ...product,
       deleted: false,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
-    if (++n % 400 === 0) {
+    batch.set(db.doc(`product_prices/${p.sku}`), {
+      pricePer,
+      dealerPrice,
+      distributorPrice,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    if (++n % 200 === 0) {
       await batch.commit();
       batch = db.batch();
     }
