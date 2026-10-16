@@ -365,23 +365,23 @@ function ProductTable({
       <div
         role="row"
         className={clsx(
-          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-2xs font-medium tracking-wide text-ink-muted uppercase",
+          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-center text-2xs font-medium tracking-wide text-ink-muted uppercase",
           cols,
         )}
         style={{ height: 32 }}
       >
         <span>Product</span>
         <span>Pack</span>
-        <span className="text-right">Pack size</span>
+        <span>Pack size</span>
         {showPrices ? (
           <>
-            <span className="text-right">Dealer</span>
-            <span className="text-right">Distributor</span>
+            <span>Dealer</span>
+            <span>Distributor</span>
           </>
         ) : null}
         {compact ? null : (
           <>
-            <span className="text-right">GST</span>
+            <span>GST</span>
             <span>Sold to</span>
             <span>SKU</span>
           </>
@@ -401,7 +401,7 @@ function ProductTable({
                 aria-selected={isSelected}
                 onClick={() => onSelect(isSelected ? null : p.sku)}
                 className={clsx(
-                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-[13px]",
+                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-center text-[13px]",
                   cols,
                   isSelected ? "bg-brand-orange/[0.08]" : "bg-surface hover:bg-hover",
                 )}
@@ -417,14 +417,14 @@ function ProductTable({
                   )}
                 </span>
                 <span className="truncate text-ink-muted">{p.packLabel}</span>
-                <span className="num text-right text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>
+                <span className="num text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>
                 {showPrices ? (
                   <>
                     <PriceCell paise={p.dealerPricePaise} per={p.pricePer} />
                     <PriceCell paise={p.distributorPricePaise} per={p.pricePer} />
                   </>
                 ) : null}
-                {compact ? null : <span className="num text-right text-ink-muted">{p.gstPct}%</span>}
+                {compact ? null : <span className="num text-ink-muted">{p.gstPct}%</span>}
                 <span className={compact && showPrices ? "hidden" : undefined}>
                   {p.segment ? (
                     <Badge tone={p.segment === "Automotive" ? "info" : p.segment === "Industrial" ? "neutral" : "brand"}>
@@ -445,9 +445,9 @@ function ProductTable({
 }
 
 function PriceCell({ paise, per }: { paise: number | null; per: string | null }) {
-  if (paise === null) return <span className="text-right text-[12px] text-warning">No price</span>;
+  if (paise === null) return <span className="text-[12px] text-warning">No price</span>;
   return (
-    <span className="num text-right text-ink" title={per ?? undefined}>
+    <span className="num text-ink" title={per ?? undefined}>
       {formatINR(paise)}
       {per === "per litre" || per === "per kg" ? <span className="text-2xs text-ink-faint">/{per.slice(4)}</span> : null}
     </span>

@@ -175,14 +175,14 @@ function StockTable({
     <div className="flex min-h-0 flex-1 flex-col">
       <div
         className={clsx(
-          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-2xs font-medium tracking-wide text-ink-muted uppercase",
+          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-center text-2xs font-medium tracking-wide text-ink-muted uppercase",
           cols,
         )}
         style={{ height: 32 }}
       >
         <span>Item</span>
         {compact ? null : <span>Kind</span>}
-        <span className="text-right">On hand</span>
+        <span>On hand</span>
         {compact ? null : <span>Packs that could be filled</span>}
       </div>
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
@@ -197,7 +197,7 @@ function StockTable({
                 aria-selected={isSelected}
                 onClick={() => onSelect(isSelected ? null : item.id)}
                 className={clsx(
-                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-[13px]",
+                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-center text-[13px]",
                   cols,
                   isSelected ? "bg-brand-orange/[0.08]" : "bg-surface hover:bg-hover",
                 )}
@@ -214,7 +214,7 @@ function StockTable({
                     </Badge>
                   </span>
                 )}
-                <span className={clsx("num text-right font-medium", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
+                <span className={clsx("num font-medium", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
                   {item.onHandMilli < 0 ? <AlertTriangle className="mr-1 inline size-3.5 align-[-2px]" /> : null}
                   {formatQuantity(item.onHandMilli, item.baseUnit)}
                 </span>

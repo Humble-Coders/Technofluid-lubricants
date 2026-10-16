@@ -38,15 +38,15 @@ export function MovementTable({
   return (
     <table className="w-full border-collapse text-[13px]">
       <thead className="sticky top-0 z-10 bg-canvas">
-        <tr className="border-b border-line text-left text-2xs font-medium tracking-wide text-ink-muted uppercase">
+        <tr className="border-b border-line text-center text-2xs font-medium tracking-wide text-ink-muted uppercase">
           {showDate ? <th className="px-3 py-2 pl-5 font-medium whitespace-nowrap">Date</th> : null}
           <th className={clsx("px-3 py-2 font-medium", !showDate && "pl-5")}>Item</th>
           <th className="px-3 py-2 font-medium whitespace-nowrap">What happened</th>
-          <th className="px-3 py-2 text-right font-medium">Quantity</th>
-          <th className="px-3 py-2 text-right font-medium whitespace-nowrap">Balance after</th>
+          <th className="px-3 py-2 font-medium">Quantity</th>
+          <th className="px-3 py-2 font-medium whitespace-nowrap">Balance after</th>
           <th className="px-3 py-2 font-medium">Reason</th>
           <th className="px-3 py-2 font-medium">By</th>
-          {canEdit ? <th className="px-3 py-2 pr-5 text-right font-medium">Actions</th> : null}
+          {canEdit ? <th className="px-3 py-2 pr-5 font-medium">Actions</th> : null}
         </tr>
       </thead>
       <tbody>
@@ -56,14 +56,14 @@ export function MovementTable({
           const isOpen = open?.id === m.id;
           return (
             <Fragment key={m.id}>
-              <tr className={clsx("border-b border-line/70 align-top", undone ? "bg-canvas/60 text-ink-faint" : "bg-surface hover:bg-hover")}>
+              <tr className={clsx("border-b border-line/70 text-center align-top", undone ? "bg-canvas/60 text-ink-faint" : "bg-surface hover:bg-hover")}>
                 {showDate ? <td className="px-3 py-2 pl-5 whitespace-nowrap">{businessDate(m.journalDate)}</td> : null}
                 <td className={clsx("min-w-[200px] px-3 py-2", !showDate && "pl-5")}>
                   <span className={clsx("font-medium", undone ? "line-through" : "text-ink")}>{m.itemName}</span>
                   <span className="block text-2xs text-ink-faint">{KIND_LABEL[m.itemKind]}</span>
                 </td>
                 <td className="px-3 py-2">
-                  <span className="flex flex-wrap gap-1">
+                  <span className="flex flex-wrap justify-center gap-1">
                     <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : "info"}>
                       {TYPE_LABEL[m.type] ?? m.type}
                     </Badge>
@@ -73,13 +73,13 @@ export function MovementTable({
                 </td>
                 <td
                   className={clsx(
-                    "num px-3 py-2 text-right font-semibold whitespace-nowrap",
+                    "num px-3 py-2 font-semibold whitespace-nowrap",
                     undone ? "line-through" : m.qtyMilli < 0 ? "text-danger" : "text-success",
                   )}
                 >
                   {signedQuantity(m.qtyMilli, m.baseUnit)}
                 </td>
-                <td className={clsx("num px-3 py-2 text-right whitespace-nowrap", m.onHandAfterMilli < 0 && !undone ? "text-danger" : null)}>
+                <td className={clsx("num px-3 py-2 whitespace-nowrap", m.onHandAfterMilli < 0 && !undone ? "text-danger" : null)}>
                   {formatQuantity(m.onHandAfterMilli, m.baseUnit)}
                   {m.countedMilli !== null ? (
                     <span className="block text-2xs text-ink-faint">counted {formatQuantity(m.countedMilli, m.baseUnit)}</span>
@@ -95,7 +95,7 @@ export function MovementTable({
                   <span className="block text-2xs text-ink-faint">{time(m)}</span>
                 </td>
                 {canEdit ? (
-                  <td className="px-3 py-1.5 pr-5 text-right whitespace-nowrap">
+                  <td className="px-3 py-1.5 pr-5 whitespace-nowrap">
                     {editable && !isOpen ? (
                       <span className="inline-flex gap-1.5">
                         {m.type === "OPENING" || m.type === "IN" || m.type === "OUT" ? (
