@@ -37,7 +37,14 @@ export interface StockItem {
   lastMovementAt: Date | null;
 }
 
-export type MovementType = "OPENING" | "IN" | "OUT" | "COUNT_ADJUSTMENT" | "REVERSAL";
+export type MovementType =
+  | "OPENING"
+  | "IN"
+  | "OUT"
+  | "COUNT_ADJUSTMENT"
+  | "REVERSAL"
+  | "PRODUCTION_IN"
+  | "PRODUCTION_CONSUME";
 
 export interface StockMovement {
   id: string;
@@ -55,6 +62,9 @@ export interface StockMovement {
   reversesId: string | null;
   reversedById: string | null;
   replacesId: string | null;
+  /** Production: the "made" line this belongs to, and what was made (for "used" lines). */
+  productionId: string | null;
+  producedItemName: string | null;
   byName: string;
   createdAt: Date | null;
 }
@@ -95,6 +105,8 @@ function toMovement(id: string, d: DocumentData): StockMovement {
     reversesId: str(d.reversesId),
     reversedById: str(d.reversedById),
     replacesId: str(d.replacesId),
+    productionId: str(d.productionId),
+    producedItemName: str(d.producedItemName),
     byName: typeof d.byName === "string" && d.byName ? d.byName : "Someone",
     createdAt: date(d.createdAt),
   };
@@ -155,7 +167,11 @@ export function watchMovements(
 export type JournalLine =
   | { itemId: string; kind: "OPENING"; qtyMilli: number; note?: string }
   | { itemId: string; kind: "IN" | "OUT"; qtyMilli: number; note: string }
-  | { itemId: string; kind: "COUNT"; countedMilli: number; note: string };
+  | { itemId: string; kind: "COUNT"; countedMilli: number; note: string }
+  /** A product made in the factory. */
+  | { itemId: string; kind: "MADE"; qtyMilli: number; note?: string }
+  /** Something that production run used up; `forLine` = index of its MADE line. */
+  | { itemId: string; kind: "USED"; qtyMilli: number; forLine: number; note?: string };
 
 export interface RecordResult {
   recorded: number;

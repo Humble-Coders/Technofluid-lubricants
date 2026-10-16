@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   checkGstin,
+  parseRecipe,
+  proposeConsumption,
+  recipeTotalBp,
   indiaDate,
   parseQuantityToMilli,
   formatINR,
@@ -195,5 +198,63 @@ describe("pack pricing", () => {
     expect(piecesPerPackFromLabel("500 ml (35x500 ml case)")).toBe(35);
     expect(piecesPerPackFromLabel("12 x 1 Kg (12 kg)")).toBe(12);
     expect(piecesPerPackFromLabel("26L cane")).toBeNull();
+  });
+});
+
+describe("recipes (production)", () => {
+  const items = {
+    w150: { id: "raw-w150", name: "Base oil W150", baseUnit: "L" as const, densityKgPerL: 0.87 },
+    ep: { id: "raw-ep", name: "EP additive", baseUnit: "kg" as const, densityKgPerL: 1.05 },
+    epNoDensity: { id: "raw-ep2", name: "EP additive 2", baseUnit: "kg" as const, densityKgPerL: null },
+    cans: { id: "can", name: "Empty can", baseUnit: "piece" as const, densityKgPerL: null },
+  };
+  const find = (code: string) =>
+    code === "w150" ? items.w150 : code === "ep additive" ? items.ep : code === "ep2" ? items.epNoDensity : code === "can" ? items.cans : null;
+
+  it("reads Gaurav's 'code/percent' format, including blanks and decimals", () => {
+    expect(parseRecipe(["w150/50", " W70/ ", "ep additive/12.5", "ppd/0.25", "sn500(kg)/100"])).toEqual([
+      { code: "w150", percentBp: 5000 },
+      { code: "w70", percentBp: null },
+      { code: "ep additive", percentBp: 1250 },
+      { code: "ppd", percentBp: 25 },
+      { code: "sn500(kg)", percentBp: 10000 },
+    ]);
+    expect(recipeTotalBp(parseRecipe(["a/50", "b/37.5", "c/12.5", "d/"]))).toBe(10_000);
+  });
+
+  it("proposes use by volume, converting to kg with the ingredient's density", () => {
+    const lines = proposeConsumption({
+      madeMilli: 500_000, // 500 L made
+      productUnit: "L",
+      productDensityKgPerL: 0.88,
+      ingredients: parseRecipe(["w150/90", "ep additive/10", "w70/", "unknown/5"]),
+      findMaterial: find,
+    });
+    expect(lines.map((l) => [l.ingredient.code, l.status, l.qtyMilli])).toEqual([
+      ["w150", "ok", 450_000], // 450 L
+      ["ep additive", "ok", 52_500], // 50 L × 1.05 = 52.5 kg
+      ["w70", "no_percent", null],
+      ["unknown", "not_in_stock", null],
+    ]);
+  });
+
+  it("a product made in kg is turned into litres first; missing densities are flagged", () => {
+    const [w150] = proposeConsumption({
+      madeMilli: 880_000, // 880 kg at 0.88 kg/L = 1000 L
+      productUnit: "kg",
+      productDensityKgPerL: 0.88,
+      ingredients: parseRecipe(["w150/50"]),
+      findMaterial: find,
+    });
+    expect(w150?.qtyMilli).toBe(500_000);
+
+    const noDensity = proposeConsumption({
+      madeMilli: 100_000,
+      productUnit: "kg",
+      productDensityKgPerL: null,
+      ingredients: parseRecipe(["w150/50", "ep2/10", "can/1"]),
+      findMaterial: find,
+    });
+    expect(noDensity.map((l) => l.status)).toEqual(["needs_density", "needs_density", "unit_mismatch"]);
   });
 });

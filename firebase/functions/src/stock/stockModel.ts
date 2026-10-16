@@ -34,7 +34,10 @@ export type MovementType =
   | "IN"
   | "OUT"
   | "COUNT_ADJUSTMENT"
-  | "REVERSAL";
+  | "REVERSAL"
+  /** A product made in the factory (+), and the raw materials it used (−). */
+  | "PRODUCTION_IN"
+  | "PRODUCTION_CONSUME";
 
 /** A product's stock pool id, derived from its productKey (product + grade). */
 export function poolId(productKey: string): string {

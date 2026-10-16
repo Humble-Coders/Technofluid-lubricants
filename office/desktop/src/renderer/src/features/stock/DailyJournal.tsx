@@ -4,14 +4,16 @@ import { useState } from "react";
 import { formatQuantity, indiaDate, parseQuantityToMilli } from "@technofluid/core";
 import { Button, Input, Select } from "@/components/ui";
 import { useMovements } from "@/hooks/useStock";
+import type { Product } from "@/services/productService";
 import {
   newRequestId,
   recordStockMovements,
-  type JournalLine,
   type RecordResult,
   type StockItem,
 } from "@/services/stockService";
 import { ItemPicker } from "./ItemPicker";
+import { JournalReview } from "./JournalReview";
+import { buildReview, readReview, type DraftLine, type ReviewGroup, type ReviewProblem } from "./reviewModel";
 import { MovementTable } from "./MovementTable";
 import { unitWord } from "./stockFormat";
 
@@ -40,8 +42,12 @@ const emptyLine = (): Draft => ({ key: nextKey++, item: null, kind: "IN", qty: "
 /**
  * The supervisor's daily stock journal (decision #24): one business date, many lines,
  * saved together. Below it, everything already recorded for that date.
+ *
+ * A product "In" is production (Sharnya, 16 Oct 2026): Review proposes the raw materials
+ * it used from the recipe; the person edits, then confirms — only then is anything saved
+ * (decision #20).
  */
-export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: boolean }) {
+export function DailyJournal({ items, products, canEdit }: { items: StockItem[]; products: Product[]; canEdit: boolean }) {
   const today = indiaDate();
   const [date, setDate] = useState(today);
   const [lines, setLines] = useState<Draft[]>(() => [emptyLine()]);
@@ -51,6 +57,8 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<RecordResult | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [review, setReview] = useState<ReviewGroup[] | null>(null);
+  const [problems, setProblems] = useState<ReviewProblem[]>([]);
   const recorded = useMovements({ journalDate: date });
 
   const update = (key: number, patch: Partial<Draft>) => {
@@ -59,11 +67,12 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
     setResult(null);
   };
 
-  const save = async () => {
+  /** Step 1: check the entries, then show the review (nothing saved yet). */
+  const startReview = () => {
     setSaveError(null);
     setResult(null);
     const found: Record<number, string> = {};
-    const out: JournalLine[] = [];
+    const out: DraftLine[] = [];
     const filled = lines.filter((l) => l.item || l.qty.trim() || l.note.trim());
     for (const l of filled) {
       if (!l.item) {
@@ -81,27 +90,33 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
         found[l.key] = "Quantity must be above 0.";
         continue;
       }
-      if (l.kind !== "OPENING" && !l.note.trim()) {
+      const production = l.item.kind === "product_pool" && l.kind === "IN";
+      if (l.kind !== "OPENING" && !production && !l.note.trim()) {
         found[l.key] = "Say why.";
         continue;
       }
-      const note = l.note.trim();
-      out.push(
-        l.kind === "COUNT"
-          ? { itemId: l.item.id, kind: "COUNT", countedMilli: milli, note }
-          : l.kind === "OPENING"
-            ? { itemId: l.item.id, kind: "OPENING", qtyMilli: milli, ...(note ? { note } : {}) }
-            : { itemId: l.item.id, kind: l.kind, qtyMilli: milli, note },
-      );
+      out.push({ item: l.item, kind: l.kind, qtyMilli: milli, note: l.note.trim() });
     }
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     if (out.length === 0) return setSaveError("Add at least one line.");
+    setProblems([]);
+    setReview(buildReview(out, items, products));
+  };
 
+  /** Step 2: the person confirmed the review — save everything in one go. */
+  const confirm = async () => {
+    if (!review) return;
+    setSaveError(null);
+    const { lines: toSave, problems: found } = readReview(review);
+    setProblems(found);
+    if (found.length > 0) return setSaveError("Fix the highlighted lines first.");
+    if (toSave.length === 0) return setSaveError("Nothing to save.");
     setBusy(true);
     try {
-      const r = await recordStockMovements(requestId, date, out);
+      const r = await recordStockMovements(requestId, date, toSave);
       setResult(r);
+      setReview(null);
       setLines([emptyLine()]);
       setRequestId(newRequestId());
     } catch (err) {
@@ -141,13 +156,31 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
         ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto">
-        {canEdit ? (
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        {canEdit && review ? (
+          <JournalReview
+            groups={review}
+            onChange={(groups) => {
+              setReview(groups);
+              setProblems([]);
+            }}
+            items={items}
+            products={products}
+            problems={problems}
+            busy={busy}
+            error={saveError}
+            onBack={() => {
+              setReview(null);
+              setSaveError(null);
+            }}
+            onConfirm={() => void confirm()}
+          />
+        ) : canEdit ? (
           <form
             className="space-y-2 border-b border-line bg-surface px-5 py-4"
             onSubmit={(e) => {
               e.preventDefault();
-              void save();
+              startReview();
             }}
           >
             <h3 className="pb-1 text-[13px] font-semibold text-ink">New entries</h3>
@@ -165,7 +198,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
                   <Select value={l.kind} onChange={(e) => update(l.key, { kind: e.target.value as LineKind })} aria-label="What happened">
                     {KIND_OPTIONS.map(([k, label]) => (
                       <option key={k} value={k}>
-                        {label}
+                        {k === "IN" && l.item?.kind === "product_pool" ? "Made (uses recipe)" : label}
                       </option>
                     ))}
                   </Select>
@@ -187,7 +220,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
                   <Input
                     value={l.note}
                     onChange={(e) => update(l.key, { note: e.target.value })}
-                    placeholder={l.kind === "OPENING" ? "Optional" : "e.g. filled from tank 2"}
+                    placeholder={l.kind === "OPENING" || (l.kind === "IN" && l.item?.kind === "product_pool") ? "Optional" : "e.g. filled from tank 2"}
                     maxLength={200}
                     aria-label="Why"
                   />
@@ -216,7 +249,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
               </Button>
               <div className="flex-1" />
               <Button type="submit" variant="primary" size="sm" loading={busy}>
-                Save journal
+                Review
               </Button>
             </div>
             {saveError ? <p role="alert" className="text-[12px] text-danger">{saveError}</p> : null}
@@ -228,7 +261,9 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
           <h3 className="px-5 pt-4 pb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
             Recorded for {date === today ? "today" : date}
           </h3>
-          <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded for this date." />
+          <div className="overflow-x-auto">
+            <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded for this date." />
+          </div>
         </section>
       </div>
     </div>

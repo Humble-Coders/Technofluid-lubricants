@@ -6,7 +6,7 @@ import { Badge, Button, Spinner } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import type { StockMovement } from "@/services/stockService";
 import { UndoForm } from "./MovementList";
-import { KIND_LABEL, signedQuantity, TYPE_LABEL } from "./stockFormat";
+import { EDITABLE_TYPES, KIND_LABEL, signedQuantity, TYPE_LABEL } from "./stockFormat";
 
 const businessDate = (d: string) =>
   d ? new Date(`${d}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
@@ -64,7 +64,7 @@ export function MovementTable({
                 </td>
                 <td className="px-3 py-2">
                   <span className="flex flex-wrap justify-center gap-1">
-                    <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : "info"}>
+                    <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : m.type.startsWith("PRODUCTION") ? "brand" : "info"}>
                       {TYPE_LABEL[m.type] ?? m.type}
                     </Badge>
                     {m.replacesId ? <Badge tone="brand">Edited</Badge> : null}
@@ -89,6 +89,9 @@ export function MovementTable({
                   <span className="line-clamp-2" title={m.note ?? undefined}>
                     {m.note ?? "—"}
                   </span>
+                  {m.type === "PRODUCTION_CONSUME" && m.producedItemName ? (
+                    <span className="block text-2xs text-ink-faint">for {m.producedItemName}</span>
+                  ) : null}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap">
                   {m.byName}
@@ -98,7 +101,7 @@ export function MovementTable({
                   <td className="px-3 py-1.5 pr-5 whitespace-nowrap">
                     {editable && !isOpen ? (
                       <span className="inline-flex gap-1.5">
-                        {m.type === "OPENING" || m.type === "IN" || m.type === "OUT" ? (
+                        {EDITABLE_TYPES.includes(m.type) ? (
                           <Button size="sm" onClick={() => setOpen({ id: m.id, mode: "edit" })} icon={<Pencil className="size-3" />}>
                             Edit
                           </Button>

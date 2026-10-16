@@ -266,3 +266,63 @@ describe("undo and edit", () => {
     assert.equal(total, (await item(POOL)).onHandMilli);
   });
 });
+
+describe("production (made + used, one entry)", () => {
+  let baseOil;
+
+  test("recipe codes can be written as in Gaurav's sheet (spaces, brackets)", async () => {
+    ({ itemId: baseOil } = await stock.call("saveStockItem", {
+      kind: "raw_material",
+      name: "Test Production Base Oil",
+      code: "Test SN500(kg)",
+      baseUnit: "L",
+    }));
+    assert.equal((await item(baseOil)).code, "test sn500(kg)");
+    await record(stock, [{ itemId: baseOil, kind: "OPENING", qtyMilli: 1_000_000 }]);
+  });
+
+  test("made product goes up, used raw material goes down, both linked", async () => {
+    const poolBefore = (await item(POOL)).onHandMilli;
+    const requestId = rid();
+    const r = await stock.call("recordStockMovements", {
+      requestId,
+      journalDate: today,
+      lines: [
+        { itemId: POOL, kind: "MADE", qtyMilli: 500_000 },
+        { itemId: baseOil, kind: "USED", qtyMilli: 450_000, forLine: 0, note: "Recipe 90%" },
+      ],
+    });
+    assert.equal(r.recorded, 2);
+    assert.equal((await item(POOL)).onHandMilli, poolBefore + 500_000);
+    assert.equal((await item(baseOil)).onHandMilli, 550_000);
+
+    const made = (await movements(POOL)).find((m) => m.requestId === requestId);
+    const used = (await movements(baseOil)).find((m) => m.requestId === requestId);
+    assert.equal(made.type, "PRODUCTION_IN");
+    assert.equal(made.note, "Made in factory");
+    assert.equal(used.type, "PRODUCTION_CONSUME");
+    assert.equal(used.qtyMilli, -450_000);
+    assert.equal(used.productionId, made.id, "the used line points at what it was used for");
+    assert.equal(made.productionId, made.id);
+    assert.equal(used.producedItemName, "TEST STOCK OIL 68");
+  });
+
+  test("a used line must belong to a made line; only products are made", async () => {
+    await rejectsWith(
+      record(stock, [{ itemId: baseOil, kind: "USED", qtyMilli: 1000, forLine: 0 }]),
+      "invalid-argument",
+      /made/,
+    );
+    await rejectsWith(record(stock, [{ itemId: baseOil, kind: "MADE", qtyMilli: 1000 }]), "invalid-argument", /only products/);
+  });
+
+  test("a used line can be edited (stays a deduction)", async () => {
+    const used = (await movements(baseOil)).find((m) => m.type === "PRODUCTION_CONSUME" && !m.reversedById);
+    await stock.call("reverseStockMovement", { movementId: used.id, note: "Used 440 L really", replacementQtyMilli: 440_000 });
+    assert.equal((await item(baseOil)).onHandMilli, 560_000);
+    const replacement = (await movements(baseOil)).find((m) => m.replacesId === used.id);
+    assert.equal(replacement.type, "PRODUCTION_CONSUME");
+    assert.equal(replacement.qtyMilli, -440_000);
+    assert.equal(replacement.productionId, used.productionId);
+  });
+});

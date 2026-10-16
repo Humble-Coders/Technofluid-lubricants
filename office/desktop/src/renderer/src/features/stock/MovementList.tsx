@@ -5,7 +5,7 @@ import { formatQuantity, parseQuantityToMilli } from "@technofluid/core";
 import { Badge, Button, Input, Spinner } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import { reverseStockMovement, type StockMovement } from "@/services/stockService";
-import { signedQuantity, TYPE_LABEL, unitWord } from "./stockFormat";
+import { EDITABLE_TYPES, signedQuantity, TYPE_LABEL, unitWord } from "./stockFormat";
 
 const when = (m: StockMovement) =>
   m.createdAt
@@ -53,7 +53,7 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
               {signedQuantity(m.qtyMilli, m.baseUnit)}
             </span>
             {showItem ? <span className="font-medium text-ink">{m.itemName}</span> : null}
-            <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : "info"}>
+            <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : m.type.startsWith("PRODUCTION") ? "brand" : "info"}>
               {TYPE_LABEL[m.type] ?? m.type}
             </Badge>
             {m.replacesId ? <Badge tone="brand">Edited</Badge> : null}
@@ -67,7 +67,7 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
         </div>
         {editable && !mode ? (
           <div className="flex shrink-0 gap-1">
-            {m.type === "OPENING" || m.type === "IN" || m.type === "OUT" ? (
+            {EDITABLE_TYPES.includes(m.type) ? (
               <Button size="sm" variant="ghost" onClick={() => setMode("edit")} icon={<Pencil className="size-3" />}>
                 Edit
               </Button>

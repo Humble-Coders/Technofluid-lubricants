@@ -12,7 +12,7 @@ import {ITEMS, MOVEMENTS, note, positiveMilli, nonNegativeMilli} from "./stockMo
  *  - A REVERSAL line adds the opposite quantity and points back at the
  *    original (`reversesId`); the original gets `reversedById`. A line can be
  *    reversed once. Reversals themselves can't be reversed — record a new line.
- *  - Edit (`replacementQtyMilli`): allowed for OPENING / IN / OUT lines. The new
+ *  - Edit (`replacementQtyMilli`): allowed for OPENING / IN / OUT and production lines. The new
  *    line keeps the original's type, item and business date, and points back
  *    with `replacesId`. Count corrections aren't edited — count again instead.
  *  - Stock may go below zero; the result says so.
@@ -50,7 +50,7 @@ export const reverseStockMovement = onCall({region: "us-central1"}, async (reque
 
     let newQty = 0;
     if (editing) {
-      if (!["OPENING", "IN", "OUT"].includes(original.type)) {
+      if (!["OPENING", "IN", "OUT", "PRODUCTION_IN", "PRODUCTION_CONSUME"].includes(original.type)) {
         throw new HttpsError(
           "failed-precondition",
           "Only opening, in and out lines can be edited — for a count, count again.",
@@ -59,7 +59,7 @@ export const reverseStockMovement = onCall({region: "us-central1"}, async (reque
       const amount = original.type === "OPENING" ?
         nonNegativeMilli(replacement, "New quantity") :
         positiveMilli(replacement, "New quantity");
-      newQty = original.type === "OUT" ? -amount : amount;
+      newQty = original.type === "OUT" || original.type === "PRODUCTION_CONSUME" ? -amount : amount;
     }
 
     const itemRef = db.collection(ITEMS).doc(String(original.itemId));
@@ -102,6 +102,8 @@ export const reverseStockMovement = onCall({region: "us-central1"}, async (reque
         note: original.note ?? null,
         reversesId: null,
         replacesId: id,
+        ...(original.productionId ? {productionId: original.productionId} : {}),
+        ...(original.producedItemName ? {producedItemName: original.producedItemName} : {}),
       });
     }
 

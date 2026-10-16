@@ -53,7 +53,7 @@ export function StockScreen() {
       {tab === "live" ? (
         <LiveStock items={items} products={productList} canEdit={canEdit} />
       ) : tab === "journal" ? (
-        <DailyJournal items={itemList} canEdit={canEdit} />
+        <DailyJournal items={itemList} products={productList} canEdit={canEdit} />
       ) : (
         <StockHistory canEdit={canEdit} />
       )}

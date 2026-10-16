@@ -25,6 +25,11 @@ import {
  *  - IN / OUT {qtyMilli, note}: stock came in / went out, with a reason.
  *  - COUNT {countedMilli, note}: "there is actually X" → a COUNT_ADJUSTMENT line
  *    for the difference (nothing written when it already matches).
+ *  - MADE {qtyMilli, note?}: a product (stock pool) made in the factory →
+ *    PRODUCTION_IN. USED {qtyMilli, forLine, note?}: something that run used up
+ *    → PRODUCTION_CONSUME, linked to the MADE line (`productionId`). The app
+ *    proposes USED lines from the recipe and the person confirms them first
+ *    (decision #20); manufacturing never touches money / Humble Ledger.
  *
  * All lines are written in ONE transaction, with each item's on-hand updated
  * in the same step. Stock may go below zero (Sharnya, 15 Oct 2026); those items
@@ -39,13 +44,16 @@ type LineIn = {
   kind?: unknown;
   qtyMilli?: unknown;
   countedMilli?: unknown;
+  forLine?: unknown;
   note?: unknown;
 };
 
 type ParsedLine =
   | { itemId: string; kind: "OPENING"; qtyMilli: number; note: string | null }
   | { itemId: string; kind: "IN" | "OUT"; qtyMilli: number; note: string }
-  | { itemId: string; kind: "COUNT"; countedMilli: number; note: string };
+  | { itemId: string; kind: "COUNT"; countedMilli: number; note: string }
+  | { itemId: string; kind: "MADE"; qtyMilli: number; note: string | null }
+  | { itemId: string; kind: "USED"; qtyMilli: number; forLine: number; note: string | null };
 
 const MAX_LINES = 150;
 
@@ -62,6 +70,17 @@ function parseLine(raw: LineIn, index: number): ParsedLine {
     return {itemId, kind: raw.kind, qtyMilli: positiveMilli(raw.qtyMilli, label), note: note(raw.note, label) as string};
   case "COUNT":
     return {itemId, kind: "COUNT", countedMilli: nonNegativeMilli(raw.countedMilli, label), note: note(raw.note, label) as string};
+  case "MADE":
+    return {itemId, kind: "MADE", qtyMilli: positiveMilli(raw.qtyMilli, label), note: note(raw.note, label, true)};
+  case "USED":
+    if (typeof raw.forLine !== "number" || !Number.isInteger(raw.forLine)) bad(`${label}: which production line is this for?`);
+    return {
+      itemId,
+      kind: "USED",
+      qtyMilli: positiveMilli(raw.qtyMilli, label),
+      forLine: raw.forLine,
+      note: note(raw.note, label, true),
+    };
   default:
     return bad(`${label}: unknown kind "${String(raw.kind)}".`);
   }
@@ -75,6 +94,11 @@ export const recordStockMovements = onCall({region: "us-central1"}, async (reque
   if (!Array.isArray(rawLines) || rawLines.length === 0) bad("Add at least one line.");
   if (rawLines.length > MAX_LINES) bad(`At most ${MAX_LINES} lines at once.`);
   const lines = rawLines.map((l: LineIn, i: number) => parseLine(l, i));
+  lines.forEach((l, i) => {
+    if (l.kind === "USED" && lines[l.forLine]?.kind !== "MADE") {
+      bad(`Line ${i + 1}: it must belong to a "made" line in the same entry.`);
+    }
+  });
 
   const db = admin.firestore();
   const movementRef = (i: number) => db.collection(MOVEMENTS).doc(`${reqId}-${i}`);
@@ -123,6 +147,13 @@ export const recordStockMovements = onCall({region: "us-central1"}, async (reque
       } else if (line.kind === "IN" || line.kind === "OUT") {
         type = line.kind;
         qty = line.kind === "IN" ? line.qtyMilli : -line.qtyMilli;
+      } else if (line.kind === "MADE") {
+        if (item.kind !== "product_pool") bad(`Line ${i + 1}: only products are made — ${item.name} isn't a product.`);
+        type = "PRODUCTION_IN";
+        qty = line.qtyMilli;
+      } else if (line.kind === "USED") {
+        type = "PRODUCTION_CONSUME";
+        qty = -line.qtyMilli;
       } else if (line.kind === "COUNT") {
         qty = line.countedMilli - item.onHand;
         if (qty === 0) {
@@ -149,7 +180,11 @@ export const recordStockMovements = onCall({region: "us-central1"}, async (reque
         qtyMilli: qty,
         onHandAfterMilli: item.onHand,
         ...(line.kind === "COUNT" ? {countedMilli: line.countedMilli} : {}),
-        note: line.note,
+        ...(line.kind === "MADE" ? {productionId: movementRef(i).id} : {}),
+        ...(line.kind === "USED" ?
+          {productionId: movementRef(line.forLine).id, producedItemName: items.get(lines[line.forLine].itemId)?.name ?? null} :
+          {}),
+        note: line.note ?? (line.kind === "MADE" ? "Made in factory" : line.kind === "USED" ? "Used in production" : null),
         journalDate: date,
         requestId: reqId,
         reversesId: null,

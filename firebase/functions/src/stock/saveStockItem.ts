@@ -69,8 +69,10 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
     let code: string | null = null;
     if (kind === "raw_material" && data.code !== undefined && data.code !== null && String(data.code).trim()) {
       code = String(data.code).trim().toLowerCase();
-      if (!/^[a-z0-9][a-z0-9.\-]{0,23}$/.test(code)) {
-        bad("Code: letters, digits, dots or dashes, up to 24 characters (e.g. w150).");
+      code = code.replace(/\s+/g, " ");
+      // As written in Gaurav's recipes: "w150", "ep additive", "sn500(kg)", "va13.7".
+      if (!/^[a-z0-9][a-z0-9 .()\-]{0,39}$/.test(code)) {
+        bad("Code: letters, digits, spaces, dots, dashes or brackets, up to 40 characters (e.g. w150).");
       }
     }
 

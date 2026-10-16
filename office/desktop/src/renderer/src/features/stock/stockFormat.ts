@@ -14,7 +14,12 @@ export const TYPE_LABEL: Record<MovementType, string> = {
   OUT: "Out",
   COUNT_ADJUSTMENT: "Count correction",
   REVERSAL: "Undo",
+  PRODUCTION_IN: "Made",
+  PRODUCTION_CONSUME: "Used in production",
 };
+
+/** Lines that can be edited (undo + corrected line); counts and undos can't. */
+export const EDITABLE_TYPES: readonly MovementType[] = ["OPENING", "IN", "OUT", "PRODUCTION_IN", "PRODUCTION_CONSUME"];
 
 /** "+26 L", "−4.5 kg" — always signed, for diary lines. */
 export function signedQuantity(milli: number, unit: BaseUnit): string {
