@@ -1,7 +1,10 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowLeft, Factory, Plus, X } from "lucide-react";
-import { useMemo } from "react";
-import { formatQuantity, parseQuantityToMilli } from "@technofluid/core";
+import { AlertTriangle, ArrowLeft, Factory, FlaskConical, Plus, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { formatQuantity, parseQuantityToMilli, parseRecipe } from "@technofluid/core";
+import { useStaff } from "@/features/auth/session";
+import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
+import { canChangeRecipe } from "@/lib/access";
 import { Badge, Button, Input } from "@/components/ui";
 import type { Product } from "@/services/productService";
 import type { StockItem } from "@/services/stockService";
@@ -166,6 +169,17 @@ function ProductionCard({
   onChange: (g: Extract<ReviewGroup, { type: "production" }>) => void;
 }) {
   const pool = g.made.item!;
+  const { role } = useStaff();
+  const [changing, setChanging] = useState(false);
+  const [recipeNote, setRecipeNote] = useState<string | null>(null);
+  const currentRecipe = products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0)?.recipe ?? [];
+  const madeMilliOf = (qty: string): number | null => {
+    try {
+      return qty.trim() ? parseQuantityToMilli(qty) : null;
+    } catch {
+      return null;
+    }
+  };
 
   // Changing the amount made re-works the recipe lines the person hasn't touched.
   const setMade = (made: ReviewLine) => {
@@ -205,7 +219,33 @@ function ProductionCard({
           className="min-w-40 flex-1"
           maxLength={200}
         />
+        {canChangeRecipe(role) && pool.productKey ? (
+          <Button size="sm" onClick={() => setChanging(true)} icon={<FlaskConical className="size-3.5" />}>
+            Change recipe
+          </Button>
+        ) : null}
       </div>
+      {recipeNote ? <p className="px-3 pt-1.5 text-[12px] text-ink-muted">{recipeNote}</p> : null}
+      {changing ? (
+        <RecipeChangeDialog
+          productKey={pool.productKey!}
+          productName={pool.name}
+          currentRecipe={currentRecipe}
+          onSent={() => setRecipeNote("Change sent for approval — this run still uses the current recipe. Adjust the quantities here if needed.")}
+          onClose={(applied) => {
+            setChanging(false);
+            if (applied) {
+              // An Admin's change applies at once: use it for this run straight away.
+              onChange({
+                ...g,
+                hasRecipe: applied.length > 0,
+                uses: proposeUses(pool, madeMilliOf(g.made.qty), parseRecipe(applied), items, [], `${g.key}-r${Date.now()}-`),
+              });
+              setRecipeNote("New recipe saved and used for this run.");
+            }
+          }}
+        />
+      ) : null}
       {problemFor(g.made.key) ? <p className="px-3 pt-1 text-[12px] text-danger">{problemFor(g.made.key)}</p> : null}
 
       <div className="px-3 py-2.5">

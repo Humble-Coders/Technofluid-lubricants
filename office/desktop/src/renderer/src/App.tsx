@@ -9,6 +9,7 @@ import { DashboardScreen } from "@/features/dashboard/DashboardScreen";
 import { ComingNext, NoAccess } from "@/features/placeholder/ComingNext";
 import { ProductsScreen } from "@/features/products/ProductsScreen";
 import { StockScreen } from "@/features/stock/StockScreen";
+import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
 
 /** Shows a screen only to roles allowed to open it (UX only — rules + Functions are the real gate). */
 function Guarded() {
@@ -35,6 +36,7 @@ const router = createHashRouter([
           { path: "purchases", element: <ComingNext title="Suppliers & purchases" description="Raw-material bills, payments to suppliers and what we owe." /> },
           { path: "expenses", element: <ComingNext title="Expenses" description="Freight, electricity, salaries and other costs, with GST input." /> },
           { path: "reports", element: <ComingNext title="Reports" description="Profit & loss, balance sheet, sales and stock reports." /> },
+          { path: "approvals", element: <ApprovalsScreen /> },
           { path: "settings", element: <ComingNext title="Settings" description="Staff logins and roles, company details, invoice settings." /> },
           { path: "*", element: <NoAccess /> },
         ],

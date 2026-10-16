@@ -17,3 +17,5 @@ export { recordStockMovements } from "./stock/recordStockMovements";
 export { reverseStockMovement } from "./stock/reverseStockMovement";
 export { saveStockItem } from "./stock/saveStockItem";
 export { ensureProductPools } from "./stock/ensureProductPools";
+export { requestRecipeChange } from "./recipes/requestRecipeChange";
+export { decideRecipeChange } from "./recipes/decideRecipeChange";

@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, CheckCircle2, Copy, FlaskConical, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   formatINR,
@@ -17,6 +17,7 @@ import { useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
 import { setProductDeleted } from "@/services/productEditService";
 import { ProductEditor } from "./ProductEditor";
+import { RecipeSection } from "./RecipeSection";
 import { ProductHistory } from "./ProductHistory";
 
 type CategoryFilter = "all" | "bulk_oil" | "grease" | "retail";
@@ -589,26 +590,7 @@ function ProductPanel({
               </section>
             ) : null}
 
-            <section>
-              <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-                <FlaskConical className="size-3.5" /> Recipe
-              </h3>
-              {p.recipe.length === 0 ? (
-                <p className="text-[12px] text-ink-muted">No recipe recorded.</p>
-              ) : (
-                <ul className="space-y-1">
-                  {p.recipe.map((item, i) => {
-                    const [name, pct] = item.split("/");
-                    return (
-                      <li key={i} className="flex items-center justify-between rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-                        <span className="font-mono">{name?.trim()}</span>
-                        <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "alternative"}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
+            <RecipeSection product={p} />
 
             {canEdit ? <ProductHistory sku={p.sku} /> : null}
 

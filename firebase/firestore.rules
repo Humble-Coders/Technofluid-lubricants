@@ -174,6 +174,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ─── Recipe changes (Technofluid Office) ──────────────────────────────────
+    // Requests to change a product's recipe, approved by an Admin. No money.
+    // Admin and Stock & Production read; only Cloud Functions write.
+
+    match /recipeChangeRequests/{requestId} {
+      allow read:  if isAdmin() || isSupervisor();
+      allow write: if false;
+    }
+
     // ─── Coupons ──────────────────────────────────────────────────────────────
 
     match /coupons/{couponId} {
