@@ -46,7 +46,7 @@ export function MovementTable({
           <th className="px-3 py-2 text-right font-medium whitespace-nowrap">Balance after</th>
           <th className="px-3 py-2 font-medium">Reason</th>
           <th className="px-3 py-2 font-medium">By</th>
-          <th className="px-3 py-2 pr-5" aria-label="Actions" />
+          {canEdit ? <th className="px-3 py-2 pr-5 text-right font-medium">Actions</th> : null}
         </tr>
       </thead>
       <tbody>
@@ -94,38 +94,28 @@ export function MovementTable({
                   {m.byName}
                   <span className="block text-2xs text-ink-faint">{time(m)}</span>
                 </td>
-                <td className="px-3 py-1.5 pr-5 text-right whitespace-nowrap">
-                  {editable && !isOpen ? (
-                    <span className="inline-flex gap-0.5">
-                      {m.type === "OPENING" || m.type === "IN" || m.type === "OUT" ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="px-1.5"
-                          title="Edit this line"
-                          aria-label="Edit this line"
-                          onClick={() => setOpen({ id: m.id, mode: "edit" })}
-                        >
-                          <Pencil className="size-3.5" />
+                {canEdit ? (
+                  <td className="px-3 py-1.5 pr-5 text-right whitespace-nowrap">
+                    {editable && !isOpen ? (
+                      <span className="inline-flex gap-1.5">
+                        {m.type === "OPENING" || m.type === "IN" || m.type === "OUT" ? (
+                          <Button size="sm" onClick={() => setOpen({ id: m.id, mode: "edit" })} icon={<Pencil className="size-3" />}>
+                            Edit
+                          </Button>
+                        ) : null}
+                        <Button size="sm" onClick={() => setOpen({ id: m.id, mode: "undo" })} icon={<Undo2 className="size-3" />}>
+                          Undo
                         </Button>
-                      ) : null}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="px-1.5"
-                        title="Undo this line"
-                        aria-label="Undo this line"
-                        onClick={() => setOpen({ id: m.id, mode: "undo" })}
-                      >
-                        <Undo2 className="size-3.5" />
-                      </Button>
-                    </span>
-                  ) : null}
-                </td>
+                      </span>
+                    ) : (
+                      <span className="text-2xs text-ink-faint">{undone ? "Undone" : m.type === "REVERSAL" ? "—" : ""}</span>
+                    )}
+                  </td>
+                ) : null}
               </tr>
               {isOpen ? (
                 <tr className="border-b border-line bg-canvas">
-                  <td colSpan={showDate ? 8 : 7} className="px-5 pb-3">
+                  <td colSpan={(showDate ? 8 : 7) - (canEdit ? 0 : 1)} className="px-5 pb-3">
                     <UndoForm m={m} edit={open.mode === "edit"} onDone={() => setOpen(null)} />
                   </td>
                 </tr>

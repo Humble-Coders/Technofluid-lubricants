@@ -111,36 +111,46 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
     }
   };
 
-  return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-6xl space-y-6 px-5 py-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <label htmlFor="journal-date" className="text-[13px] font-medium text-ink">
-            Stock journal for
-          </label>
-          <Input
-            id="journal-date"
-            type="date"
-            value={date}
-            max={today}
-            onChange={(e) => e.target.value && setDate(e.target.value)}
-            className="w-44"
-          />
-          {date !== today ? (
-            <Button size="sm" variant="ghost" onClick={() => setDate(today)}>
-              Back to today
-            </Button>
-          ) : null}
-        </div>
+  const recordedCount = recorded.status === "ready" ? recorded.data.length : null;
 
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Toolbar — same place as the History filters. */}
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface px-5 py-2.5">
+        <label htmlFor="journal-date" className="text-[13px] font-medium text-ink">
+          Stock journal for
+        </label>
+        <Input
+          id="journal-date"
+          type="date"
+          value={date}
+          max={today}
+          onChange={(e) => e.target.value && setDate(e.target.value)}
+          className="w-44"
+        />
+        {date !== today ? (
+          <Button size="sm" variant="ghost" onClick={() => setDate(today)}>
+            Back to today
+          </Button>
+        ) : null}
+        <div className="flex-1" />
+        {recordedCount !== null ? (
+          <span className="num text-[12px] text-ink-muted">
+            {recordedCount.toLocaleString("en-IN")} {recordedCount === 1 ? "line" : "lines"} recorded
+          </span>
+        ) : null}
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-auto">
         {canEdit ? (
           <form
-            className="space-y-2 rounded-lg border border-line bg-surface p-4"
+            className="space-y-2 border-b border-line bg-surface px-5 py-4"
             onSubmit={(e) => {
               e.preventDefault();
               void save();
             }}
           >
+            <h3 className="pb-1 text-[13px] font-semibold text-ink">New entries</h3>
             <div className={clsx(LINE_GRID, "text-2xs font-medium tracking-wide text-ink-muted uppercase")}>
               <span>Item</span>
               <span>What happened</span>
@@ -215,12 +225,10 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
         ) : null}
 
         <section>
-          <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
+          <h3 className="px-5 pt-4 pb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
             Recorded for {date === today ? "today" : date}
           </h3>
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-            <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded for this date." />
-          </div>
+          <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded for this date." />
         </section>
       </div>
     </div>
