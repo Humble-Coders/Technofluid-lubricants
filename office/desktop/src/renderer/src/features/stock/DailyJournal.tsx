@@ -177,7 +177,8 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
             }}
             onConfirm={() => void confirm()}
           />
-        ) : canEdit ? (
+        ) : null}
+        {canEdit ? (
           <form
             className="space-y-2 border-b border-line bg-surface px-5 py-4"
             onSubmit={(e) => {

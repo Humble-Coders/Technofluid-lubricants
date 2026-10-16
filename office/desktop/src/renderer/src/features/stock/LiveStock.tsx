@@ -432,31 +432,21 @@ function StockActions({ item, items, products }: { item: StockItem; items: Stock
   return (
     <>
       {review ? (
-        <div
-          className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/30 p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Review production of ${item.name}`}
-          onKeyDown={(e) => e.key === "Escape" && !busy && setReview(null)}
-        >
-          <div className="w-full max-w-5xl overflow-hidden rounded-lg border border-line bg-surface shadow-pop">
-            <JournalReview
-              groups={review}
-              onChange={(groups) => {
-                setReview(groups);
-                setProblems([]);
-              }}
-              items={items}
-              products={products}
-              problems={problems}
-              busy={busy}
-              error={reviewError}
-              onBack={() => setReview(null)}
-              onConfirm={() => void confirmReview()}
-              backLabel="Cancel"
-            />
-          </div>
-        </div>
+        <JournalReview
+          groups={review}
+          onChange={(groups) => {
+            setReview(groups);
+            setProblems([]);
+          }}
+          items={items}
+          products={products}
+          problems={problems}
+          busy={busy}
+          error={reviewError}
+          onBack={() => setReview(null)}
+          onConfirm={() => void confirmReview()}
+          backLabel="Cancel"
+        />
       ) : null}
       <form
         className="space-y-2 rounded-md border border-line p-3"

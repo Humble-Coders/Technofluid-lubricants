@@ -112,7 +112,7 @@ export function RecipeChangeDialog({
         <div className="flex items-start gap-2 border-b border-line px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="text-[14px] font-semibold text-ink">Change recipe</p>
-            <p className="text-[12px] text-ink-muted">{productName} — all pack sizes</p>
+            <p className="text-[12px] text-ink-muted">{productName} · all pack sizes</p>
           </div>
           <Button variant="ghost" size="sm" className="px-1.5" aria-label="Close" onClick={() => onClose(null)} disabled={busy}>
             <X className="size-4" />
@@ -142,12 +142,9 @@ export function RecipeChangeDialog({
             }}
           >
             {waiting ? (
-              <p className="flex items-start gap-1.5 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-                <Clock className="mt-0.5 size-3.5 shrink-0" />
-                <span>
-                  {waiting.requestedBy} already asked for a change ({waiting.proposedRecipe.join(", ")}) — waiting for approval.
-                  {isAdmin ? " Saving yours replaces it." : " A new one can be sent once it's decided."}
-                </span>
+              <p className="flex items-center gap-1.5 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
+                <Clock className="size-3.5 shrink-0" />
+                {waiting.requestedBy}'s change is waiting for approval.{isAdmin ? " Saving yours replaces it." : ""}
               </p>
             ) : null}
 
@@ -160,8 +157,8 @@ export function RecipeChangeDialog({
             </datalist>
 
             <div className="grid grid-cols-[1fr_110px_32px] gap-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-              <span>Ingredient (recipe code)</span>
-              <span className="text-center">Percent</span>
+              <span>Ingredient</span>
+              <span className="text-center" title="Leave empty for an ingredient without a percent.">%</span>
               <span />
             </div>
             {rows.map((r) => (
@@ -202,28 +199,22 @@ export function RecipeChangeDialog({
                 Add ingredient
               </Button>
               <div className="flex-1" />
-              <span className={clsx("num text-[12px]", Math.abs(total - 100) < 0.005 ? "text-success" : "text-warning")}>
-                Total: {Math.round(total * 100) / 100}%
+              <span
+                className={clsx("num flex items-center gap-1 text-[12px]", Math.abs(total - 100) < 0.005 ? "text-success" : "text-warning")}
+                title={Math.abs(total - 100) < 0.005 ? undefined : "The percents don't add up to 100% — allowed, but check it."}
+              >
+                {Math.abs(total - 100) >= 0.005 ? <AlertTriangle className="size-3.5" /> : null}
+                Total {Math.round(total * 100) / 100}%
               </span>
             </div>
-            {Math.abs(total - 100) >= 0.005 ? (
-              <p className="flex items-center gap-1.5 text-[12px] text-warning">
-                <AlertTriangle className="size-3.5" /> The percents don't add up to 100% — that's allowed, but check it.
-              </p>
-            ) : null}
-            <p className="text-[12px] text-ink-faint">Leave the percent empty for an ingredient without one (asked about at production time).</p>
 
-            <label className="block space-y-1">
-              <span className="text-[12px] font-medium text-ink">Why change it?{isAdmin ? " (optional)" : ""}</span>
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                maxLength={300}
-                rows={2}
-                className="w-full rounded-md border border-line-strong bg-surface px-2.5 py-1.5 text-[13px] text-ink focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 focus:outline-none"
-                placeholder="e.g. More W150 gives better flow in winter"
-              />
-            </label>
+            <Input
+              aria-label="Reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              maxLength={300}
+              placeholder={isAdmin ? "Reason (optional)" : "Reason, e.g. more W150 flows better in winter"}
+            />
 
             {error ? (
               <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
