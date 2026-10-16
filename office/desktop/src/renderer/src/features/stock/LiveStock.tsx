@@ -14,7 +14,9 @@ import {
   type ItemKind,
   type StockItem,
 } from "@/services/stockService";
+import { JournalReview } from "./JournalReview";
 import { MovementList } from "./MovementList";
+import { buildReview, readReview, type ReviewGroup, type ReviewProblem } from "./reviewModel";
 import { StockItemForm } from "./StockItemForm";
 import { KIND_LABEL, packsSummary, searchText, unitWord } from "./stockFormat";
 
@@ -134,7 +136,14 @@ export function LiveStock({
           />
         </Panel>
       ) : selected ? (
-        <ItemPanel key={selected.id} item={selected} products={products} canEdit={canEdit} onClose={() => setSelectedId(null)} />
+        <ItemPanel
+          key={selected.id}
+          item={selected}
+          items={list}
+          products={products}
+          canEdit={canEdit}
+          onClose={() => setSelectedId(null)}
+        />
       ) : null}
     </div>
   );
@@ -254,8 +263,9 @@ function Panel({ title, subtitle, onClose, actions, children }: {
   );
 }
 
-function ItemPanel({ item, products, canEdit, onClose }: {
+function ItemPanel({ item, items, products, canEdit, onClose }: {
   item: StockItem;
+  items: StockItem[];
   products: Product[];
   canEdit: boolean;
   onClose: () => void;
@@ -305,7 +315,7 @@ function ItemPanel({ item, products, canEdit, onClose }: {
           </p>
         </section>
 
-        {canEdit ? <StockActions item={item} /> : null}
+        {canEdit ? <StockActions item={item} items={items} products={products} /> : null}
 
         <section>
           <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">History</h3>
@@ -332,8 +342,15 @@ const ACTION_TEXT: Record<Action, { label: string; qty: string; why: string; sav
  * and the server records only the difference. With no history yet it's the opening stock.
  * Every save is a new diary line; nothing is overwritten.
  */
-function StockActions({ item }: { item: StockItem }) {
+function StockActions({ item, items, products }: { item: StockItem; items: StockItem[]; products: Product[] }) {
   const opening = !item.lastMovementAt && item.onHandMilli === 0;
+  // A product's "Stock in" is production: it goes through the same recipe review as the
+  // Daily journal (Sharnya, 17 Oct 2026) — nothing is saved until confirmed.
+  const production = item.kind === "product_pool" && !opening;
+  const [review, setReview] = useState<ReviewGroup[] | null>(null);
+  const [problems, setProblems] = useState<ReviewProblem[]>([]);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState(newRequestId);
   const [action, setAction] = useState<Action>("IN");
   const [qty, setQty] = useState("");
   const [why, setWhy] = useState("");
@@ -351,6 +368,12 @@ function StockActions({ item }: { item: StockItem }) {
     }
     if (!opening && action !== "COUNT" && milli === 0) {
       return setMessage({ tone: "error", text: "Quantity must be above 0." });
+    }
+    if (production && action === "IN") {
+      setProblems([]);
+      setReviewError(null);
+      setReview(buildReview([{ item, kind: "IN", qtyMilli: milli, note: why.trim() }], items, products));
+      return;
     }
     if (!opening && !why.trim()) return setMessage({ tone: "error", text: "Say why." });
     setBusy(true);
@@ -381,68 +404,122 @@ function StockActions({ item }: { item: StockItem }) {
     }
   };
 
+  const confirmReview = async () => {
+    if (!review) return;
+    setReviewError(null);
+    const { lines, problems: found } = readReview(review);
+    setProblems(found);
+    if (found.length > 0) return setReviewError("Fix the highlighted lines first.");
+    setBusy(true);
+    try {
+      const result = await recordStockMovements(requestId, indiaDate(), lines);
+      setReview(null);
+      setRequestId(newRequestId());
+      setQty("");
+      setWhy("");
+      setMessage(
+        result.belowZero.length > 0
+          ? { tone: "warn", text: `Saved — ${result.belowZero.map((b) => b.name).join(", ")} now below zero.` }
+          : { tone: "ok", text: "Production saved — raw materials deducted." },
+      );
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <form
-      className="space-y-2 rounded-md border border-line p-3"
-      onSubmit={(e) => {
-        e.preventDefault();
-        void save();
-      }}
-    >
-      {opening ? (
-        <p className="text-[12px] font-medium text-ink">Opening stock</p>
-      ) : (
-        <Segmented
-          value={action}
-          onChange={(a) => {
-            setAction(a);
-            setMessage(null);
-          }}
-          options={[
-            ["IN", "Stock in"],
-            ["OUT", "Stock out"],
-            ["COUNT", "Correct count"],
-          ]}
-        />
-      )}
-      <div className="relative">
-        <Input
-          aria-label={opening ? "Opening quantity" : text.qty}
-          value={qty}
-          onChange={(e) => setQty(e.target.value)}
-          inputMode="decimal"
-          placeholder={opening ? "How much is there?" : text.label}
-          className="num [&_input]:pr-14"
-        />
-        <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
-          {unitWord(item.baseUnit)}
-        </span>
-      </div>
-      <Input
-        aria-label="Reason"
-        value={why}
-        onChange={(e) => setWhy(e.target.value)}
-        placeholder={opening ? "Note (optional)" : text.why}
-        maxLength={200}
-      />
-      <div className="flex items-center gap-2">
-        {message ? (
-          <p
-            className={clsx(
-              "flex-1 text-[12px]",
-              message.tone === "ok" ? "text-success" : message.tone === "warn" ? "text-warning" : "text-danger",
-            )}
-          >
-            {message.text}
-          </p>
+    <>
+      {review ? (
+        <div
+          className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/30 p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Review production of ${item.name}`}
+          onKeyDown={(e) => e.key === "Escape" && !busy && setReview(null)}
+        >
+          <div className="w-full max-w-5xl overflow-hidden rounded-lg border border-line bg-surface shadow-pop">
+            <JournalReview
+              groups={review}
+              onChange={(groups) => {
+                setReview(groups);
+                setProblems([]);
+              }}
+              items={items}
+              products={products}
+              problems={problems}
+              busy={busy}
+              error={reviewError}
+              onBack={() => setReview(null)}
+              onConfirm={() => void confirmReview()}
+              backLabel="Cancel"
+            />
+          </div>
+        </div>
+      ) : null}
+      <form
+        className="space-y-2 rounded-md border border-line p-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void save();
+        }}
+      >
+        {opening ? (
+          <p className="text-[12px] font-medium text-ink">Opening stock</p>
         ) : (
-          <span className="flex-1" />
+          <Segmented
+            value={action}
+            onChange={(a) => {
+              setAction(a);
+              setMessage(null);
+            }}
+            options={[
+              ["IN", production ? "Made (recipe)" : "Stock in"],
+              ["OUT", "Stock out"],
+              ["COUNT", "Correct count"],
+            ]}
+          />
         )}
-        <Button size="sm" variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
-          {opening ? "Save" : action === "IN" ? "Add stock" : action === "OUT" ? "Remove stock" : "Save count"}
-        </Button>
-      </div>
-    </form>
+        <div className="relative">
+          <Input
+            aria-label={opening ? "Opening quantity" : text.qty}
+            value={qty}
+            onChange={(e) => setQty(e.target.value)}
+            inputMode="decimal"
+            placeholder={opening ? "How much is there?" : text.label}
+            className="num [&_input]:pr-14"
+          />
+          <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
+            {unitWord(item.baseUnit)}
+          </span>
+        </div>
+        <Input
+          aria-label="Reason"
+          value={why}
+          onChange={(e) => setWhy(e.target.value)}
+          placeholder={opening || (production && action === "IN") ? "Note (optional)" : text.why}
+          maxLength={200}
+        />
+        <div className="flex items-center gap-2">
+          {message ? (
+            <p
+              className={clsx(
+                "flex-1 text-[12px]",
+                message.tone === "ok" ? "text-success" : message.tone === "warn" ? "text-warning" : "text-danger",
+              )}
+            >
+              {message.text}
+            </p>
+          ) : (
+            <span className="flex-1" />
+          )}
+          <Button size="sm" variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
+            {opening ? "Save" : action === "IN" ? (production ? "Review" : "Add stock") : action === "OUT" ? "Remove stock" : "Save count"}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 }
 

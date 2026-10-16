@@ -44,6 +44,7 @@ export function JournalReview({
   error,
   onBack,
   onConfirm,
+  backLabel = "Back to entries",
 }: {
   groups: ReviewGroup[];
   onChange: (groups: ReviewGroup[]) => void;
@@ -54,6 +55,8 @@ export function JournalReview({
   error: string | null;
   onBack: () => void;
   onConfirm: () => void;
+  /** "Back to entries" in the journal; "Cancel" when opened from the item panel. */
+  backLabel?: string;
 }) {
   const materials = useMemo(() => items.filter((i) => i.kind !== "product_pool"), [items]);
   const problemFor = (key: string) => problems.find((p) => p.key === key)?.message;
@@ -136,7 +139,7 @@ export function JournalReview({
       {error ? <p role="alert" className="text-[12px] text-danger">{error}</p> : null}
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={onBack} disabled={busy} icon={<ArrowLeft className="size-3.5" />}>
-          Back to entries
+          {backLabel}
         </Button>
         <div className="flex-1" />
         <Button size="sm" variant="primary" onClick={onConfirm} loading={busy}>
