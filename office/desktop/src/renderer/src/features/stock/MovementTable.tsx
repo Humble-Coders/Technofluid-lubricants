@@ -1,0 +1,139 @@
+import clsx from "clsx";
+import { Pencil, Undo2 } from "lucide-react";
+import { Fragment, useState } from "react";
+import { formatQuantity } from "@technofluid/core";
+import { Badge, Button, Spinner } from "@/components/ui";
+import type { LoadState } from "@/hooks/useProducts";
+import type { StockMovement } from "@/services/stockService";
+import { UndoForm } from "./MovementList";
+import { KIND_LABEL, signedQuantity, TYPE_LABEL } from "./stockFormat";
+
+const businessDate = (d: string) =>
+  d ? new Date(`${d}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
+const time = (m: StockMovement) =>
+  m.createdAt ? m.createdAt.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "Saving…";
+
+/**
+ * Diary lines as a table (History tab, Daily journal). Undone lines stay, muted and
+ * struck through — nothing is erased. Undo / Edit open an inline row underneath.
+ */
+export function MovementTable({
+  state,
+  canEdit,
+  emptyText,
+  showDate = true,
+}: {
+  state: LoadState<StockMovement[]>;
+  canEdit: boolean;
+  emptyText: string;
+  /** Off when every line is for the same business date (Daily journal). */
+  showDate?: boolean;
+}) {
+  const [open, setOpen] = useState<{ id: string; mode: "undo" | "edit" } | null>(null);
+
+  if (state.status === "loading") return <div className="p-5"><Spinner /></div>;
+  if (state.status === "error") return <p className="p-5 text-[12px] text-danger">Couldn't load the history: {state.message}</p>;
+  if (state.data.length === 0) return <p className="p-5 text-[12px] text-ink-muted">{emptyText}</p>;
+
+  return (
+    <table className="w-full border-collapse text-[13px]">
+      <thead className="sticky top-0 z-10 bg-canvas">
+        <tr className="border-b border-line text-left text-2xs font-medium tracking-wide text-ink-muted uppercase">
+          {showDate ? <th className="px-3 py-2 pl-5 font-medium whitespace-nowrap">Date</th> : null}
+          <th className={clsx("px-3 py-2 font-medium", !showDate && "pl-5")}>Item</th>
+          <th className="px-3 py-2 font-medium whitespace-nowrap">What happened</th>
+          <th className="px-3 py-2 text-right font-medium">Quantity</th>
+          <th className="px-3 py-2 text-right font-medium whitespace-nowrap">Balance after</th>
+          <th className="px-3 py-2 font-medium">Reason</th>
+          <th className="px-3 py-2 font-medium">By</th>
+          <th className="px-3 py-2 pr-5" aria-label="Actions" />
+        </tr>
+      </thead>
+      <tbody>
+        {state.data.map((m) => {
+          const undone = Boolean(m.reversedById);
+          const editable = canEdit && !undone && m.type !== "REVERSAL";
+          const isOpen = open?.id === m.id;
+          return (
+            <Fragment key={m.id}>
+              <tr className={clsx("border-b border-line/70 align-top", undone ? "bg-canvas/60 text-ink-faint" : "bg-surface hover:bg-hover")}>
+                {showDate ? <td className="px-3 py-2 pl-5 whitespace-nowrap">{businessDate(m.journalDate)}</td> : null}
+                <td className={clsx("min-w-[200px] px-3 py-2", !showDate && "pl-5")}>
+                  <span className={clsx("font-medium", undone ? "line-through" : "text-ink")}>{m.itemName}</span>
+                  <span className="block text-2xs text-ink-faint">{KIND_LABEL[m.itemKind]}</span>
+                </td>
+                <td className="px-3 py-2">
+                  <span className="flex flex-wrap gap-1">
+                    <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : "info"}>
+                      {TYPE_LABEL[m.type] ?? m.type}
+                    </Badge>
+                    {m.replacesId ? <Badge tone="brand">Edited</Badge> : null}
+                    {undone ? <Badge tone="neutral">Undone</Badge> : null}
+                  </span>
+                </td>
+                <td
+                  className={clsx(
+                    "num px-3 py-2 text-right font-semibold whitespace-nowrap",
+                    undone ? "line-through" : m.qtyMilli < 0 ? "text-danger" : "text-success",
+                  )}
+                >
+                  {signedQuantity(m.qtyMilli, m.baseUnit)}
+                </td>
+                <td className={clsx("num px-3 py-2 text-right whitespace-nowrap", m.onHandAfterMilli < 0 && !undone ? "text-danger" : null)}>
+                  {formatQuantity(m.onHandAfterMilli, m.baseUnit)}
+                  {m.countedMilli !== null ? (
+                    <span className="block text-2xs text-ink-faint">counted {formatQuantity(m.countedMilli, m.baseUnit)}</span>
+                  ) : null}
+                </td>
+                <td className="min-w-[180px] max-w-[320px] px-3 py-2">
+                  <span className="line-clamp-2" title={m.note ?? undefined}>
+                    {m.note ?? "—"}
+                  </span>
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {m.byName}
+                  <span className="block text-2xs text-ink-faint">{time(m)}</span>
+                </td>
+                <td className="px-3 py-1.5 pr-5 text-right whitespace-nowrap">
+                  {editable && !isOpen ? (
+                    <span className="inline-flex gap-0.5">
+                      {m.type === "OPENING" || m.type === "IN" || m.type === "OUT" ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="px-1.5"
+                          title="Edit this line"
+                          aria-label="Edit this line"
+                          onClick={() => setOpen({ id: m.id, mode: "edit" })}
+                        >
+                          <Pencil className="size-3.5" />
+                        </Button>
+                      ) : null}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="px-1.5"
+                        title="Undo this line"
+                        aria-label="Undo this line"
+                        onClick={() => setOpen({ id: m.id, mode: "undo" })}
+                      >
+                        <Undo2 className="size-3.5" />
+                      </Button>
+                    </span>
+                  ) : null}
+                </td>
+              </tr>
+              {isOpen ? (
+                <tr className="border-b border-line bg-canvas">
+                  <td colSpan={showDate ? 8 : 7} className="px-5 pb-3">
+                    <UndoForm m={m} edit={open.mode === "edit"} onDone={() => setOpen(null)} />
+                  </td>
+                </tr>
+              ) : null}
+            </Fragment>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}

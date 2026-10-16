@@ -83,7 +83,7 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
   );
 }
 
-function UndoForm({ m, edit, onDone }: { m: StockMovement; edit: boolean; onDone: () => void }) {
+export function UndoForm({ m, edit, onDone }: { m: StockMovement; edit: boolean; onDone: () => void }) {
   const [qty, setQty] = useState(edit ? formatQuantity(Math.abs(m.qtyMilli), m.baseUnit).replace(/[^\d.,]/g, "") : "");
   const [why, setWhy] = useState("");
   const [busy, setBusy] = useState(false);

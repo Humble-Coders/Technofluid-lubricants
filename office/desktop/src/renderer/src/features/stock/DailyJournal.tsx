@@ -12,7 +12,7 @@ import {
   type StockItem,
 } from "@/services/stockService";
 import { ItemPicker } from "./ItemPicker";
-import { MovementList } from "./MovementList";
+import { MovementTable } from "./MovementTable";
 import { unitWord } from "./stockFormat";
 
 type LineKind = "IN" | "OUT" | "COUNT" | "OPENING";
@@ -113,7 +113,7 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-5xl space-y-6 px-5 py-5">
+      <div className="mx-auto max-w-6xl space-y-6 px-5 py-5">
         <div className="flex flex-wrap items-center gap-3">
           <label htmlFor="journal-date" className="text-[13px] font-medium text-ink">
             Stock journal for
@@ -218,7 +218,9 @@ export function DailyJournal({ items, canEdit }: { items: StockItem[]; canEdit: 
           <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
             Recorded for {date === today ? "today" : date}
           </h3>
-          <MovementList state={recorded} canEdit={canEdit} emptyText="Nothing recorded for this date." />
+          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+            <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded for this date." />
+          </div>
         </section>
       </div>
     </div>

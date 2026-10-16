@@ -4,7 +4,7 @@ import { indiaDate } from "@technofluid/core";
 import { Button, Input, Select } from "@/components/ui";
 import { useMovements } from "@/hooks/useStock";
 import type { ItemKind, MovementType, StockMovement } from "@/services/stockService";
-import { MovementList } from "./MovementList";
+import { MovementTable } from "./MovementTable";
 import { KIND_LABEL, TYPE_LABEL } from "./stockFormat";
 
 const LATEST = 300;
@@ -102,14 +102,12 @@ export function StockHistory({ canEdit }: { canEdit: boolean }) {
           {dated ? "" : ` · latest ${LATEST}`}
         </span>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl px-5 py-4">
-          <MovementList
-            state={filtered}
-            canEdit={canEdit}
-            emptyText={anyFilter ? "No stock lines match these filters." : "No stock recorded yet."}
-          />
-        </div>
+      <div className="min-h-0 flex-1 overflow-auto">
+        <MovementTable
+          state={filtered}
+          canEdit={canEdit}
+          emptyText={anyFilter ? "No stock lines match these filters." : "No stock recorded yet."}
+        />
       </div>
     </div>
   );
