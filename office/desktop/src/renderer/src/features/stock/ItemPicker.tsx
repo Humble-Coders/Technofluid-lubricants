@@ -39,17 +39,29 @@ export function ItemPicker({
     return list.slice(0, 40);
   }, [items, text, value]);
 
+  /**
+   * Leaving the box without choosing from the list: if what was typed is one item's
+   * name, or only one item matches, take it — otherwise keep the text so the person
+   * sees what they typed (the line then asks them to choose).
+   */
+  const settle = () => {
+    setOpen(false);
+    if (value || !text.trim()) return;
+    const t = text.trim().toLowerCase();
+    const exact = items.find((i) => i.name.toLowerCase() === t || i.code === t);
+    const only = matches.length === 1 ? matches[0] : undefined;
+    const chosen = exact ?? only;
+    if (chosen) pick(chosen);
+  };
+
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent) => {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setText(value?.name ?? "");
-      }
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) settle();
     };
     window.addEventListener("mousedown", close);
     return () => window.removeEventListener("mousedown", close);
-  }, [open, value]);
+  });
 
   const pick = (item: StockItem) => {
     onChange(item);
@@ -79,7 +91,9 @@ export function ItemPicker({
           setOpen(true);
           if (value) onChange(null);
         }}
+        onBlur={() => settle()}
         onKeyDown={(e) => {
+          if (e.key === "Tab") settle();
           if (e.key === "ArrowDown") {
             e.preventDefault();
             setOpen(true);

@@ -98,7 +98,9 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
       out.push({ item: l.item, kind: l.kind, qtyMilli: milli, note: l.note.trim() });
     }
     setErrors(found);
-    if (Object.keys(found).length > 0) return;
+    if (Object.keys(found).length > 0) {
+      return setSaveError("Some lines need fixing first — see the red notes under them.");
+    }
     if (out.length === 0) return setSaveError("Add at least one line.");
     setProblems([]);
     setReview(buildReview(out, items, products));
@@ -248,11 +250,11 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                 Add line
               </Button>
               <div className="flex-1" />
+              {saveError ? <p role="alert" className="text-[12px] font-medium text-danger">{saveError}</p> : null}
               <Button type="submit" variant="primary" size="sm" loading={busy}>
                 Review
               </Button>
             </div>
-            {saveError ? <p role="alert" className="text-[12px] text-danger">{saveError}</p> : null}
             {result ? <ResultNote result={result} /> : null}
           </form>
         ) : null}
