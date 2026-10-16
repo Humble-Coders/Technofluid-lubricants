@@ -189,7 +189,7 @@ function StockTable({
         )}
         style={{ height: 32 }}
       >
-        <span>Item</span>
+        <span className="text-left">Item</span>
         {compact ? null : <span>Kind</span>}
         <span>On hand</span>
         {compact ? null : <span>Packs that could be filled</span>}
@@ -212,7 +212,7 @@ function StockTable({
                 )}
                 style={{ height: ROW_HEIGHT, transform: `translateY(${v.start}px)` }}
               >
-                <span className="min-w-0 truncate">
+                <span className="min-w-0 truncate text-left">
                   <span className="font-medium text-ink">{item.name}</span>
                   {item.code ? <span className="ml-1.5 font-mono text-[11px] text-ink-faint">{item.code}</span> : null}
                 </span>
