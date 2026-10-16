@@ -370,7 +370,7 @@ function ProductTable({
         )}
         style={{ height: 32 }}
       >
-        <span>Product</span>
+        <span className="text-left">Product</span>
         <span>Pack</span>
         <span>Pack size</span>
         {showPrices ? (
@@ -407,7 +407,7 @@ function ProductTable({
                 )}
                 style={{ height: ROW_HEIGHT, transform: `translateY(${item.start}px)` }}
               >
-                <span className="min-w-0 truncate">
+                <span className="min-w-0 truncate text-left">
                   <span className="font-medium text-ink">{p.name}</span>
                   {p.grade ? <span className="text-ink-muted"> · {p.grade}</span> : null}
                   {p.active ? null : (

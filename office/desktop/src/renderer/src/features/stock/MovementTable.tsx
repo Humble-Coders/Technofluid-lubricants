@@ -40,7 +40,7 @@ export function MovementTable({
       <thead className="sticky top-0 z-10 bg-canvas">
         <tr className="border-b border-line text-center text-2xs font-medium tracking-wide text-ink-muted uppercase">
           {showDate ? <th className="px-3 py-2 pl-5 font-medium whitespace-nowrap">Date</th> : null}
-          <th className={clsx("px-3 py-2 font-medium", !showDate && "pl-5")}>Item</th>
+          <th className={clsx("px-3 py-2 text-left font-medium", !showDate && "pl-5")}>Item</th>
           <th className="px-3 py-2 font-medium whitespace-nowrap">What happened</th>
           <th className="px-3 py-2 font-medium">Quantity</th>
           <th className="px-3 py-2 font-medium whitespace-nowrap">Balance after</th>
@@ -58,7 +58,7 @@ export function MovementTable({
             <Fragment key={m.id}>
               <tr className={clsx("border-b border-line/70 text-center align-top", undone ? "bg-canvas/60 text-ink-faint" : "bg-surface hover:bg-hover")}>
                 {showDate ? <td className="px-3 py-2 pl-5 whitespace-nowrap">{businessDate(m.journalDate)}</td> : null}
-                <td className={clsx("min-w-[200px] px-3 py-2", !showDate && "pl-5")}>
+                <td className={clsx("min-w-[200px] px-3 py-2 text-left", !showDate && "pl-5")}>
                   <span className={clsx("font-medium", undone ? "line-through" : "text-ink")}>{m.itemName}</span>
                   <span className="block text-2xs text-ink-faint">{KIND_LABEL[m.itemKind]}</span>
                 </td>
