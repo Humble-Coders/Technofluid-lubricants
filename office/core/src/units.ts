@@ -85,3 +85,27 @@ function assertDensity(density: number): void {
     throw new RangeError(`Density must be a positive kg/L value, got ${density}`);
   }
 }
+
+/**
+ * Parse a quantity typed by a person ("26", "17.5", "1,250.25") in base units into
+ * milli-units, exactly — read from the text, never via floating point. More than three
+ * decimals is refused rather than silently rounded. Negative numbers are refused: the
+ * direction of a stock movement comes from its type, not its sign.
+ */
+export function parseQuantityToMilli(input: string): Milli {
+  const text = input.replace(/[,\s]/g, "");
+  const match = /^(\d*)(?:\.(\d*))?$/.exec(text);
+  if (!match || (match[1] === "" && (match[2] ?? "") === "")) {
+    throw new RangeError(`Not a quantity: "${input}"`);
+  }
+  const fraction = match[2] ?? "";
+  if (fraction.length > 3) throw new RangeError(`At most 3 decimals: "${input}"`);
+  const whole = match[1] === "" ? 0 : Number(match[1]);
+  return assertMilli(whole * 1000 + Number(fraction.padEnd(3, "0")));
+}
+
+/** Today's business date in India (Technofluid is in Haryana) as "YYYY-MM-DD". */
+export function indiaDate(at: Date = new Date()): string {
+  // en-CA formats as YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(at);
+}

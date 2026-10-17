@@ -16,11 +16,21 @@ const FIELD_LABEL: Record<string, string> = {
   densityKgPerL: "Density",
   active: "Selling",
   deleted: "Deleted",
+  recipe: "Recipe",
 };
 
 function show(field: string, value: unknown): string {
   if (value === null || value === undefined || value === "") {
     return field === "dealerPrice" || field === "distributorPrice" ? "No price" : "—";
+  }
+  if (field === "recipe" && Array.isArray(value)) {
+    // ["n4/90", "w70/"] → "n4 90%, w70 (no %)"
+    return value
+      .map((x) => {
+        const [code, pct] = String(x).split("/");
+        return `${code?.trim()} ${pct?.trim() ? `${pct.trim()}%` : "(no %)"}`;
+      })
+      .join(", ");
   }
   switch (field) {
     case "dealerPrice":

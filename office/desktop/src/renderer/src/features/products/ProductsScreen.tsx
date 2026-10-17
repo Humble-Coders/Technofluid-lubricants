@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, CheckCircle2, Copy, FlaskConical, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   formatINR,
@@ -10,13 +10,14 @@ import {
   priceBasisFromLabel,
   toMilli,
 } from "@technofluid/core";
-import { Badge, Button, EmptyState, Input, Kbd, Spinner } from "@/components/ui";
+import { Badge, Button, EmptyState, Input, Kbd, Segmented, Spinner } from "@/components/ui";
 import { canEditProducts, canSeePrices } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
 import { setProductDeleted } from "@/services/productEditService";
 import { ProductEditor } from "./ProductEditor";
+import { RecipeSection } from "./RecipeSection";
 import { ProductHistory } from "./ProductHistory";
 
 type CategoryFilter = "all" | "bulk_oil" | "grease" | "retail";
@@ -365,23 +366,23 @@ function ProductTable({
       <div
         role="row"
         className={clsx(
-          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-2xs font-medium tracking-wide text-ink-muted uppercase",
+          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-center text-2xs font-medium tracking-wide text-ink-muted uppercase",
           cols,
         )}
         style={{ height: 32 }}
       >
-        <span>Product</span>
+        <span className="text-left">Product</span>
         <span>Pack</span>
-        <span className="text-right">Pack size</span>
+        <span>Pack size</span>
         {showPrices ? (
           <>
-            <span className="text-right">Dealer</span>
-            <span className="text-right">Distributor</span>
+            <span>Dealer</span>
+            <span>Distributor</span>
           </>
         ) : null}
         {compact ? null : (
           <>
-            <span className="text-right">GST</span>
+            <span>GST</span>
             <span>Sold to</span>
             <span>SKU</span>
           </>
@@ -401,13 +402,13 @@ function ProductTable({
                 aria-selected={isSelected}
                 onClick={() => onSelect(isSelected ? null : p.sku)}
                 className={clsx(
-                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-[13px]",
+                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-center text-[13px]",
                   cols,
                   isSelected ? "bg-brand-orange/[0.08]" : "bg-surface hover:bg-hover",
                 )}
                 style={{ height: ROW_HEIGHT, transform: `translateY(${item.start}px)` }}
               >
-                <span className="min-w-0 truncate">
+                <span className="min-w-0 truncate text-left">
                   <span className="font-medium text-ink">{p.name}</span>
                   {p.grade ? <span className="text-ink-muted"> · {p.grade}</span> : null}
                   {p.active ? null : (
@@ -417,14 +418,14 @@ function ProductTable({
                   )}
                 </span>
                 <span className="truncate text-ink-muted">{p.packLabel}</span>
-                <span className="num text-right text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>
+                <span className="num text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>
                 {showPrices ? (
                   <>
                     <PriceCell paise={p.dealerPricePaise} per={p.pricePer} />
                     <PriceCell paise={p.distributorPricePaise} per={p.pricePer} />
                   </>
                 ) : null}
-                {compact ? null : <span className="num text-right text-ink-muted">{p.gstPct}%</span>}
+                {compact ? null : <span className="num text-ink-muted">{p.gstPct}%</span>}
                 <span className={compact && showPrices ? "hidden" : undefined}>
                   {p.segment ? (
                     <Badge tone={p.segment === "Automotive" ? "info" : p.segment === "Industrial" ? "neutral" : "brand"}>
@@ -445,9 +446,9 @@ function ProductTable({
 }
 
 function PriceCell({ paise, per }: { paise: number | null; per: string | null }) {
-  if (paise === null) return <span className="text-right text-[12px] text-warning">No price</span>;
+  if (paise === null) return <span className="text-[12px] text-warning">No price</span>;
   return (
-    <span className="num text-right text-ink" title={per ?? undefined}>
+    <span className="num text-ink" title={per ?? undefined}>
       {formatINR(paise)}
       {per === "per litre" || per === "per kg" ? <span className="text-2xs text-ink-faint">/{per.slice(4)}</span> : null}
     </span>
@@ -589,26 +590,7 @@ function ProductPanel({
               </section>
             ) : null}
 
-            <section>
-              <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-                <FlaskConical className="size-3.5" /> Recipe
-              </h3>
-              {p.recipe.length === 0 ? (
-                <p className="text-[12px] text-ink-muted">No recipe recorded.</p>
-              ) : (
-                <ul className="space-y-1">
-                  {p.recipe.map((item, i) => {
-                    const [name, pct] = item.split("/");
-                    return (
-                      <li key={i} className="flex items-center justify-between rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-                        <span className="font-mono">{name?.trim()}</span>
-                        <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "alternative"}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
+            <RecipeSection product={p} />
 
             {canEdit ? <ProductHistory sku={p.sku} /> : null}
 
@@ -643,38 +625,6 @@ function PriceBox({ label, paise }: { label: string; paise: number | null }) {
       ) : (
         <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
       )}
-    </div>
-  );
-}
-
-/* ─── Segmented control ──────────────────────────────────────────────────────── */
-
-function Segmented<T extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: T;
-  onChange: (value: T) => void;
-  options: Array<[T, string]>;
-}) {
-  return (
-    <div className="inline-flex h-8 items-center rounded-md border border-line-strong bg-canvas p-0.5" role="radiogroup">
-      {options.map(([key, label]) => (
-        <button
-          key={key}
-          type="button"
-          role="radio"
-          aria-checked={value === key}
-          onClick={() => onChange(key)}
-          className={clsx(
-            "h-full rounded px-2.5 text-[12px] font-medium transition-colors",
-            value === key ? "bg-surface text-ink shadow-sm" : "text-ink-muted hover:text-ink",
-          )}
-        >
-          {label}
-        </button>
-      ))}
     </div>
   );
 }

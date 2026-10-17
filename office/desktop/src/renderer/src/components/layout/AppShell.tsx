@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Wifi, WifiOff } from "lucide-react";
+import { BellRing, ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import mark from "@/assets/logo-mark.png";
@@ -7,6 +7,7 @@ import { Badge, Kbd, modKey } from "@/components/ui";
 import { navFor, ROLE_LABEL, type NavItem } from "@/lib/access";
 import { usingEmulators } from "@/lib/firebase";
 import { useOnline } from "@/hooks/useConnection";
+import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
 
@@ -321,6 +322,7 @@ function TopBar({ items }: { items: NavItem[] }) {
       <h1 className="text-[14px] font-semibold text-ink">{current?.label ?? "Technofluid Office"}</h1>
       <div className="flex-1" />
       {usingEmulators ? <Badge tone="info">Test data</Badge> : null}
+      <ApprovalsBell />
       <span
         className={clsx(
           "app-no-drag inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-2xs font-medium",
@@ -336,5 +338,30 @@ function TopBar({ items }: { items: NavItem[] }) {
         <Kbd>K</Kbd>
       </span>
     </header>
+  );
+}
+
+/** Admin only: how many approvals are waiting; click to open them. */
+function ApprovalsBell() {
+  const { role } = useStaff();
+  const navigate = useNavigate();
+  const pending = useRecipeRequests(role === "admin" ? { pending: true } : null);
+  if (role !== "admin") return null;
+  const count = pending.status === "ready" ? pending.data.length : 0;
+  return (
+    <button
+      type="button"
+      onClick={() => navigate("/approvals")}
+      title={count ? `${count} waiting for your approval` : "Approvals"}
+      aria-label={count ? `${count} ${count === 1 ? "approval" : "approvals"} waiting` : "Approvals"}
+      className="app-no-drag relative inline-flex size-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-hover hover:text-ink"
+    >
+      <BellRing className="size-4" />
+      {count > 0 ? (
+        <span className="num absolute -top-0.5 -right-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-brand-orange px-1 text-[10px] leading-4 font-semibold text-white">
+          {count}
+        </span>
+      ) : null}
+    </button>
   );
 }
