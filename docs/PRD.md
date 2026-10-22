@@ -213,6 +213,7 @@ After each task: a post-action summary/preview the PM can check (e.g. import sum
 | 22 | Books for stock | **Manufacturing → no Humble Ledger entry. Purchasing → Humble Ledger purchase** with supplier (who), item (what) and amount (₹) (2026-10-15) |
 | 23 | "Directly editable" stock | Stock **feels** directly editable, but every change is saved as a **correction entry** (who, when, old → new, why). In stock history, **edit = reverse the old entry + record the new one**; **reverse** is always available. Nothing is silently overwritten (2026-10-15) |
 | 24 | Supervisor's daily stock journal | A single **daily stock journal** screen where the supervisor enters the day's movements (e.g. +50 kg commodity B) (2026-10-15) |
+| 25 | How roles are checked | **Keep checking the role from `users/{uid}`** (Cloud Functions via `requireRole`, rules via `get()`), **no Firebase custom claims for now** — safe since C1 is closed, and avoids a newly approved user being refused until their token refreshes. Revisit (move approvals to a server function + claims) when approvals move server-side (2026-10-22) |
 
 **Still open:**
 
