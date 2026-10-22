@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui";
 import type { StockItem } from "@/services/stockService";
@@ -15,6 +16,8 @@ export function ItemPicker({
   onChange,
   invalid,
   autoFocus,
+  className,
+  chevron = false,
 }: {
   id?: string;
   items: StockItem[];
@@ -22,6 +25,10 @@ export function ItemPicker({
   onChange: (item: StockItem | null) => void;
   invalid?: boolean;
   autoFocus?: boolean;
+  /** Extra classes for the box, e.g. a taller height. */
+  className?: string;
+  /** Show a ▾ at the right, like a dropdown. */
+  chevron?: boolean;
 }) {
   const [text, setText] = useState(value?.name ?? "");
   const [open, setOpen] = useState(false);
@@ -73,6 +80,7 @@ export function ItemPicker({
     <div ref={boxRef} className="relative">
       <Input
         id={id}
+        className={clsx(className, chevron && "[&_input]:pr-8")}
         value={text}
         placeholder="Type to find an item"
         invalid={invalid}
@@ -110,6 +118,9 @@ export function ItemPicker({
           }
         }}
       />
+      {chevron ? (
+        <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-ink-faint" aria-hidden />
+      ) : null}
       {open && matches.length > 0 ? (
         <ul
           role="listbox"
