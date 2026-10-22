@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { Pencil, Undo2 } from "lucide-react";
 import { useState } from "react";
-import { formatQuantity, parseQuantityToMilli } from "@technofluid/core";
+import { formatQuantity, indiaDate, parseQuantityToMilli } from "@technofluid/core";
 import { Badge, Button, Input, Spinner } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import { reverseStockMovement, type StockMovement } from "@/services/stockService";
@@ -11,6 +11,16 @@ const when = (m: StockMovement) =>
   m.createdAt
     ? m.createdAt.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })
     : "Saving…";
+
+/** "2026-10-15" → "15 Oct". */
+const shortDay = (ymd: string) =>
+  new Date(`${ymd}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+
+/** Who and when, plus the day it counts for only when that's a different day. */
+const meta = (m: StockMovement) =>
+  [m.byName, when(m), m.createdAt && indiaDate(m.createdAt) !== m.journalDate ? `for ${shortDay(m.journalDate)}` : null]
+    .filter(Boolean)
+    .join(" · ");
 
 /**
  * Diary lines, newest first. Lines that were undone stay visible, struck through —
@@ -60,9 +70,14 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
             {undone ? <Badge tone="neutral">Undone</Badge> : null}
           </p>
           {m.note ? <p className="mt-0.5 text-ink-muted">{m.note}</p> : null}
-          <p className="mt-0.5 text-2xs text-ink-faint">
-            {m.byName} · {when(m)} · for {m.journalDate} · after: {formatQuantity(m.onHandAfterMilli, m.baseUnit)}
-            {m.countedMilli !== null ? ` (counted ${formatQuantity(m.countedMilli, m.baseUnit)})` : ""}
+          <p className="mt-0.5 flex flex-wrap gap-x-2 text-2xs text-ink-faint">
+            <span>{meta(m)}</span>
+            {undone ? null : (
+              <span className="num" title="On hand after this line">
+                {m.countedMilli !== null ? "Counted " : "→ "}
+                {formatQuantity(m.countedMilli ?? m.onHandAfterMilli, m.baseUnit)}
+              </span>
+            )}
           </p>
         </div>
         {editable && !mode ? (

@@ -40,13 +40,11 @@ export function packsOfPool(item: StockItem, products: Product[]): Product[] {
     .sort((a, b) => b.packQty - a.packQty);
 }
 
-/** "38 × 26 L can · 4 × 210 L barrel" — what could be filled from what's on hand. */
-export function packsSummary(item: StockItem, products: Product[]): string {
+/** ["38 × 26 L can", "4 × 210 L barrel"] — what could be filled from what's on hand. */
+export function packsSummary(item: StockItem, products: Product[]): string[] {
   const packs = packsOfPool(item, products);
-  if (packs.length === 0 || item.onHandMilli <= 0) return "";
-  return packs
-    .map((p) => `${packsAvailable(item.onHandMilli, toMilli(p.packQty)).toLocaleString("en-IN")} × ${p.packLabel}`)
-    .join(" · ");
+  if (packs.length === 0 || item.onHandMilli <= 0) return [];
+  return packs.map((p) => `${packsAvailable(item.onHandMilli, toMilli(p.packQty)).toLocaleString("en-IN")} × ${p.packLabel}`);
 }
 
 /** Lower-cased text a search box matches against: name, code and other names. */

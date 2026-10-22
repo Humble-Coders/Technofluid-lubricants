@@ -225,7 +225,7 @@ function StockTable({
                   {formatQuantity(item.onHandMilli, item.baseUnit)}
                 </span>
                 {compact ? null : (
-                  <span className="truncate text-[12px] text-ink-muted">{packsSummary(item, products) || "—"}</span>
+                  <span className="truncate text-[12px] text-ink-muted">{packsSummary(item, products).join(" · ") || "—"}</span>
                 )}
               </div>
             );
@@ -282,7 +282,7 @@ function ItemPanel({ item, products, canEdit, onClose }: {
   return (
     <Panel
       title={item.name}
-      subtitle={`${KIND_LABEL[item.kind]}${item.code ? ` · ${item.code}` : ""}`}
+      subtitle={[KIND_LABEL[item.kind], item.code, item.densityKgPerL ? `${item.densityKgPerL} kg/L` : null].filter(Boolean).join(" · ")}
       onClose={onClose}
       actions={
         canEdit && !isPool ? (
@@ -298,15 +298,19 @@ function ItemPanel({ item, products, canEdit, onClose }: {
           <OnHandCount item={item} canEdit={canEdit} />
           {item.onHandMilli < 0 ? (
             <p className="mt-1 flex items-center gap-1.5 text-[12px] text-danger">
-              <AlertTriangle className="size-3.5" /> Below zero — more went out than was recorded. Count it and correct.
+              <AlertTriangle className="size-3.5" /> Below zero — count it and correct.
             </p>
           ) : null}
-          {packs ? <p className="mt-1 text-[12px] text-ink-muted">Could fill: {packs}</p> : null}
-          <p className="mt-1 text-[12px] text-ink-faint">
-            {[item.densityKgPerL ? `${item.densityKgPerL} kg/L` : null, item.aliases.length ? `Also called ${item.aliases.join(", ")}` : null]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
+          {packs.length ? (
+            <div className="mt-2 flex flex-wrap gap-1.5" title="Packs this could fill">
+              {packs.map((p) => (
+                <span key={p} className="num rounded bg-canvas px-2 py-0.5 text-[12px] text-ink-muted">
+                  {p}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {item.aliases.length ? <p className="mt-1.5 text-[12px] text-ink-faint">Also called {item.aliases.join(", ")}</p> : null}
         </section>
 
         <section>
