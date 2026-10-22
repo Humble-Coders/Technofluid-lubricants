@@ -109,6 +109,29 @@ export function proposeConsumption(run: ProductionRun): ProposedConsumption[] {
   });
 }
 
+export interface RecipeAlternate {
+  /** The recipe line's own code ("w150"). */
+  main: string;
+  /** A material that can be used instead, with its own percent. */
+  ingredient: RecipeIngredient;
+}
+
+/**
+ * Alternate materials set by an Admin (Sharnya, 22 Oct 2026), stored as
+ * "main>code/percent": "w150>w150n/46" → w150n at 46% can replace w150.
+ */
+export function parseAlternates(entries: readonly string[]): RecipeAlternate[] {
+  const out: RecipeAlternate[] = [];
+  for (const raw of entries) {
+    const gt = raw.indexOf(">");
+    if (gt <= 0) continue;
+    const main = raw.slice(0, gt).trim().toLowerCase().replace(/\s+/g, " ");
+    const [ingredient] = parseRecipe([raw.slice(gt + 1)]);
+    if (main && ingredient) out.push({ main, ingredient });
+  }
+  return out;
+}
+
 /** Sum of the recipe's percentages (basis points) — 10 000 when it adds up to 100%. */
 export function recipeTotalBp(ingredients: readonly RecipeIngredient[]): number {
   return ingredients.reduce((sum, i) => sum + (i.percentBp ?? 0), 0);

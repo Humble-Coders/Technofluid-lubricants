@@ -89,13 +89,29 @@ async function call<Req, Res>(name: string, data: Req): Promise<Res> {
   }
 }
 
-/** Ask for a recipe change. An Admin's own change is approved at once. */
+export interface AlternateInput {
+  /** The recipe line it can replace. */
+  for: string;
+  code: string;
+  percent: number;
+}
+
+/**
+ * Ask for a recipe change (percents must total 100%). An Admin's own change is
+ * approved at once; only an Admin may send `alternates`.
+ */
 export function requestRecipeChange(
   productKey: string,
   recipe: RecipeLineInput[],
   reason: string,
+  alternates?: AlternateInput[],
 ): Promise<{ requestId: string; status: RequestStatus }> {
-  return call("requestRecipeChange", { productKey, recipe, ...(reason.trim() ? { reason: reason.trim() } : {}) });
+  return call("requestRecipeChange", {
+    productKey,
+    recipe,
+    ...(reason.trim() ? { reason: reason.trim() } : {}),
+    ...(alternates ? { alternates } : {}),
+  });
 }
 
 /** Admin approves (recipe applied to every pack) or rejects (note required). */

@@ -12,7 +12,8 @@ import {
   type StockItem,
 } from "@/services/stockService";
 import { ItemPicker } from "./ItemPicker";
-import { JournalReview } from "./JournalReview";
+import { requestProduction } from "@/services/productionService";
+import { JournalReview, type RecipeConfirm } from "./JournalReview";
 import { buildReview, readReview, type DraftLine, type ReviewGroup, type ReviewProblem } from "./reviewModel";
 import { MovementTable } from "./MovementTable";
 import { unitWord } from "./stockFormat";
@@ -61,7 +62,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
   // Same id until it succeeds, so pressing Save again after a failure can't double-record.
   const [requestId, setRequestId] = useState(newRequestId);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<RecordResult | null>(null);
+  const [result, setResult] = useState<(RecordResult & { sentForApproval?: boolean }) | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewGroup[] | null>(null);
   const [problems, setProblems] = useState<ReviewProblem[]>([]);
@@ -112,8 +113,11 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
     setReview(buildReview(out, items, products));
   };
 
-  /** Step 2: the person confirmed the review — save everything in one go. */
-  const confirm = async () => {
+  /**
+   * Step 2: the person confirmed the review — save everything in one go. With a changed
+   * recipe it goes to requestProduction instead: Stock & Production's waits for an Admin.
+   */
+  const confirm = async (recipe: RecipeConfirm | null) => {
     if (!review) return;
     setSaveError(null);
     const { lines: toSave, problems: found } = readReview(review);
@@ -122,8 +126,12 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
     if (toSave.length === 0) return setSaveError("Nothing to save.");
     setBusy(true);
     try {
-      const r = await recordStockMovements(requestId, date, toSave);
-      setResult(r);
+      if (recipe) {
+        const r = await requestProduction(requestId, date, toSave, recipe.recipeChanges, recipe.reason);
+        setResult({ ...r, sentForApproval: r.status === "pending" });
+      } else {
+        setResult(await recordStockMovements(requestId, date, toSave));
+      }
       setReview(null);
       setLines([emptyLine()]);
       setRequestId(newRequestId());
@@ -154,7 +162,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
             setReview(null);
             setSaveError(null);
           }}
-          onConfirm={() => void confirm()}
+          onConfirm={(recipe) => void confirm(recipe)}
         />
       ) : null}
 
@@ -305,7 +313,14 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
   );
 }
 
-function ResultNote({ result }: { result: RecordResult }) {
+function ResultNote({ result }: { result: RecordResult & { sentForApproval?: boolean } }) {
+  if (result.sentForApproval) {
+    return (
+      <p className="flex items-center gap-1.5 text-[12px] text-brand-orange-dark">
+        <CheckCircle2 className="size-3.5" /> Sent to the Admin for approval — stock changes once the new recipe is approved.
+      </p>
+    );
+  }
   return (
     <div className="space-y-1 text-[12px]">
       <p className={clsx("flex items-center gap-1.5", result.recorded > 0 ? "text-success" : "text-ink-muted")}>

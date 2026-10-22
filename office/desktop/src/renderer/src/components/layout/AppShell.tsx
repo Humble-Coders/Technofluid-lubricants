@@ -7,6 +7,7 @@ import { modKey } from "@/components/ui";
 import { navFor, ROLE_LABEL, type NavItem } from "@/lib/access";
 import { usingEmulators } from "@/lib/firebase";
 import { useOnline } from "@/hooks/useConnection";
+import { useProductionRequests } from "@/hooks/useProductionRequests";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
@@ -353,8 +354,9 @@ function ApprovalsBell() {
   const { role } = useStaff();
   const navigate = useNavigate();
   const pending = useRecipeRequests(role === "admin" ? { pending: true } : null);
+  const runs = useProductionRequests(role === "admin" ? { pending: true } : null);
   if (role !== "admin") return null;
-  const count = pending.status === "ready" ? pending.data.length : 0;
+  const count = (pending.status === "ready" ? pending.data.length : 0) + (runs.status === "ready" ? runs.data.length : 0);
   return (
     <button
       type="button"

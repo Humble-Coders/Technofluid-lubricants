@@ -1,15 +1,22 @@
 import clsx from "clsx";
 import { AlertTriangle, Clock, Plus, X } from "lucide-react";
 import { useEffect, useId, useMemo, useState } from "react";
-import { parseRecipe } from "@technofluid/core";
-import { Button, Input } from "@/components/ui";
+import { parseAlternates, parseRecipe } from "@technofluid/core";
+import { Button, Input, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useStockItems } from "@/hooks/useStock";
-import { requestRecipeChange, type RecipeLineInput } from "@/services/recipeService";
+import { requestRecipeChange, type AlternateInput, type RecipeLineInput } from "@/services/recipeService";
 
 interface Row {
   key: number;
+  code: string;
+  percent: string;
+}
+
+interface AltRow {
+  key: number;
+  main: string;
   code: string;
   percent: string;
 }
@@ -22,21 +29,33 @@ const rowsFrom = (recipe: string[]): Row[] =>
     percent: i.percentBp === null ? "" : String(i.percentBp / 100),
   }));
 
+const altRowsFrom = (alternates: string[]): AltRow[] =>
+  parseAlternates(alternates).map((a) => ({
+    key: nextKey++,
+    main: a.main,
+    code: a.ingredient.code,
+    percent: a.ingredient.percentBp === null ? "" : String(a.ingredient.percentBp / 100),
+  }));
+
 /**
  * Ask for a product's recipe to change. Stock & Production's change waits for an Admin
  * (they're notified under Approvals); an Admin's own change applies at once. Either way
- * it covers every pack size of the product + grade.
+ * it covers every pack size of the product + grade. The percents must total 100%.
+ * Only an Admin sets alternate materials (each with its own %).
  */
 export function RecipeChangeDialog({
   productKey,
   productName,
   currentRecipe,
+  currentAlternates = [],
   onClose,
   onSent,
 }: {
   productKey: string;
   productName: string;
   currentRecipe: string[];
+  /** "main>code/percent" — shown (and editable) for an Admin. */
+  currentAlternates?: string[];
   /** Called with the new recipe when it was applied straight away (Admin), else null. */
   onClose: (applied: string[] | null) => void;
   /** Called when the change was sent to an Admin for approval. */
@@ -46,6 +65,7 @@ export function RecipeChangeDialog({
   const isAdmin = role === "admin";
   const listId = useId();
   const [rows, setRows] = useState<Row[]>(() => (currentRecipe.length ? rowsFrom(currentRecipe) : [{ key: nextKey++, code: "", percent: "" }]));
+  const [alts, setAlts] = useState<AltRow[]>(() => altRowsFrom(currentAlternates));
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +86,12 @@ export function RecipeChangeDialog({
   }, [busy, onClose]);
 
   const total = rows.reduce((sum, r) => sum + (Number(r.percent) || 0), 0);
+  const totalOk = Math.abs(total - 100) < 0.005;
+  const mains = [...new Set(rows.map((r) => r.code.trim().toLowerCase()).filter(Boolean))];
+  const updateAlt = (key: number, patch: Partial<AltRow>) => {
+    setAlts((as) => as.map((a) => (a.key === key ? { ...a, ...patch } : a)));
+    setError(null);
+  };
   const update = (key: number, patch: Partial<Row>) => {
     setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
     setError(null);
@@ -84,10 +110,25 @@ export function RecipeChangeDialog({
       }
       recipe.push({ code: r.code.trim(), percent: p });
     }
+    const sum = recipe.reduce((t, r) => t + Math.round((r.percent ?? 0) * 100), 0);
+    if (sum !== 10_000) return setError(`The percents add up to ${sum / 100}% — they must make exactly 100%.`);
+    let alternates: AlternateInput[] | undefined;
+    if (isAdmin) {
+      alternates = [];
+      for (const a of alts.filter((x) => x.code.trim() || x.percent.trim())) {
+        const p = Number(a.percent);
+        if (!a.main) return setError("Choose which material each alternate replaces.");
+        if (!a.code.trim()) return setError("Every alternate needs a material code.");
+        if (!a.percent.trim() || !Number.isFinite(p) || p <= 0 || p > 100) {
+          return setError(`Alternate ${a.code}: give its % (above 0, at most 100).`);
+        }
+        alternates.push({ for: a.main, code: a.code.trim(), percent: p });
+      }
+    }
     if (!isAdmin && !reason.trim()) return setError("Say why the recipe should change.");
     setBusy(true);
     try {
-      const result = await requestRecipeChange(productKey, recipe, reason);
+      const result = await requestRecipeChange(productKey, recipe, reason, alternates);
       if (result.status === "approved") {
         onClose(recipe.map((r) => `${r.code.toLowerCase()}/${r.percent ?? ""}`));
       } else {
@@ -200,13 +241,69 @@ export function RecipeChangeDialog({
               </Button>
               <div className="flex-1" />
               <span
-                className={clsx("num flex items-center gap-1 text-[12px]", Math.abs(total - 100) < 0.005 ? "text-success" : "text-warning")}
-                title={Math.abs(total - 100) < 0.005 ? undefined : "The percents don't add up to 100% — allowed, but check it."}
+                className={clsx("num flex items-center gap-1 text-[12px]", totalOk ? "text-success" : "text-danger")}
+                title={totalOk ? undefined : "The percents must add up to exactly 100%."}
               >
-                {Math.abs(total - 100) >= 0.005 ? <AlertTriangle className="size-3.5" /> : null}
-                Total {Math.round(total * 100) / 100}%
+                {totalOk ? null : <AlertTriangle className="size-3.5" />}
+                Total {Math.round(total * 100) / 100}%{totalOk ? "" : " — must be 100%"}
               </span>
             </div>
+
+            {isAdmin ? (
+              <div className="space-y-2 rounded-md bg-canvas px-3 py-2.5">
+                <p className="text-[12px] font-medium text-ink">
+                  Alternates <span className="font-normal text-ink-muted">— other materials that can be used instead, with their own %</span>
+                </p>
+                {alts.map((a) => (
+                  <div key={a.key} className="grid grid-cols-[1fr_1fr_90px_32px] items-center gap-2">
+                    <Select aria-label="Replaces" value={a.main} onChange={(e) => updateAlt(a.key, { main: e.target.value })}>
+                      <option value="">Replaces…</option>
+                      {mains.map((m) => (
+                        <option key={m} value={m}>
+                          Instead of {m}
+                        </option>
+                      ))}
+                    </Select>
+                    <Input
+                      aria-label="Alternate material code"
+                      value={a.code}
+                      onChange={(e) => updateAlt(a.key, { code: e.target.value })}
+                      list={listId}
+                      placeholder="e.g. w150n"
+                      className="font-mono"
+                    />
+                    <div className="relative">
+                      <Input
+                        aria-label="Alternate percent"
+                        value={a.percent}
+                        onChange={(e) => updateAlt(a.key, { percent: e.target.value })}
+                        inputMode="decimal"
+                        placeholder="%"
+                        className="num [&_input]:pr-6"
+                      />
+                      <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-[12px] text-ink-muted">%</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-1.5"
+                      aria-label="Remove alternate"
+                      onClick={() => setAlts((as) => as.filter((x) => x.key !== a.key))}
+                    >
+                      <X className="size-3.5" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  icon={<Plus className="size-3.5" />}
+                  onClick={() => setAlts((as) => [...as, { key: nextKey++, main: mains[0] ?? "", code: "", percent: "" }])}
+                >
+                  Add alternate
+                </Button>
+              </div>
+            ) : null}
 
             <Input
               aria-label="Reason"

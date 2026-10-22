@@ -4,6 +4,7 @@ import {
   parseRecipe,
   proposeConsumption,
   recipeTotalBp,
+  parseAlternates,
   indiaDate,
   parseQuantityToMilli,
   formatINR,
@@ -256,5 +257,14 @@ describe("recipes (production)", () => {
       findMaterial: find,
     });
     expect(noDensity.map((l) => l.status)).toEqual(["needs_density", "needs_density", "unit_mismatch"]);
+  });
+});
+
+describe("recipe alternates", () => {
+  it("reads main>code/percent and skips broken entries", () => {
+    expect(parseAlternates(["w150>w150n/46", " W70 > Sn 150 /12.5", "nogt/5", ">x/1"])).toEqual([
+      { main: "w150", ingredient: { code: "w150n", percentBp: 4600 } },
+      { main: "w70", ingredient: { code: "sn 150", percentBp: 1250 } },
+    ]);
   });
 });

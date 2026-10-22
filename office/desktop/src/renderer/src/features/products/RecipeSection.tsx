@@ -1,5 +1,6 @@
 import { Clock, FlaskConical, Pencil } from "lucide-react";
 import { useState } from "react";
+import { parseAlternates } from "@technofluid/core";
 import { Badge, Button } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
@@ -17,6 +18,7 @@ export function RecipeSection({ product: p }: { product: Product }) {
   const [open, setOpen] = useState(false);
   const requests = useRecipeRequests(allowed && p.productKey ? { productKey: p.productKey } : null);
   const latest = requests.status === "ready" ? requests.data[0] : undefined;
+  const alternates = parseAlternates(p.recipeAlternates ?? []);
 
   return (
     <section>
@@ -35,10 +37,22 @@ export function RecipeSection({ product: p }: { product: Product }) {
         <ul className="space-y-1">
           {p.recipe.map((item, i) => {
             const [name, pct] = item.split("/");
+            const code = name?.trim().toLowerCase() ?? "";
+            const alts = alternates.filter((a) => a.main === code);
             return (
-              <li key={i} className="flex items-center justify-between rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-                <span className="font-mono">{name?.trim()}</span>
-                <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "no %"}</span>
+              <li key={i} className="rounded bg-canvas px-2.5 py-1.5 text-[12px]">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono">{name?.trim()}</span>
+                  <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "no %"}</span>
+                </div>
+                {alts.map((a) => (
+                  <div key={a.ingredient.code} className="flex items-center justify-between pl-3 text-ink-muted">
+                    <span>
+                      or <span className="font-mono">{a.ingredient.code}</span>
+                    </span>
+                    <span className="num">{a.ingredient.percentBp === null ? "no %" : `${a.ingredient.percentBp / 100}%`}</span>
+                  </div>
+                ))}
               </li>
             );
           })}
@@ -61,6 +75,7 @@ export function RecipeSection({ product: p }: { product: Product }) {
           productKey={p.productKey}
           productName={[p.name, p.grade].filter(Boolean).join(" ")}
           currentRecipe={p.recipe}
+          currentAlternates={p.recipeAlternates}
           onClose={() => setOpen(false)}
         />
       ) : null}

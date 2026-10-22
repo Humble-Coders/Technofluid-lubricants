@@ -1,19 +1,28 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpFromLine, Factory, Flag, FlaskConical, Pencil, PlusCircle, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { formatQuantity, parseQuantityToMilli, parseRecipe } from "@technofluid/core";
-import { Button, Input } from "@/components/ui";
+import { AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpFromLine, Check, Factory, Flag, FlaskConical, Pencil, PlusCircle, X } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { formatQuantity, parseQuantityToMilli, parseRecipe, recipeTotalBp } from "@technofluid/core";
+import { Button, Input, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
 import { canChangeRecipe } from "@/lib/access";
+import type { RecipeChangeInput } from "@/services/productionService";
 import type { Product } from "@/services/productService";
 import type { StockItem } from "@/services/stockService";
 import { ItemPicker } from "./ItemPicker";
 import {
+  alternatesFor,
+  changeUse,
+  effectiveIngredient,
   netChanges,
+  newUse,
   proposeUses,
   readReview,
-  recipeFor,
+  recipeChanged,
+  recipeChangesOf,
+  recipeOf,
+  recipeProblemKey,
+  reworkUses,
   type NetChange,
   type ReviewGroup,
   type ReviewLine,
@@ -36,6 +45,14 @@ const STATUS: Record<UseLine["status"], { tag: string; help: string; warn: boole
 };
 
 const CHIP = "inline-flex h-6 items-center rounded-md px-2 text-[12px] font-medium whitespace-nowrap";
+
+/** Sent with "Send for review" / "Save recipe and confirm" when a recipe was changed. */
+export interface RecipeConfirm {
+  recipeChanges: RecipeChangeInput[];
+  reason: string;
+}
+
+const pctText = (bp: number | null | undefined) => (bp == null ? "no %" : `${bp / 100}%`);
 
 /**
  * The review dialog: every change the save will make — products made, the raw materials
@@ -62,9 +79,22 @@ export function JournalReview({
   busy: boolean;
   error: string | null;
   onBack: () => void;
-  onConfirm: () => void;
+  /** `recipe` is set when a recipe was changed in the review. */
+  onConfirm: (recipe: RecipeConfirm | null) => void;
   backLabel?: string;
 }) {
+  const { role } = useStaff();
+  const isAdmin = role === "admin";
+  const changes = useMemo(() => recipeChangesOf(groups), [groups]);
+  const changed = changes.length > 0;
+  const [reason, setReason] = useState("");
+  const [reasonError, setReasonError] = useState<string | null>(null);
+  const confirm = () => {
+    setReasonError(null);
+    if (!changed) return onConfirm(null);
+    if (!isAdmin && !reason.trim()) return setReasonError("Say why the recipe should change.");
+    onConfirm({ recipeChanges: changes, reason });
+  };
   const materials = useMemo(() => items.filter((i) => i.kind !== "product_pool"), [items]);
   const problemFor = (key: string) => problems.find((p) => p.key === key)?.message;
   const summary = useMemo(() => netChanges(readReview(groups).lines, items), [groups, items]);
@@ -140,14 +170,41 @@ export function JournalReview({
           ) : null}
         </div>
 
-        <footer className="flex items-center gap-3 px-6 pt-2 pb-5">
-          {error ? <p role="alert" className="flex-1 text-[12px] text-danger">{error}</p> : <span className="flex-1" />}
-          <Button className="h-10 px-6" onClick={onBack} disabled={busy}>
-            {backLabel}
-          </Button>
-          <Button variant="primary" className="h-10 px-7" onClick={onConfirm} loading={busy}>
-            Confirm and save
-          </Button>
+        <footer className="space-y-2 px-6 pt-2 pb-5">
+          {changed ? (
+            <div className="flex flex-wrap items-center gap-3 rounded-lg bg-brand-orange/8 px-4 py-2.5">
+              <p className="text-[13px] text-ink">
+                {isAdmin ? "The new recipe is saved with this entry." : "Recipe changed — the Admin approves it before anything is saved."}
+              </p>
+              <Input
+                aria-label="Why change the recipe"
+                value={reason}
+                onChange={(e) => {
+                  setReason(e.target.value);
+                  setReasonError(null);
+                }}
+                maxLength={300}
+                invalid={Boolean(reasonError)}
+                placeholder={isAdmin ? "Reason (optional)" : "Why change the recipe?"}
+                className="min-w-60 flex-1 [&_input]:h-9"
+              />
+            </div>
+          ) : null}
+          <div className="flex items-center gap-3">
+            {error || reasonError ? (
+              <p role="alert" className="flex-1 text-[12px] text-danger">
+                {reasonError ?? error}
+              </p>
+            ) : (
+              <span className="flex-1" />
+            )}
+            <Button className="h-10 px-6" onClick={onBack} disabled={busy}>
+              {backLabel}
+            </Button>
+            <Button variant="primary" className="h-10 px-7" onClick={confirm} loading={busy}>
+              {!changed ? "Confirm and save" : isAdmin ? "Save recipe and confirm" : "Send for review"}
+            </Button>
+          </div>
         </footer>
       </div>
     </div>
@@ -250,11 +307,18 @@ function ProductionCard({
 }) {
   const pool = g.made.item!;
   const { role } = useStaff();
+  const listId = useId();
   const [changing, setChanging] = useState(false);
   const [recipeNote, setRecipeNote] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState({ code: "", percent: "" });
+  const [editError, setEditError] = useState<string | null>(null);
   const tableRef = useRef<HTMLTableSectionElement>(null);
   const currentRecipe = products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0)?.recipe ?? [];
   const canChange = canChangeRecipe(role) && Boolean(pool.productKey);
+  const changed = recipeChanged(g);
+  const total = recipeTotalBp(recipeOf(g));
+  const codes = useMemo(() => [...new Set(materials.flatMap((m) => (m.code ? [m.code] : [])))].sort(), [materials]);
   const madeMilliOf = (qty: string): number | null => {
     try {
       return qty.trim() ? parseQuantityToMilli(qty) : null;
@@ -262,27 +326,60 @@ function ProductionCard({
       return null;
     }
   };
+  const madeMilli = madeMilliOf(g.made.qty);
   const openRecipe = (open: boolean) => {
     setChanging(open);
     onRecipeDialog(open);
   };
 
-  // Changing the amount made re-works the recipe lines the person hasn't touched.
+  // Changing the amount made re-works the lines whose amount the person hasn't typed.
   const setMade = (made: ReviewLine) => {
     const milli = madeMilliOf(made.qty);
-    const uses = milli === null ? g.uses : proposeUses(pool, milli, recipeFor(pool, products), items, g.uses, `${g.key}-`);
-    onChange({ ...g, made, uses });
+    onChange({ ...g, made, uses: milli === null ? g.uses : reworkUses(pool, milli, g.uses, items) });
   };
   const setUse = (key: string, patch: Partial<UseLine>) =>
     onChange({ ...g, uses: g.uses.map((u) => (u.key === key ? { ...u, ...patch, touched: true } : u)) });
-  const addUse = () =>
-    onChange({
-      ...g,
-      uses: [...g.uses, { key: `${g.key}-added-${Date.now()}`, item: null, qty: "", note: "", ingredient: null, status: "added", touched: true }],
-    });
+  const replaceUse = (key: string, next: UseLine) => onChange({ ...g, uses: g.uses.map((u) => (u.key === key ? next : u)) });
+
+  const startEdit = (u: UseLine) => {
+    setEditing(u.key);
+    setEditError(null);
+    setDraft({ code: u.ingredient?.code ?? "", percent: u.ingredient?.percentBp != null ? String(u.ingredient.percentBp / 100) : "" });
+  };
+  const cancelEdit = (u: UseLine) => {
+    setEditing(null);
+    setEditError(null);
+    // A new line left empty goes away.
+    if (!u.ingredient?.code) onChange({ ...g, uses: g.uses.filter((x) => x.key !== u.key) });
+  };
+  const saveEdit = (u: UseLine) => {
+    const code = draft.code.trim().toLowerCase().replace(/\s+/g, " ");
+    if (!code) return setEditError("Enter the material code, e.g. w150.");
+    if (g.uses.some((x) => x.key !== u.key && x.ingredient?.code === code)) return setEditError(`"${code}" is already in the recipe.`);
+    let percentBp: number | null = null;
+    if (draft.percent.trim()) {
+      const p = Number(draft.percent);
+      if (!Number.isFinite(p) || p <= 0 || p > 100) return setEditError("The % must be above 0 and at most 100.");
+      if (Math.round(p * 100) !== p * 100) return setEditError("At most 2 decimals in the %.");
+      percentBp = Math.round(p * 100);
+    }
+    replaceUse(u.key, changeUse(pool, madeMilli, u, { ingredient: { code, percentBp } }, items, g.alternates));
+    setEditing(null);
+    setEditError(null);
+  };
+  const addUse = () => {
+    const u = newUse(g.key);
+    onChange({ ...g, uses: [...g.uses, u] });
+    startEdit(u);
+  };
   const focusAmount = (key: string) => tableRef.current?.querySelector<HTMLInputElement>(`[data-use="${key}"] input`)?.focus();
 
-  const recipeChip = (
+  const chip = changed ? (
+    <span className={clsx(CHIP, "bg-brand-orange text-white")}>
+      <FlaskConical className="mr-1 size-3.5" />
+      Recipe changed
+    </span>
+  ) : (
     <span className={clsx(CHIP, g.hasRecipe ? "bg-brand-orange/12 text-brand-orange-dark" : "bg-warning-soft text-warning")}>
       <FlaskConical className="mr-1 size-3.5" />
       {g.hasRecipe ? "Uses recipe" : "No recipe"}
@@ -299,12 +396,12 @@ function ProductionCard({
         problem={problemFor(g.made.key)}
         note={recipeNote}
         extra={
-          canChange ? (
+          canChange && !changed ? (
             <button type="button" onClick={() => openRecipe(true)} title="Change the recipe" className="rounded-md hover:opacity-80">
-              {recipeChip}
+              {chip}
             </button>
           ) : (
-            recipeChip
+            chip
           )
         }
       >
@@ -314,8 +411,15 @@ function ProductionCard({
       <section className="rounded-lg border border-line px-4 py-4">
         <h3 className="text-[15px] font-semibold text-ink">Recipe materials</h3>
         <p className="mb-3 text-[12px] text-ink-muted">
-          {g.hasRecipe ? "Used from stock by the recipe. You can change any amount." : "No recipe — nothing is deducted. Add what was used if needed."}
+          {g.hasRecipe || g.uses.length > 0
+            ? "Used from stock by the recipe. Change any amount, or use ✎ to change the recipe."
+            : "No recipe — nothing is deducted. Add the materials it's made of."}
         </p>
+        <datalist id={listId}>
+          {codes.map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
         <div className="overflow-hidden rounded-lg border border-line">
           <table className="w-full table-fixed border-collapse text-[13px]">
             <colgroup>
@@ -343,31 +447,94 @@ function ProductionCard({
             <tbody ref={tableRef}>
               {g.uses.map((u) => {
                 const s = STATUS[u.status];
-                const pickable = !u.item || u.status === "not_in_stock" || u.status === "added";
+                const ing = effectiveIngredient(u);
+                const isEditing = editing === u.key;
+                const pickable = Boolean(ing?.code) && (!u.item || u.status === "not_in_stock");
                 const after = u.item ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
-                const status = !u.item
-                  ? { tag: u.status === "not_in_stock" ? s.tag : "Pick item", tone: "warn" as const }
-                  : s.warn && u.status !== "not_in_stock" && !u.qty.trim()
-                    ? { tag: s.tag, tone: "warn" as const }
-                    : after !== null && after < 0
-                      ? { tag: "Short", tone: "danger" as const }
-                      : { tag: "Available", tone: "ok" as const };
+                const status = !ing?.code
+                  ? { tag: "New", tone: "warn" as const }
+                  : !u.item
+                    ? { tag: u.status === "not_in_stock" ? s.tag : "Pick item", tone: "warn" as const }
+                    : s.warn && u.status !== "not_in_stock" && !u.qty.trim()
+                      ? { tag: s.tag, tone: "warn" as const }
+                      : after !== null && after < 0
+                        ? { tag: "Short", tone: "danger" as const }
+                        : { tag: "Available", tone: "ok" as const };
                 const problem = problemFor(u.key);
+                const keys = (e: React.KeyboardEvent) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    saveEdit(u);
+                  } else if (e.key === "Escape") {
+                    e.stopPropagation();
+                    cancelEdit(u);
+                  }
+                };
                 return (
-                  <tr key={u.key} className="border-t border-line align-middle">
+                  <tr key={u.key} className={clsx("border-t border-line align-middle", isEditing && "bg-brand-orange/[0.04]")}>
                     <td className="px-4 py-2.5">
-                      {u.ingredient ? <p className="font-mono text-[13px] font-semibold text-ink">{u.ingredient.code}</p> : null}
-                      {pickable ? (
-                        <div className={clsx(u.ingredient && "mt-1")}>
-                          <ItemPicker items={materials} value={u.item} onChange={(item) => setUse(u.key, { item })} />
-                        </div>
-                      ) : u.item && u.item.name.toLowerCase() !== u.ingredient?.code ? (
-                        <p className={clsx("truncate", u.ingredient ? "text-[12px] text-ink-muted" : "font-semibold text-ink")}>{u.item.name}</p>
-                      ) : null}
+                      {isEditing ? (
+                        <Input
+                          aria-label="Material code"
+                          value={draft.code}
+                          onChange={(e) => setDraft((d) => ({ ...d, code: e.target.value }))}
+                          onKeyDown={keys}
+                          list={listId}
+                          placeholder="Code, e.g. w150"
+                          className="font-mono [&_input]:h-9"
+                          autoFocus
+                        />
+                      ) : (
+                        <>
+                          <p className="font-mono text-[13px] font-semibold text-ink">{u.ingredient?.code || "—"}</p>
+                          {u.alternates.length > 0 ? (
+                            <Select
+                              aria-label={`Material used for ${u.ingredient?.code}`}
+                              value={u.useCode ?? ""}
+                              onChange={(e) => replaceUse(u.key, changeUse(pool, madeMilli, u, { useCode: e.target.value || null }, items, g.alternates))}
+                              className="mt-1 [&_select]:h-8 [&_select]:text-[12px]"
+                            >
+                              <option value="">
+                                {u.ingredient?.code} ({pctText(u.ingredient?.percentBp)})
+                              </option>
+                              {u.alternates.map((a) => (
+                                <option key={a.code} value={a.code}>
+                                  Instead: {a.code} ({pctText(a.percentBp)})
+                                </option>
+                              ))}
+                            </Select>
+                          ) : null}
+                          {pickable ? (
+                            <div className="mt-1">
+                              <ItemPicker items={materials} value={u.item} onChange={(item) => setUse(u.key, { item })} />
+                            </div>
+                          ) : u.item && u.item.name.toLowerCase() !== ing?.code ? (
+                            <p className="truncate text-[12px] text-ink-muted">{u.item.name}</p>
+                          ) : null}
+                        </>
+                      )}
+                      {isEditing && editError ? <p className="mt-1 text-[12px] text-danger">{editError}</p> : null}
                       {problem ? <p className="mt-1 text-[12px] text-danger">{problem}</p> : null}
                     </td>
                     <td className="num px-3 py-2.5 text-ink-muted">
-                      {u.ingredient ? (u.ingredient.percentBp != null ? `${u.ingredient.percentBp / 100}%` : "no %") : "—"}
+                      {isEditing ? (
+                        <div className="relative">
+                          <Input
+                            aria-label="Recipe percent"
+                            value={draft.percent}
+                            onChange={(e) => setDraft((d) => ({ ...d, percent: e.target.value }))}
+                            onKeyDown={keys}
+                            inputMode="decimal"
+                            placeholder="%"
+                            className="num [&_input]:h-9 [&_input]:pr-6"
+                          />
+                          <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-[12px] text-ink-muted">%</span>
+                        </div>
+                      ) : ing?.code ? (
+                        pctText(ing.percentBp)
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="px-3 py-2.5">
                       <div data-use={u.key}>
@@ -377,7 +544,7 @@ function ProductionCard({
                           showUnit={Boolean(u.item)}
                           onChange={(line) => setUse(u.key, { qty: line.qty })}
                           placeholder={s.warn ? "Amount" : "0"}
-                          label={`Amount of ${u.ingredient?.code ?? "material"} used`}
+                          label={`Amount of ${ing?.code || "material"} used`}
                         />
                       </div>
                     </td>
@@ -403,15 +570,24 @@ function ProductionCard({
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex justify-center gap-1.5">
-                        <button
-                          type="button"
-                          aria-label="Change the amount"
-                          title="Change the amount"
-                          onClick={() => focusAmount(u.key)}
-                          className="inline-flex size-8 items-center justify-center rounded-md border border-line-strong text-ink-muted hover:bg-hover hover:text-ink"
-                        >
-                          <Pencil className="size-3.5" />
-                        </button>
+                        {isEditing ? (
+                          <>
+                            <IconButton label="Save this line" onClick={() => saveEdit(u)} tone="ok">
+                              <Check className="size-3.5" />
+                            </IconButton>
+                            <IconButton label="Cancel" onClick={() => cancelEdit(u)}>
+                              <X className="size-3.5" />
+                            </IconButton>
+                          </>
+                        ) : canChange ? (
+                          <IconButton label="Change this recipe line (material and %)" onClick={() => startEdit(u)} disabled={editing !== null}>
+                            <Pencil className="size-3.5" />
+                          </IconButton>
+                        ) : (
+                          <IconButton label="Change the amount" onClick={() => focusAmount(u.key)}>
+                            <Pencil className="size-3.5" />
+                          </IconButton>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -419,9 +595,31 @@ function ProductionCard({
               })}
               <tr className="border-t border-line">
                 <td colSpan={7} className="px-4 py-2.5">
-                  <button type="button" onClick={addUse} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-info hover:underline">
-                    <PlusCircle className="size-4" /> Add material
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {canChange ? (
+                      <button
+                        type="button"
+                        onClick={addUse}
+                        disabled={editing !== null}
+                        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-info hover:underline disabled:opacity-50"
+                      >
+                        <PlusCircle className="size-4" /> Add material
+                      </button>
+                    ) : null}
+                    <span className="flex-1" />
+                    <span
+                      className={clsx(
+                        "num text-[12px] font-medium",
+                        total === 10_000 ? "text-success" : changed ? "text-danger" : "text-ink-muted",
+                      )}
+                      title="A changed recipe's percents must add up to exactly 100%."
+                    >
+                      Recipe total {total / 100}%{changed && total !== 10_000 ? " — must be 100%" : ""}
+                    </span>
+                  </div>
+                  {problemFor(recipeProblemKey(g.key)) ? (
+                    <p className="mt-1 text-[12px] text-danger">{problemFor(recipeProblemKey(g.key))}</p>
+                  ) : null}
                 </td>
               </tr>
             </tbody>
@@ -434,15 +632,20 @@ function ProductionCard({
           productKey={pool.productKey!}
           productName={pool.name}
           currentRecipe={currentRecipe}
+          currentAlternates={products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0)?.recipeAlternates ?? []}
           onSent={() => setRecipeNote("Recipe change sent for approval — this run still uses the current recipe.")}
           onClose={(applied) => {
             openRecipe(false);
             if (applied) {
               // An Admin's change applies at once: use it for this run straight away.
+              const recipe = parseRecipe(applied);
+              const alternates = alternatesFor(pool, products);
               onChange({
                 ...g,
                 hasRecipe: applied.length > 0,
-                uses: proposeUses(pool, madeMilliOf(g.made.qty), parseRecipe(applied), items, [], `${g.key}-r${Date.now()}-`),
+                originalRecipe: recipe,
+                alternates,
+                uses: proposeUses(pool, madeMilli, recipe, items, `${g.key}-r${Date.now()}-`, alternates),
               });
               setRecipeNote("New recipe saved and used for this run.");
             }
@@ -450,6 +653,38 @@ function ProductionCard({
         />
       ) : null}
     </div>
+  );
+}
+
+function IconButton({
+  label,
+  onClick,
+  children,
+  disabled,
+  tone,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+  disabled?: boolean;
+  tone?: "ok";
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      disabled={disabled}
+      className={clsx(
+        "inline-flex size-8 items-center justify-center rounded-md border transition-colors disabled:opacity-40",
+        tone === "ok"
+          ? "border-success/40 bg-success-soft text-success hover:bg-success-soft/70"
+          : "border-line-strong text-ink-muted hover:bg-hover hover:text-ink",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
