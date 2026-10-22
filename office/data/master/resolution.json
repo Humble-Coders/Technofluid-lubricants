@@ -1,0 +1,529 @@
+{
+ "resolved": {
+  "0w-20": {
+   "kind": "blend",
+   "code": "0w-20",
+   "usedIn": 1
+  },
+  "4cst": {
+   "kind": "raw_material",
+   "code": "4cst",
+   "usedIn": 6
+  },
+  "5w-30": {
+   "kind": "blend",
+   "code": "5w-30",
+   "usedIn": 1
+  },
+  "6cst": {
+   "kind": "raw_material",
+   "code": "6cst",
+   "usedIn": 6
+  },
+  "8cst": {
+   "kind": "raw_material",
+   "code": "8cst",
+   "usedIn": 8
+  },
+  "ac additive": {
+   "kind": "raw_material",
+   "code": "ac additive",
+   "usedIn": 6
+  },
+  "anti oxidant": {
+   "kind": "raw_material",
+   "code": "anti oxidant",
+   "usedIn": 1
+  },
+  "anti rust": {
+   "kind": "raw_material",
+   "code": "anti rust",
+   "usedIn": 1
+  },
+  "anti wear": {
+   "kind": "raw_material",
+   "code": "anti wear",
+   "usedIn": 1
+  },
+  "antifoam": {
+   "kind": "raw_material",
+   "code": "antifoam",
+   "usedIn": 14
+  },
+  "ap3": {
+   "kind": "raw_material",
+   "code": "ap3",
+   "usedIn": 6
+  },
+  "aplr": {
+   "kind": "raw_material",
+   "code": "aplr",
+   "usedIn": 1
+  },
+  "blue gel": {
+   "kind": "raw_material",
+   "code": "blue gel",
+   "usedIn": 2
+  },
+  "brake fluid": {
+   "kind": "blend",
+   "code": "brake fluid",
+   "usedIn": 3
+  },
+  "bs": {
+   "kind": "raw_material",
+   "code": "bs",
+   "usedIn": 1
+  },
+  "c red gel": {
+   "kind": "raw_material",
+   "code": "c red gel",
+   "usedIn": 1
+  },
+  "cf4": {
+   "kind": "blend",
+   "code": "r5",
+   "usedIn": 1
+  },
+  "chain oil": {
+   "kind": "blend",
+   "code": "chain oil",
+   "usedIn": 2
+  },
+  "ci4": {
+   "kind": "blend",
+   "code": "sn",
+   "usedIn": 4
+  },
+  "dw": {
+   "kind": "raw_material",
+   "code": "dw",
+   "usedIn": 2
+  },
+  "eo additive": {
+   "kind": "raw_material",
+   "code": "eo additive",
+   "usedIn": 14
+  },
+  "ep2": {
+   "kind": "raw_material",
+   "code": "ep2",
+   "usedIn": 5
+  },
+  "ep2h1": {
+   "kind": "raw_material",
+   "code": "ep2h1",
+   "usedIn": 1
+  },
+  "friction modifier": {
+   "kind": "raw_material",
+   "code": "friction modifier",
+   "usedIn": 1
+  },
+  "g red gel": {
+   "kind": "raw_material",
+   "code": "g red gel",
+   "usedIn": 1
+  },
+  "g140": {
+   "kind": "blend",
+   "code": "g140",
+   "usedIn": 4
+  },
+  "g75w90": {
+   "kind": "blend",
+   "code": "g75w90",
+   "usedIn": 1
+  },
+  "g90": {
+   "kind": "blend",
+   "code": "g90",
+   "usedIn": 8
+  },
+  "gl5": {
+   "kind": "blend",
+   "code": "gl5",
+   "usedIn": 2
+  },
+  "go": {
+   "kind": "raw_material",
+   "code": "go",
+   "usedIn": 11
+  },
+  "h100": {
+   "kind": "blend",
+   "code": "h100",
+   "usedIn": 1
+  },
+  "h150": {
+   "kind": "blend",
+   "code": "h150",
+   "usedIn": 1
+  },
+  "h68": {
+   "kind": "blend",
+   "code": "h68",
+   "usedIn": 2
+  },
+  "lubimax141": {
+   "kind": "raw_material",
+   "code": "polymer",
+   "usedIn": 12
+  },
+  "meg": {
+   "kind": "raw_material",
+   "code": "meg",
+   "usedIn": 1
+  },
+  "mp3": {
+   "kind": "raw_material",
+   "code": "mp3",
+   "usedIn": 1
+  },
+  "mto": {
+   "kind": "raw_material",
+   "code": "mto",
+   "usedIn": 1
+  },
+  "n4": {
+   "kind": "raw_material",
+   "code": "n4",
+   "usedIn": 10
+  },
+  "n4vi10kg": {
+   "kind": "premix",
+   "code": "n4vi10kg",
+   "usedIn": 1
+  },
+  "nc additive": {
+   "kind": "raw_material",
+   "code": "nc additive",
+   "usedIn": 2
+  },
+  "nh": {
+   "kind": "blend",
+   "code": "nh",
+   "usedIn": 5
+  },
+  "nvi10kg": {
+   "kind": "premix",
+   "code": "n4vi10kg",
+   "usedIn": 5
+  },
+  "pao4": {
+   "kind": "raw_material",
+   "code": "pao4",
+   "usedIn": 9
+  },
+  "polymer": {
+   "kind": "raw_material",
+   "code": "polymer",
+   "usedIn": 1
+  },
+  "ppd": {
+   "kind": "raw_material",
+   "code": "ppd",
+   "usedIn": 21
+  },
+  "q additive": {
+   "kind": "raw_material",
+   "code": "q additive",
+   "usedIn": 2
+  },
+  "r5": {
+   "kind": "blend",
+   "code": "r5",
+   "usedIn": 10
+  },
+  "rear axle oil": {
+   "kind": "blend",
+   "code": "wet brake oil",
+   "usedIn": 1
+  },
+  "red gel": {
+   "kind": "raw_material",
+   "code": "red gel",
+   "usedIn": 1
+  },
+  "roll perfect 46": {
+   "kind": "raw_material",
+   "code": "roll perfect 46",
+   "usedIn": 1
+  },
+  "rp additive": {
+   "kind": "raw_material",
+   "code": "rp additive",
+   "usedIn": 1
+  },
+  "rpo710": {
+   "kind": "raw_material",
+   "code": "rpo 710",
+   "usedIn": 1
+  },
+  "sa additive": {
+   "kind": "raw_material",
+   "code": "sa additive",
+   "usedIn": 7
+  },
+  "sae40": {
+   "kind": "raw_material",
+   "code": "sae40",
+   "usedIn": 17
+  },
+  "slr": {
+   "kind": "raw_material",
+   "code": "slr",
+   "usedIn": 1
+  },
+  "sn": {
+   "kind": "blend",
+   "code": "sn",
+   "usedIn": 5
+  },
+  "sn150": {
+   "kind": "raw_material",
+   "code": "sn150",
+   "usedIn": 4
+  },
+  "sn500": {
+   "kind": "raw_material",
+   "code": "sn500",
+   "usedIn": 24
+  },
+  "sn500(kg)": {
+   "kind": "raw_material",
+   "code": "sn500",
+   "usedIn": 4
+  },
+  "sn500vi10kg": {
+   "kind": "premix",
+   "code": "sn500vi10kg",
+   "usedIn": 6
+  },
+  "ssc concenterate": {
+   "kind": "raw_material",
+   "code": "ssc concenterate",
+   "usedIn": 1
+  },
+  "tackifier": {
+   "kind": "raw_material",
+   "code": "tackifier",
+   "usedIn": 1
+  },
+  "tb": {
+   "kind": "raw_material",
+   "code": "turbine",
+   "usedIn": 1
+  },
+  "tfsae30": {
+   "kind": "blend",
+   "code": "tfsae30",
+   "usedIn": 1
+  },
+  "tq": {
+   "kind": "blend",
+   "code": "tq",
+   "usedIn": 1
+  },
+  "utto": {
+   "kind": "blend",
+   "code": "wet brake oil",
+   "usedIn": 1
+  },
+  "va": {
+   "kind": "raw_material",
+   "code": "va",
+   "usedIn": 15
+  },
+  "va12.8": {
+   "kind": "blend",
+   "code": "va12.8",
+   "usedIn": 1
+  },
+  "va13.7": {
+   "kind": "blend",
+   "code": "va13.7",
+   "usedIn": 5
+  },
+  "va15.5": {
+   "kind": "blend",
+   "code": "va15.5",
+   "usedIn": 4
+  },
+  "va16.4": {
+   "kind": "blend",
+   "code": "va16.4",
+   "usedIn": 4
+  },
+  "va17.3": {
+   "kind": "blend",
+   "code": "va17.3",
+   "usedIn": 5
+  },
+  "va18.2": {
+   "kind": "blend",
+   "code": "va18.2",
+   "usedIn": 2
+  },
+  "va19.1": {
+   "kind": "blend",
+   "code": "va19.1",
+   "usedIn": 1
+  },
+  "vavi10kg": {
+   "kind": "premix",
+   "code": "vavi10kg",
+   "usedIn": 22
+  },
+  "w150": {
+   "kind": "raw_material",
+   "code": "w150",
+   "usedIn": 47
+  },
+  "w150vi10kg": {
+   "kind": "premix",
+   "code": "w150vi10kg",
+   "usedIn": 25
+  },
+  "w500": {
+   "kind": "raw_material",
+   "code": "w500",
+   "usedIn": 36
+  },
+  "w500vi10kg": {
+   "kind": "premix",
+   "code": "w500vi10kg",
+   "usedIn": 9
+  },
+  "w500vifg10kg": {
+   "kind": "premix",
+   "code": "w500vifg10kg",
+   "usedIn": 3
+  },
+  "w70": {
+   "kind": "raw_material",
+   "code": "w70",
+   "usedIn": 19
+  }
+ },
+ "unresolved": {
+  "ep additive": {
+   "usedIn": 16,
+   "examples": [
+    "blend g140",
+    "blend g75w90",
+    "blend g90",
+    "blend gl5",
+    "product food-grade-lubricants-gear-220",
+    "product food-grade-lubricants-gear-320"
+   ]
+  },
+  "toy": {
+   "usedIn": 10,
+   "examples": [
+    "product circulating-oil-32",
+    "product electrical-insulating-oil-submersible-motor-starter-oil",
+    "product hydraulic-oil-aw-32",
+    "product rubber-process-oils-elastol-541",
+    "product spindle-oil-10",
+    "product spindle-oil-12"
+   ]
+  },
+  "tor": {
+   "usedIn": 10,
+   "examples": [
+    "product circulating-oil-32",
+    "product electrical-insulating-oil-submersible-motor-starter-oil",
+    "product hydraulic-oil-aw-32",
+    "product rust-preventive-oil-906",
+    "product spindle-oil-10",
+    "product spindle-oil-12"
+   ]
+  },
+  "w60": {
+   "usedIn": 10,
+   "examples": [
+    "product circulating-oil-32",
+    "product electrical-insulating-oil-submersible-motor-starter-oil",
+    "product knitting-oil-non-washable-22",
+    "product knitting-oil-water-soluble-22",
+    "product rubber-process-oils-elastol-541",
+    "product spindle-oil-10"
+   ]
+  },
+  "wbt100": {
+   "usedIn": 6,
+   "examples": [
+    "product coning-oil-22",
+    "product coning-oil-32",
+    "product knitting-oil-water-soluble-22",
+    "product knitting-oil-water-soluble-32",
+    "product warping-oil-22",
+    "product warping-oil-32"
+   ]
+  },
+  "n500vi10kg": {
+   "usedIn": 4,
+   "examples": [
+    "product gear-ep-series-150",
+    "product gear-ep-series-220",
+    "product gear-ep-series-320",
+    "product gear-ep-series-460"
+   ]
+  },
+  "tb additive": {
+   "usedIn": 4,
+   "examples": [
+    "product turbine-oils-100",
+    "product turbine-oils-32",
+    "product turbine-oils-46",
+    "product turbine-oils-68"
+   ]
+  },
+  "tq additive": {
+   "usedIn": 2,
+   "examples": [
+    "blend tfsae30",
+    "blend tq"
+   ]
+  },
+  "hsd": {
+   "usedIn": 2,
+   "examples": [
+    "product spindle-oil-2",
+    "product spindle-oil-5"
+   ]
+  },
+  "utto additive": {
+   "usedIn": 1,
+   "examples": [
+    "blend wet brake oil"
+   ]
+  },
+  "cutting oil": {
+   "usedIn": 1,
+   "examples": [
+    "product cutting-oil"
+   ]
+  },
+  "ht additive": {
+   "usedIn": 1,
+   "examples": [
+    "product ht-32-premium"
+   ]
+  },
+  "2cst": {
+   "usedIn": 1,
+   "examples": [
+    "product shock-absorber-oil-2-5w"
+   ]
+  }
+ },
+ "assumedAliases": {
+  "nvi10kg": "n4vi10kg",
+  "sn500(kg)": "sn500"
+ },
+ "ambiguous": {
+  "n500vi10kg": "could be sn500vi10kg or w500vi10kg (Gear EP 150–460) — ask Gaurav"
+ }
+}

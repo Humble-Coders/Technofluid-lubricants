@@ -1,0 +1,6889 @@
+[
+ {
+  "productKey": "2t-engine-oil",
+  "product": "2T ENGINE OIL",
+  "grade": "",
+  "skus": [
+   "500ML2T-35X500ML",
+   "2TENG-20X1L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": null,
+    "raw": "n4/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "nvi10kg",
+    "pctBp": null,
+    "raw": "nvi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "n4vi10kg"
+    }
+   },
+   {
+    "code": "nh",
+    "pctBp": 10000,
+    "raw": "nh/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "nh"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "brake-fluid-dot-3",
+  "product": "BRAKE FLUID",
+  "grade": "DOT 3",
+  "skus": [
+   "BRAFLU-DOT3-35X500ML"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "brake fluid",
+    "pctBp": 10000,
+    "raw": "brake fluid",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "brake fluid"
+    },
+    "percentAssumed": true
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from brake fluid (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "brake fluid"
+ },
+ {
+  "productKey": "brake-fluid-dot-4",
+  "product": "BRAKE FLUID",
+  "grade": "DOT 4",
+  "skus": [
+   "BRAFLU-DOT4-35X500ML"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "brake fluid",
+    "pctBp": 10000,
+    "raw": "brake fluid",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "brake fluid"
+    },
+    "percentAssumed": true
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from brake fluid (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "brake fluid"
+ },
+ {
+  "productKey": "brake-fluid-dot-5",
+  "product": "BRAKE FLUID",
+  "grade": "DOT 5",
+  "skus": [
+   "BRAFLU-DOT5-35X500ML"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "brake fluid",
+    "pctBp": 10000,
+    "raw": "brake fluid",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "brake fluid"
+    },
+    "percentAssumed": true
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from brake fluid (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "brake fluid"
+ },
+ {
+  "productKey": "calcium-base-grease-c-red-gel",
+  "product": "CALCIUM BASE GREASE",
+  "grade": "C Red Gel",
+  "skus": [
+   "10KGBUC-10KG-6",
+   "12X1-12KG-4",
+   "24X500-12KG-4",
+   "4X3-12KG-4",
+   "6X2-12KG-3",
+   "18KGBUC-18KG-4",
+   "4X5-20KG-5",
+   "GRECRED-170KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "c red gel",
+    "pctBp": 10000,
+    "raw": "c red gel/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "c red gel"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from c red gel (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "c red gel"
+ },
+ {
+  "productKey": "calcium-base-grease-g-red-gel",
+  "product": "CALCIUM BASE GREASE",
+  "grade": "G Red Gel",
+  "skus": [
+   "10KGBUC-10KG",
+   "12X1-12KG-5",
+   "24X500-12KG-5",
+   "4X3-12KG-5",
+   "6X2-12KG-4",
+   "18KGBUC-18KG-2",
+   "4X5-20KG-6",
+   "GREGRED-170KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g red gel",
+    "pctBp": 10000,
+    "raw": "g red gel/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "g red gel"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from g red gel (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "g red gel"
+ },
+ {
+  "productKey": "calcium-base-grease-mp3",
+  "product": "CALCIUM BASE GREASE",
+  "grade": "MP3",
+  "skus": [
+   "10KGBUC-10KG-8",
+   "12X1-12KG-6",
+   "24X500-12KG-6",
+   "4X3-12KG-7",
+   "6X2-12KG-6",
+   "18KGBUC-18KG-13",
+   "4X5-20KG-7",
+   "GREMP3YEL-170KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "mp3",
+    "pctBp": 10000,
+    "raw": "mp3/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "mp3"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from mp3 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "mp3"
+ },
+ {
+  "productKey": "calcium-base-grease-slr",
+  "product": "CALCIUM BASE GREASE",
+  "grade": "SLR",
+  "skus": [
+   "10KGBUC-10KG-2",
+   "12X1-12KG-8",
+   "24X500-12KG-8",
+   "4X3-12KG-8",
+   "6X2-12KG-7",
+   "18KGBUC-18KG-3",
+   "4X5-20KG-8",
+   "GRESLRCAL-170KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "slr",
+    "pctBp": 10000,
+    "raw": "slr/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "slr"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from slr (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "slr"
+ },
+ {
+  "productKey": "chain-oil",
+  "product": "CHAIN OIL",
+  "grade": "",
+  "skus": [
+   "CHA-20X1L",
+   "CHA-4X5L",
+   "CHA-20L",
+   "CHAOIL-26LCANE",
+   "CHAOIL-50LCANE",
+   "CHAOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "chain oil",
+    "pctBp": 10000,
+    "raw": "chain oil/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "chain oil"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from chain oil (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "chain oil"
+ },
+ {
+  "productKey": "circulating-oil-100",
+  "product": "CIRCULATING OIL",
+  "grade": "100",
+  "skus": [
+   "CIR-100-26L",
+   "CIR-100-50L",
+   "CIR-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": null,
+    "raw": "va/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "va18.2",
+    "pctBp": 10000,
+    "raw": "va18.2/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va18.2"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-150",
+  "product": "CIRCULATING OIL",
+  "grade": "150",
+  "skus": [
+   "CIR-150-26L",
+   "CIR-150-50L",
+   "CIR-150-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": null,
+    "raw": "va/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "va17.3",
+    "pctBp": 10000,
+    "raw": "va17.3/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va17.3"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-220",
+  "product": "CIRCULATING OIL",
+  "grade": "220",
+  "skus": [
+   "CIR-220-26L",
+   "CIR-220-50L",
+   "CIR-220-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": null,
+    "raw": "va/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "va16.4",
+    "pctBp": 10000,
+    "raw": "va16.4/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va16.4"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-32",
+  "product": "CIRCULATING OIL",
+  "grade": "32",
+  "skus": [
+   "CIR-32-26L",
+   "CIR-32-50L",
+   "CIR-32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 10000,
+    "raw": "n4/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "toy",
+    "pctBp": null,
+    "raw": "toy/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"toy/\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-320",
+  "product": "CIRCULATING OIL",
+  "grade": "320",
+  "skus": [
+   "CIR-320-26L",
+   "CIR-320-50L",
+   "CIR-320-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": null,
+    "raw": "va/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "va15.5",
+    "pctBp": 10000,
+    "raw": "va15.5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va15.5"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-46",
+  "product": "CIRCULATING OIL",
+  "grade": "46",
+  "skus": [
+   "CIR-46-26L",
+   "CIR-46-50L",
+   "CIR-46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 5000,
+    "raw": "n4/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "nvi10kg",
+    "pctBp": null,
+    "raw": "nvi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "n4vi10kg"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "nh",
+    "pctBp": 5000,
+    "raw": "nh/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "nh"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-460",
+  "product": "CIRCULATING OIL",
+  "grade": "460",
+  "skus": [
+   "CIR-460-26L",
+   "CIR-460-50L",
+   "CIR-460-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": null,
+    "raw": "va/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "va13.7",
+    "pctBp": 10000,
+    "raw": "va13.7/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va13.7"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "circulating-oil-68",
+  "product": "CIRCULATING OIL",
+  "grade": "68",
+  "skus": [
+   "CIR-68-26L",
+   "CIR-68-50L",
+   "CIR-68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": null,
+    "raw": "va/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "va19.1",
+    "pctBp": 10000,
+    "raw": "va19.1/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va19.1"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "coning-oil-22",
+  "product": "CONING OIL",
+  "grade": "22",
+  "skus": [
+   "CONOIL22-26LCANE",
+   "CONOIL22-50LCANE",
+   "CONOIL22-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 4400,
+    "raw": "w150/44",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": 4400,
+    "raw": "w70/44",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "wbt100",
+    "pctBp": 1200,
+    "raw": "wbt100/12",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"wbt100/12\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "coning-oil-32",
+  "product": "CONING OIL",
+  "grade": "32",
+  "skus": [
+   "CONOIL32-26LCANE",
+   "CONOIL32-50LCANE",
+   "CONOIL32-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 8800,
+    "raw": "w150/88",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "wbt100",
+    "pctBp": 1200,
+    "raw": "wbt100/12",
+    "resolvesTo": null
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"wbt100/12\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "coolant",
+  "product": "COOLANT",
+  "grade": "",
+  "skus": [
+   "1LITCOO-20X1LITE",
+   "COO-4X5L",
+   "COO-26L",
+   "COO-50L",
+   "COO-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "meg",
+    "pctBp": 5000,
+    "raw": "meg/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "meg"
+    }
+   },
+   {
+    "code": "dw",
+    "pctBp": 5000,
+    "raw": "dw/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "dw"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "cutting-oil",
+  "product": "CUTTING OIL",
+  "grade": "",
+  "skus": [
+   "1LITCUT-20X1LITE",
+   "5LITCUT-4X5LITER",
+   "CUTOIL-26LCANE",
+   "CUTOIL-50LCANE",
+   "CUTOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "cutting oil",
+    "pctBp": 10000,
+    "raw": "cutting oil / 100",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"cutting oil / 100\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "diesel-engine-oils-15w-40-cf4",
+  "product": "DIESEL ENGINE OILS",
+  "grade": "15W-40 CF4",
+  "skus": [
+   "10LITBUC-10LITERB-10",
+   "3LITENG-4X3LITER",
+   "DIEENG-15W40CF4-2X6L",
+   "35LIT-4X35LITE-3",
+   "DIEENG-15W40CF4-15L",
+   "DIEENG-15W40CF4-2X7.5L",
+   "DIEENG-15W40CF4-35X500ML",
+   "DIEENG-15W40CF4-20X1L",
+   "ENGOILCF4-20LBUCKE",
+   "5LITENG-4X5LITER",
+   "ENGOILCF4-26LCANE",
+   "ENGOILCF4-50LCANE",
+   "ENGOILCF4-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 10000,
+    "raw": "r5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from r5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "r5"
+ },
+ {
+  "productKey": "diesel-engine-oils-15w-40-ci4-plus",
+  "product": "DIESEL ENGINE OILS",
+  "grade": "15W-40 CI4 Plus",
+  "skus": [
+   "15LITBUC-15LITERB",
+   "500ML15W-35X500ML",
+   "10LITBUC-10LITERB-11",
+   "3LITENG-4X3LITER-2",
+   "6LITBUC-2X6LITER",
+   "35LIT-4X35LITE-4",
+   "75LIT-2X75LITE",
+   "1LIT15W-20X1LITE",
+   "ENGOILCI4-20LBUCKE",
+   "5LITENG-4X5LITER-2",
+   "ENGOILCI4-26LCANE",
+   "ENGOILCI4-50LCANE",
+   "ENGOILCI4-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ci4",
+    "pctBp": 10000,
+    "raw": "ci4/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from sn (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "sn"
+ },
+ {
+  "productKey": "diesel-engine-oils-20w-40-ch4",
+  "product": "DIESEL ENGINE OILS",
+  "grade": "20W-40 CH4",
+  "skus": [
+   "10LITBUC-10LITERB-12",
+   "DIEENG-20W40CH4-4X3L",
+   "6LITBUC-2X6LITER-2",
+   "35LIT-4X35LITE-6",
+   "DIEENG-20W40CH4-15L",
+   "75LIT-2X75LITE-2",
+   "DIEENG-20W40CH4-35X500ML",
+   "1LITM-20X1LITE",
+   "ENGOILCH4-20LBUCKE",
+   "5LITM-4X5LITER",
+   "ENGOILCH4-26LCANE",
+   "ENGOILCH4-50LCANE",
+   "ENGOILCH4-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "cf4",
+    "pctBp": 5000,
+    "raw": "CF4/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   },
+   {
+    "code": "ci4",
+    "pctBp": 5000,
+    "raw": "CI4/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "diesel-engine-oils-sae-40-cf",
+  "product": "DIESEL ENGINE OILS",
+  "grade": "SAE 40 CF",
+  "skus": [
+   "DIEENG-SAE40CF-10L",
+   "DIEENG-SAE40CF-15L",
+   "DIEENG-SAE40CF-20L",
+   "DIEENG-SAE40CF-26L",
+   "DIEENG-SAE40CF-50L",
+   "DIEENG-SAE40CF-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 10000,
+    "raw": "SAE40/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from sae40 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "sae40"
+ },
+ {
+  "productKey": "diesel-engine-oils-sae-50-cf",
+  "product": "DIESEL ENGINE OILS",
+  "grade": "SAE 50 CF",
+  "skus": [
+   "DIEENG-SAE50CF-10L",
+   "DIEENG-SAE50CF-15L",
+   "DIEENG-SAE50CF-20L",
+   "DIEENG-SAE50CF-26L",
+   "DIEENG-SAE50CF-50L",
+   "DIEENG-SAE50CF-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9600,
+    "raw": "sae40/96",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "sn500vi10kg",
+    "pctBp": null,
+    "raw": "sn500vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "sn500vi10kg"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 400,
+    "raw": "w150vi10kg/4",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": null,
+    "raw": "w500vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "electrical-insulating-oil-submersible-motor-starter-oil",
+  "product": "ELECTRICAL INSULATING OIL",
+  "grade": "Submersible Motor Starter Oil",
+  "skus": [
+   "ELEINS-SUBMERSIBLEMOTORSTARTEROIL-20X1L",
+   "ELEINS-SUBMERSIBLEMOTORSTARTEROIL-4X3.5L",
+   "ELEINS-SUBMERSIBLEMOTORSTARTEROIL-4X4L",
+   "ELEINS-SUBMERSIBLEMOTORSTARTEROIL-4X4.5L",
+   "ELEINS-SUBMERSIBLEMOTORSTARTEROIL-4X5L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w70",
+    "pctBp": 10000,
+    "raw": "w70/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "TOR/",
+    "resolvesTo": null
+   },
+   {
+    "code": "toy",
+    "pctBp": null,
+    "raw": "toy/",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3",
+   "ingredient \"TOR/\" is not defined in Sheet1/2/3",
+   "ingredient \"toy/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "ep-grease-series-0",
+  "product": "EP GREASE SERIES",
+  "grade": "0",
+  "skus": [
+   "EPGRE-0-10KG",
+   "EPGRE-0-18KG",
+   "EPGRE-0-4X5KG",
+   "EPGRE-0-180KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ep2",
+    "pctBp": 7400,
+    "raw": "ep2/74",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ep2"
+    }
+   },
+   {
+    "code": "ap3",
+    "pctBp": null,
+    "raw": "ap3/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ap3"
+    }
+   },
+   {
+    "code": "sn500(kg)",
+    "pctBp": 2600,
+    "raw": "sn500(kg)/26",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "ep-grease-series-00",
+  "product": "EP GREASE SERIES",
+  "grade": "00",
+  "skus": [
+   "EPGRE-00-10KG",
+   "18KGBUC-18KG-8",
+   "EPGRE-00-4X5KG",
+   "GREHIGTEM-180KG-3"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ep2",
+    "pctBp": 6700,
+    "raw": "ep2/67",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ep2"
+    }
+   },
+   {
+    "code": "ap3",
+    "pctBp": null,
+    "raw": "ap3/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ap3"
+    }
+   },
+   {
+    "code": "sn500(kg)",
+    "pctBp": 3300,
+    "raw": "sn500(kg)/33",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "ep-grease-series-000",
+  "product": "EP GREASE SERIES",
+  "grade": "000",
+  "skus": [
+   "EPGRE-000-10KG",
+   "18KGBUC-18KG-9",
+   "EPGRE-000-4X5KG",
+   "GREHIGTEM-180KG-4"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ep2",
+    "pctBp": 6000,
+    "raw": "ep2/60",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ep2"
+    }
+   },
+   {
+    "code": "ap3",
+    "pctBp": null,
+    "raw": "ap3/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ap3"
+    }
+   },
+   {
+    "code": "sn500(kg)",
+    "pctBp": 4000,
+    "raw": "sn500(kg)/40",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "ep-grease-series-1",
+  "product": "EP GREASE SERIES",
+  "grade": "1",
+  "skus": [
+   "EPGRE-1-10KG",
+   "18KGBUC-18KG-10",
+   "EPGRE-1-4X5KG",
+   "GREHIGTEM-180KG-5"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ep2",
+    "pctBp": 8100,
+    "raw": "ep2/81",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ep2"
+    }
+   },
+   {
+    "code": "ap3",
+    "pctBp": null,
+    "raw": "ap3/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ap3"
+    }
+   },
+   {
+    "code": "sn500(kg)",
+    "pctBp": 1900,
+    "raw": "sn500(kg)/19",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "ep-grease-series-2",
+  "product": "EP GREASE SERIES",
+  "grade": "2",
+  "skus": [
+   "10KGBUC-10KG-7",
+   "18KGBUC-18KG-11",
+   "4X5KGGRE-20KG",
+   "GREHIGTEM-180KG-6"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ep2",
+    "pctBp": 10000,
+    "raw": "ep2/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ep2"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from ep2 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "ep2"
+ },
+ {
+  "productKey": "ep-grease-series-3",
+  "product": "EP GREASE SERIES",
+  "grade": "3",
+  "skus": [
+   "EPGRE-3-10KG",
+   "18KGBUC-18KG-12",
+   "EPGRE-3-4X5KG",
+   "GREHIGTEM-180KG-7"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ap3",
+    "pctBp": 10000,
+    "raw": "ap3/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ap3"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from ap3 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "ap3"
+ },
+ {
+  "productKey": "food-grade-lubricants-chain-oil-150",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Chain Oil 150",
+  "skus": [
+   "FOOGRALUB-CHAINOIL150-26L",
+   "FOOGRALUB-CHAINOIL150-50L",
+   "FOOGRALUB-CHAINOIL150-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "chain oil",
+    "pctBp": 10000,
+    "raw": "chain oil",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "chain oil"
+    },
+    "percentAssumed": true
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from chain oil (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "chain oil"
+ },
+ {
+  "productKey": "food-grade-lubricants-gear-220",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Gear 220",
+  "skus": [
+   "FOOGRALUB-GEAR220-26L",
+   "FOOGRALUB-GEAR220-50L",
+   "FOOGRALUB-GEAR220-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9425,
+    "raw": "w500/94.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w500vifg10kg",
+    "pctBp": 500,
+    "raw": "w500vifg10kg/5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vifg10kg"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "food-grade-lubricants-gear-320",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Gear 320",
+  "skus": [
+   "FOOGRALUB-GEAR320-26L",
+   "FOOGRALUB-GEAR320-50L",
+   "FOOGRALUB-GEAR320-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 8925,
+    "raw": "w500/89.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w500vifg10kg",
+    "pctBp": 1000,
+    "raw": "w500vifg10kg/10",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vifg10kg"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "food-grade-lubricants-grease-ep-2-h1",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Grease EP 2 (H1)",
+  "skus": [
+   "FOOGRALUB-GREASEEP2H1-26L",
+   "FOOGRALUB-GREASEEP2H1-50L",
+   "FOOGRALUB-GREASEEP2H1-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ep2h1",
+    "pctBp": 10000,
+    "raw": "ep2h1/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ep2h1"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from ep2h1 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "ep2h1"
+ },
+ {
+  "productKey": "food-grade-lubricants-hydraulic-100",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Hydraulic 100",
+  "skus": [
+   "FOOGRALUB-HYDRAULIC100-26L",
+   "FOOGRALUB-HYDRAULIC100-50L",
+   "FOOGRALUB-HYDRAULIC100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 10000,
+    "raw": "w500/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w500 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w500"
+ },
+ {
+  "productKey": "food-grade-lubricants-hydraulic-22",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Hydraulic 22",
+  "skus": [
+   "FOOGRALUB-HYDRAULIC22-26L",
+   "FOOGRALUB-HYDRAULIC22-50L",
+   "FOOGRALUB-HYDRAULIC22-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": 5000,
+    "raw": "w70/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "food-grade-lubricants-hydraulic-32",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Hydraulic 32",
+  "skus": [
+   "FOOGRALUB-HYDRAULIC32-26L",
+   "FOOGRALUB-HYDRAULIC32-50L",
+   "FOOGRALUB-HYDRAULIC32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w150"
+ },
+ {
+  "productKey": "food-grade-lubricants-hydraulic-46",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Hydraulic 46",
+  "skus": [
+   "FOOGRALUB-HYDRAULIC46-26L",
+   "FOOGRALUB-HYDRAULIC46-50L",
+   "FOOGRALUB-HYDRAULIC46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 7600,
+    "raw": "w150/76",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 2400,
+    "raw": "w500/24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "food-grade-lubricants-hydraulic-68",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "Hydraulic 68",
+  "skus": [
+   "FOOGRALUB-HYDRAULIC68-26L",
+   "FOOGRALUB-HYDRAULIC68-50L",
+   "FOOGRALUB-HYDRAULIC68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 5000,
+    "raw": "w500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "food-grade-lubricants-white-oil-100",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "White Oil 100",
+  "skus": [
+   "FOOGRALUB-WHITEOIL100-26L",
+   "FOOGRALUB-WHITEOIL100-50L",
+   "FOOGRALUB-WHITEOIL100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 10000,
+    "raw": "w500/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w500 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w500"
+ },
+ {
+  "productKey": "food-grade-lubricants-white-oil-32",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "White Oil 32",
+  "skus": [
+   "FOOGRALUB-WHITEOIL32-26L",
+   "FOOGRALUB-WHITEOIL32-50L",
+   "FOOGRALUB-WHITEOIL32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w150"
+ },
+ {
+  "productKey": "food-grade-lubricants-white-oil-46",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "White Oil 46",
+  "skus": [
+   "FOOGRALUB-WHITEOIL46-26L",
+   "FOOGRALUB-WHITEOIL46-50L",
+   "FOOGRALUB-WHITEOIL46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 7600,
+    "raw": "w150/76",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 2400,
+    "raw": "w500/24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "food-grade-lubricants-white-oil-68",
+  "product": "FOOD GRADE LUBRICANTS",
+  "grade": "White Oil 68",
+  "skus": [
+   "FOOGRALUB-WHITEOIL68-26L",
+   "FOOGRALUB-WHITEOIL68-50L",
+   "FOOGRALUB-WHITEOIL68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 5000,
+    "raw": "w500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "four-stroke-motorcycle-engine-oils-10w-30-sm",
+  "product": "FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "grade": "10W-30 SM",
+  "skus": [
+   "800ML4T-20X800ML",
+   "900ML4T-20X900ML",
+   "FOUSTRMOT-10W30SM-26L",
+   "FOUSTRMOT-10W30SM-50L",
+   "FOUSTRMOT-10W30SM-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 9530,
+    "raw": "r5/95.3",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 470,
+    "raw": "w150/4.7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "four-stroke-motorcycle-engine-oils-10w-30-sn",
+  "product": "FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "grade": "10W-30 SN",
+  "skus": [
+   "FOUSTRMOT-10W30SN-20X800ML",
+   "FOUSTRMOT-10W30SN-20X900ML",
+   "FOUSTRMOT-10W30SN-26L",
+   "FOUSTRMOT-10W30SN-50L",
+   "FOUSTRMOT-10W30SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 9530,
+    "raw": "r5/95.3",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 470,
+    "raw": "w150/4.7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "four-stroke-motorcycle-engine-oils-15w-50-sn",
+  "product": "FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "grade": "15W-50 SN",
+  "skus": [
+   "ENGOIL4T-20LBUCKE",
+   "ENGOIL4T-26LCANE",
+   "ENGOIL4T-50LCANE",
+   "ENGOIL4T-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn",
+    "pctBp": 5000,
+    "raw": "sn/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   },
+   {
+    "code": "sae40",
+    "pctBp": 5000,
+    "raw": "sae40/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "four-stroke-motorcycle-engine-oils-20w-40-sm",
+  "product": "FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "grade": "20W-40 SM",
+  "skus": [
+   "500ML4T-35X500ML",
+   "FOUSTRMOT-20W40SM-20X800ML",
+   "900ML4T-20X900ML-2",
+   "1LIT4T-20X1LITE",
+   "ENGOIL4T-20LBUCKE-2",
+   "ENGOIL4T-26LCANE-2",
+   "ENGOIL4T-50LCANE-2",
+   "ENGOIL4T-210LBARR-2"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 10000,
+    "raw": "r5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from r5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "r5"
+ },
+ {
+  "productKey": "four-stroke-motorcycle-engine-oils-20w-40-sn",
+  "product": "FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "grade": "20W-40 SN",
+  "skus": [
+   "FOUSTRMOT-20W40SN-20X800ML",
+   "900ML4T-20X900ML-3",
+   "1LITENG-20X1LITE-2",
+   "FOUSTRMOT-20W40SN-20L",
+   "FOUSTRMOT-20W40SN-26L",
+   "FOUSTRMOT-20W40SN-50L",
+   "FOUSTRMOT-20W40SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn",
+    "pctBp": 10000,
+    "raw": "sn/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from sn (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "sn"
+ },
+ {
+  "productKey": "four-stroke-motorcycle-engine-oils-20w-50-sm",
+  "product": "FOUR-STROKE MOTORCYCLE ENGINE OILS",
+  "grade": "20W-50 SM",
+  "skus": [
+   "1LITENG-20X1LITE-3",
+   "FOUSTRMOT-20W50SM-26L",
+   "FOUSTRMOT-20W50SM-50L",
+   "FOUSTRMOT-20W50SM-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 5000,
+    "raw": "r5/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   },
+   {
+    "code": "sae40",
+    "pctBp": 5000,
+    "raw": "sae40/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-100",
+  "product": "GEAR EP SERIES",
+  "grade": "100",
+  "skus": [
+   "GEAEP-100-10L",
+   "GEAEP-100-20L",
+   "GEAEP-100-26L",
+   "GEAEP-100-50L",
+   "GEAEP-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": null,
+    "raw": "g90/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 9925,
+    "raw": "sn500/99.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-140-gl4",
+  "product": "GEAR EP SERIES",
+  "grade": "140 GL4",
+  "skus": [
+   "GEAEP-140GL4-10L",
+   "GEAEP-140GL4-4X2.5L",
+   "1LITGEA-20X1LITE-2",
+   "GEAEP140-20LBUCKE",
+   "5LITEP-4X5LITER",
+   "GEAEP140-26LCANE",
+   "GEAEP140-50LCANE",
+   "GEAEP140-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g140",
+    "pctBp": 10000,
+    "raw": "g140/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g140"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from g140 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "g140"
+ },
+ {
+  "productKey": "gear-ep-series-150",
+  "product": "GEAR EP SERIES",
+  "grade": "150",
+  "skus": [
+   "10LITBUC-10LITERB-2",
+   "GEAEP150-20LBUCKE",
+   "GEAEP150-26LCANE",
+   "GEAEP150-50LCANE",
+   "GEAEP150-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": null,
+    "raw": "g90/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 9425,
+    "raw": "sn500/94.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "n500vi10kg",
+    "pctBp": 500,
+    "raw": "n500vi10kg/5",
+    "resolvesTo": null
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3",
+   "ingredient \"n500vi10kg/5\" is ambiguous: could be sn500vi10kg or w500vi10kg (Gear EP 150–460) — ask Gaurav"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-220",
+  "product": "GEAR EP SERIES",
+  "grade": "220",
+  "skus": [
+   "10LITBUC-10LITERB-3",
+   "GEAEP220-20LBUCKE",
+   "GEAEP220-26LCANE",
+   "GEAEP220-50LCANE",
+   "GEAEP220-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": null,
+    "raw": "g90/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 8925,
+    "raw": "sn500/89.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "n500vi10kg",
+    "pctBp": 1000,
+    "raw": "n500vi10kg/10",
+    "resolvesTo": null
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3",
+   "ingredient \"n500vi10kg/10\" is ambiguous: could be sn500vi10kg or w500vi10kg (Gear EP 150–460) — ask Gaurav"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-320",
+  "product": "GEAR EP SERIES",
+  "grade": "320",
+  "skus": [
+   "10LITBUC-10LITERB-4",
+   "GEAEP320-20LBUCKE",
+   "GEAEP320-26LCANE",
+   "GEAEP320-50LCANE",
+   "GEAEP320-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": null,
+    "raw": "g90/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 8425,
+    "raw": "sn500/84.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "n500vi10kg",
+    "pctBp": 1500,
+    "raw": "n500vi10kg/15",
+    "resolvesTo": null
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "g140",
+    "pctBp": null,
+    "raw": "g140/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g140"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3",
+   "ingredient \"n500vi10kg/15\" is ambiguous: could be sn500vi10kg or w500vi10kg (Gear EP 150–460) — ask Gaurav"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-460",
+  "product": "GEAR EP SERIES",
+  "grade": "460",
+  "skus": [
+   "10LITBUC-10LITERB",
+   "GEAEP460-20LBUCKE",
+   "GEAEP460-26LCANE",
+   "GEAEP460-50LCANE",
+   "GEAEP460-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g140",
+    "pctBp": null,
+    "raw": "g140/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g140"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 7425,
+    "raw": "sn500/74.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "n500vi10kg",
+    "pctBp": 2500,
+    "raw": "n500vi10kg/25",
+    "resolvesTo": null
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3",
+   "ingredient \"n500vi10kg/25\" is ambiguous: could be sn500vi10kg or w500vi10kg (Gear EP 150–460) — ask Gaurav"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-75w90-gl4",
+  "product": "GEAR EP SERIES",
+  "grade": "75W90 GL4",
+  "skus": [
+   "GEAEP-75W90GL4-10L",
+   "25LIT-4X25LITE-2",
+   "GEAEP-75W90GL4-20X1L",
+   "GEAEP-75W90GL4-20L",
+   "GEAEP-75W90GL4-4X5L",
+   "GEAEP-75W90GL4-26L",
+   "GEAEP-75W90GL4-50L",
+   "GEAEP-75W90GL4-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": null,
+    "raw": "g90/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   },
+   {
+    "code": "g75w90",
+    "pctBp": 10000,
+    "raw": "g75w90/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g75w90"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-ep-series-75w90-gl5",
+  "product": "GEAR EP SERIES",
+  "grade": "75W90 GL5",
+  "skus": [
+   "GEAEP-75W90GL5-10L",
+   "GEAEP-75W90GL5-4X2.5L",
+   "1LITGEA-20X1LITE",
+   "GEAEP-75W90GL5-20L",
+   "GEAEP-75W90GL5-4X5L",
+   "GEAEP-75W90GL5-26L",
+   "GEAEP-75W90GL5-50L",
+   "GEAEP-75W90GL5-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "gl5",
+    "pctBp": 10000,
+    "raw": "gl5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "gl5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from gl5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "gl5"
+ },
+ {
+  "productKey": "gear-ep-series-80w90-gl4",
+  "product": "GEAR EP SERIES",
+  "grade": "80W90 GL4",
+  "skus": [
+   "10LITBUC-10LITERB-5",
+   "25LIT-4X25LITE-3",
+   "GEAEP-80W90GL4-20X1L",
+   "GEAEP80W-20LBUCKE",
+   "5LITGEA-4X5LITER",
+   "GEAEP80W-26LCANE",
+   "GEAEP80W-50LCANE",
+   "GEAEP80W-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": 10000,
+    "raw": "g90/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from g90 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "g90"
+ },
+ {
+  "productKey": "gear-ep-series-80w90-gl5",
+  "product": "GEAR EP SERIES",
+  "grade": "80W90 GL5",
+  "skus": [
+   "GEAEP-80W90GL5-10L",
+   "GEAEP-80W90GL5-4X2.5L",
+   "GEAEP-80W90GL5-20X1L",
+   "GEAEP-80W90GL5-20L",
+   "GEAEP-80W90GL5-4X5L",
+   "GEAEP-80W90GL5-26L",
+   "GEAEP-80W90GL5-50L",
+   "GEAEP-80W90GL5-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "gl5",
+    "pctBp": 10000,
+    "raw": "gl5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "gl5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from gl5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "gl5"
+ },
+ {
+  "productKey": "gear-ep-series-85w140-gl4",
+  "product": "GEAR EP SERIES",
+  "grade": "85W140 GL4",
+  "skus": [
+   "10LITBUC-10LITERB-6",
+   "GEAEP-85W140GL4-4X2.5L",
+   "1LIT85W-20X1LITE",
+   "GEAEP85W-20LBUCKE",
+   "5LITGEA-4X5LITER-2",
+   "GEAEP85W-26LCANE",
+   "GEAEP85W-50LCANE",
+   "GEAEP85W-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g140",
+    "pctBp": 10000,
+    "raw": "g140/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g140"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from g140 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "g140"
+ },
+ {
+  "productKey": "gear-ep-series-90-gl4",
+  "product": "GEAR EP SERIES",
+  "grade": "90 GL4",
+  "skus": [
+   "10LITBUC-10LITERB-7",
+   "GEAEP-90GL4-4X2.5L",
+   "500MLGEA-35X500ML",
+   "1LITGEA-20X1LITE-3",
+   "GEAEP90-20LBUCKE",
+   "5LITGEA-4X5LITER-3",
+   "GEAEP90-26LCANE",
+   "GEAEP90-50LCANE",
+   "GEAEP90-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": 10000,
+    "raw": "g90/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from g90 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "g90"
+ },
+ {
+  "productKey": "gear-lube-ep-series-150",
+  "product": "GEAR LUBE EP SERIES",
+  "grade": "150",
+  "skus": [
+   "GEALUBEP-20LBUCKE-2",
+   "GEALUBEP-26LCANE-2",
+   "GEALUBEP-50LCANE-2",
+   "GEALUBEP-210LBARR-2"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va17.3",
+    "pctBp": 9925,
+    "raw": "va17.3/99.25",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va17.3"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-lube-ep-series-220",
+  "product": "GEAR LUBE EP SERIES",
+  "grade": "220",
+  "skus": [
+   "GEALUBEP-20LBUCKE",
+   "GEALUBEP-26LCANE",
+   "GEALUBEP-50LCANE",
+   "GEALUBEP-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va16.4",
+    "pctBp": 9925,
+    "raw": "va16.4/99.25",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va16.4"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-lube-ep-series-320",
+  "product": "GEAR LUBE EP SERIES",
+  "grade": "320",
+  "skus": [
+   "GEALUBEP-20LBUCKE-3",
+   "GEALUBEP-26LCANE-3",
+   "GEALUBEP-50LCANE-3",
+   "GEALUBEP-210LBARR-3"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va15.5",
+    "pctBp": 9925,
+    "raw": "va15.5/99.25",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va15.5"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "gear-lube-ep-series-460",
+  "product": "GEAR LUBE EP SERIES",
+  "grade": "460",
+  "skus": [
+   "GEALUBEP-20LBUCKE-4",
+   "GEALUBEP-26LCANE-4",
+   "GEALUBEP-50LCANE-4",
+   "GEALUBEP-210LBARR-4"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va13.7",
+    "pctBp": 9925,
+    "raw": "va13.7/99.25",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va13.7"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "girth-gear-lubricant",
+  "product": "GIRTH GEAR LUBRICANT",
+  "grade": "",
+  "skus": [
+   "GIRGEALUB-180KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [],
+  "flags": [
+   "no recipe in the sheet"
+  ],
+  "totalBp": 0
+ },
+ {
+  "productKey": "grease-wr-2",
+  "product": "GREASE WR-2",
+  "grade": "",
+  "skus": [
+   "18KGGRE-18KG",
+   "GREWHEBEA-170KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [],
+  "flags": [
+   "no recipe in the sheet"
+  ],
+  "totalBp": 0
+ },
+ {
+  "productKey": "ht-32-premium",
+  "product": "HT 32 PREMIUM",
+  "grade": "",
+  "skus": [
+   "THEFLUHT-26LCANE",
+   "THEFLUHT-50LCANE",
+   "THEFLUHT-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 9950,
+    "raw": "w150/99.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "ht additive",
+    "pctBp": null,
+    "raw": "ht additive/",
+    "resolvesTo": null
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 50,
+    "raw": "eo additive/0.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ht additive/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "hydraulic-oil-aw-100",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "100",
+  "skus": [
+   "HYDAW-100-10L",
+   "HYDAW-100-20L",
+   "HYDAW-100-4X5L",
+   "HYDAW-100-26L",
+   "HYDAW-100-50L",
+   "HYDAW-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "nh",
+    "pctBp": 9500,
+    "raw": "nh/95",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "nh"
+    }
+   },
+   {
+    "code": "nvi10kg",
+    "pctBp": 500,
+    "raw": "nvi10kg/5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "n4vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "hydraulic-oil-aw-150",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "150",
+  "skus": [
+   "HYDAW-150-10L",
+   "HYDAW-150-20L",
+   "HYDAW-150-4X5L",
+   "HYDAW-150-26L",
+   "HYDAW-150-50L",
+   "HYDAW-150-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va17.3",
+    "pctBp": 10000,
+    "raw": "va17.3/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va17.3"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va17.3 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va17.3"
+ },
+ {
+  "productKey": "hydraulic-oil-aw-220",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "220",
+  "skus": [
+   "HYDAW-220-10L",
+   "HYDAW-220-20L",
+   "HYDAW-220-4X5L",
+   "HYDAW-220-26L",
+   "HYDAW-220-50L",
+   "HYDAW-220-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va16.4",
+    "pctBp": 10000,
+    "raw": "va16.4/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va16.4"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va16.4 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va16.4"
+ },
+ {
+  "productKey": "hydraulic-oil-aw-32",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "32",
+  "skus": [
+   "10LITBUC-10LITERB-8",
+   "HYD32GRO-20LBUCKE",
+   "HYDAW-32-4X5L",
+   "HYD32GRO-26LCANE",
+   "HYD32GRO-50LCANE",
+   "HYD32GRO-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 10000,
+    "raw": "n4/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "toy",
+    "pctBp": null,
+    "raw": "toy/",
+    "resolvesTo": null
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"toy/\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "hydraulic-oil-aw-320",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "320",
+  "skus": [
+   "HYDAW-320-10L",
+   "HYDAW-320-20L",
+   "HYDAW-320-4X5L",
+   "HYDAW-320-26L",
+   "HYDAW-320-50L",
+   "HYDAW-320-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va15.5",
+    "pctBp": 10000,
+    "raw": "va15.5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va15.5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va15.5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va15.5"
+ },
+ {
+  "productKey": "hydraulic-oil-aw-46",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "46",
+  "skus": [
+   "HYDAW-46-10L",
+   "HYD4668-20LBUCKE",
+   "HYDAW-46-4X5L",
+   "HYD4668-26LCANE",
+   "HYD4668-50LCANE",
+   "HYD4668-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 5000,
+    "raw": "n4/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "nh",
+    "pctBp": 5000,
+    "raw": "nh/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "nh"
+    }
+   },
+   {
+    "code": "nvi10kg",
+    "pctBp": null,
+    "raw": "nvi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "n4vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "hydraulic-oil-aw-460",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "460",
+  "skus": [
+   "HYDAW-460-10L",
+   "HYDAW-460-20L",
+   "HYDAW-460-4X5L",
+   "HYDAW-460-26L",
+   "HYDAW-460-50L",
+   "HYDAW-460-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va13.7",
+    "pctBp": 10000,
+    "raw": "va13.7/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va13.7"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va13.7 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va13.7"
+ },
+ {
+  "productKey": "hydraulic-oil-aw-68",
+  "product": "HYDRAULIC OIL AW",
+  "grade": "68",
+  "skus": [
+   "HYDAW-68-10L",
+   "HYDAW-68-20L",
+   "5LHYD-4X5LITER-2",
+   "HYDAW-68-26L",
+   "HYDAW-68-50L",
+   "HYDAW-68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "nh",
+    "pctBp": 10000,
+    "raw": "nh/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "nh"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from nh (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "nh"
+ },
+ {
+  "productKey": "hydraulic-oil-hlp-100",
+  "product": "HYDRAULIC OIL HLP",
+  "grade": "100",
+  "skus": [
+   "HYDHLP-100-10L",
+   "HYDHLP-100-20L",
+   "HYDHLP-100-4X5L",
+   "HYDHLP-100-26L",
+   "HYDHLP-100-50L",
+   "HYDHLP-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "h100",
+    "pctBp": 10000,
+    "raw": "h100/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "h100"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from h100 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "h100"
+ },
+ {
+  "productKey": "hydraulic-oil-hlp-150",
+  "product": "HYDRAULIC OIL HLP",
+  "grade": "150",
+  "skus": [
+   "HYDHLP-150-10L",
+   "HYDHLP-150-20L",
+   "HYDHLP-150-4X5L",
+   "HYDHLP-150-26L",
+   "HYDHLP-150-50L",
+   "HYDHLP-150-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "h150",
+    "pctBp": 10000,
+    "raw": "h150/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "h150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from h150 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "h150"
+ },
+ {
+  "productKey": "hydraulic-oil-hlp-32",
+  "product": "HYDRAULIC OIL HLP",
+  "grade": "32",
+  "skus": [
+   "10LITBUC-10LITERB-9",
+   "HYDHLP32-20LBUCKE",
+   "HYDHLP-32-4X5L",
+   "HYDHLP32-26LCANE",
+   "HYDHLP32-50LCANE",
+   "HYDHLP32-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w150"
+ },
+ {
+  "productKey": "hydraulic-oil-hlp-46",
+  "product": "HYDRAULIC OIL HLP",
+  "grade": "46",
+  "skus": [
+   "HYDHLP-46-10L",
+   "HYDHLP46-20LBUCKE",
+   "HYDHLP-46-4X5L",
+   "HYDHLP46-26LCANE",
+   "HYDHLP46-50LCANE",
+   "HYDHLP46-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "h68",
+    "pctBp": 5000,
+    "raw": "h68/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "h68"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "hydraulic-oil-hlp-68",
+  "product": "HYDRAULIC OIL HLP",
+  "grade": "68",
+  "skus": [
+   "HYDHLP-68-10L",
+   "HYDHLP-68-20L",
+   "5LHYD-4X5LITER",
+   "HYDHLP-68-26L",
+   "HYDHLP-68-50L",
+   "HYDHLP-68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "h68",
+    "pctBp": 10000,
+    "raw": "h68/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "h68"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from h68 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "h68"
+ },
+ {
+  "productKey": "hydraulic-oil-hvi-100",
+  "product": "HYDRAULIC OIL HVI",
+  "grade": "100",
+  "skus": [
+   "HYDHVI-100-26L",
+   "HYDHVI-100-50L",
+   "HYDHVI-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 9000,
+    "raw": "8cst/90",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": 1000,
+    "raw": "w500vi10kg/10",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "hydraulic-oil-hvi-46",
+  "product": "HYDRAULIC OIL HVI",
+  "grade": "46",
+  "skus": [
+   "HYDHVI-46-26L",
+   "HYDHVI-46-50L",
+   "HYDHVI-46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 10000,
+    "raw": "8cst/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from 8cst (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "8cst"
+ },
+ {
+  "productKey": "hydraulic-oil-hvi-68",
+  "product": "HYDRAULIC OIL HVI",
+  "grade": "68",
+  "skus": [
+   "HYDHVI-68-26L",
+   "HYDHVI-68-50L",
+   "HYDHVI-68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 9500,
+    "raw": "8cst/95",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": 500,
+    "raw": "w500vi10kg/5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "knitting-oil-non-washable-22",
+  "product": "KNITTING OIL (Non washable)",
+  "grade": "22",
+  "skus": [
+   "KNIOIL22-26LCANE",
+   "KNIOIL22-50LCANE",
+   "KNIOIL22-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": 5000,
+    "raw": "w70/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "knitting-oil-non-washable-32",
+  "product": "KNITTING OIL (Non washable)",
+  "grade": "32",
+  "skus": [
+   "KNINONWAS-32-26L",
+   "KNINONWAS-32-50L",
+   "KNINONWAS-32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w150"
+ },
+ {
+  "productKey": "knitting-oil-water-soluble-22",
+  "product": "KNITTING OIL (water soluble)",
+  "grade": "22",
+  "skus": [
+   "KNIOIL22-26LCANE-2",
+   "KNIOIL22-50LCANE-2",
+   "KNIOIL22-210LBARR-2"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 4525,
+    "raw": "w150/45.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": 4525,
+    "raw": "w70/45.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "wbt100",
+    "pctBp": 950,
+    "raw": "wbt100/9.5",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3",
+   "ingredient \"wbt100/9.5\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "knitting-oil-water-soluble-32",
+  "product": "KNITTING OIL (water soluble)",
+  "grade": "32",
+  "skus": [
+   "KNIWATSOL-32-26L",
+   "KNIWATSOL-32-50L",
+   "KNIWATSOL-32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 9050,
+    "raw": "w150/90.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "wbt100",
+    "pctBp": 950,
+    "raw": "wbt100/9.5",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"wbt100/9.5\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "lithium-complex-grease-222",
+  "product": "LITHIUM COMPLEX GREASE",
+  "grade": "222",
+  "skus": [
+   "LITCOMGRE-222-10KG",
+   "18KGBUC-18KG-5",
+   "LITCOMGRE-222-4X5KG",
+   "GELGRE222-180KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "blue gel",
+    "pctBp": 8925,
+    "raw": "blue gel/89.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "blue gel"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 1075,
+    "raw": "sn500/10.75",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "lithium-complex-grease-blue-gel",
+  "product": "LITHIUM COMPLEX GREASE",
+  "grade": "Blue Gel",
+  "skus": [
+   "10KGBUC-10KG-5",
+   "12X1-12KG-3",
+   "24X500-12KG-3",
+   "4X3-12KG-3",
+   "6X2-12KG",
+   "18KGBUC-18KG",
+   "4X5-20KG",
+   "BLUGELGRE-180KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "blue gel",
+    "pctBp": 10000,
+    "raw": "blue gel/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "blue gel"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from blue gel (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "blue gel"
+ },
+ {
+  "productKey": "lithium-complex-grease-red-gel",
+  "product": "LITHIUM COMPLEX GREASE",
+  "grade": "Red Gel",
+  "skus": [
+   "4X3-12KG-6",
+   "6X2-12KG-5",
+   "4X5-20KG-2",
+   "10KGBUC-10KG-9",
+   "12X1-12KG-7",
+   "24X500-12KG-7",
+   "18KGBUC-18KG-14",
+   "REDGELGRE-180KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "red gel",
+    "pctBp": 10000,
+    "raw": "red gel/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "red gel"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from red gel (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "red gel"
+ },
+ {
+  "productKey": "lithium-grease-ap3-aplr-ap3",
+  "product": "LITHIUM GREASE AP3 & APLR",
+  "grade": "AP3",
+  "skus": [
+   "10KGBUC-10KG-3",
+   "12X1-12KG",
+   "24X500-12KG",
+   "4X3-12KG",
+   "6X2-12KG-2",
+   "18KGBUC-18KG-6",
+   "4X5-20KG-3",
+   "GREHIGTEM-180KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ap3",
+    "pctBp": 10000,
+    "raw": "ap3/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ap3"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from ap3 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "ap3"
+ },
+ {
+  "productKey": "lithium-grease-ap3-aplr-aplr",
+  "product": "LITHIUM GREASE AP3 & APLR",
+  "grade": "APLR",
+  "skus": [
+   "10KGBUC-10KG-4",
+   "12X1-12KG-2",
+   "24X500-12KG-2",
+   "4X3-12KG-2",
+   "6X2KGGRE-12KG",
+   "18KGBUC-18KG-7",
+   "4X5-20KG-4",
+   "GREHIGTEM-180KG-2"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "aplr",
+    "pctBp": 10000,
+    "raw": "aplr/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "aplr"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from aplr (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "aplr"
+ },
+ {
+  "productKey": "lube-slideway-series-100",
+  "product": "LUBE (SLIDEWAY) SERIES",
+  "grade": "100",
+  "skus": [
+   "LUBSLI-100-20L",
+   "LUBSLI-100-26L",
+   "LUBSLI-100-50L",
+   "LUBSLI-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va18.2",
+    "pctBp": 10000,
+    "raw": "va18.2/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va18.2"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va18.2 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va18.2"
+ },
+ {
+  "productKey": "lube-slideway-series-150",
+  "product": "LUBE (SLIDEWAY) SERIES",
+  "grade": "150",
+  "skus": [
+   "LUB150-20LBUCKE",
+   "LUB150-26LCANE",
+   "LUB150-50LCANE",
+   "LUB150-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va17.3",
+    "pctBp": 10000,
+    "raw": "va17.3/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va17.3"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va17.3 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va17.3"
+ },
+ {
+  "productKey": "lube-slideway-series-20w-40",
+  "product": "LUBE (SLIDEWAY) SERIES",
+  "grade": "20W-40",
+  "skus": [
+   "LUBSLI-20W40-20L",
+   "LUBSLI-20W40-26L",
+   "LUBSLI-20W40-50L",
+   "LUBSLI-20W40-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va17.3",
+    "pctBp": 10000,
+    "raw": "va17.3/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va17.3"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va17.3 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va17.3"
+ },
+ {
+  "productKey": "lube-slideway-series-220",
+  "product": "LUBE (SLIDEWAY) SERIES",
+  "grade": "220",
+  "skus": [
+   "LUB220-20LBUCKE",
+   "LUB220-26LCANE",
+   "LUB220-50LCANE",
+   "LUB220-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va16.4",
+    "pctBp": 10000,
+    "raw": "va16.4/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va16.4"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va16.4 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va16.4"
+ },
+ {
+  "productKey": "lube-slideway-series-320",
+  "product": "LUBE (SLIDEWAY) SERIES",
+  "grade": "320",
+  "skus": [
+   "LUB320-20LBUCKE",
+   "LUB320-26LCANE",
+   "LUB320-50LCANE",
+   "LUB320-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va15.5",
+    "pctBp": 10000,
+    "raw": "va15.5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va15.5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va15.5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va15.5"
+ },
+ {
+  "productKey": "lube-slideway-series-460",
+  "product": "LUBE (SLIDEWAY) SERIES",
+  "grade": "460",
+  "skus": [
+   "LUB460-20LBUCKE",
+   "LUB460-26LCANE",
+   "LUB460-50LCANE",
+   "LUB460-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va13.7",
+    "pctBp": 10000,
+    "raw": "va13.7/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va13.7"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from va13.7 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "va13.7"
+ },
+ {
+  "productKey": "marine-engine-oils-15w-40",
+  "product": "MARINE ENGINE OILS",
+  "grade": "15W-40",
+  "skus": [
+   "MARENG-15W40-26L",
+   "MARENG-15W40-50L",
+   "MARENG-15W40-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 7000,
+    "raw": "sae40/70",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 2500,
+    "raw": "w150/25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": null,
+    "raw": "eo additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 500,
+    "raw": "w150vi10kg/5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-cylinder-oil-50-tbn",
+  "product": "MARINE ENGINE OILS",
+  "grade": "Cylinder Oil 50 TBN",
+  "skus": [
+   "MARENG-CYLINDEROIL50TBN-26L",
+   "MARENG-CYLINDEROIL50TBN-50L",
+   "MARENG-CYLINDEROIL50TBN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9300,
+    "raw": "sae40/93",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 700,
+    "raw": "eo additive/7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-cylinder-oil-70-tbn",
+  "product": "MARINE ENGINE OILS",
+  "grade": "Cylinder Oil 70 TBN",
+  "skus": [
+   "MARENG-CYLINDEROIL70TBN-26L",
+   "MARENG-CYLINDEROIL70TBN-50L",
+   "MARENG-CYLINDEROIL70TBN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9100,
+    "raw": "sae40/91",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 900,
+    "raw": "eo additive/9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-sae-30-tbn-12",
+  "product": "MARINE ENGINE OILS",
+  "grade": "SAE 30 TBN 12",
+  "skus": [
+   "MARENG-SAE30TBN12-26L",
+   "MARENG-SAE30TBN12-50L",
+   "MARENG-SAE30TBN12-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9300,
+    "raw": "sae40/93",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 700,
+    "raw": "w150/7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": null,
+    "raw": "eo additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-sae-30-tbn-15",
+  "product": "MARINE ENGINE OILS",
+  "grade": "SAE 30 TBN 15",
+  "skus": [
+   "MARENG-SAE30TBN15-26L",
+   "MARENG-SAE30TBN15-50L",
+   "MARENG-SAE30TBN15-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9300,
+    "raw": "sae40/93",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 700,
+    "raw": "w150/7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": null,
+    "raw": "eo additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-sae-40-tbn-20",
+  "product": "MARINE ENGINE OILS",
+  "grade": "SAE 40 TBN 20",
+  "skus": [
+   "MARENG-SAE40TBN20-26L",
+   "MARENG-SAE40TBN20-50L",
+   "MARENG-SAE40TBN20-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9900,
+    "raw": "sae40/99",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 100,
+    "raw": "eo additive/1",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-sae-40-tbn-30",
+  "product": "MARINE ENGINE OILS",
+  "grade": "SAE 40 TBN 30",
+  "skus": [
+   "MARENG-SAE40TBN30-26L",
+   "MARENG-SAE40TBN30-50L",
+   "MARENG-SAE40TBN30-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9700,
+    "raw": "sae40/97",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 300,
+    "raw": "eo additive/3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-sae-40-tbn-40",
+  "product": "MARINE ENGINE OILS",
+  "grade": "SAE 40 TBN 40",
+  "skus": [
+   "MARENG-SAE40TBN40-26L",
+   "MARENG-SAE40TBN40-50L",
+   "MARENG-SAE40TBN40-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9500,
+    "raw": "sae40/95",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 500,
+    "raw": "eo additive/5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "marine-engine-oils-system-oil-sae-30",
+  "product": "MARINE ENGINE OILS",
+  "grade": "System Oil SAE 30",
+  "skus": [
+   "MARENG-SYSTEMOILSAE30-26L",
+   "MARENG-SYSTEMOILSAE30-50L",
+   "MARENG-SYSTEMOILSAE30-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 9300,
+    "raw": "sae40/93",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 700,
+    "raw": "w150/7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": null,
+    "raw": "eo additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "neat-cutting-oil-55-neat-cut-55",
+  "product": "NEAT CUTTING OIL 55",
+  "grade": "Neat Cut 55",
+  "skus": [
+   "NEACUTOIL-26LCANE",
+   "NEACUTOIL-50LCANE",
+   "NEACUTOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 7124,
+    "raw": "n4/71.24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 2400,
+    "raw": "sn500/24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "nc additive",
+    "pctBp": 476,
+    "raw": "nc additive/4.76",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "nc additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "neat-cutting-oil-megacut-150-megacut-150",
+  "product": "NEAT CUTTING OIL MEGACUT 150",
+  "grade": "Megacut 150",
+  "skus": [
+   "NEACUTOIL-26LCANE-2",
+   "NEACUTOIL-50LCANE-2",
+   "NEACUTOIL-210LBARR-2"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9524,
+    "raw": "w500/95.24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "nc additive",
+    "pctBp": 476,
+    "raw": "nc additive/4.76",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "nc additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "pcmo-0w-20-sn",
+  "product": "PCMO",
+  "grade": "0W-20 SN",
+  "skus": [
+   "PCM-0W20SN-4X3L",
+   "PCM-0W20SN-4X3.5L",
+   "PCM-0W20SN-20X1L",
+   "PCM-0W20SN-20L",
+   "PCM-0W20SN-4X5L",
+   "PCM-0W20SN-26L",
+   "PCM-0W20SN-50L",
+   "PCM-0W20SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "0w-20",
+    "pctBp": 10000,
+    "raw": "0w-20/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "0w-20"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from 0w-20 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "0w-20"
+ },
+ {
+  "productKey": "pcmo-10w-30-sn",
+  "product": "PCMO",
+  "grade": "10W-30 SN",
+  "skus": [
+   "PCM-10W30SN-4X3L",
+   "PCM-10W30SN-4X3.5L",
+   "PCM-10W30SN-20X1L",
+   "PCM-10W30SN-20L",
+   "PCM-10W30SN-4X5L",
+   "PCM-10W30SN-26L",
+   "PCM-10W30SN-50L",
+   "PCM-10W30SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn",
+    "pctBp": 9524,
+    "raw": "sn/95.24",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 476,
+    "raw": "w150/4.76",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "pcmo-10w-40-sn",
+  "product": "PCMO",
+  "grade": "10W-40 SN",
+  "skus": [
+   "PCM-10W40SN-4X3L",
+   "35LIT-4X35LITE-2",
+   "PCM-10W40SN-20X1L",
+   "PCM-10W40SN-20L",
+   "PCM-10W40SN-4X5L",
+   "PCM-10W40SN-26L",
+   "PCM-10W40SN-50L",
+   "PCM-10W40SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn",
+    "pctBp": 10000,
+    "raw": "sn/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from sn (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "sn"
+ },
+ {
+  "productKey": "pcmo-15w-40-cf4",
+  "product": "PCMO",
+  "grade": "15W-40 CF4",
+  "skus": [
+   "PCM-15W40CF4-4X3L",
+   "PCM-15W40CF4-4X3.5L",
+   "PCM-15W40CF4-20X1L",
+   "PCM-15W40CF4-20L",
+   "PCM-15W40CF4-4X5L",
+   "PCM-15W40CF4-26L",
+   "PCM-15W40CF4-50L",
+   "PCM-15W40CF4-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 10000,
+    "raw": "r5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from r5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "r5"
+ },
+ {
+  "productKey": "pcmo-15w-40-ci4-plus",
+  "product": "PCMO",
+  "grade": "15W-40 CI4 Plus",
+  "skus": [
+   "PCM-15W40CI4PLUS-4X3L",
+   "PCM-15W40CI4PLUS-4X3.5L",
+   "PCM-15W40CI4PLUS-20X1L",
+   "PCM-15W40CI4PLUS-20L",
+   "PCM-15W40CI4PLUS-4X5L",
+   "PCM-15W40CI4PLUS-26L",
+   "PCM-15W40CI4PLUS-50L",
+   "PCM-15W40CI4PLUS-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ci4",
+    "pctBp": 10000,
+    "raw": "ci4/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from sn (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "sn"
+ },
+ {
+  "productKey": "pcmo-20w-50-sn",
+  "product": "PCMO",
+  "grade": "20W-50 SN",
+  "skus": [
+   "PCM-20W50SN-4X3L",
+   "PCM-20W50SN-4X3.5L",
+   "PCM-20W50SN-20X1L",
+   "PCM-20W50SN-20L",
+   "PCM-20W50SN-4X5L",
+   "PCM-20W50SN-26L",
+   "PCM-20W50SN-50L",
+   "PCM-20W50SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn",
+    "pctBp": 5000,
+    "raw": "sn/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   },
+   {
+    "code": "sae40",
+    "pctBp": 5000,
+    "raw": "sae40/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "pcmo-5w-30-sn",
+  "product": "PCMO",
+  "grade": "5W-30 SN",
+  "skus": [
+   "PCM-5W30SN-4X3L",
+   "35LIT-4X35LITE-5",
+   "PCM-5W30SN-20X1L",
+   "PCM-5W30SN-20L",
+   "5LITSN-4X5LITER",
+   "PCM-5W30SN-26L",
+   "PCM-5W30SN-50L",
+   "PCM-5W30SN-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "5w-30",
+    "pctBp": 10000,
+    "raw": "5w-30/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "5w-30"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from 5w-30 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "5w-30"
+ },
+ {
+  "productKey": "pcmo-cng-20w-50",
+  "product": "PCMO",
+  "grade": "CNG 20W-50",
+  "skus": [
+   "3LITENG-4X3LITER-3",
+   "PCM-CNG20W50-4X3.5L",
+   "1LITENG-20X1LITE-4",
+   "PCM-CNG20W50-20L",
+   "PCM-CNG20W50-4X5L",
+   "PCM-CNG20W50-26L",
+   "PCM-CNG20W50-50L",
+   "PCM-CNG20W50-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 5000,
+    "raw": "r5/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   },
+   {
+    "code": "sae40",
+    "pctBp": 5000,
+    "raw": "sae40/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "pvc-oil",
+  "product": "PVC OIL",
+  "grade": "",
+  "skus": [
+   "PVC"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w150"
+ },
+ {
+  "productKey": "quenching-oil-q-39-group-1",
+  "product": "QUENCHING OIL",
+  "grade": "Q 39 (Group 1)",
+  "skus": [
+   "QUEOILGRO-26LCANE",
+   "QUEOILGRO-50LCANE",
+   "QUEOILGRO-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 10000,
+    "raw": "n4/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "q additive",
+    "pctBp": null,
+    "raw": "Q additive/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "q additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "quenching-oil-qlp-32-group-2",
+  "product": "QUENCHING OIL",
+  "grade": "QLP 32 (Group 2)",
+  "skus": [
+   "QUEOILGRO-26LCANE-2",
+   "QUEOILGRO-50LCANE-2",
+   "QUEOILGRO-210LBARR-2"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "q additive",
+    "pctBp": null,
+    "raw": "q additive/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "q additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "rear-axle-oil-sae-10w30",
+  "product": "REAR AXLE OIL",
+  "grade": "SAE 10W30",
+  "skus": [
+   "REAAXL-SAE10W30-20L",
+   "REAAXL-SAE10W30-26L",
+   "REAAXL-SAE10W30-50L",
+   "REAAXL-SAE10W30-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "rear axle oil",
+    "pctBp": 10000,
+    "raw": "rear axle oil/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "wet brake oil"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from wet brake oil (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "wet brake oil"
+ },
+ {
+  "productKey": "rear-axle-oil-sae-80w",
+  "product": "REAR AXLE OIL",
+  "grade": "SAE 80W",
+  "skus": [
+   "REAAXL-SAE80W-20L",
+   "REAAXL-SAE80W-26L",
+   "REAAXL-SAE80W-50L",
+   "REAAXL-SAE80W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 9925,
+    "raw": "sn500/99.25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"ep additive/0.75\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "rear-axle-oil-sae-90",
+  "product": "REAR AXLE OIL",
+  "grade": "SAE 90",
+  "skus": [
+   "REAAXL-SAE90-20L",
+   "REAAXL-SAE90-26L",
+   "REAAXL-SAE90-50L",
+   "REAAXL-SAE90-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "g90",
+    "pctBp": 10000,
+    "raw": "g90/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "g90"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from g90 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "g90"
+ },
+ {
+  "productKey": "refrigeration-oil-46",
+  "product": "REFRIGERATION OIL",
+  "grade": "46",
+  "skus": [
+   "REF-46-26L",
+   "REF-46-50L",
+   "REF-46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 7570,
+    "raw": "w150/75.7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 2400,
+    "raw": "w500/24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 30,
+    "raw": "ppd/0.3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "refrigeration-oil-68",
+  "product": "REFRIGERATION OIL",
+  "grade": "68",
+  "skus": [
+   "REF-68-26L",
+   "REF-68-50L",
+   "REF-68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 4970,
+    "raw": "w500/49.7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 30,
+    "raw": "ppd/0.3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "roll-perfect-22",
+  "product": "ROLL PERFECT 22",
+  "grade": "",
+  "skus": [
+   "ROLPER22-26L",
+   "ROLPER22-50L",
+   "ROLPER22-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w70",
+    "pctBp": 5000,
+    "raw": "w70/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 4753,
+    "raw": "w150/47.53",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 2,
+    "raw": "antifoam/0.02",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "friction modifier",
+    "pctBp": 100,
+    "raw": "friction modifier/1",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "friction modifier"
+    }
+   },
+   {
+    "code": "anti rust",
+    "pctBp": 35,
+    "raw": "anti rust/0.35",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "anti rust"
+    }
+   },
+   {
+    "code": "anti wear",
+    "pctBp": 50,
+    "raw": "anti wear/0.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "anti wear"
+    }
+   },
+   {
+    "code": "anti oxidant",
+    "pctBp": 60,
+    "raw": "anti oxidant/0.6",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "anti oxidant"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "roll-perfect-46-soluble",
+  "product": "ROLL PERFECT 46 (SOLUBLE)",
+  "grade": "",
+  "skus": [
+   "ROLPER46-26L",
+   "ROLPER46-50L",
+   "ROLPER46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "roll perfect 46",
+    "pctBp": 10000,
+    "raw": "roll perfect 46/ 100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "roll perfect 46"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from roll perfect 46 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "roll perfect 46"
+ },
+ {
+  "productKey": "rotavator-oil",
+  "product": "ROTAVATOR OIL",
+  "grade": "",
+  "skus": [
+   "3LITROT-4X3LITER",
+   "35LIT-4X35LITE-7",
+   "1LITROT-20X1LITE",
+   "5LITROT-4X5LITER",
+   "ROTOIL-26LCANE",
+   "ROTOIL-50LCANE",
+   "ROTOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va13.7",
+    "pctBp": 10000,
+    "raw": "va13.7/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va13.7"
+    }
+   },
+   {
+    "code": "va12.8",
+    "pctBp": null,
+    "raw": "va12.8/",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "va12.8"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "rubber-process-oils-elastol-245",
+  "product": "RUBBER PROCESS OILS",
+  "grade": "Elastol 245",
+  "skus": [
+   "RUBPRO-ELASTOL245-26L",
+   "RUBPRO-ELASTOL245-50L",
+   "RUBPRO-ELASTOL245-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn150",
+    "pctBp": 10000,
+    "raw": "sn150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from sn150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "sn150"
+ },
+ {
+  "productKey": "rubber-process-oils-elastol-541",
+  "product": "RUBBER PROCESS OILS",
+  "grade": "Elastol 541",
+  "skus": [
+   "RUBPRO-ELASTOL541-26L",
+   "RUBPRO-ELASTOL541-50L",
+   "RUBPRO-ELASTOL541-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn150",
+    "pctBp": null,
+    "raw": "sn150/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "toy",
+    "pctBp": 9050,
+    "raw": "toy/90.5",
+    "resolvesTo": null
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "sn500",
+    "pctBp": 950,
+    "raw": "sn500/9.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"toy/90.5\" is not defined in Sheet1/2/3",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "rubber-process-oils-p-165",
+  "product": "RUBBER PROCESS OILS",
+  "grade": "P 165",
+  "skus": [
+   "RUBPRO-P165-26L",
+   "RUBPRO-P165-50L",
+   "RUBPRO-P165-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9524,
+    "raw": "w500/95.24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": 476,
+    "raw": "w500vi10kg/4.76",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "rubber-process-oils-rpo-710",
+  "product": "RUBBER PROCESS OILS",
+  "grade": "RPO 710",
+  "skus": [
+   "RUBPRO-RPO710-205KG"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "rpo710",
+    "pctBp": 10000,
+    "raw": "rpo710/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "rpo 710"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from rpo 710 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "rpo 710"
+ },
+ {
+  "productKey": "rust-preventive-oil-906",
+  "product": "RUST PREVENTIVE OIL 906",
+  "grade": "",
+  "skus": [
+   "RUSPREOIL-26LCANE",
+   "RUSPREOIL-50LCANE",
+   "RUSPREOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "mto",
+    "pctBp": 6780,
+    "raw": "mto/67.8",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "mto"
+    }
+   },
+   {
+    "code": "tor",
+    "pctBp": 2600,
+    "raw": "tor/26",
+    "resolvesTo": null
+   },
+   {
+    "code": "rp additive",
+    "pctBp": 600,
+    "raw": "rp additive/6",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "rp additive"
+    }
+   },
+   {
+    "code": "tackifier",
+    "pctBp": 20,
+    "raw": "tackifier/0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "tackifier"
+    }
+   }
+  ],
+  "flags": [
+   "ingredient \"tor/26\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "screw-air-compressor-oils-air-100",
+  "product": "SCREW & AIR COMPRESSOR OILS",
+  "grade": "Air 100",
+  "skus": [
+   "SCRAIRCOM-AIR100-20X1L",
+   "SCRAIRCOM-AIR100-4X5L",
+   "SCRAIRCOM-AIR100-26L",
+   "SCRAIRCOM-AIR100-50L",
+   "SCRAIRCOM-AIR100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ac additive",
+    "pctBp": null,
+    "raw": "ac additive/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ac additive"
+    }
+   },
+   {
+    "code": "r5",
+    "pctBp": 10000,
+    "raw": "r5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "screw-air-compressor-oils-air-150",
+  "product": "SCREW & AIR COMPRESSOR OILS",
+  "grade": "Air 150",
+  "skus": [
+   "SCRAIRCOM-AIR150-4X5L",
+   "SCRAIRCOM-AIR150-26L",
+   "SCRAIRCOM-AIR150-50L",
+   "SCRAIRCOM-AIR150-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 4374,
+    "raw": "w500/43.74",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 5000,
+    "raw": "sn500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 476,
+    "raw": "w150vi10kg/4.76",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "ac additive",
+    "pctBp": 150,
+    "raw": "ac additive/1.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ac additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "screw-air-compressor-oils-air-220",
+  "product": "SCREW & AIR COMPRESSOR OILS",
+  "grade": "Air 220",
+  "skus": [
+   "SCRAIRCOM-AIR220-4X5L",
+   "SCRAIRCOM-AIR220-26L",
+   "SCRAIRCOM-AIR220-50L",
+   "SCRAIRCOM-AIR220-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 3900,
+    "raw": "w500/39",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": 5000,
+    "raw": "sn500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 950,
+    "raw": "w150vi10kg/9.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "ac additive",
+    "pctBp": 150,
+    "raw": "ac additive/1.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ac additive"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "screw-air-compressor-oils-screw-32",
+  "product": "SCREW & AIR COMPRESSOR OILS",
+  "grade": "Screw 32",
+  "skus": [
+   "SCRAIRCOM-SCREW32-4X5L",
+   "SCRAIRCOM-SCREW32-26L",
+   "SCRAIRCOM-SCREW32-50L",
+   "SCRAIRCOM-SCREW32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "6cst",
+    "pctBp": 10000,
+    "raw": "6cst/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "6cst"
+    }
+   },
+   {
+    "code": "ac additive",
+    "pctBp": null,
+    "raw": "ac additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ac additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "screw-air-compressor-oils-screw-46",
+  "product": "SCREW & AIR COMPRESSOR OILS",
+  "grade": "Screw 46",
+  "skus": [
+   "SCRAIRCOM-SCREW46-4X5L",
+   "SCRAIRCOM-SCREW46-26L",
+   "SCRAIRCOM-SCREW46-50L",
+   "SCRAIRCOM-SCREW46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 10000,
+    "raw": "8cst/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "ac additive",
+    "pctBp": null,
+    "raw": "ac additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ac additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "screw-air-compressor-oils-screw-68",
+  "product": "SCREW & AIR COMPRESSOR OILS",
+  "grade": "Screw 68",
+  "skus": [
+   "SCRAIRCOM-SCREW68-4X5L",
+   "SCRAIRCOM-SCREW68-26L",
+   "SCRAIRCOM-SCREW68-50L",
+   "SCRAIRCOM-SCREW68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 9524,
+    "raw": "8cst/95.24",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "ac additive",
+    "pctBp": null,
+    "raw": "ac additive",
+    "noPercentSlot": true,
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ac additive"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 476,
+    "raw": "w150vi10kg/4.76",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "semi-synthetic-cutting-oil",
+  "product": "SEMI SYNTHETIC CUTTING OIL",
+  "grade": "",
+  "skus": [
+   "SEMSYNCUT-26LCANE",
+   "SEMSYNCUT-50LCANE",
+   "SEMSYNCUT-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ssc concenterate",
+    "pctBp": 5000,
+    "raw": "ssc concenterate/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ssc concenterate"
+    }
+   },
+   {
+    "code": "dw",
+    "pctBp": 5000,
+    "raw": "dw/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "dw"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-10w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "10W",
+  "skus": [
+   "SHOABS-10W-26L",
+   "SHOABS-10W-50L",
+   "SHOABS-10W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "4cst",
+    "pctBp": 300,
+    "raw": "4cst/3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "4cst"
+    }
+   },
+   {
+    "code": "6cst",
+    "pctBp": 9290,
+    "raw": "6cst/92.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "6cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-15w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "15W",
+  "skus": [
+   "SHOABS-15W-26L",
+   "SHOABS-15W-50L",
+   "SHOABS-15W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 9190,
+    "raw": "8cst/91.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 400,
+    "raw": "w150vi10kg/4",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-2-5w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "2.5W",
+  "skus": [
+   "SHOABS-2.5W-26L",
+   "SHOABS-2.5W-50L",
+   "SHOABS-2.5W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "2cst",
+    "pctBp": 3158,
+    "raw": "2cst/31.58",
+    "resolvesTo": null
+   },
+   {
+    "code": "4cst",
+    "pctBp": 6432,
+    "raw": "4cst/64.32",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "4cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"2cst/31.58\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-20w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "20W",
+  "skus": [
+   "SHOABS-20W-26L",
+   "SHOABS-20W-50L",
+   "SHOABS-20W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 8790,
+    "raw": "8cst/87.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 800,
+    "raw": "w150vi10kg/8",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-30w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "30W",
+  "skus": [
+   "SHOABS-30W-26L",
+   "SHOABS-30W-50L",
+   "SHOABS-30W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "8cst",
+    "pctBp": 8390,
+    "raw": "8cst/83.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "8cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 1200,
+    "raw": "w150vi10kg/12",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-5w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "5W",
+  "skus": [
+   "SHOABS-5W-26L",
+   "SHOABS-5W-50L",
+   "SHOABS-5W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "4cst",
+    "pctBp": 9290,
+    "raw": "4cst/92.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "4cst"
+    }
+   },
+   {
+    "code": "6cst",
+    "pctBp": 300,
+    "raw": "6cst/3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "6cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "shock-absorber-oil-7-5w",
+  "product": "SHOCK ABSORBER OIL",
+  "grade": "7.5W",
+  "skus": [
+   "SHOABS-7.5W-26L",
+   "SHOABS-7.5W-50L",
+   "SHOABS-7.5W-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "4cst",
+    "pctBp": 4700,
+    "raw": "4cst/47",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "4cst"
+    }
+   },
+   {
+    "code": "6cst",
+    "pctBp": 4890,
+    "raw": "6cst/48.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "6cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "sa additive",
+    "pctBp": 200,
+    "raw": "sa additive/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sa additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 5,
+    "raw": "ppd/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": null,
+    "raw": "w150vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "spindle-oil-10",
+  "product": "SPINDLE OIL",
+  "grade": "10",
+  "skus": [
+   "SPI-10-26L",
+   "SPI-10-50L",
+   "SPI-10-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "toy",
+    "pctBp": 10000,
+    "raw": "toy/100",
+    "resolvesTo": null
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"toy/100\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "spindle-oil-12",
+  "product": "SPINDLE OIL",
+  "grade": "12",
+  "skus": [
+   "SPI-12-26L",
+   "SPI-12-50L",
+   "SPI-12-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "toy",
+    "pctBp": 10000,
+    "raw": "toy/100",
+    "resolvesTo": null
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"toy/100\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "spindle-oil-2",
+  "product": "SPINDLE OIL",
+  "grade": "2",
+  "skus": [
+   "SPI-2-26L",
+   "SPI-2-50L",
+   "SPI-2-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "hsd",
+    "pctBp": 10000,
+    "raw": "HSD/100",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"HSD/100\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "spindle-oil-22",
+  "product": "SPINDLE OIL",
+  "grade": "22",
+  "skus": [
+   "SPI-22-26L",
+   "SPI-22-50L",
+   "SPI-22-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "toy",
+    "pctBp": 5000,
+    "raw": "toy/50",
+    "resolvesTo": null
+   },
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "sn150",
+    "pctBp": null,
+    "raw": "sn150/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn150"
+    }
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"toy/50\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "spindle-oil-5",
+  "product": "SPINDLE OIL",
+  "grade": "5",
+  "skus": [
+   "SPI-5-26L",
+   "SPI-5-50L",
+   "SPI-5-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "hsd",
+    "pctBp": 5000,
+    "raw": "HSD/50",
+    "resolvesTo": null
+   },
+   {
+    "code": "toy",
+    "pctBp": 5000,
+    "raw": "toy/50",
+    "resolvesTo": null
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"HSD/50\" is not defined in Sheet1/2/3",
+   "ingredient \"toy/50\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "submersible-motor-oil",
+  "product": "SUBMERSIBLE MOTOR OIL",
+  "grade": "",
+  "skus": [
+   "SUBMOTOIL-26LCANE",
+   "SUBMOTOIL-50LCANE",
+   "SUBMOTOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w70",
+    "pctBp": 5000,
+    "raw": "w70/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "sn150",
+    "pctBp": null,
+    "raw": "sn150/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn150"
+    }
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "toy",
+    "pctBp": null,
+    "raw": "toy/",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3",
+   "ingredient \"toy/\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "tractor-engine-oils-15w-40-ch-4",
+  "product": "TRACTOR ENGINE OILS",
+  "grade": "15W-40 CH-4",
+  "skus": [
+   "TRAENG-15W40CH4-20X1L",
+   "TRAENG-15W40CH4-4X5L",
+   "TRAENG-15W40CH4-2X6L",
+   "TRAENG-15W40CH4-2X7.5L",
+   "TRAENG-15W40CH4-10L",
+   "TRAENG-15W40CH4-20L",
+   "TRAENG-15W40CH4-26L",
+   "TRAENG-15W40CH4-50L",
+   "TRAENG-15W40CH4-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "ci4",
+    "pctBp": 5000,
+    "raw": "ci4/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "sn"
+    }
+   },
+   {
+    "code": "r5",
+    "pctBp": 5000,
+    "raw": "r5/50",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   }
+  ],
+  "flags": [],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "tractor-engine-oils-20w-40-cf",
+  "product": "TRACTOR ENGINE OILS",
+  "grade": "20W-40 CF",
+  "skus": [
+   "TRAENG-20W40CF-20X1L",
+   "TRAENG-20W40CF-4X5L",
+   "TRAENG-20W40CF-2X6L",
+   "TRAENG-20W40CF-2X7.5L",
+   "TRAENG-20W40CF-10L",
+   "TRAENG-20W40CF-20L",
+   "TRAENG-20W40CF-26L",
+   "TRAENG-20W40CF-50L",
+   "TRAENG-20W40CF-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "r5",
+    "pctBp": 10000,
+    "raw": "r5/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "r5"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from r5 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "r5"
+ },
+ {
+  "productKey": "transformer-oil",
+  "product": "TRANSFORMER OIL",
+  "grade": "",
+  "skus": [
+   "TRAOIL-20LBUCKE",
+   "TRAOIL-26LCANE",
+   "TRAOIL-50LCANE",
+   "TRAOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w70",
+    "pctBp": 10000,
+    "raw": "w70/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "w60",
+    "pctBp": null,
+    "raw": "w60/",
+    "resolvesTo": null
+   },
+   {
+    "code": "tor",
+    "pctBp": null,
+    "raw": "tor/",
+    "resolvesTo": null
+   },
+   {
+    "code": "toy",
+    "pctBp": null,
+    "raw": "toy",
+    "noPercentSlot": true,
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"w60/\" is not defined in Sheet1/2/3",
+   "ingredient \"tor/\" is not defined in Sheet1/2/3",
+   "ingredient \"toy\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "transmission-fluid-cf-4-sae-30",
+  "product": "TRANSMISSION FLUID",
+  "grade": "CF-4 SAE 30",
+  "skus": [
+   "TRAFLU-CF4SAE30-35X500ML",
+   "TRAFLU-CF4SAE30-20X1L",
+   "TRAFLU-CF4SAE30-20L",
+   "TRAFLU-CF4SAE30-4X5L",
+   "TRAFLU-CF4SAE30-26L",
+   "TRAFLU-CF4SAE30-50L",
+   "TRAFLU-CF4SAE30-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "tfsae30",
+    "pctBp": 10000,
+    "raw": "tfsae30/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "tfsae30"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from tfsae30 (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "tfsae30"
+ },
+ {
+  "productKey": "transmission-fluid-tq-atf",
+  "product": "TRANSMISSION FLUID",
+  "grade": "TQ / ATF",
+  "skus": [
+   "500MLTQ-35X500ML",
+   "1LITTRA-20X1LITE",
+   "TRAFLUSAE-20LBUCKE",
+   "5LITTRA-4X5LITER",
+   "TRAFLUSAE-26LCANE",
+   "TRAFLUSAE-50LCANE",
+   "TRAFLUSAE-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "tq",
+    "pctBp": 10000,
+    "raw": "tq/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "tq"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from tq (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "tq"
+ },
+ {
+  "productKey": "turbine-oils-100",
+  "product": "TURBINE OILS",
+  "grade": "100",
+  "skus": [
+   "TUR-100-26L",
+   "TUR-100-50L",
+   "TUR-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9917,
+    "raw": "w500/99.17",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "tb additive",
+    "pctBp": 70,
+    "raw": "tb additive/0.7",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 10,
+    "raw": "ppd/0.1",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 3,
+    "raw": "antifoam/0.03",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   }
+  ],
+  "flags": [
+   "ingredient \"tb additive/0.7\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "turbine-oils-32",
+  "product": "TURBINE OILS",
+  "grade": "32",
+  "skus": [
+   "TUR-32-26L",
+   "TUR-32-50L",
+   "TUR-32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 9400,
+    "raw": "w150/94",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 517,
+    "raw": "w500/5.17",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "tb additive",
+    "pctBp": 70,
+    "raw": "tb additive/0.7",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 10,
+    "raw": "ppd/0.1",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 3,
+    "raw": "antifoam/0.03",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   }
+  ],
+  "flags": [
+   "ingredient \"tb additive/0.7\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "turbine-oils-46",
+  "product": "TURBINE OILS",
+  "grade": "46",
+  "skus": [
+   "TUR-46-26L",
+   "TUR-46-50L",
+   "TUR-46-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 7500,
+    "raw": "w150/75",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 2417,
+    "raw": "w500/24.17",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "tb additive",
+    "pctBp": 70,
+    "raw": "tb additive/0.7",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 10,
+    "raw": "ppd/0.1",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 3,
+    "raw": "antifoam/0.03",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   }
+  ],
+  "flags": [
+   "ingredient \"tb additive/0.7\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "turbine-oils-68",
+  "product": "TURBINE OILS",
+  "grade": "68",
+  "skus": [
+   "TUR-68-26L",
+   "TUR-68-50L",
+   "TUR-68-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": 4917,
+    "raw": "w500/49.17",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "tb additive",
+    "pctBp": 70,
+    "raw": "tb additive/0.7",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 10,
+    "raw": "ppd/0.1",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 3,
+    "raw": "antifoam/0.03",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   }
+  ],
+  "flags": [
+   "ingredient \"tb additive/0.7\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "utto-universal-tractor-transmission-oil",
+  "product": "UTTO (UNIVERSAL TRACTOR TRANSMISSION OIL)",
+  "grade": "",
+  "skus": [
+   "10LITBUC-10LITERB-13",
+   "WETBRAOIL-20LBUCKE",
+   "5LITWET-4X5LITER",
+   "WETBRAOIL-26LCANE",
+   "WETBRAOIL-50LCANE",
+   "WETBRAOIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "utto",
+    "pctBp": 10000,
+    "raw": "utto/100",
+    "resolvesTo": {
+     "kind": "blend",
+     "code": "wet brake oil"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from wet brake oil (blend) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "wet brake oil"
+ },
+ {
+  "productKey": "warping-oil-22",
+  "product": "WARPING OIL 22",
+  "grade": "",
+  "skus": [
+   "WAROIL-26LCANE",
+   "WAROIL-50LCANE",
+   "WAROIL-210LBARR"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 4400,
+    "raw": "w150/44",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": 4400,
+    "raw": "w70/44",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "wbt100",
+    "pctBp": 1200,
+    "raw": "wbt100/12",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "ingredient \"wbt100/12\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "warping-oil-32",
+  "product": "WARPING OIL 32",
+  "grade": "",
+  "skus": [
+   "WAR32-26L",
+   "WAR32-50L",
+   "WAR32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 8800,
+    "raw": "w150/88",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w70",
+    "pctBp": null,
+    "raw": "w70/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   },
+   {
+    "code": "wbt100",
+    "pctBp": 1200,
+    "raw": "wbt100/12",
+    "resolvesTo": null
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')",
+   "ingredient \"wbt100/12\" is not defined in Sheet1/2/3"
+  ],
+  "totalBp": 10000
+ },
+ {
+  "productKey": "white-oils-100",
+  "product": "WHITE OILS",
+  "grade": "100",
+  "skus": [
+   "WHI-100-26L",
+   "WHI-100-50L",
+   "WHI-100-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 10000,
+    "raw": "w500/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w500 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w500"
+ },
+ {
+  "productKey": "white-oils-12",
+  "product": "WHITE OILS",
+  "grade": "12",
+  "skus": [
+   "WHI-12-26L",
+   "WHI-12-50L",
+   "WHI-12-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w70",
+    "pctBp": 10000,
+    "raw": "w70/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w70"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w70 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w70"
+ },
+ {
+  "productKey": "white-oils-32",
+  "product": "WHITE OILS",
+  "grade": "32",
+  "skus": [
+   "WHI-32-26L",
+   "WHI-32-50L",
+   "WHI-32-210L"
+  ],
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 10000,
+    "raw": "w150/100",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   }
+  ],
+  "flags": [
+   "one-ingredient recipe: filled straight from w150 (raw_material) — for greases / brake fluid this likely means bought in and repacked"
+  ],
+  "totalBp": 10000,
+  "singleIngredient": "w150"
+ }
+]
