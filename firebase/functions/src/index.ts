@@ -19,3 +19,5 @@ export { saveStockItem } from "./stock/saveStockItem";
 export { ensureProductPools } from "./stock/ensureProductPools";
 export { requestRecipeChange } from "./recipes/requestRecipeChange";
 export { decideRecipeChange } from "./recipes/decideRecipeChange";
+export { requestProduction } from "./production/requestProduction";
+export { decideProductionRequest } from "./production/decideProductionRequest";

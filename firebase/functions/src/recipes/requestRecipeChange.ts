@@ -3,7 +3,18 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {applyRecipe, bad, parseRecipeInput, readPool, reasonText, REQUESTS, sameRecipe} from "./recipeModel";
+import {
+  applyRecipe,
+  bad,
+  keepAlternates,
+  parseAlternatesInput,
+  parseRecipeInput,
+  readPool,
+  reasonText,
+  REQUESTS,
+  sameList,
+  sameRecipe,
+} from "./recipeModel";
 
 /**
  * Ask for a product's recipe to change (Admin or Stock & Production).
@@ -13,6 +24,8 @@ import {applyRecipe, bad, parseRecipeInput, readPool, reasonText, REQUESTS, same
  *  - Admin: approved and applied at once; any request still waiting for the
  *    same product is marked "superseded".
  *  - Until approved, production keeps using the current recipe.
+ *  - The percents must add up to 100%. Alternate materials ({for, code, percent})
+ *    may be sent by an Admin only; anyone else's change keeps the current ones.
  */
 export const requestRecipeChange = onCall({region: "us-central1"}, async (request) => {
   const caller = await requireRole(request, ["admin", "supervisor"]);
@@ -30,10 +43,16 @@ export const requestRecipeChange = onCall({region: "us-central1"}, async (reques
     const waiting = await tx.get(
       db.collection(REQUESTS).where("productKey", "==", productKey).where("status", "==", "pending"),
     );
-    if (sameRecipe(recipe, pool.recipe)) bad("That's the same as the current recipe.");
+    const isAdmin = caller.role === "admin";
+    const sent = request.data?.alternates;
+    const kept = keepAlternates(pool.alternates, recipe);
+    const alternates = sent === undefined ? kept : parseAlternatesInput(sent, recipe);
+    if (!isAdmin && !sameList(alternates, kept)) bad("Only an Admin can set alternate materials.");
+    if (sameRecipe(recipe, pool.recipe) && sameList(alternates, pool.alternates)) {
+      bad("That's the same as the current recipe.");
+    }
 
     const now = FieldValue.serverTimestamp();
-    const isAdmin = caller.role === "admin";
     if (!isAdmin && !waiting.empty) {
       throw new HttpsError(
         "failed-precondition",
@@ -47,6 +66,8 @@ export const requestRecipeChange = onCall({region: "us-central1"}, async (reques
       skus: pool.skus,
       currentRecipe: pool.recipe,
       proposedRecipe: recipe,
+      currentAlternates: pool.alternates,
+      proposedAlternates: alternates,
       reason,
       status: isAdmin ? "approved" : "pending",
       requestedBy: by,
@@ -57,7 +78,7 @@ export const requestRecipeChange = onCall({region: "us-central1"}, async (reques
     });
 
     if (isAdmin) {
-      applyRecipe(tx, db, pool, recipe, by, ref.id);
+      applyRecipe(tx, db, pool, recipe, by, ref.id, alternates);
       for (const doc of waiting.docs) {
         tx.update(doc.ref, {
           status: "superseded",

@@ -93,7 +93,13 @@ describe("asking for a change", () => {
     ];
     for (const [recipe, pattern] of reqs) await rejectsWith(admin.call("requestRecipeChange", { productKey: KEY, recipe }), "invalid-argument", pattern);
     await rejectsWith(ask(admin, [{ code: "n4", percent: 90 }, { code: "ppd", percent: 10 }]), "invalid-argument", /same as the current/);
-    await rejectsWith(stock.call("requestRecipeChange", { productKey: KEY, recipe: [{ code: "x", percent: 1 }] }), "invalid-argument", /why/);
+    await rejectsWith(stock.call("requestRecipeChange", { productKey: KEY, recipe: [{ code: "x", percent: 100 }] }), "invalid-argument", /why/);
+  });
+
+  test("a changed recipe must total exactly 100% (lines without a % don't count)", async () => {
+    await rejectsWith(ask(admin, [{ code: "n4", percent: 90 }, { code: "ppd", percent: 5 }]), "invalid-argument", /95% — they must make exactly 100%/);
+    await rejectsWith(ask(admin, [{ code: "n4", percent: 90 }, { code: "ppd", percent: 20 }]), "invalid-argument", /110%/);
+    await rejectsWith(ask(admin, [{ code: "w70", percent: null }]), "invalid-argument", /0%/);
   });
 
   test("only an Admin decides", async () => {

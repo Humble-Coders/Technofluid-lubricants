@@ -183,6 +183,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Production entries that changed a recipe, waiting for an Admin (or decided).
+    match /productionRequests/{requestId} {
+      allow read:  if isAdmin() || isSupervisor();
+      allow write: if false;
+    }
+
     // ─── Coupons ──────────────────────────────────────────────────────────────
 
     match /coupons/{couponId} {

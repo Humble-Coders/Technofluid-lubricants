@@ -44,6 +44,7 @@ export const decideRecipeChange = onCall({region: "us-central1"}, async (request
           "The recipe has changed since this was asked for — reject it and ask again.",
         );
       }
+      // Only an Admin sets alternates, so the pool's current ones (that still fit) stay.
       applyRecipe(tx, db, pool, req.proposedRecipe as string[], by, id);
     }
     tx.update(ref, {
