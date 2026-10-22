@@ -33,7 +33,7 @@ const shortDate = (ymd: string) =>
 
 /** One journal line: item · type · quantity (+unit) · reason · remove. Fits the card at any width. */
 const LINE_GRID = "grid grid-cols-[minmax(150px,2fr)_minmax(130px,1.3fr)_minmax(110px,1fr)_minmax(120px,2fr)_28px] gap-3";
-const TALL = "[&_input]:h-10 [&_select]:h-10";
+const TALL = "[&_input]:h-9 [&_select]:h-9";
 
 const KIND_OPTIONS: Array<[LineKind, string]> = [
   ["IN", "In"],
@@ -160,15 +160,15 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
 
       <div className="px-5 pt-3 pb-2">
         <form
-          className="space-y-4 rounded-xl border border-line bg-surface p-5 shadow-sm"
+          className="space-y-3 rounded-xl border border-line bg-surface px-5 py-3.5 shadow-sm"
           onSubmit={(e) => {
             e.preventDefault();
             startReview();
           }}
         >
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-orange text-white">
-              <ClipboardPen className="size-5" />
+            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-orange text-white">
+              <ClipboardPen className="size-4.5" />
             </span>
             <div className="min-w-0 flex-1">
               <h2 className="text-[15px] font-semibold text-ink">{canEdit ? "Add to stock journal" : "Stock journal"}</h2>
@@ -185,7 +185,10 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
               value={date}
               max={today}
               onChange={(e) => e.target.value && setDate(e.target.value)}
-              className={clsx("w-44", TALL)}
+              className={clsx(
+                "w-44 [&_input]:border-brand-orange [&_input]:bg-brand-orange/8 [&_input]:font-semibold [&_input]:text-brand-orange-dark [&_input]:hover:border-brand-orange-dark",
+                TALL,
+              )}
             />
           </div>
 
@@ -238,7 +241,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                               className={clsx("num min-w-0 flex-1 [&_input]:rounded-r-none", TALL)}
                               aria-label="Quantity"
                             />
-                            <span className="inline-flex h-10 min-w-11 items-center justify-center rounded-r-md border border-l-0 border-line-strong bg-canvas px-3 text-[13px] text-ink-muted">
+                            <span className="inline-flex h-9 min-w-11 items-center justify-center rounded-r-md border border-l-0 border-line-strong bg-canvas px-3 text-[13px] text-ink-muted">
                               {l.item ? unitWord(l.item.baseUnit) : "—"}
                             </span>
                           </div>
@@ -271,7 +274,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-md border border-info/15 bg-info-soft px-4 text-[13px] font-medium text-info transition-colors hover:border-info/30"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-md border border-info/15 bg-info-soft px-4 text-[13px] font-medium text-info transition-colors hover:border-info/30"
                   onClick={() => setLines((ls) => [...ls, emptyLine()])}
                 >
                   <Plus className="size-4" />
@@ -279,7 +282,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                 </button>
                 <div className="flex-1" />
                 {saveError ? <p role="alert" className="text-[12px] font-medium text-danger">{saveError}</p> : null}
-                <Button type="submit" variant="primary" className="h-10 px-6" loading={busy} icon={<Check className="size-4" />}>
+                <Button type="submit" variant="primary" className="h-9 px-6" loading={busy} icon={<Check className="size-4" />}>
                   Review
                 </Button>
               </div>
