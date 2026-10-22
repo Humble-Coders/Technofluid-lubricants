@@ -14,9 +14,7 @@ import {
   type ItemKind,
   type StockItem,
 } from "@/services/stockService";
-import { JournalReview } from "./JournalReview";
 import { MovementList } from "./MovementList";
-import { buildReview, readReview, type ReviewGroup, type ReviewProblem } from "./reviewModel";
 import { StockItemForm } from "./StockItemForm";
 import { KIND_LABEL, packsSummary, searchText, unitWord } from "./stockFormat";
 
@@ -139,7 +137,6 @@ export function LiveStock({
         <ItemPanel
           key={selected.id}
           item={selected}
-          items={list}
           products={products}
           canEdit={canEdit}
           onClose={() => setSelectedId(null)}
@@ -263,9 +260,8 @@ function Panel({ title, subtitle, onClose, actions, children }: {
   );
 }
 
-function ItemPanel({ item, items, products, canEdit, onClose }: {
+function ItemPanel({ item, products, canEdit, onClose }: {
   item: StockItem;
-  items: StockItem[];
   products: Product[];
   canEdit: boolean;
   onClose: () => void;
@@ -299,9 +295,7 @@ function ItemPanel({ item, items, products, canEdit, onClose }: {
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
         <section>
           <p className="text-2xs font-medium tracking-wide text-ink-muted uppercase">On hand</p>
-          <p className={clsx("num text-[22px] font-semibold", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
-            {formatQuantity(item.onHandMilli, item.baseUnit)}
-          </p>
+          <OnHandCount item={item} canEdit={canEdit} />
           {item.onHandMilli < 0 ? (
             <p className="mt-1 flex items-center gap-1.5 text-[12px] text-danger">
               <AlertTriangle className="size-3.5" /> Below zero — more went out than was recorded. Count it and correct.
@@ -315,8 +309,6 @@ function ItemPanel({ item, items, products, canEdit, onClose }: {
           </p>
         </section>
 
-        {canEdit ? <StockActions item={item} items={items} products={products} /> : null}
-
         <section>
           <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">History</h3>
           <MovementList state={history} canEdit={canEdit} showItem={false} emptyText="No stock recorded for this item yet." />
@@ -328,35 +320,27 @@ function ItemPanel({ item, items, products, canEdit, onClose }: {
   );
 }
 
-type Action = "IN" | "OUT" | "COUNT";
-
-const ACTION_TEXT: Record<Action, { label: string; qty: string; why: string; saved: string }> = {
-  IN: { label: "How much came in?", qty: "Quantity added", why: "Why? e.g. filled from tank 2", saved: "Stock in saved." },
-  OUT: { label: "How much went out?", qty: "Quantity removed", why: "Why? e.g. dispatched, damaged, sample", saved: "Stock out saved." },
-  COUNT: { label: "What's really there?", qty: "Quantity actually there", why: "Why? e.g. monthly count", saved: "Count saved." },
-};
-
 /**
- * Change one item's stock from its panel: Stock in / Stock out (an amount, with a reason)
- * or Correct count — "feels directly editable" (decision #23): type what's really there
- * and the server records only the difference. With no history yet it's the opening stock.
- * Every save is a new diary line; nothing is overwritten.
+ * The on-hand amount with an Edit button beside it to correct the count — "feels directly
+ * editable" (decision #23): type what's really there and the server records only the
+ * difference. With no history yet it's the opening stock. Every save is a new diary line;
+ * nothing is overwritten. Stock in / out and production are entered in the Daily journal
+ * (Sharnya, 22 Oct 2026).
  */
-function StockActions({ item, items, products }: { item: StockItem; items: StockItem[]; products: Product[] }) {
+function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
   const opening = !item.lastMovementAt && item.onHandMilli === 0;
-  // A product's "Stock in" is production: it goes through the same recipe review as the
-  // Daily journal (Sharnya, 17 Oct 2026) — nothing is saved until confirmed.
-  const production = item.kind === "product_pool" && !opening;
-  const [review, setReview] = useState<ReviewGroup[] | null>(null);
-  const [problems, setProblems] = useState<ReviewProblem[]>([]);
-  const [reviewError, setReviewError] = useState<string | null>(null);
-  const [requestId, setRequestId] = useState(newRequestId);
-  const [action, setAction] = useState<Action>("IN");
+  const [editing, setEditing] = useState(false);
   const [qty, setQty] = useState("");
   const [why, setWhy] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "warn" | "error"; text: string } | null>(null);
-  const text = ACTION_TEXT[action];
+
+  const start = () => {
+    setQty(opening ? "" : String(item.onHandMilli / 1000));
+    setWhy("");
+    setMessage(null);
+    setEditing(true);
+  };
 
   const save = async () => {
     setMessage(null);
@@ -366,36 +350,21 @@ function StockActions({ item, items, products }: { item: StockItem; items: Stock
     } catch {
       return setMessage({ tone: "error", text: "Enter a quantity like 26 or 17.5." });
     }
-    if (!opening && action !== "COUNT" && milli === 0) {
-      return setMessage({ tone: "error", text: "Quantity must be above 0." });
-    }
-    if (production && action === "IN") {
-      setProblems([]);
-      setReviewError(null);
-      setReview(buildReview([{ item, kind: "IN", qtyMilli: milli, note: why.trim() }], items, products));
-      return;
-    }
-    if (!opening && !why.trim()) return setMessage({ tone: "error", text: "Say why." });
+    const note = why.trim();
+    if (!opening && !note) return setMessage({ tone: "error", text: "Say why." });
     setBusy(true);
     try {
-      const note = why.trim();
       const result = await recordStockMovements(newRequestId(), indiaDate(), [
         opening
           ? { itemId: item.id, kind: "OPENING", qtyMilli: milli, ...(note ? { note } : {}) }
-          : action === "COUNT"
-            ? { itemId: item.id, kind: "COUNT", countedMilli: milli, note }
-            : { itemId: item.id, kind: action, qtyMilli: milli, note },
+          : { itemId: item.id, kind: "COUNT", countedMilli: milli, note },
       ]);
-      setQty("");
-      setWhy("");
-      const below = result.belowZero.find((b) => b.itemId === item.id);
+      setEditing(false);
+      const below = result.belowZero.some((b) => b.itemId === item.id);
       setMessage(
         below
-          ? { tone: "warn", text: `Saved — ${item.name} is now below zero. Count it and correct.` }
-          : {
-              tone: "ok",
-              text: result.recorded === 0 ? "Already matches — nothing to change." : opening ? "Opening stock saved." : text.saved,
-            },
+          ? { tone: "warn", text: "Saved — it's below zero. Count it and correct." }
+          : { tone: "ok", text: result.recorded === 0 ? "Already matches — nothing to change." : opening ? "Opening stock saved." : "Count saved." },
       );
     } catch (err) {
       setMessage({ tone: "error", text: err instanceof Error ? err.message : String(err) });
@@ -404,112 +373,87 @@ function StockActions({ item, items, products }: { item: StockItem; items: Stock
     }
   };
 
-  const confirmReview = async () => {
-    if (!review) return;
-    setReviewError(null);
-    const { lines, problems: found } = readReview(review);
-    setProblems(found);
-    if (found.length > 0) return setReviewError("Fix the highlighted lines first.");
-    setBusy(true);
-    try {
-      const result = await recordStockMovements(requestId, indiaDate(), lines);
-      setReview(null);
-      setRequestId(newRequestId());
-      setQty("");
-      setWhy("");
-      setMessage(
-        result.belowZero.length > 0
-          ? { tone: "warn", text: `Saved — ${result.belowZero.map((b) => b.name).join(", ")} now below zero.` }
-          : { tone: "ok", text: "Production saved — raw materials deducted." },
-      );
-    } catch (err) {
-      setReviewError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const note = message ? (
+    <p
+      className={clsx(
+        "mt-1 text-[12px]",
+        message.tone === "ok" ? "text-success" : message.tone === "warn" ? "text-warning" : "text-danger",
+      )}
+    >
+      {message.text}
+    </p>
+  ) : null;
+
+  if (!editing) {
+    return (
+      <>
+        <div className="flex items-center gap-2">
+          <p className={clsx("num text-[22px] font-semibold", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
+            {formatQuantity(item.onHandMilli, item.baseUnit)}
+          </p>
+          {canEdit ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={start}
+              icon={<Pencil className="size-3.5" />}
+              title={opening ? "Enter the opening stock" : "Correct the count to what's really there"}
+            >
+              Edit
+            </Button>
+          ) : null}
+        </div>
+        {note}
+      </>
+    );
+  }
 
   return (
-    <>
-      {review ? (
-        <JournalReview
-          groups={review}
-          onChange={(groups) => {
-            setReview(groups);
-            setProblems([]);
-          }}
-          items={items}
-          products={products}
-          problems={problems}
-          busy={busy}
-          error={reviewError}
-          onBack={() => setReview(null)}
-          onConfirm={() => void confirmReview()}
-          backLabel="Cancel"
-        />
-      ) : null}
-      <form
-        className="space-y-2 rounded-md border border-line p-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save();
-        }}
-      >
-        {opening ? (
-          <p className="text-[12px] font-medium text-ink">Opening stock</p>
-        ) : (
-          <Segmented
-            value={action}
-            onChange={(a) => {
-              setAction(a);
-              setMessage(null);
-            }}
-            options={[
-              ["IN", production ? "Made (recipe)" : "Stock in"],
-              ["OUT", "Stock out"],
-              ["COUNT", "Correct count"],
-            ]}
-          />
-        )}
-        <div className="relative">
-          <Input
-            aria-label={opening ? "Opening quantity" : text.qty}
-            value={qty}
-            onChange={(e) => setQty(e.target.value)}
-            inputMode="decimal"
-            placeholder={opening ? "How much is there?" : text.label}
-            className="num [&_input]:pr-14"
-          />
-          <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
-            {unitWord(item.baseUnit)}
-          </span>
-        </div>
+    <form
+      className="mt-1 space-y-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void save();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && !busy) {
+          e.stopPropagation();
+          setEditing(false);
+        }
+      }}
+    >
+      <div className="relative">
         <Input
-          aria-label="Reason"
-          value={why}
-          onChange={(e) => setWhy(e.target.value)}
-          placeholder={opening || (production && action === "IN") ? "Note (optional)" : text.why}
-          maxLength={200}
+          aria-label={opening ? "Opening quantity" : "Quantity actually there"}
+          value={qty}
+          onChange={(e) => setQty(e.target.value)}
+          inputMode="decimal"
+          placeholder={opening ? "How much is there?" : "What's really there?"}
+          className="num [&_input]:pr-14"
+          autoFocus
+          onFocus={(e) => e.target.select()}
         />
-        <div className="flex items-center gap-2">
-          {message ? (
-            <p
-              className={clsx(
-                "flex-1 text-[12px]",
-                message.tone === "ok" ? "text-success" : message.tone === "warn" ? "text-warning" : "text-danger",
-              )}
-            >
-              {message.text}
-            </p>
-          ) : (
-            <span className="flex-1" />
-          )}
-          <Button size="sm" variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
-            {opening ? "Save" : action === "IN" ? (production ? "Review" : "Add stock") : action === "OUT" ? "Remove stock" : "Save count"}
-          </Button>
-        </div>
-      </form>
-    </>
+        <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
+          {unitWord(item.baseUnit)}
+        </span>
+      </div>
+      <Input
+        aria-label="Reason"
+        value={why}
+        onChange={(e) => setWhy(e.target.value)}
+        placeholder={opening ? "Note (optional)" : "Why? e.g. monthly count"}
+        maxLength={200}
+      />
+      {note}
+      <div className="flex justify-end gap-2">
+        <Button size="sm" variant="ghost" onClick={() => setEditing(false)} disabled={busy}>
+          Cancel
+        </Button>
+        <Button size="sm" variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
+          {opening ? "Save" : "Save count"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
