@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpFromLine, Factory, Flag, FlaskConical, Pencil, PlusCircle, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpFromLine, Factory, Flag, FlaskConical, Pencil, PlusCircle, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatQuantity, parseQuantityToMilli, parseRecipe } from "@technofluid/core";
 import { Button, Input } from "@/components/ui";
@@ -316,9 +316,18 @@ function ProductionCard({
         <p className="mb-3 text-[12px] text-ink-muted">
           {g.hasRecipe ? "Used from stock by the recipe. You can change any amount." : "No recipe — nothing is deducted. Add what was used if needed."}
         </p>
-        <div className="overflow-x-auto rounded-lg border border-line">
-          <table className="w-full min-w-[760px] border-collapse text-[13px]">
-            <thead className="bg-canvas text-left text-[12px] whitespace-nowrap text-ink-muted">
+        <div className="overflow-hidden rounded-lg border border-line">
+          <table className="w-full table-fixed border-collapse text-[13px]">
+            <colgroup>
+              <col className="w-[28%]" />
+              <col className="w-[9%]" />
+              <col className="w-[17%]" />
+              <col className="w-[12%]" />
+              <col className="w-[13%]" />
+              <col className="w-[13%]" />
+              <col className="w-[8%]" />
+            </colgroup>
+            <thead className="bg-canvas text-left text-[12px] text-ink-muted">
               <tr>
                 <th className="px-4 py-2.5 font-medium">Material</th>
                 <th className="px-3 py-2.5 font-medium">Recipe %</th>
@@ -349,11 +358,11 @@ function ProductionCard({
                     <td className="px-4 py-2.5">
                       {u.ingredient ? <p className="font-mono text-[13px] font-semibold text-ink">{u.ingredient.code}</p> : null}
                       {pickable ? (
-                        <div className={clsx("w-52", u.ingredient && "mt-1")}>
+                        <div className={clsx(u.ingredient && "mt-1")}>
                           <ItemPicker items={materials} value={u.item} onChange={(item) => setUse(u.key, { item })} />
                         </div>
                       ) : u.item && u.item.name.toLowerCase() !== u.ingredient?.code ? (
-                        <p className={clsx("max-w-52 truncate", u.ingredient ? "text-[12px] text-ink-muted" : "font-semibold text-ink")}>{u.item.name}</p>
+                        <p className={clsx("truncate", u.ingredient ? "text-[12px] text-ink-muted" : "font-semibold text-ink")}>{u.item.name}</p>
                       ) : null}
                       {problem ? <p className="mt-1 text-[12px] text-danger">{problem}</p> : null}
                     </td>
@@ -361,7 +370,7 @@ function ProductionCard({
                       {u.ingredient ? (u.ingredient.percentBp != null ? `${u.ingredient.percentBp / 100}%` : "no %") : "—"}
                     </td>
                     <td className="px-3 py-2.5">
-                      <div className="w-36" data-use={u.key}>
+                      <div data-use={u.key}>
                         <QtyInput
                           line={u}
                           unit={u.item?.baseUnit ?? "L"}
@@ -381,6 +390,7 @@ function ProductionCard({
                         title={s.help}
                         className={clsx(
                           CHIP,
+                          "h-auto min-h-6 py-0.5 whitespace-normal",
                           status.tone === "ok"
                             ? "bg-success-soft text-success"
                             : status.tone === "danger"
@@ -401,15 +411,6 @@ function ProductionCard({
                           className="inline-flex size-8 items-center justify-center rounded-md border border-line-strong text-ink-muted hover:bg-hover hover:text-ink"
                         >
                           <Pencil className="size-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Don't deduct this"
-                          title="Don't deduct this"
-                          onClick={() => onChange({ ...g, uses: g.uses.filter((x) => x.key !== u.key) })}
-                          className="inline-flex size-8 items-center justify-center rounded-md border border-line-strong text-ink-muted hover:bg-hover hover:text-danger"
-                        >
-                          <Trash2 className="size-3.5" />
                         </button>
                       </div>
                     </td>
