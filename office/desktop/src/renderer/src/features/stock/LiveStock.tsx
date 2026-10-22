@@ -53,12 +53,12 @@ export function LiveStock({
   return (
     <div className="flex min-h-0 flex-1">
       <section className="flex min-w-0 flex-1 flex-col">
-        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface px-5 py-2.5">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 bg-surface px-5 py-2.5">
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-            placeholder="Search item, code or other name"
+            placeholder="Search"
             leading={<Search className="size-3.5" />}
             className="w-[260px]"
             aria-label="Search stock"
@@ -73,16 +73,17 @@ export function LiveStock({
               ["consumable", "Consumables"],
             ]}
           />
-          <Button
-            size="sm"
-            variant={belowZeroOnly ? "primary" : "secondary"}
-            onClick={() => setBelowZeroOnly((v) => !v)}
-            icon={<AlertTriangle className="size-3.5" />}
-          >
-            Below zero ({belowZeroCount})
-          </Button>
+          {belowZeroCount > 0 || belowZeroOnly ? (
+            <Button
+              size="sm"
+              variant={belowZeroOnly ? "primary" : "secondary"}
+              onClick={() => setBelowZeroOnly((v) => !v)}
+              icon={<AlertTriangle className="size-3.5" />}
+            >
+              Below zero ({belowZeroCount})
+            </Button>
+          ) : null}
           <div className="flex-1" />
-          <span className="num text-[12px] text-ink-muted">{filtered.length.toLocaleString("en-IN")} items</span>
           {canEdit ? (
             <Button
               size="sm"
@@ -93,7 +94,7 @@ export function LiveStock({
                 setAdding(true);
               }}
             >
-              Add raw material / consumable
+              Add item
             </Button>
           ) : null}
         </div>

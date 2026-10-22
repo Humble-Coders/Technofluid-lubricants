@@ -27,6 +27,10 @@ interface Draft {
 }
 
 /** One journal line: item · what happened · quantity (+unit) · why · remove. Fits the card at any width. */
+/** "2026-10-15" → "15 Oct 2026". */
+const shortDate = (ymd: string) =>
+  new Date(`${ymd}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
 const LINE_GRID = "grid grid-cols-[minmax(150px,2fr)_minmax(120px,1fr)_minmax(110px,1fr)_minmax(120px,2fr)_28px] gap-2";
 
 const KIND_OPTIONS: Array<[LineKind, string]> = [
@@ -133,12 +137,9 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {/* Toolbar — same place as the History filters. */}
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface px-5 py-2.5">
-        <label htmlFor="journal-date" className="text-[13px] font-medium text-ink">
-          Stock journal for
-        </label>
+      <div className="flex shrink-0 flex-wrap items-center gap-2 bg-surface px-5 py-2.5">
         <Input
-          id="journal-date"
+          aria-label="Journal date"
           type="date"
           value={date}
           max={today}
@@ -149,12 +150,6 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
           <Button size="sm" variant="ghost" onClick={() => setDate(today)}>
             Back to today
           </Button>
-        ) : null}
-        <div className="flex-1" />
-        {recordedCount !== null ? (
-          <span className="num text-[12px] text-ink-muted">
-            {recordedCount.toLocaleString("en-IN")} {recordedCount === 1 ? "line" : "lines"} recorded
-          </span>
         ) : null}
       </div>
 
@@ -180,25 +175,24 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
         ) : null}
         {canEdit ? (
           <form
-            className="space-y-2 border-b border-line bg-surface px-5 py-4"
+            className="space-y-2 bg-surface px-5 pt-2 pb-4"
             onSubmit={(e) => {
               e.preventDefault();
               startReview();
             }}
           >
-            <h3 className="pb-1 text-[13px] font-semibold text-ink">New entries</h3>
             <div className={clsx(LINE_GRID, "text-2xs font-medium tracking-wide text-ink-muted uppercase")}>
               <span>Item</span>
-              <span>What happened</span>
+              <span>Type</span>
               <span>Quantity</span>
-              <span>Why</span>
+              <span>Reason</span>
               <span />
             </div>
             {lines.map((l, i) => (
               <div key={l.key}>
                 <div className={clsx(LINE_GRID, "items-center")}>
                   <ItemPicker items={items} value={l.item} onChange={(item) => update(l.key, { item })} autoFocus={i > 0 && i === lines.length - 1} />
-                  <Select value={l.kind} onChange={(e) => update(l.key, { kind: e.target.value as LineKind })} aria-label="What happened">
+                  <Select value={l.kind} onChange={(e) => update(l.key, { kind: e.target.value as LineKind })} aria-label="Type">
                     {KIND_OPTIONS.map(([k, label]) => (
                       <option key={k} value={k}>
                         {k === "IN" && l.item?.kind === "product_pool" ? "Made (uses recipe)" : label}
@@ -223,9 +217,9 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                   <Input
                     value={l.note}
                     onChange={(e) => update(l.key, { note: e.target.value })}
-                    placeholder={l.kind === "OPENING" || (l.kind === "IN" && l.item?.kind === "product_pool") ? "Optional" : "e.g. filled from tank 2"}
+                    placeholder={l.kind === "OPENING" || (l.kind === "IN" && l.item?.kind === "product_pool") ? "Optional" : "Why?"}
                     maxLength={200}
-                    aria-label="Why"
+                    aria-label="Reason"
                   />
                   <Button
                     variant="ghost"
@@ -241,7 +235,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                 {errors[l.key] ? <p className="mt-1 text-[12px] text-danger">{errors[l.key]}</p> : null}
                 {l.item && l.kind === "COUNT" ? (
                   <p className="mt-1 text-[12px] text-ink-faint">
-                    Shows {formatQuantity(l.item.onHandMilli, l.item.baseUnit)} now — the difference is recorded.
+                    Now {formatQuantity(l.item.onHandMilli, l.item.baseUnit)}
                   </p>
                 ) : null}
               </div>
@@ -262,7 +256,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
 
         <section>
           <h3 className="px-5 pt-4 pb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-            Recorded for {date === today ? "today" : date}
+            {date === today ? "Today" : shortDate(date)}{recordedCount ? ` · ${recordedCount.toLocaleString("en-IN")}` : ""}
           </h3>
           <div className="overflow-x-auto">
             <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded for this date." />

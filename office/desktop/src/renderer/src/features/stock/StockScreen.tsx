@@ -39,8 +39,9 @@ export function StockScreen() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center gap-3 border-b border-line bg-surface px-5 py-2">
+      <div className="shrink-0 bg-surface px-5 pt-3 pb-1">
         <Segmented
+          wide
           value={tab}
           onChange={setTab}
           options={[

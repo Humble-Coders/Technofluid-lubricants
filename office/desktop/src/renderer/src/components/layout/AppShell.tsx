@@ -314,12 +314,14 @@ function TopBar({ items }: { items: NavItem[] }) {
   return (
     <header
       className={clsx(
-        "app-drag flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface px-5",
+        "app-drag relative flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface px-5",
         // Leave room for the Windows minimise/maximise/close overlay.
         !isMac && inDesktopApp && "pr-[150px]",
       )}
     >
-      <h1 className="text-[14px] font-semibold text-ink">{current?.label ?? "Technofluid Office"}</h1>
+      <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[14px] font-semibold text-ink">
+        {current?.label ?? "Technofluid Office"}
+      </h1>
       <div className="flex-1" />
       {usingEmulators ? <Badge tone="info">Test data</Badge> : null}
       <ApprovalsBell />

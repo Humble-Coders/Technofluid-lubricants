@@ -48,12 +48,12 @@ export function StockHistory({ canEdit }: { canEdit: boolean }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface px-5 py-2.5">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 bg-surface px-5 py-2.5">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-          placeholder="Search item, reason or person"
+          placeholder="Search"
           leading={<Search className="size-3.5" />}
           className="w-[240px]"
           aria-label="Search stock history"
@@ -75,9 +75,8 @@ export function StockHistory({ canEdit }: { canEdit: boolean }) {
           ))}
         </Select>
         <div className="flex items-center gap-1.5 text-[12px] text-ink-muted">
-          <span>From</span>
           <Input type="date" value={from} max={to || today} onChange={(e) => setFrom(e.target.value)} aria-label="From date" className="w-36" />
-          <span>to</span>
+          <span>–</span>
           <Input type="date" value={to} min={from || undefined} max={today} onChange={(e) => setTo(e.target.value)} aria-label="To date" className="w-36" />
         </div>
         <label className="flex items-center gap-1.5 text-[12px] text-ink">
@@ -87,19 +86,16 @@ export function StockHistory({ canEdit }: { canEdit: boolean }) {
             onChange={(e) => setHideUndone(e.target.checked)}
             className="size-3.5 accent-brand-orange"
           />
-          Hide undone lines
+          Hide undone
         </label>
         {anyFilter ? (
           <Button size="sm" variant="ghost" onClick={clear} icon={<X className="size-3.5" />}>
-            Clear filters
+            Clear
           </Button>
         ) : null}
         <div className="flex-1" />
         <span className="num text-[12px] text-ink-muted">
-          {filtered.status === "ready"
-            ? `${filtered.data.length.toLocaleString("en-IN")} ${filtered.data.length === 1 ? "line" : "lines"}`
-            : ""}
-          {dated ? "" : ` · latest ${LATEST}`}
+          {dated ? "" : `Latest ${LATEST}`}
         </span>
       </div>
       <div className="min-h-0 flex-1 overflow-auto">

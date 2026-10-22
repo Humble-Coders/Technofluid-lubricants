@@ -153,13 +153,22 @@ export function Segmented<T extends string>({
   value,
   onChange,
   options,
+  wide = false,
 }: {
   value: T;
   onChange: (value: T) => void;
   options: Array<[T, string]>;
+  /** Fill the whole width, each option an equal share (e.g. a screen's tabs). */
+  wide?: boolean;
 }) {
   return (
-    <div className="inline-flex h-8 items-center rounded-md border border-line-strong bg-canvas p-0.5" role="radiogroup">
+    <div
+      className={clsx(
+        "items-center rounded-md border border-line-strong bg-canvas p-0.5",
+        wide ? "flex h-9 w-full" : "inline-flex h-8",
+      )}
+      role="radiogroup"
+    >
       {options.map(([key, label]) => (
         <button
           key={key}
@@ -168,7 +177,8 @@ export function Segmented<T extends string>({
           aria-checked={value === key}
           onClick={() => onChange(key)}
           className={clsx(
-            "h-full rounded px-2.5 text-[12px] font-medium transition-colors",
+            "h-full rounded px-2.5 font-medium transition-colors",
+            wide ? "flex-1 text-[13px]" : "text-[12px]",
             value === key ? "bg-surface text-ink shadow-sm" : "text-ink-muted hover:text-ink",
           )}
         >
