@@ -25,7 +25,8 @@ const CASES = JSON.parse(readFileSync(path.resolve(here, "../../core/src/entity.
 const functionsDir = path.resolve(here, "../../../firebase/functions");
 const fnRequire = createRequire(path.join(functionsDir, "package.json"));
 const model = fnRequire("./lib/entities/entityModel.js");
-const { reconcileOnce } = fnRequire("./lib/entities/sync.js");
+const { reconcileOnce, syncEntity } = fnRequire("./lib/entities/sync.js");
+const { NotConnectedHlClient } = fnRequire("./lib/ledger/hlClient.js");
 const { createHlClient, hlModeFor } = fnRequire("./lib/ledger/getHlClient.js");
 const { FakeHlClient } = fnRequire("./lib/ledger/fakeHlClient.js");
 const fnAdminApp = fnRequire("firebase-admin/app").initializeApp({ projectId: PROJECT }, `fn-${process.pid}`);
@@ -313,6 +314,15 @@ describe("balances, statements and archiving", () => {
     assert.equal((await adminDb.doc(`_fakeHl/books/customers/${d.hlCustomerId}`).get()).data().archived, false);
     await rejectsWith(accounts.call("setEntityActive", { requestId: rid(), entityId, active: false, reason: " " }), "invalid-argument", /reason/);
   });
+
+  test("archiving an entity whose HL customer is already archived doesn't call archive again or misreport a balance", async () => {
+    const { entityId } = await save(accounts, base({ name: "TEST ENT Already Archived" }));
+    const d = await synced(entityId);
+    await adminDb.doc(`_fakeHl/books/customers/${d.hlCustomerId}`).set({ archived: true }, { merge: true });
+    await accounts.call("setEntityActive", { requestId: rid(), entityId, active: false, reason: "Closed" });
+    assert.equal((await entity(entityId)).isActive, false);
+    assert.equal(await hlCalls("archiveCustomer", d.hlCustomerId), 0);
+  });
 });
 
 describe("the walk-in customer", () => {
@@ -392,13 +402,68 @@ describe("website distributors", () => {
 });
 
 describe("which Humble Ledger", () => {
-  test("a demo- project gets the fake one even with HL_MODE=live; a real project needs live config", () => {
-    const live = () => ({ gatewayBaseUrl: "https://gw.example", hlBaseUrl: "https://hl.example", projectId: "p", adminToken: "t" });
+  const live = () => ({ gatewayBaseUrl: "https://gw.example", hlBaseUrl: "https://hl.example", projectId: "p", adminToken: "t" });
+
+  test("a demo- project gets the fake one even with HL_MODE=live", () => {
     assert.equal(createHlClient({ projectId: "demo-technofluid", mode: "live", db: libDb, live }).mode, "fake");
     assert.equal(hlModeFor("demo-technofluid", "live"), "fake");
-    assert.equal(hlModeFor("", "live"), "fake");
-    assert.equal(hlModeFor("techno-fluid", "fake"), "fake");
-    assert.equal(hlModeFor("techno-fluid", "live"), "live");
+  });
+
+  test("any other project NEVER gets the fake: live only with HL_MODE=live, otherwise every call fails loud", async () => {
+    for (const mode of ["fake", "", "off", "nonsense"]) {
+      const c = createHlClient({ projectId: "techno-fluid", mode, db: libDb, live });
+      assert.equal(c.mode, "off", `HL_MODE=${mode}`);
+      assert.ok(!(c instanceof FakeHlClient));
+      await assert.rejects(c.getCustomer("x"), (e) => e.code === "NOT_CONNECTED" && e.transient === false);
+    }
+    assert.equal(hlModeFor("", "live"), "off");
     assert.equal(createHlClient({ projectId: "techno-fluid", mode: "live", db: libDb, live }).mode, "live");
+  });
+
+  test("books not connected: the entity stays as it was — nothing FAILED, no opening marked posted; reconcile does nothing", async () => {
+    const id = "test-ent-not-connected";
+    await libDb.doc(`entities/${id}`).set({
+      ...base({ name: "TEST ENT Not Connected" }),
+      nameLower: "test ent not connected",
+      deleted: false,
+      isActive: true,
+      // FAILED so the emulator's own trigger leaves it alone during this test.
+      syncStatus: "FAILED",
+      syncAttempts: 0,
+      opening: { amountPaise: 500, direction: "receivable", asOf: "2026-04-01", posted: false, hlTxnId: null },
+    });
+    const off = new NotConnectedHlClient();
+    assert.equal(await syncEntity(libDb, off, id), "skipped");
+    const d = await entity(id);
+    assert.equal(d.opening.posted, false);
+    assert.equal(d.syncAttempts, 0);
+    assert.equal(d.hlCustomerId ?? null, null);
+    const r = await reconcileOnce(libDb, off, Date.now() + 3_600_000);
+    assert.equal(r.notConnected, true);
+    assert.equal(r.tried, 0);
+  });
+});
+
+describe("trigger retries", () => {
+  test("the retry cap is read from the fresh doc, not the frozen event: rethrows under 3 attempts, then stops", async () => {
+    const id = "test-ent-retry-cap";
+    await libDb.doc(`entities/${id}`).set({
+      ...base({ name: "TEST ENT Retry Cap" }),
+      nameLower: "test ent retry cap",
+      deleted: false,
+      isActive: true,
+      syncStatus: "FAILED", // the emulator's trigger ignores FAILED docs
+      syncAttempts: 2,
+      opening: null,
+    });
+    const hl = new FakeHlClient(libDb);
+    await control({ failNext: 1 });
+    await assert.rejects(syncEntity(libDb, hl, id, { fromTrigger: true })); // 2 < 3 → redeliver
+    assert.equal((await entity(id)).syncAttempts, 3);
+    await control({ failNext: 1 });
+    assert.equal(await syncEntity(libDb, hl, id, { fromTrigger: true }), "failed"); // 3 → no more redelivery
+    assert.equal((await entity(id)).syncAttempts, 4);
+    await control({});
+    assert.equal(await syncEntity(libDb, hl, id), "synced");
   });
 });

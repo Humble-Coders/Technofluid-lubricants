@@ -14,8 +14,9 @@ import {reconcileOnce, syncEntity} from "./sync";
  * Runs only when an entity is PENDING, or SYNCED with an HL customer and a changed HL
  * profile. Anything else is a no-op — that's the loop guard: the function's own SYNCED /
  * FAILED write changes no profile field (and never rewrites a doc just to say "waiting",
- * Aromex lesson 6). Transient failures are retried by the platform up to 3 attempts;
- * after that the 10-minute reconcile takes over.
+ * Aromex lesson 6). Transient failures are redelivered by the platform while the doc's
+ * own syncAttempts (read fresh in syncEntity — a redelivery carries the same frozen
+ * event) is under 3; after that the 10-minute reconcile takes over.
  */
 export const onEntityWritten = onDocumentWritten(
   {document: "entities/{entityId}", region: "asia-south1", retry: true, secrets: HL_SECRETS},
@@ -26,7 +27,7 @@ export const onEntityWritten = onDocumentWritten(
     const pending = after.syncStatus === "PENDING";
     const profileMoved = after.syncStatus === "SYNCED" && Boolean(after.hlCustomerId) && Boolean(before) && hlProfileChanged(before as never, after as never);
     if (!pending && !profileMoved) return;
-    await syncEntity(admin.firestore(), getHlClient(), event.params.entityId, {rethrow: Number(after.syncAttempts ?? 0) < 3});
+    await syncEntity(admin.firestore(), getHlClient(), event.params.entityId, {fromTrigger: true});
   },
 );
 

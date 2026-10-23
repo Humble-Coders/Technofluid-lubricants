@@ -183,5 +183,21 @@ PR into `feat/office-foundation`. No merge and no deploy by this session; Ansh's
 - **(b) Distributor fields.** Distributors use `gstNumber` and a free-text `address`, so the import maps them.
   - The summary lists which entities got their state from the GSTIN (`stateFromGstin`) and which need one (`stateNeeded`).
 - **(c) Reconcile in tests.** The emulators run no scheduler, so `reconcileOnce(db, hl)` is exported and the test calls it directly. No extra callable.
-- **(d) Fake on demo projects.** `HL_MODE` defaults to fake, and a `demo-` project always gets the fake client. Tested.
+- **(d) Fake on demo projects only** (tightened after Ansh's review, 24 Oct 2026).
+  - A `demo-` project always gets the fake.
+  - **Any other project** gets live HL only with `HL_MODE=live`; otherwise (unset, the default `off`, or even `fake`) every HL call fails loud as **NOT_CONNECTED**.
+  - In that state entities stay PENDING, nothing is marked posted, reconcile does nothing, and balances and statements show "The books (Humble Ledger) aren't connected yet". Tested.
 - **(e) Fill from GST.** It uses the existing website `verifyGST` unchanged; in the emulator it usually says "disabled", and details are typed by hand. Its sign-in-only check is existing debt.
+
+## Review fixes (Ansh, 24 Oct 2026)
+1. **The live client unwraps HL's envelope per method**, following the OpenAPI (`/api/v1` prefix):
+   - create reads `idempotent` from the envelope;
+   - list reads `data[]` + `meta.hasMore`, with `includeArchived=true`;
+   - Customer = `{isActive, outstanding}`;
+   - archive refuses with `422 CUSTOMER_HAS_BALANCE`;
+   - update clears a field with `null`.
+   - Opening-balance and ledger responses aren't documented: they're read defensively, fail loud on an unexpected shape, and are marked "verify on first live call".
+   - Covered by a stubbed-fetch test.
+2. **The trigger's retry cap uses the fresh doc's `syncAttempts`**, not the frozen event's.
+3. **Fake only on demo projects** (see (d)).
+4. **Archiving an already-archived HL customer** doesn't call archive again or misreport a balance.

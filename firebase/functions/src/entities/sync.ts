@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import {FieldValue} from "firebase-admin/firestore";
 import {logger} from "firebase-functions/v2";
 
-import {HlError, isNotFound, plainHlMessage, type HlClient, type HlCustomer} from "../ledger/hlClient";
+import {HlError, isNotConnected, isNotFound, plainHlMessage, type HlClient, type HlCustomer} from "../ledger/hlClient";
 import {ENTITIES, hlProfileChanged, sourceIds, type HlProfile} from "./entityModel";
 
 /**
@@ -10,8 +10,12 @@ import {ENTITIES, hlProfileChanged, sourceIds, type HlProfile} from "./entityMod
  * entity id) or update the HL customer, post the opening balance ONCE (idempotent on its
  * sourceId, booked on opening.asOf — never the sync day), then one merge write.
  *
- *  - Transient HL failure → FAILED with a plain message, then rethrown (so the trigger
- *    retries); permanent (bad data) → FAILED, not rethrown — fix the data and it re-syncs.
+ *  - Transient HL failure → FAILED with a plain message; when called from the trigger it
+ *    is rethrown (the platform redelivers) while the doc's OWN syncAttempts — read fresh
+ *    here, not from the frozen event — is under 3; after that the reconcile takes over.
+ *    Permanent (bad data) → FAILED, never rethrown — fix the data and it re-syncs.
+ *  - Books not connected (a non-demo project without HL_MODE=live) → nothing written:
+ *    the entity stays PENDING and no opening is marked posted.
  *  - A stored hlCustomerId that HL no longer knows (404) → re-created, once.
  *  - The final write is a transaction: if the profile was edited while we synced, the doc
  *    stays PENDING so the edit is synced too (never lost).
@@ -34,16 +38,24 @@ const payload = (p: HlProfile) => ({
 
 export type SyncOutcome = "synced" | "failed" | "skipped";
 
+/** Redeliveries allowed for one entity before the reconcile takes over. */
+export const TRIGGER_RETRIES = 3;
+
 export async function syncEntity(
   db: admin.firestore.Firestore,
   hl: HlClient,
   entityId: string,
-  opts: {rethrow?: boolean} = {},
+  opts: {fromTrigger?: boolean} = {},
 ): Promise<SyncOutcome> {
+  if (hl.mode === "off") {
+    logger.warn("Books not connected — entity left PENDING", {entityId});
+    return "skipped";
+  }
   const ref = db.collection(ENTITIES).doc(entityId);
   const snap = await ref.get();
   const d = snap.data();
   if (!snap.exists || !d || d.deleted === true) return "skipped";
+  const priorAttempts = Number(d.syncAttempts ?? 0);
   const profile = profileOf(d);
 
   try {
@@ -87,7 +99,7 @@ export async function syncEntity(
       opening = {...opening, posted: true, hlTxnId: posted.txnId};
     }
 
-    if (d.isActive === false && customer.archived !== true) {
+    if (d.isActive === false && customer.isActive !== false) {
       await hl.archiveCustomer(customer.id).catch((e) => logger.warn("HL archive after sync failed", {entityId, error: String(e)}));
     }
 
@@ -113,6 +125,10 @@ export async function syncEntity(
     });
     return "synced";
   } catch (e) {
+    if (isNotConnected(e)) {
+      logger.warn("Books not connected — entity left PENDING", {entityId});
+      return "skipped";
+    }
     const transient = e instanceof HlError ? e.transient : true;
     logger.error("Entity sync to HL failed", {entityId, transient, error: e instanceof Error ? e.message : String(e)});
     await ref.set(
@@ -124,7 +140,7 @@ export async function syncEntity(
       },
       {merge: true},
     );
-    if (transient && opts.rethrow) throw e;
+    if (transient && opts.fromTrigger && priorAttempts < TRIGGER_RETRIES) throw e;
     return "failed";
   }
 }
@@ -142,6 +158,7 @@ export const backoffMinutes = (attempts: number) => Math.min(2 ** Math.max(attem
  * Retry still works — it resets the count).
  */
 export async function reconcileOnce(db: admin.firestore.Firestore, hl: HlClient, now = Date.now()) {
+  if (hl.mode === "off") return {checked: 0, tried: 0, synced: 0, failed: 0, notConnected: true};
   const snap = await db.collection(ENTITIES).where("syncStatus", "in", ["PENDING", "FAILED"]).limit(400).get();
   const ms = (t: unknown) => (t instanceof admin.firestore.Timestamp ? t.toMillis() : 0);
   const due = snap.docs.filter((doc) => {
@@ -153,7 +170,7 @@ export async function reconcileOnce(db: admin.firestore.Firestore, hl: HlClient,
     return attempts === 0 || now - ms(d.lastSyncAttemptAt) >= backoffMinutes(attempts) * 60_000;
   }).slice(0, 200);
 
-  const result = {checked: snap.size, tried: 0, synced: 0, failed: 0};
+  const result = {checked: snap.size, tried: 0, synced: 0, failed: 0, notConnected: false};
   for (const doc of due) {
     result.tried += 1;
     const outcome = await syncEntity(db, hl, doc.id);

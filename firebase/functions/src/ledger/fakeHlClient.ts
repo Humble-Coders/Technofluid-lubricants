@@ -7,11 +7,12 @@ import {HL_APP_ID, HL_MAX_PAGE, HlError, type HlClient, type HlCustomer, type Hl
  * kept in Firestore under _fakeHl/*, so balances and statements are real. It behaves
  * like HL where it matters:
  *  - idempotent on externalId (customers) and on (appId, sourceId) (transactions);
- *  - 404 for unknown ids; archive refuses a non-zero balance; pages > 100 are a 400;
- *  - amounts come back as decimal strings.
+ *  - 404 for unknown ids; archive refuses a non-zero balance (422 CUSTOMER_HAS_BALANCE);
+ *    pages > 100 are a 400;
+ *  - customers look like HL's ({…, isActive, outstanding}); amounts are decimal strings.
  * Test hook: _fakeHl/control {failNext: n} fails the next n calls with a 503;
  * {down: true} fails every call (to try the "books unreachable" screens);
- * {omitBalance: true} returns `outstanding` without `balance`. Every call is logged in
+ * {omitBalance: true} returns only `outstanding` (as HL does), not `balance` as well. Every call is logged in
  * _fakeHl/log {op, key} so tests can tell whether an edit reached "the books".
  * Rules deny all client access to _fakeHl.
  */
@@ -83,7 +84,7 @@ export class FakeHlClient implements HlClient {
       accountId: c.accountId,
       externalId: c.externalId,
       name: c.name,
-      archived: c.archived,
+      isActive: !c.archived,
       ...(omitBalance ? {outstanding: bal} : {balance: bal, outstanding: bal}),
     };
   }
@@ -129,7 +130,7 @@ export class FakeHlClient implements HlClient {
     await this.gate("archiveCustomer", id);
     await this.load(id);
     const bal = await this.balancePaise(id);
-    if (bal !== 0) throw new HlError(`Customer has a non-zero balance (${toAmount(bal)})`, 409, false);
+    if (bal !== 0) throw new HlError(`Customer has a non-zero balance (${toAmount(bal)})`, 422, false, "CUSTOMER_HAS_BALANCE");
     await this.customers().doc(id).set({archived: true}, {merge: true});
   }
 

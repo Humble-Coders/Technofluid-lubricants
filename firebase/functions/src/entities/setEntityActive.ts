@@ -4,7 +4,7 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
-import {HlError, isNotFound, plainHlMessage} from "../ledger/hlClient";
+import {hasBalanceError, isNotFound, plainHlMessage} from "../ledger/hlClient";
 import {requestId as parseRequestId} from "../stock/stockModel";
 import {actorOf, historyRef, onceInTx, reasonText} from "./common";
 import {ENTITIES, WALK_IN_ENTITY_ID, bad, formatRupees, hlAmountToPaise} from "./entityModel";
@@ -47,7 +47,8 @@ export const setEntityActive = onCall({region: "us-central1", secrets: HL_SECRET
             const who = balance > 0 ? "they owe us" : "we owe them";
             throw new HttpsError("failed-precondition", `Settle ${formatRupees(Math.abs(balance))} first (${who}) — only a zero balance can be archived.`);
           }
-          await hl.archiveCustomer(customer.id);
+          // Already archived in the books (e.g. a retry) — nothing to do there.
+          if (customer.isActive !== false) await hl.archiveCustomer(customer.id);
         }
       } else {
         await hl.unarchiveCustomer(String(d.hlCustomerId)).catch((e) => (isNotFound(e) ? undefined : Promise.reject(e)));
@@ -57,7 +58,7 @@ export const setEntityActive = onCall({region: "us-central1", secrets: HL_SECRET
     }
   } catch (e) {
     if (e instanceof HttpsError) throw e;
-    if (e instanceof HlError && e.status === 409) throw new HttpsError("failed-precondition", "The books still show a balance — settle it first.");
+    if (hasBalanceError(e)) throw new HttpsError("failed-precondition", "The books still show a balance — settle it first.");
     throw new HttpsError("unavailable", plainHlMessage(e));
   }
 
