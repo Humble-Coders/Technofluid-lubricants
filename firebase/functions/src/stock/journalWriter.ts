@@ -5,6 +5,7 @@ import {HttpsError} from "firebase-functions/v2/https";
 import {
   bad,
   ITEMS,
+  MADE_KINDS,
   REQUESTS,
   MOVEMENTS,
   nonNegativeMilli,
@@ -157,7 +158,9 @@ export function writeJournal(
       type = line.kind;
       qty = line.kind === "IN" ? line.qtyMilli : -line.qtyMilli;
     } else if (line.kind === "MADE") {
-      if (item.kind !== "product_pool") bad(`Line ${i + 1}: only products are made — ${item.name} isn't a product.`);
+      if (!MADE_KINDS.includes(item.kind)) {
+        bad(`Line ${i + 1}: only products, premixes and blends are made — ${item.name} isn't one.`);
+      }
       type = "PRODUCTION_IN";
       qty = line.qtyMilli;
     } else if (line.kind === "USED") {

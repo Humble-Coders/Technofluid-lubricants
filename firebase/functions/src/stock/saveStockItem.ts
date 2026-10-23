@@ -3,10 +3,10 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {bad, BASE_UNITS, ITEMS, type BaseUnit} from "./stockModel";
+import {bad, BASE_UNITS, isMixKind, ITEMS, STOCK_MODES, type BaseUnit, type StockMode} from "./stockModel";
 
 /**
- * Add, edit, delete or restore a RAW MATERIAL or CONSUMABLE stock item
+ * Add, edit, delete or restore a RAW MATERIAL, CONSUMABLE, PREMIX or BLEND stock item
  * (decision #21). Admin or Stock & Production. Product stock pools come from
  * the products themselves (ensureProductPools) and can't be edited here.
  *
@@ -17,9 +17,13 @@ import {bad, BASE_UNITS, ITEMS, type BaseUnit} from "./stockModel";
  *    none until an Admin sets it (Sharnya, 23 Oct 2026); no stock is recorded for
  *    it meanwhile. New items always need a unit.
  *  - Delete is soft and only when nothing is on hand (count it to 0 first).
+ *  - Premixes / blends: `stockMode` "breakDown" (mixed on the spot, the default) or
+ *    "stocked" (kept in stock); only an Admin changes it. Their recipe is changed
+ *    through requestRecipeChange, never here.
  */
 
-const KINDS = ["raw_material", "consumable"] as const;
+const KINDS = ["raw_material", "consumable", "premix", "blend"] as const;
+const KIND_WORD: Record<string, string> = {raw_material: "raw material", consumable: "consumable", premix: "premix", blend: "blend"};
 
 function text(value: unknown, label: string, max: number): string {
   if (typeof value !== "string" || !value.trim()) bad(`${label} is required.`);
@@ -61,7 +65,7 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
     }
 
     const kind = existing ? existing.kind : data.kind;
-    if (!(KINDS as readonly string[]).includes(kind)) bad("Kind must be raw material or consumable.");
+    if (!(KINDS as readonly string[]).includes(kind)) bad("Kind must be raw material, consumable, premix or blend.");
     const name = text(data.name, "Name", 80);
     const unitless = Boolean(existing) && !(BASE_UNITS as readonly string[]).includes(existing?.baseUnit);
     let baseUnit: BaseUnit | null;
@@ -77,7 +81,7 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
     }
 
     let code: string | null = null;
-    if (kind === "raw_material" && data.code !== undefined && data.code !== null && String(data.code).trim()) {
+    if ((kind === "raw_material" || isMixKind(kind)) && data.code !== undefined && data.code !== null && String(data.code).trim()) {
       code = String(data.code).trim().toLowerCase();
       code = code.replace(/\s+/g, " ");
       // As written in Gaurav's recipes: "w150", "ep additive", "sn500(kg)", "va13.7".
@@ -97,9 +101,18 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
       [...new Set(data.aliases.filter((a: unknown) => typeof a === "string" && a.trim()).map((a: string) => a.trim().slice(0, 40)))].slice(0, 20) :
       [];
 
+    let stockMode: StockMode | null = null;
+    if (isMixKind(kind)) {
+      const current = (existing?.stockMode as StockMode | undefined) ?? "breakDown";
+      const asked = data.stockMode ?? current;
+      if (!(STOCK_MODES as readonly string[]).includes(asked)) bad("Stock mode must be breakDown or stocked.");
+      if (asked !== current && caller.role !== "admin") bad("Only an Admin can change whether it's mixed on the spot or kept in stock.");
+      stockMode = asked as StockMode;
+    }
+
     // Uniqueness: name within the kind, code among raw materials (deleted items ignored).
     const sameName = await tx.get(db.collection(ITEMS).where("kind", "==", kind).where("nameLower", "==", name.toLowerCase()));
-    if (sameName.docs.some((d) => d.id !== ref.id && d.data().deleted !== true)) bad(`There's already a ${kind === "raw_material" ? "raw material" : "consumable"} called ${name}.`);
+    if (sameName.docs.some((d) => d.id !== ref.id && d.data().deleted !== true)) bad(`There's already a ${KIND_WORD[kind as string] ?? "stock item"} called ${name}.`);
     if (code) {
       const sameCode = await tx.get(db.collection(ITEMS).where("code", "==", code));
       if (sameCode.docs.some((d) => d.id !== ref.id && d.data().deleted !== true)) bad(`Code "${code}" is already used.`);
@@ -113,6 +126,7 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
       baseUnit,
       densityKgPerL: density,
       aliases,
+      ...(stockMode ? {stockMode} : {}),
       updatedAt: now,
       updatedBy: by,
     };
@@ -122,6 +136,7 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
       tx.create(ref, {
         ...fields,
         productKey: null,
+        ...(isMixKind(kind) ? {recipe: [], recipeAlternates: []} : {}),
         onHandMilli: 0,
         lastMovementAt: null,
         deleted: false,

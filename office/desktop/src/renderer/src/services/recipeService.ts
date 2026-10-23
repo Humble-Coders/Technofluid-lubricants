@@ -11,9 +11,15 @@ import { friendlyError } from "./callErrors";
 
 export type RequestStatus = "pending" | "approved" | "rejected" | "superseded";
 
+/** What a recipe belongs to: a product (all its pack sizes) or a premix/blend stock item. */
+export type RecipeTarget = { productKey: string } | { itemId: string };
+
 export interface RecipeRequest {
   id: string;
+  /** Set for a product's recipe… */
   productKey: string;
+  /** …or for a premix/blend's (stock item id). */
+  itemId: string | null;
   productName: string;
   /** Gaurav's format: "code/percent" ("w70/" = no percent). */
   currentRecipe: string[];
@@ -35,6 +41,7 @@ function toRequest(id: string, d: DocumentData): RecipeRequest {
   return {
     id,
     productKey: String(d.productKey ?? ""),
+    itemId: typeof d.itemId === "string" ? d.itemId : null,
     productName: String(d.productName ?? ""),
     currentRecipe: strings(d.currentRecipe),
     proposedRecipe: strings(d.proposedRecipe),
@@ -48,7 +55,7 @@ function toRequest(id: string, d: DocumentData): RecipeRequest {
   };
 }
 
-export type RequestFilter = { pending: true } | { productKey: string } | { latest: number };
+export type RequestFilter = { pending: true } | { productKey: string } | { itemId: string } | { latest: number };
 
 /** Requests, newest first: those waiting, those for one product, or the latest N. */
 export function watchRecipeRequests(
@@ -62,7 +69,9 @@ export function watchRecipeRequests(
       ? query(base, where("status", "==", "pending"))
       : "productKey" in filter
         ? query(base, where("productKey", "==", filter.productKey))
-        : query(base, orderBy("requestedAt", "desc"), limit(filter.latest));
+        : "itemId" in filter
+          ? query(base, where("itemId", "==", filter.itemId))
+          : query(base, orderBy("requestedAt", "desc"), limit(filter.latest));
   return onSnapshot(
     q,
     (snap) =>
@@ -101,13 +110,13 @@ export interface AlternateInput {
  * approved at once; only an Admin may send `alternates`.
  */
 export function requestRecipeChange(
-  productKey: string,
+  target: RecipeTarget,
   recipe: RecipeLineInput[],
   reason: string,
   alternates?: AlternateInput[],
 ): Promise<{ requestId: string; status: RequestStatus }> {
   return call("requestRecipeChange", {
-    productKey,
+    ...target,
     recipe,
     ...(reason.trim() ? { reason: reason.trim() } : {}),
     ...(alternates ? { alternates } : {}),

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpFromLine, Check, Factory, Flag, FlaskConical, Pencil, PlusCircle, X } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatQuantity, parseQuantityToMilli, parseRecipe, recipeTotalBp } from "@technofluid/core";
 import { Button, Input, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
@@ -8,7 +8,7 @@ import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
 import { canChangeRecipe } from "@/lib/access";
 import type { RecipeChangeInput } from "@/services/productionService";
 import type { Product } from "@/services/productService";
-import type { StockItem } from "@/services/stockService";
+import { isMix, type StockItem } from "@/services/stockService";
 import { ItemPicker } from "./ItemPicker";
 import {
   alternatesFor,
@@ -23,6 +23,8 @@ import {
   recipeOf,
   recipeProblemKey,
   reworkUses,
+  leafLines,
+  updateUse,
   type NetChange,
   type ReviewGroup,
   type ReviewLine,
@@ -42,6 +44,8 @@ const STATUS: Record<UseLine["status"], { tag: string; help: string; warn: boole
   needs_density: { tag: "Enter amount", help: "Litres ↔ kg needs a density that isn't known. Type how much was used.", warn: true },
   unit_mismatch: { tag: "Enter amount", help: "This can't be worked out from a percent. Type how much was used.", warn: true },
   added: { tag: "Added", help: "Added by you.", warn: false },
+  cycle: { tag: "Loop in recipes", help: "This recipe leads back to itself (A → B → A). Type how much was used, or leave it empty.", warn: true },
+  too_deep: { tag: "Enter amount", help: "Too many levels of premixes/blends to follow. Type how much was used.", warn: true },
   no_unit: { tag: "Unit not set", help: "This material has no unit yet — an Admin sets it on Live stock (Edit). Until then it can't be deducted.", warn: true },
 };
 
@@ -54,6 +58,28 @@ export interface RecipeConfirm {
 }
 
 const pctText = (bp: number | null | undefined) => (bp == null ? "no %" : `${bp / 100}%`);
+
+type Tone = "ok" | "warn" | "danger" | "info";
+const TONE: Record<Tone, string> = {
+  ok: "bg-success-soft text-success",
+  warn: "bg-warning-soft text-warning",
+  danger: "bg-danger-soft text-danger",
+  info: "bg-info-soft text-info",
+};
+
+/** The Status chip of a material line. */
+function statusOf(u: UseLine, after: number | null): { tag: string; tone: Tone } {
+  const s = STATUS[u.status];
+  const ing = effectiveIngredient(u);
+  if (u.parts) return { tag: "Mixed on the spot", tone: "info" };
+  if (!ing?.code) return { tag: "New", tone: "warn" };
+  if (!u.item) return { tag: u.status === "not_in_stock" ? s.tag : "Pick item", tone: "warn" };
+  if (s.warn && u.status !== "not_in_stock" && !u.qty.trim()) return { tag: s.tag, tone: "warn" };
+  if (after !== null && after < 0) return { tag: "Short", tone: "danger" };
+  return { tag: "Available", tone: "ok" };
+}
+
+const MADE_LABEL: Record<string, string> = { product_pool: "Output product", premix: "Premix", blend: "Blend" };
 
 /**
  * The review dialog: every change the save will make — products made, the raw materials
@@ -104,7 +130,7 @@ export function JournalReview({
   const [recipeOpen, setRecipeOpen] = useState(false);
 
   // Materials already shown (with what's left) in a recipe table aren't repeated below.
-  const inTables = new Set(groups.flatMap((g) => (g.type === "production" ? g.uses.map((u) => u.item?.id) : [])));
+  const inTables = new Set(groups.flatMap((g) => (g.type === "production" ? leafLines(g.uses).map((l) => l.use.item?.id) : [])));
   const totals = summary.filter((c) => !inTables.has(c.item.id));
 
   useEffect(() => {
@@ -315,8 +341,11 @@ function ProductionCard({
   const [draft, setDraft] = useState({ code: "", percent: "" });
   const [editError, setEditError] = useState<string | null>(null);
   const tableRef = useRef<HTMLTableSectionElement>(null);
-  const currentRecipe = products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0)?.recipe ?? [];
-  const canChange = canChangeRecipe(role) && Boolean(pool.productKey);
+  const mix = isMix(pool.kind);
+  const owner = mix ? null : products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0);
+  const currentRecipe = mix ? pool.recipe : (owner?.recipe ?? []);
+  const currentAlternates = mix ? pool.recipeAlternates : (owner?.recipeAlternates ?? []);
+  const canChange = canChangeRecipe(role) && (mix || Boolean(pool.productKey));
   const changed = recipeChanged(g);
   const total = recipeTotalBp(recipeOf(g));
   const codes = useMemo(() => [...new Set(materials.flatMap((m) => (m.code ? [m.code] : [])))].sort(), [materials]);
@@ -339,7 +368,7 @@ function ProductionCard({
     onChange({ ...g, made, uses: milli === null ? g.uses : reworkUses(pool, milli, g.uses, items) });
   };
   const setUse = (key: string, patch: Partial<UseLine>) =>
-    onChange({ ...g, uses: g.uses.map((u) => (u.key === key ? { ...u, ...patch, touched: true } : u)) });
+    onChange({ ...g, uses: updateUse(g.uses, key, (u) => ({ ...u, ...patch, touched: true })) });
   const replaceUse = (key: string, next: UseLine) => onChange({ ...g, uses: g.uses.map((u) => (u.key === key ? next : u)) });
 
   const startEdit = (u: UseLine) => {
@@ -392,7 +421,7 @@ function ProductionCard({
       <ItemHeader
         icon={Factory}
         name={pool.name}
-        sub="Output product"
+        sub={MADE_LABEL[pool.kind] ?? "Output product"}
         label="Quantity to make"
         problem={problemFor(g.made.key)}
         note={recipeNote}
@@ -451,16 +480,8 @@ function ProductionCard({
                 const ing = effectiveIngredient(u);
                 const isEditing = editing === u.key;
                 const pickable = Boolean(ing?.code) && (!u.item || u.status === "not_in_stock");
-                const after = u.item ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
-                const status = !ing?.code
-                  ? { tag: "New", tone: "warn" as const }
-                  : !u.item
-                    ? { tag: u.status === "not_in_stock" ? s.tag : "Pick item", tone: "warn" as const }
-                    : s.warn && u.status !== "not_in_stock" && !u.qty.trim()
-                      ? { tag: s.tag, tone: "warn" as const }
-                      : after !== null && after < 0
-                        ? { tag: "Short", tone: "danger" as const }
-                        : { tag: "Available", tone: "ok" as const };
+                const after = u.item && !u.parts ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
+                const status = statusOf(u, after);
                 const problem = problemFor(u.key);
                 const keys = (e: React.KeyboardEvent) => {
                   if (e.key === "Enter") {
@@ -472,7 +493,8 @@ function ProductionCard({
                   }
                 };
                 return (
-                  <tr key={u.key} className={clsx("border-t border-line align-middle", isEditing && "bg-brand-orange/[0.04]")}>
+                  <Fragment key={u.key}>
+                  <tr className={clsx("border-t border-line align-middle", isEditing && "bg-brand-orange/[0.04]")}>
                     <td className="px-4 py-2.5">
                       {isEditing ? (
                         <Input
@@ -538,16 +560,22 @@ function ProductionCard({
                       )}
                     </td>
                     <td className="px-3 py-2.5">
-                      <div data-use={u.key}>
-                        <QtyInput
-                          line={u}
-                          unit={u.item?.baseUnit ?? "L"}
-                          showUnit={Boolean(u.item)}
-                          onChange={(line) => setUse(u.key, { qty: line.qty })}
-                          placeholder={s.warn ? "Amount" : "0"}
-                          label={`Amount of ${ing?.code || "material"} used`}
-                        />
-                      </div>
+                      {u.parts ? (
+                        <span className="num text-ink-muted" title="Made from its own recipe — the lines below are deducted instead">
+                          {u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "—"}
+                        </span>
+                      ) : (
+                        <div data-use={u.key}>
+                          <QtyInput
+                            line={u}
+                            unit={u.item?.baseUnit ?? "L"}
+                            showUnit={Boolean(u.item)}
+                            onChange={(line) => setUse(u.key, { qty: line.qty })}
+                            placeholder={s.warn ? "Amount" : "0"}
+                            label={`Amount of ${ing?.code || "material"} used`}
+                          />
+                        </div>
+                      )}
                     </td>
                     <td className="num px-3 py-2.5 text-ink-muted">{u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}</td>
                     <td className={clsx("num px-3 py-2.5 font-semibold", after === null ? "text-ink-faint" : after < 0 ? "text-danger" : "text-success")}>
@@ -555,16 +583,8 @@ function ProductionCard({
                     </td>
                     <td className="px-3 py-2.5">
                       <span
-                        title={s.help}
-                        className={clsx(
-                          CHIP,
-                          "h-auto min-h-6 py-0.5 whitespace-normal",
-                          status.tone === "ok"
-                            ? "bg-success-soft text-success"
-                            : status.tone === "danger"
-                              ? "bg-danger-soft text-danger"
-                              : "bg-warning-soft text-warning",
-                        )}
+                        title={u.parts ? "Not taken from stock — its recipe's materials are, below." : s.help}
+                        className={clsx(CHIP, "h-auto min-h-6 py-0.5 whitespace-normal", TONE[status.tone])}
                       >
                         {status.tag}
                       </span>
@@ -592,6 +612,10 @@ function ProductionCard({
                       </div>
                     </td>
                   </tr>
+                  {u.parts ? (
+                    <PartRows parts={u.parts} depth={1} via={u.ingredient?.code ?? ""} materials={materials} afterOf={afterOf} problemFor={problemFor} setUse={setUse} />
+                  ) : null}
+                  </Fragment>
                 );
               })}
               <tr className="border-t border-line">
@@ -630,10 +654,10 @@ function ProductionCard({
 
       {changing ? (
         <RecipeChangeDialog
-          productKey={pool.productKey!}
+          target={mix ? { itemId: pool.id } : { productKey: pool.productKey! }}
           productName={pool.name}
           currentRecipe={currentRecipe}
-          currentAlternates={products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0)?.recipeAlternates ?? []}
+          currentAlternates={currentAlternates}
           onSent={() => setRecipeNote("Recipe change sent for approval — this run still uses the current recipe.")}
           onClose={(applied) => {
             openRecipe(false);
@@ -654,6 +678,87 @@ function ProductionCard({
         />
       ) : null}
     </div>
+  );
+}
+
+/** A premix/blend's own recipe lines, indented under it ("via r5"), with editable amounts. */
+function PartRows({
+  parts,
+  depth,
+  via,
+  materials,
+  afterOf,
+  problemFor,
+  setUse,
+}: {
+  parts: UseLine[];
+  depth: number;
+  via: string;
+  materials: StockItem[];
+  afterOf: Map<string, number>;
+  problemFor: (key: string) => string | undefined;
+  setUse: (key: string, patch: Partial<UseLine>) => void;
+}) {
+  return (
+    <>
+      {parts.map((u) => {
+        const s = STATUS[u.status];
+        const code = u.ingredient?.code ?? "—";
+        const after = u.item && !u.parts ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
+        const status = statusOf(u, after);
+        const pickable = !u.parts && (!u.item || u.status === "not_in_stock") && u.status !== "no_percent";
+        const problem = problemFor(u.key);
+        return (
+          <Fragment key={u.key}>
+            <tr className="border-t border-line/60 bg-canvas/50 align-middle text-[12px]">
+              <td className="py-2 pr-4" style={{ paddingLeft: 16 + depth * 18 }}>
+                <p className="flex items-baseline gap-1.5">
+                  <span className="text-ink-faint">↳</span>
+                  <span className="font-mono font-semibold text-ink">{code}</span>
+                  <span className="truncate text-2xs text-ink-faint">via {via}</span>
+                </p>
+                {pickable ? (
+                  <div className="mt-1">
+                    <ItemPicker items={materials} value={u.item} onChange={(item) => setUse(u.key, { item })} />
+                  </div>
+                ) : u.item && u.item.name.toLowerCase() !== code ? (
+                  <p className="truncate pl-4 text-2xs text-ink-muted">{u.item.name}</p>
+                ) : null}
+                {problem ? <p className="mt-1 text-danger">{problem}</p> : null}
+              </td>
+              <td className="num px-3 py-2 text-ink-muted">{pctText(u.ingredient?.percentBp)}</td>
+              <td className="px-3 py-2">
+                {u.parts ? (
+                  <span className="num text-ink-muted">{u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "—"}</span>
+                ) : (
+                  <QtyInput
+                    line={u}
+                    unit={u.item?.baseUnit ?? "L"}
+                    showUnit={Boolean(u.item)}
+                    onChange={(line) => setUse(u.key, { qty: line.qty })}
+                    placeholder={s.warn ? "Amount" : "0"}
+                    label={`Amount of ${code} used (via ${via})`}
+                  />
+                )}
+              </td>
+              <td className="num px-3 py-2 text-ink-muted">{u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}</td>
+              <td className={clsx("num px-3 py-2 font-semibold", after === null ? "text-ink-faint" : after < 0 ? "text-danger" : "text-success")}>
+                {u.item && after !== null ? formatQuantity(after, u.item.baseUnit) : "—"}
+              </td>
+              <td className="px-3 py-2">
+                <span title={s.help} className={clsx(CHIP, "h-auto min-h-6 py-0.5 whitespace-normal", TONE[status.tone])}>
+                  {status.tag}
+                </span>
+              </td>
+              <td />
+            </tr>
+            {u.parts ? (
+              <PartRows parts={u.parts} depth={depth + 1} via={`${via} → ${code}`} materials={materials} afterOf={afterOf} problemFor={problemFor} setUse={setUse} />
+            ) : null}
+          </Fragment>
+        );
+      })}
+    </>
   );
 }
 
