@@ -1,7 +1,7 @@
-import { collection, onSnapshot, query, where, type Unsubscribe } from "firebase/firestore";
+import { collection, onSnapshot, query, where, type QueryDocumentSnapshot, type Unsubscribe } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { BaseUnit } from "@technofluid/core";
-import { pricesFromDoc } from "./priceService";
+import { pricesFromDoc, watchPrices } from "./priceService";
 
 /**
  * A sellable variant = one product, in one grade, in one pack size. Same `products`
@@ -33,7 +33,7 @@ export interface Product {
   active: boolean;
 }
 
-function toProduct(id: string, d: Record<string, unknown>): Product {
+function toProduct(id: string, d: Record<string, unknown>, priceDoc?: Record<string, unknown>): Product {
   const num = (x: unknown): number | null => (typeof x === "number" && Number.isFinite(x) ? x : null);
   const str = (x: unknown): string => (typeof x === "string" ? x : "");
   const unit = str(d.baseUnit);
@@ -47,7 +47,7 @@ function toProduct(id: string, d: Record<string, unknown>): Product {
     packLabel: str(d.orderableUnit),
     packQty: num(d.packQty) ?? 0,
     baseUnit: unit === "kg" || unit === "piece" ? unit : "L",
-    ...pricesFromDoc(d),
+    ...pricesFromDoc(priceDoc ?? d),
     gstPct: num(d.gstPct) ?? 18,
     hsnCode: str(d.hsnCode) || null,
     segment: segment === "Automotive" || segment === "Industrial" || segment === "Both" ? segment : null,
@@ -57,20 +57,57 @@ function toProduct(id: string, d: Record<string, unknown>): Product {
   };
 }
 
-/** Live list of every active product, sorted by name → grade → pack size. */
-export function watchProducts(onChange: (products: Product[]) => void, onError: (error: Error) => void): Unsubscribe {
-  return onSnapshot(
+/**
+ * Live list of every active product, sorted by name → grade → pack size. With
+ * `withPrices` (Admin / Accounts) each product also gets its prices; roles that can't
+ * see prices never ask for them (the security rules would refuse anyway).
+ */
+export function watchProducts(
+  options: { withPrices: boolean },
+  onChange: (products: Product[]) => void,
+  onError: (error: Error) => void,
+): Unsubscribe {
+  let docs: QueryDocumentSnapshot[] | null = null;
+  let prices: Map<string, Record<string, unknown>> | null = options.withPrices ? null : new Map();
+
+  const emit = () => {
+    if (!docs || !prices) return;
+    const priceMap = prices;
+    const list = docs.map((doc) =>
+      toProduct(doc.id, options.withPrices ? doc.data() : withoutPrices(doc.data()), priceMap.get(doc.id)),
+    );
+    list.sort(
+      (a, b) =>
+        a.name.localeCompare(b.name) ||
+        a.grade.localeCompare(b.grade, undefined, { numeric: true }) ||
+        a.packQty - b.packQty,
+    );
+    onChange(list);
+  };
+
+  const stopProducts = onSnapshot(
     query(collection(db, "products"), where("deleted", "==", false)),
     (snap) => {
-      const list = snap.docs.map((doc) => toProduct(doc.id, doc.data()));
-      list.sort(
-        (a, b) =>
-          a.name.localeCompare(b.name) ||
-          a.grade.localeCompare(b.grade, undefined, { numeric: true }) ||
-          a.packQty - b.packQty,
-      );
-      onChange(list);
+      docs = snap.docs;
+      emit();
     },
     onError,
   );
+  const stopPrices = options.withPrices
+    ? watchPrices((map) => {
+        prices = map;
+        emit();
+      }, onError)
+    : () => {};
+
+  return () => {
+    stopProducts();
+    stopPrices();
+  };
+}
+
+/** Drops any not-yet-migrated price fields, for roles that must not see prices. */
+function withoutPrices(d: Record<string, unknown>): Record<string, unknown> {
+  const { pricePer: _pricePer, dealerPrice: _dealer, distributorPrice: _distributor, ...rest } = d;
+  return rest;
 }

@@ -1,8 +1,9 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {isPriceField, pricesFromData, pricesRef} from "./prices";
+import {currentPrices, isPriceField, legacyPriceDeletes, pricesRef} from "./prices";
 import {
   currentValue,
   parseProductEdit,
@@ -43,7 +44,6 @@ export const editProduct = onCall({region: "us-central1"}, async (request) => {
   const db = admin.firestore();
   const productRef = db.collection("products").doc(sku);
   const priceRef = pricesRef(db, sku);
-  const pricesOnProductDoc = priceRef.path === productRef.path;
 
   const result = await db.runTransaction(async (tx) => {
     const productSnap = await tx.get(productRef);
@@ -52,9 +52,7 @@ export const editProduct = onCall({region: "us-central1"}, async (request) => {
       throw new HttpsError("not-found", `Product "${sku}" doesn't exist.`);
     }
 
-    const prices = pricesFromData(
-      pricesOnProductDoc ? product : (await tx.get(priceRef)).data(),
-    );
+    const prices = currentPrices((await tx.get(priceRef)).data(), product);
 
     const before = (field: EditableField): EditValue =>
       isPriceField(field) ? prices[field] : currentValue(product, field);
@@ -66,29 +64,34 @@ export const editProduct = onCall({region: "us-central1"}, async (request) => {
       return {changed: [] as EditableField[], productKey: String(product.productKey ?? "")};
     }
 
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = FieldValue.serverTimestamp();
     const stamp = {updatedAt: now, updatedBy: {uid: caller.uid, name: caller.name}};
 
     const productUpdate: Record<string, unknown> = {...stamp};
-    const priceUpdate: Record<string, unknown> = {};
+    const newPrices: Record<string, unknown> = {...prices};
+    let pricesChanged = false;
     for (const [field, value] of changed) {
-      (isPriceField(field) ? priceUpdate : productUpdate)[field] = value;
+      if (isPriceField(field)) {
+        newPrices[field] = value;
+        pricesChanged = true;
+      } else {
+        productUpdate[field] = value;
+      }
     }
 
     // `active` is an office-only switch the importer never writes, so it isn't tracked.
     const tracked = changed.map(([field]) => field).filter((field) => field !== "active");
     if (tracked.length > 0) {
-      productUpdate.appEdited = admin.firestore.FieldValue.arrayUnion(...tracked);
+      productUpdate.appEdited = FieldValue.arrayUnion(...tracked);
     }
 
-    if (pricesOnProductDoc) {
-      tx.update(productRef, {...productUpdate, ...priceUpdate});
-    } else {
-      tx.update(productRef, productUpdate);
-      if (Object.keys(priceUpdate).length > 0) {
-        tx.set(priceRef, {...priceUpdate, ...stamp}, {merge: true});
-      }
+    // The full price set is written (not just the changed field), so a product
+    // still carrying legacy prices moves all of them across in this edit.
+    if (pricesChanged) {
+      tx.set(priceRef, {...newPrices, ...stamp});
+      Object.assign(productUpdate, legacyPriceDeletes());
     }
+    tx.update(productRef, productUpdate);
 
     for (const [field, value] of changed) {
       tx.create(db.collection("productChanges").doc(), {

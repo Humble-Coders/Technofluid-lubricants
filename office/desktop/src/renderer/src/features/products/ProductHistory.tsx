@@ -15,6 +15,7 @@ const FIELD_LABEL: Record<string, string> = {
   segment: "Sold to",
   densityKgPerL: "Density",
   active: "Selling",
+  deleted: "Deleted",
 };
 
 function show(field: string, value: unknown): string {
@@ -70,13 +71,28 @@ export function ProductHistory({ sku }: { sku: string }) {
 }
 
 function ChangeRow({ change }: { change: ProductChange }) {
+  // Whole-product events read better as a sentence than as old → new.
+  const event =
+    change.field === "created"
+      ? change.new
+        ? `Added as a copy of ${String(change.new)}`
+        : "Added"
+      : change.field === "deleted"
+        ? change.new
+          ? "Deleted"
+          : "Restored"
+        : null;
   return (
     <li className="rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-      <p className="text-ink">
-        <span className="font-medium">{FIELD_LABEL[change.field] ?? change.field}</span>:{" "}
-        <span className="text-ink-muted line-through decoration-ink-faint">{show(change.field, change.old)}</span> →{" "}
-        <span className="num font-medium">{show(change.field, change.new)}</span>
-      </p>
+      {event ? (
+        <p className="font-medium text-ink">{event}</p>
+      ) : (
+        <p className="text-ink">
+          <span className="font-medium">{FIELD_LABEL[change.field] ?? change.field}</span>:{" "}
+          <span className="text-ink-muted line-through decoration-ink-faint">{show(change.field, change.old)}</span> →{" "}
+          <span className="num font-medium">{show(change.field, change.new)}</span>
+        </p>
+      )}
       <p className="text-2xs text-ink-faint">
         {change.byName} · {when(change.at)}
         {change.reason ? ` · “${change.reason}”` : ""}

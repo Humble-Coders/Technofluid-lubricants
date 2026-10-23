@@ -1,13 +1,18 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import {HttpsError} from "firebase-functions/v2/https";
 
 /**
  * Every Cloud Function read/write of product PRICES goes through this file.
  *
- * Today prices live on the product doc itself (products/{sku}). The security
- * step of the plan moves them to product_prices/{sku} (readable by admin and
- * accounts only) — when that happens, only this file should need to change.
+ * Prices live in product_prices/{sku}, readable only by admin and accounts
+ * (Firestore can't hide single fields, and Stock & Production reads
+ * products/{sku}). Older product docs may still carry the price fields until
+ * scripts/migrate-product-prices.mjs has run — reads fall back to them, and
+ * every write strips them from the product doc.
  */
+
+export const PRICES_COLLECTION = "product_prices";
 
 export const PRICE_PER_VALUES = [
   "per litre",
@@ -39,7 +44,37 @@ export function pricesRef(
   db: admin.firestore.Firestore,
   sku: string,
 ): admin.firestore.DocumentReference {
-  return db.collection("products").doc(sku);
+  return db.collection(PRICES_COLLECTION).doc(sku);
+}
+
+/**
+ * A product's current prices: the product_prices doc, or — for a product not
+ * migrated yet — the legacy fields on the product doc itself.
+ */
+export function currentPrices(
+  priceData: admin.firestore.DocumentData | undefined,
+  productData: admin.firestore.DocumentData | undefined,
+): ProductPrices {
+  return pricesFromData(priceData ?? productData);
+}
+
+/** Field deletes that strip legacy prices from a product doc on write. */
+export function legacyPriceDeletes(): Record<PriceField, FieldValue> {
+  const del = FieldValue.delete();
+  return {pricePer: del, dealerPrice: del, distributorPrice: del};
+}
+
+/** Splits a product row into its price fields and everything else. */
+export function splitPrices<T extends Record<string, unknown>>(
+  row: T,
+): { prices: Partial<Record<PriceField, unknown>>; rest: Omit<T, PriceField> } {
+  const prices: Partial<Record<PriceField, unknown>> = {};
+  const rest: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(row)) {
+    if (isPriceField(key)) prices[key] = value;
+    else rest[key] = value;
+  }
+  return {prices, rest: rest as Omit<T, PriceField>};
 }
 
 /** Reads the prices out of the document `pricesRef` points to. */

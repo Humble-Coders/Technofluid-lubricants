@@ -18,6 +18,7 @@ export const COLLECTIONS = {
   ORDERS: "orders",
   VISITS: "visits",
   PRODUCTS: "products",
+  PRODUCT_PRICES: "product_prices",
   COUPONS: "coupons",
   RATE_LISTS: "rate_lists",
   PUBLIC_CATALOG: "public_catalog",

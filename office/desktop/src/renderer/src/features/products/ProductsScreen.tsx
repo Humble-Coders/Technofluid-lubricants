@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, CheckCircle2, Copy, FlaskConical, Package, Pencil, Plus, Search, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, FlaskConical, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   formatINR,
@@ -15,25 +15,32 @@ import { canEditProducts, canSeePrices } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
+import { setProductDeleted } from "@/services/productEditService";
 import { ProductEditor } from "./ProductEditor";
 import { ProductHistory } from "./ProductHistory";
 
 type CategoryFilter = "all" | "bulk_oil" | "grease" | "retail";
+/** Selling = on sale now; Not selling = switched off (not deleted). */
+type StatusFilter = "selling" | "off" | "all";
 type SegmentFilter = "all" | "Automotive" | "Industrial";
 
 const CATEGORY_LABEL: Record<string, string> = { bulk_oil: "Bulk oil", grease: "Grease", retail: "Retail pack" };
 const ROW_HEIGHT = 40;
 
 export function ProductsScreen() {
-  const state = useProducts();
   const { role } = useStaff();
   const showPrices = canSeePrices(role);
+  const state = useProducts({ withPrices: showPrices });
   const canEdit = canEditProducts(role);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [segment, setSegment] = useState<SegmentFilter>("all");
   const [missingPriceOnly, setMissingPriceOnly] = useState(false);
+  const [status, setStatus] = useState<StatusFilter>("selling");
+  // Just-deleted product, for the "Undo" banner.
+  const [deletedNote, setDeletedNote] = useState<{ sku: string; label: string; restored?: boolean } | null>(null);
+  const [undoing, setUndoing] = useState(false);
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
   // Adding a product (from scratch, or as a copy of `from`) replaces the detail panel.
   const [adding, setAdding] = useState<{ from?: Product } | null>(null);
@@ -68,6 +75,8 @@ export function ProductsScreen() {
       if (category !== "all" && p.category !== category) return false;
       // "Both" products are visible to every segment.
       if (segment !== "all" && p.segment !== segment && p.segment !== "Both") return false;
+      if (status === "selling" && !p.active) return false;
+      if (status === "off" && p.active) return false;
       if (missingPriceOnly && p.dealerPricePaise !== null) return false;
       if (words.length === 0) return true;
       // Typing a SKU finds it directly; otherwise words match name, grade and pack only —
@@ -80,10 +89,38 @@ export function ProductsScreen() {
         /^\d+(\.\d+)?$/.test(w) ? [w, `${w}l`, `${w}kg`, `${w}ml`].some((t) => tokens.includes(t)) : hay.includes(w),
       );
     });
-  }, [products, search, category, segment, missingPriceOnly]);
+  }, [products, search, category, segment, missingPriceOnly, status]);
 
   const pools = useMemo(() => new Set(filtered.map((p) => p.productKey)).size, [filtered]);
-  const missingCount = useMemo(() => products.filter((p) => p.dealerPricePaise === null).length, [products]);
+  const missingCount = useMemo(
+    () =>
+      products.filter(
+        (p) => p.dealerPricePaise === null && (status === "all" || (status === "selling") === p.active),
+      ).length,
+    [products, status],
+  );
+
+  // The "Deleted … Undo" note fades after a while.
+  useEffect(() => {
+    if (!deletedNote) return;
+    const timer = window.setTimeout(() => setDeletedNote(null), deletedNote.restored ? 5000 : 12000);
+    return () => window.clearTimeout(timer);
+  }, [deletedNote]);
+
+  const undoDelete = async () => {
+    if (!deletedNote) return;
+    setUndoing(true);
+    try {
+      await setProductDeleted(deletedNote.sku, false, "Undo");
+      setDeletedNote({ ...deletedNote, restored: true });
+      setStatus("all");
+      setSelectedSku(deletedNote.sku);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : String(error));
+    } finally {
+      setUndoing(false);
+    }
+  };
   // From the full list, not the filtered one: giving a "No price" product a price must not close its panel.
   const selected = products.find((p) => p.sku === selectedSku) ?? null;
 
@@ -135,6 +172,15 @@ export function ProductsScreen() {
               ["Industrial", "Industrial"],
             ]}
           />
+          <Segmented
+            value={status}
+            onChange={setStatus}
+            options={[
+              ["selling", "Selling"],
+              ["off", "Not selling"],
+              ["all", "All"],
+            ]}
+          />
           {showPrices ? (
             <Button
               size="sm"
@@ -156,6 +202,32 @@ export function ProductsScreen() {
             </Button>
           ) : null}
         </div>
+
+        {deletedNote ? (
+          <div
+            role="status"
+            className="flex shrink-0 items-center gap-2 border-b border-line bg-canvas px-5 py-2 text-[12px] text-ink"
+          >
+            {deletedNote.restored ? (
+              <>
+                <CheckCircle2 className="size-3.5 text-success" />
+                Restored {deletedNote.label}. It's switched off — turn Selling on when it's ready.
+              </>
+            ) : (
+              <>
+                <Trash2 className="size-3.5 text-ink-muted" />
+                Deleted {deletedNote.label}.
+                <Button size="sm" variant="secondary" onClick={() => void undoDelete()} loading={undoing}>
+                  Undo
+                </Button>
+              </>
+            )}
+            <div className="flex-1" />
+            <Button variant="ghost" size="sm" onClick={() => setDeletedNote(null)} aria-label="Dismiss" className="px-1.5">
+              <X className="size-3.5" />
+            </Button>
+          </div>
+        ) : null}
 
         {/* List */}
         {state.status === "loading" ? (
@@ -212,6 +284,10 @@ export function ProductsScreen() {
           canEdit={canEdit}
           onDirtyChange={onDirtyChange}
           onCopy={() => startAdding(selected)}
+          onDeleted={() => {
+            setDeletedNote({ sku: selected.sku, label: `${selected.name}${selected.grade ? ` ${selected.grade}` : ""} · ${selected.packLabel}` });
+            setSelectedSku(null);
+          }}
           onClose={() => select(null)}
         />
       ) : null}
@@ -386,6 +462,7 @@ function ProductPanel({
   canEdit,
   onDirtyChange,
   onCopy,
+  onDeleted,
   onClose,
 }: {
   product: Product;
@@ -393,6 +470,7 @@ function ProductPanel({
   canEdit: boolean;
   onDirtyChange: (dirty: boolean) => void;
   onCopy: () => void;
+  onDeleted: () => void;
   onClose: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -406,14 +484,21 @@ function ProductPanel({
   }, [savedCount]);
 
   const packPrice = useMemo(() => {
-    if (!showPrices || p.dealerPricePaise === null || p.distributorPricePaise === null || !p.pricePer) return null;
+    // Each price is shown on its own — one may be set before the other.
+    if (!showPrices || (p.dealerPricePaise === null && p.distributorPricePaise === null) || !p.pricePer) return null;
     try {
       const basis = priceBasisFromLabel(p.pricePer);
       const piecesPerPack = piecesPerPackFromLabel(p.packLabel) ?? undefined;
       const packQtyMilli = toMilli(p.packQty);
       return {
-        dealer: packPricePaise({ basis, pricePaise: p.dealerPricePaise, packQtyMilli, piecesPerPack }),
-        distributor: packPricePaise({ basis, pricePaise: p.distributorPricePaise, packQtyMilli, piecesPerPack }),
+        dealer:
+          p.dealerPricePaise === null
+            ? null
+            : packPricePaise({ basis, pricePaise: p.dealerPricePaise, packQtyMilli, piecesPerPack }),
+        distributor:
+          p.distributorPricePaise === null
+            ? null
+            : packPricePaise({ basis, pricePaise: p.distributorPricePaise, packQtyMilli, piecesPerPack }),
       };
     } catch {
       return "unknown" as const;
@@ -526,6 +611,8 @@ function ProductPanel({
             </section>
 
             {canEdit ? <ProductHistory sku={p.sku} /> : null}
+
+            {canEdit ? <DeleteProduct product={p} onDeleted={onDeleted} /> : null}
           </div>
 
           <div className="flex items-center gap-1.5 border-t border-line px-4 py-2 text-2xs text-ink-faint">
@@ -547,11 +634,15 @@ function Detail({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function PriceBox({ label, paise }: { label: string; paise: number }) {
+function PriceBox({ label, paise }: { label: string; paise: number | null }) {
   return (
     <div className="rounded-md border border-line px-3 py-2">
       <p className="text-2xs text-ink-muted">{label}</p>
-      <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
+      {paise === null ? (
+        <p className="text-[13px] text-warning">No price</p>
+      ) : (
+        <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
+      )}
     </div>
   );
 }
@@ -585,5 +676,43 @@ function Segmented<T extends string>({
         </button>
       ))}
     </div>
+  );
+}
+
+/* ─── Delete (soft) ──────────────────────────────────────────────────────────── */
+
+function DeleteProduct({ product: p, onDeleted }: { product: Product; onDeleted: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const remove = async () => {
+    const label = `${p.name}${p.grade ? ` ${p.grade}` : ""} (${p.packLabel})`;
+    const ok = window.confirm(
+      `Delete ${label}?\n\nIt disappears from Technofluid Office and from the pack sizes on the website. ` +
+        "Nothing is erased — you can undo it straight after, and it stays in the records.",
+    );
+    if (!ok) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await setProductDeleted(p.sku, true);
+      onDeleted();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="border-t border-line pt-4">
+      <Button variant="ghost" size="sm" onClick={() => void remove()} loading={busy} icon={<Trash2 className="size-3.5" />} className="text-danger hover:text-danger">
+        Delete product
+      </Button>
+      {error ? (
+        <p role="alert" className="mt-2 rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
+          {error}
+        </p>
+      ) : null}
+    </section>
   );
 }

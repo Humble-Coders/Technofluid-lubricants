@@ -12,3 +12,4 @@ export { updateProduct } from "./products/updateProduct";
 export { createProduct } from "./products/createProduct";
 export { editProduct } from "./products/editProduct";
 export { addProduct } from "./products/addProduct";
+export { setProductDeleted } from "./products/setProductDeleted";

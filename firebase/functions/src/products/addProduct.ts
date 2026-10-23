@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
@@ -89,7 +90,7 @@ export const addProduct = onCall({region: "us-central1"}, async (request) => {
   const ref = db.collection("products").doc(sku);
   const priceRef = pricesRef(db, sku);
   const sourceRef = copyOf ? db.collection("products").doc(copyOf) : null;
-  const now = admin.firestore.FieldValue.serverTimestamp();
+  const now = FieldValue.serverTimestamp();
   const by = {uid: caller.uid, name: caller.name};
 
   const affectedKeys = await db.runTransaction(async (tx) => {
@@ -146,9 +147,8 @@ export const addProduct = onCall({region: "us-central1"}, async (request) => {
       updatedAt: now,
       createdBy: by,
       updatedBy: by,
-      ...(priceRef.path === ref.path ? prices : {}),
     });
-    if (priceRef.path !== ref.path) tx.set(priceRef, {...prices, updatedAt: now, updatedBy: by});
+    tx.set(priceRef, {...prices, updatedAt: now, updatedBy: by});
 
     tx.create(db.collection("productChanges").doc(), {
       sku, field: "created", old: null, new: copyOf,

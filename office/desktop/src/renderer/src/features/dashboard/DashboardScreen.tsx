@@ -2,7 +2,7 @@ import { ArrowRight, Boxes, Package, ReceiptIndianRupee, Users } from "lucide-re
 import { useMemo } from "react";
 import { Link } from "react-router";
 import { Card, Spinner } from "@/components/ui";
-import { ROLE_LABEL, navFor } from "@/lib/access";
+import { ROLE_LABEL, canSeePrices, navFor } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
 
@@ -13,7 +13,7 @@ function greeting(): string {
 
 export function DashboardScreen() {
   const { profile, role } = useStaff();
-  const products = useProducts();
+  const products = useProducts({ withPrices: canSeePrices(role) });
   const items = navFor(role);
 
   const stats = useMemo(() => {

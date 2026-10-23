@@ -25,6 +25,9 @@ export const usingEmulators = env.VITE_USE_EMULATORS !== "false";
 
 const EMULATOR_PROJECT_ID = "demo-technofluid";
 
+/** Where the local Cloud Functions emulator listens (firebase/firebase.json). */
+export const FUNCTIONS_EMULATOR = { host: "127.0.0.1", port: 5001 };
+
 function required(name: string, value: string | undefined): string {
   if (!value) throw new Error(`Missing ${name} — copy desktop/.env.example to desktop/.env.local`);
   return value;
@@ -62,7 +65,7 @@ export const functions: Functions = getFunctions(firebaseApp, "us-central1");
 if (usingEmulators) {
   connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
-  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+  connectFunctionsEmulator(functions, FUNCTIONS_EMULATOR.host, FUNCTIONS_EMULATOR.port);
 }
 
 export const projectId = firebaseConfig.projectId;
