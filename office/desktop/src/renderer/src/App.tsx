@@ -10,6 +10,7 @@ import { ComingNext, NoAccess } from "@/features/placeholder/ComingNext";
 import { ProductsScreen } from "@/features/products/ProductsScreen";
 import { StockScreen } from "@/features/stock/StockScreen";
 import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
+import { EntitiesScreen } from "@/features/entities/EntitiesScreen";
 
 /** Shows a screen only to roles allowed to open it (UX only — rules + Functions are the real gate). */
 function Guarded() {
@@ -29,7 +30,7 @@ const router = createHashRouter([
           { index: true, element: <DashboardScreen /> },
           { path: "products", element: <ProductsScreen /> },
           { path: "sales", element: <ComingNext title="Sales & invoices" description="Pick a customer and products, GST is worked out, stock goes down and the sale is posted to the books." /> },
-          { path: "customers", element: <ComingNext title="Customers" description="Distributors and walk-in buyers, with what each one owes and their full statement." /> },
+          { path: "customers", element: <EntitiesScreen /> },
           { path: "payments", element: <ComingNext title="Payments" description="Record money received, cash or bank, against one or more invoices." /> },
           { path: "stock", element: <StockScreen /> },
           { path: "production", element: <ComingNext title="Production" description="Log a batch: stock of the finished product goes up, raw materials go down by the recipe." /> },
