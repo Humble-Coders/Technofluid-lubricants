@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BellRing,
   Boxes,
   Factory,
   LayoutDashboard,
@@ -66,6 +67,7 @@ export const NAV: readonly NavItem[] = [
   { path: "/expenses", label: "Expenses", icon: ShoppingCart, roles: ["admin", "accounts"], group: "Money" },
   { path: "/reports", label: "Reports", icon: BarChart3, roles: ["admin", "accounts"], group: "Money", shortcut: "6" },
 
+  { path: "/approvals", label: "Approvals", icon: BellRing, roles: ["admin"], group: "Admin" },
   { path: "/settings", label: "Settings", icon: Settings, roles: ["admin"], group: "Admin" },
 ];
 
@@ -81,6 +83,16 @@ export function canOpen(role: OfficeRole, path: string): boolean {
 /** Stock & Production must never see money. Used by screens that would otherwise show prices. */
 export function canSeePrices(role: OfficeRole): boolean {
   return role !== "supervisor";
+}
+
+/** Admin and Stock & Production record stock; Accounts only looks (PRD §2). The stock functions check again. */
+export function canEditStock(role: OfficeRole): boolean {
+  return role === "admin" || role === "supervisor";
+}
+
+/** Admin and Stock & Production may ask for a recipe change; only Admin approves (17 Oct 2026). */
+export function canChangeRecipe(role: OfficeRole): boolean {
+  return role === "admin" || role === "supervisor";
 }
 
 /** Only Admin changes products and prices (PRD §2). The editProduct Cloud Function checks again. */

@@ -1,12 +1,14 @@
 import clsx from "clsx";
-import { ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Wifi, WifiOff } from "lucide-react";
+import { BellRing, ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import mark from "@/assets/logo-mark.png";
-import { Badge, Kbd, modKey } from "@/components/ui";
+import { modKey } from "@/components/ui";
 import { navFor, ROLE_LABEL, type NavItem } from "@/lib/access";
 import { usingEmulators } from "@/lib/firebase";
 import { useOnline } from "@/hooks/useConnection";
+import { useProductionRequests } from "@/hooks/useProductionRequests";
+import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
 
@@ -313,28 +315,62 @@ function TopBar({ items }: { items: NavItem[] }) {
   return (
     <header
       className={clsx(
-        "app-drag flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface px-5",
+        "app-drag relative flex h-11 shrink-0 items-center gap-3 bg-gradient-to-r from-brand-orange to-[#f39a5f] px-5 text-white",
         // Leave room for the Windows minimise/maximise/close overlay.
         !isMac && inDesktopApp && "pr-[150px]",
       )}
     >
-      <h1 className="text-[14px] font-semibold text-ink">{current?.label ?? "Technofluid Office"}</h1>
+      <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-white">
+        {current?.label ?? "Technofluid Office"}
+      </h1>
       <div className="flex-1" />
-      {usingEmulators ? <Badge tone="info">Test data</Badge> : null}
+      {usingEmulators ? (
+        <span className="inline-flex h-5 items-center rounded bg-white/20 px-1.5 text-2xs font-medium text-white">Test data</span>
+      ) : null}
+      <ApprovalsBell />
       <span
         className={clsx(
           "app-no-drag inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-2xs font-medium",
-          online ? "bg-success-soft text-success" : "bg-warning-soft text-warning",
+          online ? "bg-white/20 text-white" : "bg-white text-warning",
         )}
         title={online ? "Connected — changes save instantly" : "Offline — you can keep working; changes sync when the internet is back"}
       >
         {online ? <Wifi className="size-3" /> : <WifiOff className="size-3" />}
         {online ? "Online" : "Offline — will sync"}
       </span>
-      <span className="hidden items-center gap-1 text-2xs text-ink-faint lg:flex">
-        <Kbd>{modKey()}</Kbd>
-        <Kbd>K</Kbd>
+      <span className="hidden items-center gap-1 text-2xs lg:flex" title="Search or jump to">
+        {[modKey(), "K"].map((k) => (
+          <kbd key={k} className="inline-flex h-5 min-w-5 items-center justify-center rounded bg-white/20 px-1 font-sans text-2xs text-white">
+            {k}
+          </kbd>
+        ))}
       </span>
     </header>
+  );
+}
+
+/** Admin only: how many approvals are waiting; click to open them. */
+function ApprovalsBell() {
+  const { role } = useStaff();
+  const navigate = useNavigate();
+  const pending = useRecipeRequests(role === "admin" ? { pending: true } : null);
+  const runs = useProductionRequests(role === "admin" ? { pending: true } : null);
+  if (role !== "admin") return null;
+  const count = (pending.status === "ready" ? pending.data.length : 0) + (runs.status === "ready" ? runs.data.length : 0);
+  return (
+    <button
+      type="button"
+      onClick={() => navigate("/approvals")}
+      title={count ? `${count} waiting for your approval` : "Approvals"}
+      aria-label={count ? `${count} ${count === 1 ? "approval" : "approvals"} waiting` : "Approvals"}
+      className="app-no-drag relative inline-flex size-7 items-center justify-center rounded-md text-white/90 transition-colors hover:bg-white/15 hover:text-white"
+    >
+      <BellRing className="size-4" />
+      {count > 0 ? (
+        <span className="num absolute -top-0.5 -right-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] leading-4 font-semibold text-brand-orange">
+          {count}
+        </span>
+      ) : null}
+    </button>
   );
 }

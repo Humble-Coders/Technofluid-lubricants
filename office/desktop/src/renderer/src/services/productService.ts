@@ -29,6 +29,8 @@ export interface Product {
   segment: "Automotive" | "Industrial" | "Both" | null;
   densityKgPerL: number | null;
   recipe: string[];
+  /** Admin-set materials that can replace a recipe line: "main>code/percent". */
+  recipeAlternates: string[];
   /** false = hidden from new sales (not deleted). */
   active: boolean;
 }
@@ -53,6 +55,9 @@ function toProduct(id: string, d: Record<string, unknown>, priceDoc?: Record<str
     segment: segment === "Automotive" || segment === "Industrial" || segment === "Both" ? segment : null,
     densityKgPerL: num(d.densityKgPerL),
     recipe: Array.isArray(d.recipe) ? d.recipe.filter((x): x is string => typeof x === "string") : [],
+    recipeAlternates: Array.isArray(d.recipeAlternates)
+      ? d.recipeAlternates.filter((x): x is string => typeof x === "string")
+      : [],
     active: d.active !== false,
   };
 }
