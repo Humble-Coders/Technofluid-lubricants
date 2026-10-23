@@ -1,17 +1,18 @@
 import {
+  explodeRecipe,
   fromMilli,
   parseAlternates,
   parseQuantityToMilli,
   parseRecipe,
-  proposeConsumption,
   recipeTotalBp,
-  type ConsumptionStatus,
+  type ExplodedLine,
+  type ExplodeStatus,
   type RecipeAlternate,
   type RecipeIngredient,
 } from "@technofluid/core";
 import type { RecipeChangeInput } from "@/services/productionService";
 import type { Product } from "@/services/productService";
-import type { JournalLine, StockItem } from "@/services/stockService";
+import { isMix, type JournalLine, type StockItem } from "@/services/stockService";
 
 /**
  * The review step of the Daily journal: every line as it will be saved, with the raw
@@ -26,6 +27,12 @@ import type { JournalLine, StockItem } from "@/services/stockService";
  * material and %, "Add material" adds a line. A changed recipe must total exactly 100%,
  * and the entry then goes to an Admin for approval with it. Admin-set alternates can be
  * used instead of a line; their own % decides how much is needed.
+ *
+ * Multi-level (Sharnya, 23 Oct 2026): a premix/blend that is mixed on the spot is
+ * broken down into its own recipe ("via r5"), so only what is really taken from stock
+ * is deducted; one kept in stock is deducted as itself. Premixes and blends are made
+ * in the journal like products. Only the top level's recipe is edited in the review —
+ * a premix/blend's own recipe is changed from its panel.
  */
 
 export type DraftKind = "IN" | "OUT" | "COUNT" | "OPENING";
@@ -52,9 +59,11 @@ export interface UseLine extends ReviewLine {
   alternates: RecipeIngredient[];
   /** The alternate in use instead of the recipe line, or null for the line itself. */
   useCode: string | null;
-  status: ConsumptionStatus | "added" | "no_unit";
+  status: ExplodeStatus | "added" | "no_unit";
   /** Amount typed by the person — don't recompute it when the amount made changes. */
   touched: boolean;
+  /** A premix/blend mixed on the spot: its own recipe lines, deducted instead of it. */
+  parts: UseLine[] | null;
 }
 
 export type ReviewGroup =
@@ -72,46 +81,66 @@ export type ReviewGroup =
 
 const text = (milli: number | null) => (milli === null ? "" : String(fromMilli(milli)));
 
+/** Ignoring case and spaces: "EP Additive" = "ep additive" = "epadditive". */
+const norm = (s: string) => s.toLowerCase().replace(/\s+/g, "");
+
 /** Finds the stock item an ingredient code means: recipe code, other name, or name. */
 export function materialFinder(items: StockItem[]) {
   const candidates = items.filter((i) => i.kind !== "product_pool");
   return (code: string): StockItem | null => {
-    const c = code.toLowerCase();
+    const c = norm(code);
     return (
-      candidates.find((i) => i.code === c) ??
-      candidates.find((i) => i.aliases.some((a) => a.toLowerCase() === c)) ??
-      candidates.find((i) => i.name.toLowerCase() === c) ??
+      candidates.find((i) => i.code !== null && norm(i.code) === c) ??
+      candidates.find((i) => i.aliases.some((a) => norm(a) === c)) ??
+      candidates.find((i) => norm(i.name) === c) ??
       null
     );
   };
 }
 
-/** The recipe of a product stock pool (every pack of a pool shares one recipe). */
-export function recipeFor(pool: StockItem, products: Product[]): RecipeIngredient[] {
-  const product = products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0);
+/** Whether a material is followed into its own recipe (a premix/blend mixed on the spot). */
+const breakDownOf = (m: StockItem): RecipeIngredient[] | null =>
+  isMix(m.kind) && m.stockMode !== "stocked" && m.unitSet && m.recipe.length > 0 ? parseRecipe(m.recipe) : null;
+
+/** The recipe of what is made: a product stock pool (shared by its packs) or a premix/blend. */
+export function recipeFor(made: StockItem, products: Product[]): RecipeIngredient[] {
+  if (isMix(made.kind)) return parseRecipe(made.recipe);
+  const product = products.find((p) => p.productKey === made.productKey && p.recipe.length > 0);
   return product ? parseRecipe(product.recipe) : [];
 }
 
-/** Admin-set alternates of a product stock pool's recipe lines. */
-export function alternatesFor(pool: StockItem, products: Product[]): RecipeAlternate[] {
-  const product = products.find((p) => p.productKey === pool.productKey && p.recipe.length > 0);
+/** Admin-set alternates of what is made's recipe lines. */
+export function alternatesFor(made: StockItem, products: Product[]): RecipeAlternate[] {
+  if (isMix(made.kind)) return parseAlternates(made.recipeAlternates);
+  const product = products.find((p) => p.productKey === made.productKey && p.recipe.length > 0);
   return product ? parseAlternates(product.recipeAlternates ?? []) : [];
 }
 
-/** What one recipe line (or alternate) needs for `madeMilli` of `pool`. */
-function workOut(pool: StockItem, madeMilli: number | null, ingredient: RecipeIngredient, items: StockItem[]) {
-  const find = materialFinder(items);
-  const found = find(ingredient.code);
-  if (found && !found.unitSet) return { item: found, qty: "", status: "no_unit" as const };
-  if (madeMilli === null) return { item: found, qty: "", status: "ok" as const };
-  const [p] = proposeConsumption({
+/** Turns the engine's tree into review lines (keys stable so typed amounts survive). */
+function toUse(line: ExplodedLine<StockItem>, key: string, previous: UseLine | undefined): Omit<UseLine, "ingredient" | "alternates" | "useCode"> {
+  const item = line.material;
+  if (item && !item.unitSet) return { key, item, qty: "", note: "", status: "no_unit", touched: false, parts: null };
+  const parts = line.parts
+    ? line.parts.map((p, i) => {
+        const k = `${key}-p${i}`;
+        const kept = previous?.parts?.find((x) => x.key === k && x.touched);
+        return kept ?? { ingredient: p.ingredient, alternates: [], useCode: null, ...toUse(p, k, undefined) };
+      })
+    : null;
+  return { key, item, qty: parts ? text(line.qtyMilli) : text(line.qtyMilli), note: "", status: line.status, touched: false, parts };
+}
+
+/** Works out lines for `madeMilli` of `made` — all together, so each level adds up to what was made. */
+function workOutAll(made: StockItem, madeMilli: number | null, ingredients: RecipeIngredient[], items: StockItem[]) {
+  return explodeRecipe<StockItem>({
     madeMilli,
-    productUnit: pool.baseUnit,
-    productDensityKgPerL: pool.densityKgPerL,
-    ingredients: [ingredient],
-    findMaterial: (code) => find(code),
+    unit: made.baseUnit,
+    densityKgPerL: made.densityKgPerL,
+    ingredients,
+    findMaterial: materialFinder(items),
+    breakDown: breakDownOf,
+    path: [made.id],
   });
-  return { item: (p!.material as StockItem | null) ?? null, qty: text(p!.qtyMilli), status: p!.status };
 }
 
 /** The recipe line or the alternate being used for it. */
@@ -119,33 +148,44 @@ export function effectiveIngredient(u: UseLine): RecipeIngredient | null {
   return (u.useCode ? u.alternates.find((a) => a.code === u.useCode) : null) ?? u.ingredient;
 }
 
-/** Raw-material lines for `madeMilli` of `pool` (fresh — nothing typed yet). */
+/** Material lines for `madeMilli` of `made` (fresh — nothing typed yet). */
 export function proposeUses(
-  pool: StockItem,
+  made: StockItem,
   madeMilli: number | null,
   ingredients: RecipeIngredient[],
   items: StockItem[],
   keyPrefix = "",
   alternates: RecipeAlternate[] = [],
 ): UseLine[] {
+  const worked = workOutAll(made, madeMilli, ingredients, items);
   return ingredients.map((ingredient, i): UseLine => ({
-    key: `${keyPrefix}use-${i}`,
     ingredient,
     alternates: alternates.filter((a) => a.main === ingredient.code).map((a) => a.ingredient),
     useCode: null,
-    note: "",
-    touched: false,
-    ...workOut(pool, madeMilli, ingredient, items),
+    ...toUse(worked[i]!, `${keyPrefix}use-${i}`, undefined),
   }));
 }
 
 /** Re-works the lines whose amount the person hasn't typed (e.g. the amount made changed). */
-export function reworkUses(pool: StockItem, madeMilli: number | null, uses: UseLine[], items: StockItem[]): UseLine[] {
+export function reworkUses(made: StockItem, madeMilli: number | null, uses: UseLine[], items: StockItem[]): UseLine[] {
+  const live = uses.filter((u) => effectiveIngredient(u)?.code);
+  const worked = workOutAll(made, madeMilli, live.map((u) => effectiveIngredient(u)!), items);
   return uses.map((u) => {
-    const ing = effectiveIngredient(u);
-    if (u.touched || !ing?.code) return u;
-    return { ...u, ...workOut(pool, madeMilli, ing, items) };
+    const i = live.indexOf(u);
+    if (i < 0 || u.touched) return u;
+    const next = toUse(worked[i]!, u.key, u);
+    return { ...u, ...next };
   });
+}
+
+/** Sets one line anywhere in the tree (by key). */
+export function updateUse(uses: UseLine[], key: string, fn: (u: UseLine) => UseLine): UseLine[] {
+  return uses.map((u) => (u.key === key ? fn(u) : u.parts ? { ...u, parts: updateUse(u.parts, key, fn) } : u));
+}
+
+/** Every line that is actually taken from stock (broken-down lines replaced by their parts). */
+export function leafLines(uses: UseLine[], via: string[] = []): { use: UseLine; via: string[] }[] {
+  return uses.flatMap((u) => (u.parts ? leafLines(u.parts, [...via, u.ingredient?.code ?? "?"]) : [{ use: u, via }]));
 }
 
 /** One line with its recipe material / % changed, or a different alternate chosen. */
@@ -167,8 +207,8 @@ export function changeUse(
         }
       : { ...u, useCode: change.useCode };
   const ing = effectiveIngredient(next);
-  if (!ing?.code) return { ...next, item: null, qty: "", status: "added", touched: false };
-  return { ...next, ...workOut(pool, madeMilli, ing, items), touched: false };
+  if (!ing?.code) return { ...next, item: null, qty: "", status: "added", touched: false, parts: null };
+  return { ...next, ...toUse(workOutAll(pool, madeMilli, [ing], items)[0]!, u.key, undefined) };
 }
 
 /** A new, empty recipe line (filled in with the pencil). */
@@ -183,6 +223,7 @@ export function newUse(groupKey: string): UseLine {
     useCode: null,
     status: "added",
     touched: false,
+    parts: null,
   };
 }
 
@@ -201,19 +242,18 @@ export function recipeChanged(g: ReviewGroup): boolean {
   return g.type === "production" && recipeKey(recipeOf(g)) !== recipeKey(g.originalRecipe);
 }
 
-/** The products whose recipe was changed in this review, ready to send. */
+/** The recipes changed in this review (products, premixes, blends), ready to send. */
 export function recipeChangesOf(groups: ReviewGroup[]): RecipeChangeInput[] {
-  return groups.flatMap((g) =>
-    g.type === "production" && recipeChanged(g) && g.made.item?.productKey
-      ? [
-          {
-            productKey: g.made.item.productKey,
-            recipe: recipeOf(g).map((i) => ({ code: i.code, percent: i.percentBp === null ? null : i.percentBp / 100 })),
-          },
-        ]
-      : [],
-  );
+  return groups.flatMap((g): RecipeChangeInput[] => {
+    if (g.type !== "production" || !recipeChanged(g) || !g.made.item) return [];
+    const recipe = recipeOf(g).map((i) => ({ code: i.code, percent: i.percentBp === null ? null : i.percentBp / 100 }));
+    if (isMix(g.made.item.kind)) return [{ itemId: g.made.item.id, recipe }];
+    return g.made.item.productKey ? [{ productKey: g.made.item.productKey, recipe }] : [];
+  });
 }
+
+/** Can this be made in the factory (a journal "In" that uses a recipe)? */
+export const isMade = (item: StockItem) => item.kind === "product_pool" || isMix(item.kind);
 
 /** Problem key for a production run's recipe as a whole (e.g. the total isn't 100%). */
 export const recipeProblemKey = (groupKey: string) => `${groupKey}-recipe`;
@@ -222,7 +262,7 @@ export const recipeProblemKey = (groupKey: string) => `${groupKey}-recipe`;
 export function buildReview(drafts: DraftLine[], items: StockItem[], products: Product[]): ReviewGroup[] {
   return drafts.map((d, i): ReviewGroup => {
     const key = `g${i}`;
-    if (d.item.kind === "product_pool" && d.kind === "IN") {
+    if (isMade(d.item) && d.kind === "IN") {
       const ingredients = recipeFor(d.item, products);
       return {
         key,
@@ -286,7 +326,7 @@ export function readReview(groups: ReviewGroup[]): { lines: JournalLine[]; probl
       const madeIndex = lines.length;
       const madeName = g.made.item!.name;
       lines.push({ itemId: g.made.item!.id, kind: "MADE", qtyMilli: made, ...(g.made.note.trim() ? { note: g.made.note.trim() } : {}) });
-      for (const u of g.uses) {
+      for (const { use: u, via } of leafLines(g.uses)) {
         const qty = qtyOf(u, true);
         if (qty === null || qty === 0) continue;
         if (!u.item) {
@@ -309,7 +349,9 @@ export function readReview(groups: ReviewGroup[]): { lines: JournalLine[]; probl
           kind: "USED",
           qtyMilli: qty,
           forLine: madeIndex,
-          note: u.note.trim() || `Used to make ${g.made.qty.trim()} ${unitLabel(g.made.item!)} ${madeName}${recipeNote}`,
+          note:
+            u.note.trim() ||
+            `Used to make ${g.made.qty.trim()} ${unitLabel(g.made.item!)} ${madeName}${via.length ? ` (via ${via.join(" → ")})` : ""}${recipeNote}`,
         });
       }
     } else {

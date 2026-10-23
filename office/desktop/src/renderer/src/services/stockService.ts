@@ -21,7 +21,16 @@ import { friendlyError } from "./callErrors";
  * Quantities are whole milli base units (mL / g). No money here, ever.
  */
 
-export type ItemKind = "product_pool" | "raw_material" | "consumable";
+export type ItemKind = "product_pool" | "raw_material" | "consumable" | "premix" | "blend";
+
+/** Premixes and blends: "half-made" oils with recipes of their own (Sharnya, 23 Oct 2026). */
+export const isMix = (kind: ItemKind) => kind === "premix" || kind === "blend";
+
+/** Mixed on the spot (making a product uses its raw materials) or kept in stock (taken as itself). */
+export type StockMode = "breakDown" | "stocked";
+
+const KINDS: ItemKind[] = ["product_pool", "raw_material", "consumable", "premix", "blend"];
+const kindOf = (x: unknown): ItemKind => (KINDS.includes(x as ItemKind) ? (x as ItemKind) : "product_pool");
 
 export interface StockItem {
   id: string;
@@ -34,6 +43,11 @@ export interface StockItem {
   baseUnit: BaseUnit;
   /** false for an item imported without a unit: no stock until an Admin sets it. */
   unitSet: boolean;
+  /** Premixes / blends: their own recipe ("code/percent") and Admin-set alternates. */
+  recipe: string[];
+  recipeAlternates: string[];
+  /** Premixes / blends only; "breakDown" (mixed on the spot) unless an Admin changed it. */
+  stockMode: StockMode | null;
   densityKgPerL: number | null;
   aliases: string[];
   onHandMilli: number;
@@ -80,12 +94,17 @@ const str = (x: unknown): string | null => (typeof x === "string" && x ? x : nul
 function toItem(id: string, d: DocumentData): StockItem {
   return {
     id,
-    kind: d.kind === "raw_material" || d.kind === "consumable" ? d.kind : "product_pool",
+    kind: kindOf(d.kind),
     name: typeof d.name === "string" ? d.name : id,
     code: str(d.code),
     productKey: str(d.productKey),
     baseUnit: unit(d.baseUnit),
     unitSet: d.baseUnit === "L" || d.baseUnit === "kg" || d.baseUnit === "piece",
+    recipe: Array.isArray(d.recipe) ? d.recipe.filter((x: unknown): x is string => typeof x === "string") : [],
+    recipeAlternates: Array.isArray(d.recipeAlternates)
+      ? d.recipeAlternates.filter((x: unknown): x is string => typeof x === "string")
+      : [],
+    stockMode: d.kind === "premix" || d.kind === "blend" ? (d.stockMode === "stocked" ? "stocked" : "breakDown") : null,
     densityKgPerL: typeof d.densityKgPerL === "number" ? d.densityKgPerL : null,
     aliases: Array.isArray(d.aliases) ? d.aliases.filter((a: unknown): a is string => typeof a === "string") : [],
     onHandMilli: typeof d.onHandMilli === "number" ? d.onHandMilli : 0,
@@ -98,7 +117,7 @@ function toMovement(id: string, d: DocumentData): StockMovement {
     id,
     itemId: String(d.itemId ?? ""),
     itemName: String(d.itemName ?? ""),
-    itemKind: d.itemKind === "raw_material" || d.itemKind === "consumable" ? d.itemKind : "product_pool",
+    itemKind: kindOf(d.itemKind),
     baseUnit: unit(d.baseUnit),
     type: d.type as MovementType,
     qtyMilli: typeof d.qtyMilli === "number" ? d.qtyMilli : 0,
@@ -216,7 +235,9 @@ export function reverseStockMovement(
 
 export interface StockItemInput {
   itemId?: string;
-  kind?: "raw_material" | "consumable";
+  kind?: "raw_material" | "consumable" | "premix" | "blend";
+  /** Premixes / blends; only an Admin may change it. */
+  stockMode?: StockMode;
   name: string;
   code?: string | null;
   /** null only to keep an imported item's unit unset. */

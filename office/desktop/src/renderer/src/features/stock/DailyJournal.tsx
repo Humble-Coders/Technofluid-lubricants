@@ -14,7 +14,7 @@ import {
 import { ItemPicker } from "./ItemPicker";
 import { requestProduction } from "@/services/productionService";
 import { JournalReview, type RecipeConfirm } from "./JournalReview";
-import { buildReview, readReview, type DraftLine, type ReviewGroup, type ReviewProblem } from "./reviewModel";
+import { buildReview, isMade, readReview, type DraftLine, type ReviewGroup, type ReviewProblem } from "./reviewModel";
 import { MovementTable } from "./MovementTable";
 import { unitWord } from "./stockFormat";
 
@@ -101,7 +101,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
         found[l.key] = "Quantity must be above 0.";
         continue;
       }
-      const production = l.item.kind === "product_pool" && l.kind === "IN";
+      const production = isMade(l.item) && l.kind === "IN";
       if (l.kind !== "OPENING" && !production && !l.note.trim()) {
         found[l.key] = "Say why.";
         continue;
@@ -217,7 +217,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                 <div className="space-y-3">
                   {lines.map((l, i) => {
                     const KindIcon = KIND_ICON[l.kind];
-                    const optional = l.kind === "OPENING" || (l.kind === "IN" && l.item?.kind === "product_pool");
+                    const optional = l.kind === "OPENING" || (l.kind === "IN" && l.item !== null && isMade(l.item));
                     return (
                       <div key={l.key}>
                         <div className={clsx(LINE_GRID, "items-center")}>

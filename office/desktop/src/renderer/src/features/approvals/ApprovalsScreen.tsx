@@ -208,7 +208,7 @@ function ProductionCard({ request: r }: { request: ProductionRequest }) {
           </p>
         ) : null}
         {r.recipeChanges.map((c) => (
-          <div key={c.productKey}>
+          <div key={c.key}>
             <p className="mb-1 text-[12px] font-medium text-ink">Recipe of {c.productName}</p>
             <RecipeDiff current={c.currentRecipe} proposed={c.proposedRecipe} />
           </div>

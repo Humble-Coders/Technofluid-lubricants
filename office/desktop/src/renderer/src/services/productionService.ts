@@ -2,7 +2,7 @@ import { collection, limit, onSnapshot, orderBy, query, where, type DocumentData
 import { httpsCallable } from "firebase/functions";
 import { db, functions } from "@/lib/firebase";
 import { friendlyError } from "./callErrors";
-import type { RecipeLineInput } from "./recipeService";
+import type { RecipeLineInput, RecipeTarget } from "./recipeService";
 import type { JournalLine, RecordResult } from "./stockService";
 
 /**
@@ -18,7 +18,7 @@ export interface ProductionRequest {
   journalDate: string;
   /** What will be saved, as names and units when it was entered. */
   display: { itemId: string; itemName: string; baseUnit: string; kind: string; qtyMilli: number }[];
-  recipeChanges: { productKey: string; productName: string; currentRecipe: string[]; proposedRecipe: string[] }[];
+  recipeChanges: { key: string; productName: string; currentRecipe: string[]; proposedRecipe: string[] }[];
   reason: string | null;
   status: ProductionStatus;
   requestedBy: string;
@@ -46,7 +46,7 @@ function toRequest(id: string, d: DocumentData): ProductionRequest {
       qtyMilli: typeof l.qtyMilli === "number" ? l.qtyMilli : 0,
     })),
     recipeChanges: list(d.recipeChanges).map((c) => ({
-      productKey: String(c.productKey ?? ""),
+      key: String(c.productKey ?? c.itemId ?? ""),
       productName: String(c.productName ?? ""),
       currentRecipe: strings(c.currentRecipe),
       proposedRecipe: strings(c.proposedRecipe),
@@ -91,10 +91,7 @@ async function call<Req, Res>(name: string, data: Req): Promise<Res> {
   }
 }
 
-export interface RecipeChangeInput {
-  productKey: string;
-  recipe: RecipeLineInput[];
-}
+export type RecipeChangeInput = RecipeTarget & { recipe: RecipeLineInput[] };
 
 export type ProductionResult = RecordResult & { requestId: string; status: ProductionStatus };
 

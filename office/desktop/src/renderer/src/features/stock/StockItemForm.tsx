@@ -4,7 +4,8 @@ import { useStaff } from "@/features/auth/session";
 import { saveStockItem, type StockItem } from "@/services/stockService";
 
 /**
- * Add or edit a raw material or consumable. (Product stock pools come from the
+ * Add or edit a raw material, consumable, premix or blend (a premix's/blend's recipe is
+ * changed from its panel, with approval). (Product stock pools come from the
  * products, so they aren't edited here.) The server checks names/codes are unique and
  * that the unit doesn't change once the item has stock history.
  */
@@ -16,9 +17,10 @@ export function StockItemForm({
   /** Called with the saved item's id, or null when cancelled. */
   onDone: (itemId: string | null) => void;
 }) {
-  const [kind, setKind] = useState<"raw_material" | "consumable">(
-    item?.kind === "consumable" ? "consumable" : "raw_material",
+  const [kind, setKind] = useState<"raw_material" | "consumable" | "premix" | "blend">(
+    item?.kind === "consumable" || item?.kind === "premix" || item?.kind === "blend" ? item.kind : "raw_material",
   );
+  const coded = kind !== "consumable";
   const [name, setName] = useState(item?.name ?? "");
   const [code, setCode] = useState(item?.code ?? "");
   const { role } = useStaff();
@@ -41,7 +43,7 @@ export function StockItemForm({
       const { itemId } = await saveStockItem({
         ...(item ? { itemId: item.id } : { kind }),
         name: name.trim(),
-        code: kind === "raw_material" && code.trim() ? code.trim() : null,
+        code: coded && code.trim() ? code.trim() : null,
         baseUnit: baseUnit || null,
         densityKgPerL: d,
         aliases: aliases
@@ -73,13 +75,15 @@ export function StockItemForm({
             <Select id="si-kind" value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
               <option value="raw_material">Raw material (base oil, additive…)</option>
               <option value="consumable">Consumable (can, cap, carton…)</option>
+              <option value="premix">Premix (base oil + polymer, made here)</option>
+              <option value="blend">Blend (house base oil, made here)</option>
             </Select>
           </Field>
         )}
         <Field label="Name" htmlFor="si-name">
           <Input id="si-name" value={name} onChange={(e) => setName(e.target.value)} autoFocus maxLength={80} />
         </Field>
-        {kind === "raw_material" ? (
+        {coded ? (
           <Field label="Recipe code" htmlFor="si-code" help="The short name used in recipes, e.g. w150.">
             <Input id="si-code" value={code} onChange={(e) => setCode(e.target.value)} className="font-mono" maxLength={24} />
           </Field>

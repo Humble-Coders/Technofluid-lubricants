@@ -9,12 +9,14 @@ import type { LoadState } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
 import {
   deleteStockItem,
+  isMix,
   newRequestId,
   recordStockMovements,
   type ItemKind,
   type StockItem,
 } from "@/services/stockService";
 import { MovementList } from "./MovementList";
+import { MixRecipeSection } from "./MixRecipeSection";
 import { StockItemForm } from "./StockItemForm";
 import { KIND_LABEL, packsSummary, searchText, unitWord } from "./stockFormat";
 
@@ -70,6 +72,8 @@ export function LiveStock({
               ["all", "All"],
               ["product_pool", "Products"],
               ["raw_material", "Raw materials"],
+              ["premix", "Premixes"],
+              ["blend", "Blends"],
               ["consumable", "Consumables"],
             ]}
           />
@@ -216,7 +220,11 @@ function StockTable({
                 </span>
                 {compact ? null : (
                   <span>
-                    <Badge tone={item.kind === "product_pool" ? "brand" : item.kind === "raw_material" ? "info" : "neutral"}>
+                    <Badge
+                      tone={
+                        item.kind === "product_pool" ? "brand" : item.kind === "raw_material" ? "info" : isMix(item.kind) ? "warning" : "neutral"
+                      }
+                    >
                       {KIND_LABEL[item.kind]}
                     </Badge>
                   </span>
@@ -324,6 +332,8 @@ function ItemPanel({ item, products, canEdit, onClose }: {
           <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">History</h3>
           <MovementList state={history} canEdit={canEdit} showItem={false} emptyText="No stock recorded for this item yet." />
         </section>
+
+        {isMix(item.kind) ? <MixRecipeSection item={item} /> : null}
 
         {canEdit && !isPool ? <DeleteItem item={item} onDeleted={onClose} /> : null}
       </div>

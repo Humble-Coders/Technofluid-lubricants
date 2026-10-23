@@ -6,7 +6,7 @@ import { Button, Input, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useStockItems } from "@/hooks/useStock";
-import { requestRecipeChange, type AlternateInput, type RecipeLineInput } from "@/services/recipeService";
+import { requestRecipeChange, type AlternateInput, type RecipeLineInput, type RecipeTarget } from "@/services/recipeService";
 
 interface Row {
   key: number;
@@ -44,14 +44,15 @@ const altRowsFrom = (alternates: string[]): AltRow[] =>
  * Only an Admin sets alternate materials (each with its own %).
  */
 export function RecipeChangeDialog({
-  productKey,
+  target,
   productName,
   currentRecipe,
   currentAlternates = [],
   onClose,
   onSent,
 }: {
-  productKey: string;
+  /** A product (all pack sizes) or a premix/blend stock item. */
+  target: RecipeTarget;
   productName: string;
   currentRecipe: string[];
   /** "main>code/percent" — shown (and editable) for an Admin. */
@@ -72,7 +73,7 @@ export function RecipeChangeDialog({
   const [sent, setSent] = useState(false);
 
   const items = useStockItems();
-  const requests = useRecipeRequests({ productKey });
+  const requests = useRecipeRequests(target);
   const waiting = requests.status === "ready" ? requests.data.find((r) => r.status === "pending") : undefined;
   const codes = useMemo(
     () => (items.status === "ready" ? items.data.filter((i) => i.kind !== "product_pool" && i.code) : []),
@@ -128,7 +129,7 @@ export function RecipeChangeDialog({
     if (!isAdmin && !reason.trim()) return setError("Say why the recipe should change.");
     setBusy(true);
     try {
-      const result = await requestRecipeChange(productKey, recipe, reason, alternates);
+      const result = await requestRecipeChange(target, recipe, reason, alternates);
       if (result.status === "approved") {
         onClose(recipe.map((r) => `${r.code.toLowerCase()}/${r.percent ?? ""}`));
       } else {
@@ -153,7 +154,7 @@ export function RecipeChangeDialog({
         <div className="flex items-start gap-2 border-b border-line px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="text-[14px] font-semibold text-ink">Change recipe</p>
-            <p className="text-[12px] text-ink-muted">{productName} · all pack sizes</p>
+            <p className="text-[12px] text-ink-muted">{productName}{"productKey" in target ? " · all pack sizes" : ""}</p>
           </div>
           <Button variant="ghost" size="sm" className="px-1.5" aria-label="Close" onClick={() => onClose(null)} disabled={busy}>
             <X className="size-4" />

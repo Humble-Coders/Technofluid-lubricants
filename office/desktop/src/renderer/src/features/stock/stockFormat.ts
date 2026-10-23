@@ -5,6 +5,8 @@ import type { ItemKind, MovementType, StockItem } from "@/services/stockService"
 export const KIND_LABEL: Record<ItemKind, string> = {
   product_pool: "Product",
   raw_material: "Raw material",
+  premix: "Premix",
+  blend: "Blend",
   consumable: "Consumable",
 };
 

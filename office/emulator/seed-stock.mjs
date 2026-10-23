@@ -1,6 +1,9 @@
 /**
- * Adds Gaurav's raw materials and consumables (Sheet1, cleaned by Ansh in
- * data/master/*.json) to the LOCAL emulators as stock items — test data only.
+ * Adds Gaurav's raw materials and consumables (Sheet1), premixes (Sheet2) and blends
+ * (Sheet3), cleaned by Ansh in data/master/*.json, to the LOCAL emulators as stock
+ * items — test data only. Premixes and blends come with their recipes and start as
+ * "mixed on the spot" (Sharnya, 23 Oct 2026); a blend with no recipe (brake fluid —
+ * a bought-in product) is skipped.
  *
  * Safe by construction: it only talks to 127.0.0.1 and the `demo-technofluid` project,
  * which Firebase refuses to connect to the real cloud. It writes stockItems only —
@@ -8,7 +11,8 @@
  *
  * Re-runnable: an item already there (same recipe code, or same name for a
  * consumable) is kept — only its missing code, other names, density or unit are
- * filled in. On-hand stock is never touched. Items the sheet gives no unit for are
+ * filled in, and a premix/blend's recipe is updated unless it was changed in the app.
+ * On-hand stock is never touched. Items the sheet gives no unit for are
  * added with none ("Unit not set") until an Admin sets it (Sharnya, 23 Oct 2026).
  *
  *   npm run emulators      (in one terminal)
@@ -28,10 +32,16 @@ const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g
 const by = { uid: "seed", name: "Test data import" };
 const now = FieldValue.serverTimestamp();
 
+const recipeOf = (r) => (r.lines ?? []).map((l) => `${String(l.code).trim().toLowerCase()}/${l.pctBp == null ? "" : l.pctBp / 100}`);
 const rows = [
   ...read("raw-materials.json").map((r) => ({ ...r, kind: "raw_material" })),
   ...read("consumables.json").map((r) => ({ ...r, kind: "consumable" })),
+  ...read("premixes.json").map((r) => ({ ...r, kind: "premix", recipe: recipeOf(r) })),
+  ...read("blends.json").map((r) => ({ ...r, kind: "blend", recipe: recipeOf(r) })),
 ];
+const MIX = ["premix", "blend"];
+const PREFIX = { raw_material: "rm", consumable: "cons", premix: "pm", blend: "bl" };
+const sameList = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 
 const existing = (await db.collection("stockItems").get()).docs
   .map((d) => ({ id: d.id, ...d.data() }))
@@ -41,12 +51,17 @@ const report = { created: [], filledIn: [], unchanged: [], noUnit: [], skipped: 
 
 for (const r of rows) {
   const name = String(r.name ?? "").replace(/\s+/g, " ").trim().slice(0, 80);
-  const code = r.kind === "raw_material" ? String(r.code ?? "").trim().toLowerCase().replace(/\s+/g, " ") : null;
+  const coded = r.kind === "raw_material" || MIX.includes(r.kind);
+  const code = coded ? String(r.code ?? "").trim().toLowerCase().replace(/\s+/g, " ") : null;
   if (!name) {
     report.skipped.push(`${r.source ?? "?"}: no name`);
     continue;
   }
-  if (r.kind === "raw_material" && !CODE_RE.test(code)) {
+  if (MIX.includes(r.kind) && r.recipe.length === 0) {
+    report.skipped.push(`${name}: no recipe (bought in?) — not added as a ${r.kind}`);
+    continue;
+  }
+  if (coded && !CODE_RE.test(code)) {
     report.skipped.push(`${name}: code "${code}" isn't a valid recipe code`);
     continue;
   }
@@ -56,7 +71,7 @@ for (const r of rows) {
   if (!unit) report.noUnit.push(name);
 
   const match =
-    existing.find((e) => r.kind === "raw_material" && e.code === code) ??
+    existing.find((e) => coded && e.code === code) ??
     existing.find((e) => e.kind === r.kind && e.nameLower === name.toLowerCase());
 
   if (match) {
@@ -67,6 +82,10 @@ for (const r of rows) {
     if (mergedAliases.length !== (match.aliases ?? []).length) patch.aliases = mergedAliases;
     if (density !== null && match.densityKgPerL == null) patch.densityKgPerL = density;
     if (unit && !UNITS.includes(match.baseUnit) && !hasHistory) patch.baseUnit = unit;
+    if (MIX.includes(r.kind) && !(match.appEdited ?? []).includes("recipe") && !sameList(match.recipe ?? [], r.recipe)) {
+      patch.recipe = r.recipe;
+    }
+    if (MIX.includes(r.kind) && !match.stockMode) patch.stockMode = "breakDown";
     if (Object.keys(patch).length === 0) {
       report.unchanged.push(name);
       continue;
@@ -76,7 +95,7 @@ for (const r of rows) {
     continue;
   }
 
-  const id = `${r.kind === "raw_material" ? "rm" : "cons"}-${slug(code || name)}`;
+  const id = `${PREFIX[r.kind]}-${slug(code || name)}`;
   await db.doc(`stockItems/${id}`).create({
     kind: r.kind,
     name,
@@ -86,6 +105,7 @@ for (const r of rows) {
     densityKgPerL: density,
     aliases,
     productKey: null,
+    ...(MIX.includes(r.kind) ? { recipe: r.recipe, recipeAlternates: [], stockMode: "breakDown" } : {}),
     onHandMilli: 0,
     lastMovementAt: null,
     deleted: false,
@@ -99,7 +119,9 @@ for (const r of rows) {
   report.created.push(name);
 }
 
-console.log(`Stock items from Gaurav's Sheet1 → local emulator only`);
+const kinds = {};
+for (const r of rows) kinds[r.kind] = (kinds[r.kind] ?? 0) + 1;
+console.log(`Stock items from Gaurav's Sheet1/2/3 → local emulator only (${Object.entries(kinds).map(([k, v]) => `${v} ${k}`).join(", ")} in the files)`);
 console.log(`  added:          ${report.created.length}`);
 console.log(`  filled in:      ${report.filledIn.length}${report.filledIn.length ? ` — ${report.filledIn.join("; ")}` : ""}`);
 console.log(`  already there:  ${report.unchanged.length}`);

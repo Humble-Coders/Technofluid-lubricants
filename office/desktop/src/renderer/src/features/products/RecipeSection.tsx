@@ -5,6 +5,9 @@ import { Badge, Button } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
+import { useStockItems } from "@/hooks/useStock";
+import { materialFinder } from "@/features/stock/reviewModel";
+import { isMix } from "@/services/stockService";
 import { canChangeRecipe } from "@/lib/access";
 import type { Product } from "@/services/productService";
 
@@ -19,6 +22,8 @@ export function RecipeSection({ product: p }: { product: Product }) {
   const requests = useRecipeRequests(allowed && p.productKey ? { productKey: p.productKey } : null);
   const latest = requests.status === "ready" ? requests.data[0] : undefined;
   const alternates = parseAlternates(p.recipeAlternates ?? []);
+  const stock = useStockItems();
+  const find = materialFinder(stock.status === "ready" ? stock.data : []);
 
   return (
     <section>
@@ -41,8 +46,16 @@ export function RecipeSection({ product: p }: { product: Product }) {
             const alts = alternates.filter((a) => a.main === code);
             return (
               <li key={i} className="rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <span className="font-mono">{name?.trim()}</span>
+                  {(() => {
+                    const m = find(code);
+                    return m && isMix(m.kind) ? (
+                      <Badge tone="warning" className="mr-auto">
+                        {m.kind === "premix" ? "Premix" : "Blend"} · {m.stockMode === "stocked" ? "kept in stock" : "mixed on the spot"}
+                      </Badge>
+                    ) : null;
+                  })()}
                   <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "no %"}</span>
                 </div>
                 {alts.map((a) => (
@@ -72,7 +85,7 @@ export function RecipeSection({ product: p }: { product: Product }) {
       ) : null}
       {open ? (
         <RecipeChangeDialog
-          productKey={p.productKey}
+          target={{ productKey: p.productKey }}
           productName={[p.name, p.grade].filter(Boolean).join(" ")}
           currentRecipe={p.recipe}
           currentAlternates={p.recipeAlternates}
