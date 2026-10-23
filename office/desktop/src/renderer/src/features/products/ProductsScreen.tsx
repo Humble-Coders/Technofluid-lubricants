@@ -1,7 +1,7 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, FlaskConical, Package, Search, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { AlertTriangle, CheckCircle2, Copy, FlaskConical, Package, Pencil, Plus, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   formatINR,
   formatQuantity,
@@ -11,10 +11,12 @@ import {
   toMilli,
 } from "@technofluid/core";
 import { Badge, Button, EmptyState, Input, Kbd, Spinner } from "@/components/ui";
-import { canSeePrices } from "@/lib/access";
+import { canEditProducts, canSeePrices } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
+import { ProductEditor } from "./ProductEditor";
+import { ProductHistory } from "./ProductHistory";
 
 type CategoryFilter = "all" | "bulk_oil" | "grease" | "retail";
 type SegmentFilter = "all" | "Automotive" | "Industrial";
@@ -26,13 +28,36 @@ export function ProductsScreen() {
   const state = useProducts();
   const { role } = useStaff();
   const showPrices = canSeePrices(role);
+  const canEdit = canEditProducts(role);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [segment, setSegment] = useState<SegmentFilter>("all");
   const [missingPriceOnly, setMissingPriceOnly] = useState(false);
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
+  // Adding a product (from scratch, or as a copy of `from`) replaces the detail panel.
+  const [adding, setAdding] = useState<{ from?: Product } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  // True while the side panel has unsaved edits — switching product asks first.
+  const editDirtyRef = useRef(false);
+  const onDirtyChange = useCallback((dirty: boolean) => {
+    editDirtyRef.current = dirty;
+  }, []);
+  const leaveForm = () => {
+    if (editDirtyRef.current && !window.confirm("Discard your unsaved changes?")) return false;
+    editDirtyRef.current = false;
+    return true;
+  };
+  const select = (sku: string | null) => {
+    if (sku === selectedSku && !adding) return;
+    if (!leaveForm()) return;
+    setAdding(null);
+    setSelectedSku(sku);
+  };
+  const startAdding = (from?: Product) => {
+    if (!leaveForm()) return;
+    setAdding(from ? { from } : {});
+  };
 
   const products = state.status === "ready" ? state.data : [];
 
@@ -59,7 +84,8 @@ export function ProductsScreen() {
 
   const pools = useMemo(() => new Set(filtered.map((p) => p.productKey)).size, [filtered]);
   const missingCount = useMemo(() => products.filter((p) => p.dealerPricePaise === null).length, [products]);
-  const selected = filtered.find((p) => p.sku === selectedSku) ?? null;
+  // From the full list, not the filtered one: giving a "No price" product a price must not close its panel.
+  const selected = products.find((p) => p.sku === selectedSku) ?? null;
 
   // "/" or ⌘/Ctrl+F jumps to search, like other desktop apps.
   useEffect(() => {
@@ -124,6 +150,11 @@ export function ProductsScreen() {
             {filtered.length.toLocaleString("en-IN")} {filtered.length === 1 ? "item" : "items"} · {pools}{" "}
             {pools === 1 ? "stock pool" : "stock pools"}
           </span>
+          {canEdit ? (
+            <Button size="sm" variant="primary" onClick={() => startAdding()} icon={<Plus className="size-3.5" />}>
+              Add product
+            </Button>
+          ) : null}
         </div>
 
         {/* List */}
@@ -148,12 +179,42 @@ export function ProductsScreen() {
             rows={filtered}
             showPrices={showPrices}
             selectedSku={selectedSku}
-            onSelect={setSelectedSku}
+            onSelect={select}
           />
         )}
       </section>
 
-      {selected ? <ProductPanel product={selected} showPrices={showPrices} onClose={() => setSelectedSku(null)} /> : null}
+      {adding ? (
+        <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-surface">
+          <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+            <p className="min-w-0 flex-1 truncate text-[14px] font-semibold">
+              {adding.from ? `Copy of ${adding.from.name}` : "New product"}
+            </p>
+            <Button variant="ghost" size="sm" onClick={() => select(null)} aria-label="Close" className="px-1.5">
+              <X className="size-4" />
+            </Button>
+          </div>
+          <ProductEditor
+            key={adding.from?.sku ?? "new"}
+            mode={{ kind: "new", from: adding.from }}
+            onDirtyChange={onDirtyChange}
+            onDone={({ newSku }) => {
+              setAdding(null);
+              if (newSku) setSelectedSku(newSku);
+            }}
+          />
+        </aside>
+      ) : selected ? (
+        <ProductPanel
+          key={selected.sku}
+          product={selected}
+          showPrices={showPrices}
+          canEdit={canEdit}
+          onDirtyChange={onDirtyChange}
+          onCopy={() => startAdding(selected)}
+          onClose={() => select(null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -273,6 +334,11 @@ function ProductTable({
                 <span className="min-w-0 truncate">
                   <span className="font-medium text-ink">{p.name}</span>
                   {p.grade ? <span className="text-ink-muted"> · {p.grade}</span> : null}
+                  {p.active ? null : (
+                    <Badge tone="neutral" className="ml-1.5">
+                      Not selling
+                    </Badge>
+                  )}
                 </span>
                 <span className="truncate text-ink-muted">{p.packLabel}</span>
                 <span className="num text-right text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>
@@ -314,7 +380,31 @@ function PriceCell({ paise, per }: { paise: number | null; per: string | null })
 
 /* ─── Detail panel ───────────────────────────────────────────────────────────── */
 
-function ProductPanel({ product: p, showPrices, onClose }: { product: Product; showPrices: boolean; onClose: () => void }) {
+function ProductPanel({
+  product: p,
+  showPrices,
+  canEdit,
+  onDirtyChange,
+  onCopy,
+  onClose,
+}: {
+  product: Product;
+  showPrices: boolean;
+  canEdit: boolean;
+  onDirtyChange: (dirty: boolean) => void;
+  onCopy: () => void;
+  onClose: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [savedCount, setSavedCount] = useState<number | null>(null);
+
+  // The "Saved" note fades after a few seconds.
+  useEffect(() => {
+    if (savedCount === null) return;
+    const timer = window.setTimeout(() => setSavedCount(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [savedCount]);
+
   const packPrice = useMemo(() => {
     if (!showPrices || p.dealerPricePaise === null || p.distributorPricePaise === null || !p.pricePer) return null;
     try {
@@ -331,75 +421,119 @@ function ProductPanel({ product: p, showPrices, onClose }: { product: Product; s
   }, [p, showPrices]);
 
   return (
-    <aside className="flex w-[340px] shrink-0 flex-col border-l border-line bg-surface">
+    <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-surface">
       <div className="flex items-start gap-2 border-b border-line px-4 py-3">
         <div className="min-w-0 flex-1">
           <p className="text-[14px] leading-snug font-semibold">{p.name}</p>
           <p className="text-[12px] text-ink-muted">
             {p.grade || "Single grade"} · {p.packLabel}
           </p>
+          {p.active ? null : (
+            <Badge tone="neutral" className="mt-1">
+              Not selling
+            </Badge>
+          )}
         </div>
+        {canEdit && !editing ? (
+          <>
+            <Button size="sm" onClick={onCopy} icon={<Copy className="size-3.5" />} title="Copy as a new product">
+              Copy
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                setSavedCount(null);
+                setEditing(true);
+              }}
+              icon={<Pencil className="size-3.5" />}
+            >
+              Edit
+            </Button>
+          </>
+        ) : null}
         <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close details" className="px-1.5">
           <X className="size-4" />
         </Button>
       </div>
 
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
-        <dl className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-[12px]">
-          <Detail label="SKU" value={<span className="selectable font-mono">{p.sku}</span>} />
-          <Detail label="Category" value={CATEGORY_LABEL[p.category] ?? p.category} />
-          <Detail label="Pack size" value={formatQuantity(toMilli(p.packQty), p.baseUnit)} />
-          <Detail label="Density" value={p.densityKgPerL ? `${p.densityKgPerL} kg/L` : "—"} />
-          <Detail label="GST" value={`${p.gstPct}%`} />
-          <Detail label="Sold to" value={p.segment ?? "Not set"} />
-        </dl>
-
-        {showPrices ? (
-          <section>
-            <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">Price of one pack (before GST)</h3>
-            {packPrice === null ? (
-              <p className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-                No price yet — it can be entered here once price editing is added.
+      {editing ? (
+        <ProductEditor
+          mode={{ kind: "edit", product: p }}
+          onDirtyChange={onDirtyChange}
+          onDone={({ saved }) => {
+            setEditing(false);
+            if (saved > 0) setSavedCount(saved);
+          }}
+        />
+      ) : (
+        <>
+          <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
+            {savedCount !== null ? (
+              <p role="status" className="flex items-center gap-1.5 rounded-md bg-success-soft px-3 py-2 text-[12px] text-success">
+                <CheckCircle2 className="size-3.5" />
+                Saved {savedCount} {savedCount === 1 ? "change" : "changes"}.
               </p>
-            ) : packPrice === "unknown" ? (
-              <p className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-                Can't work out the pack price from "{p.pricePer}".
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <PriceBox label="Dealer" paise={packPrice.dealer} />
-                <PriceBox label="Distributor" paise={packPrice.distributor} />
-              </div>
-            )}
-          </section>
-        ) : null}
+            ) : null}
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-[12px]">
+              <Detail label="SKU" value={<span className="selectable font-mono">{p.sku}</span>} />
+              <Detail label="Category" value={CATEGORY_LABEL[p.category] ?? p.category} />
+              <Detail label="Pack size" value={formatQuantity(toMilli(p.packQty), p.baseUnit)} />
+              <Detail label="Density" value={p.densityKgPerL ? `${p.densityKgPerL} kg/L` : "—"} />
+              <Detail label="GST" value={`${p.gstPct}%`} />
+              <Detail label="HSN code" value={p.hsnCode ?? "—"} />
+              <Detail label="Sold to" value={p.segment === "Both" ? "All buyers" : (p.segment ?? "Not set")} />
+            </dl>
 
-        <section>
-          <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-            <FlaskConical className="size-3.5" /> Recipe
-          </h3>
-          {p.recipe.length === 0 ? (
-            <p className="text-[12px] text-ink-muted">No recipe recorded.</p>
-          ) : (
-            <ul className="space-y-1">
-              {p.recipe.map((item, i) => {
-                const [name, pct] = item.split("/");
-                return (
-                  <li key={i} className="flex items-center justify-between rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-                    <span className="font-mono">{name?.trim()}</span>
-                    <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "alternative"}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-      </div>
+            {showPrices ? (
+              <section>
+                <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">Price of one pack (before GST)</h3>
+                {packPrice === null ? (
+                  <p className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
+                    {canEdit ? "No price yet — use Edit to add one." : "No price yet."}
+                  </p>
+                ) : packPrice === "unknown" ? (
+                  <p className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
+                    Can't work out the pack price from "{p.pricePer}".
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <PriceBox label="Dealer" paise={packPrice.dealer} />
+                    <PriceBox label="Distributor" paise={packPrice.distributor} />
+                  </div>
+                )}
+              </section>
+            ) : null}
 
-      <div className="flex items-center gap-1.5 border-t border-line px-4 py-2 text-2xs text-ink-faint">
-        <Kbd>↑</Kbd>
-        <Kbd>↓</Kbd> to move · <Kbd>Esc</Kbd> to close
-      </div>
+            <section>
+              <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
+                <FlaskConical className="size-3.5" /> Recipe
+              </h3>
+              {p.recipe.length === 0 ? (
+                <p className="text-[12px] text-ink-muted">No recipe recorded.</p>
+              ) : (
+                <ul className="space-y-1">
+                  {p.recipe.map((item, i) => {
+                    const [name, pct] = item.split("/");
+                    return (
+                      <li key={i} className="flex items-center justify-between rounded bg-canvas px-2.5 py-1.5 text-[12px]">
+                        <span className="font-mono">{name?.trim()}</span>
+                        <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "alternative"}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+
+            {canEdit ? <ProductHistory sku={p.sku} /> : null}
+          </div>
+
+          <div className="flex items-center gap-1.5 border-t border-line px-4 py-2 text-2xs text-ink-faint">
+            <Kbd>↑</Kbd>
+            <Kbd>↓</Kbd> to move · <Kbd>Esc</Kbd> to close
+          </div>
+        </>
+      )}
     </aside>
   );
 }

@@ -1,6 +1,12 @@
 import clsx from "clsx";
-import { Loader2 } from "lucide-react";
-import { forwardRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
+} from "react";
 
 /* ─── Button ───────────────────────────────────────────────────────────────────── */
 
@@ -74,6 +80,72 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     </div>
   );
 });
+
+/* ─── Select ───────────────────────────────────────────────────────────────────── */
+
+export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  invalid?: boolean;
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
+  { invalid, className, children, ...rest },
+  ref,
+) {
+  return (
+    <div className={clsx("relative flex items-center", className)}>
+      <select
+        ref={ref}
+        aria-invalid={invalid || undefined}
+        className={clsx(
+          "h-8 w-full appearance-none rounded-md border bg-surface pr-7 pl-2.5 text-[13px] text-ink transition-colors",
+          "focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20",
+          invalid ? "border-danger" : "border-line-strong hover:border-ink-faint",
+        )}
+        {...rest}
+      >
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 size-3.5 text-ink-faint" aria-hidden />
+    </div>
+  );
+});
+
+/* ─── Switch (on/off) ──────────────────────────────────────────────────────────── */
+
+export function Switch({
+  id,
+  checked,
+  onChange,
+  label,
+}: {
+  id?: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      id={id}
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={clsx(
+        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/30",
+        checked ? "bg-brand-orange" : "bg-line-strong",
+      )}
+    >
+      <span
+        className={clsx(
+          "inline-block size-4 rounded-full bg-white shadow-sm transition-transform",
+          checked ? "translate-x-[18px]" : "translate-x-0.5",
+        )}
+      />
+    </button>
+  );
+}
 
 /* ─── Form field: label + control + error/help ─────────────────────────────────── */
 

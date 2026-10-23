@@ -82,3 +82,8 @@ export function canOpen(role: OfficeRole, path: string): boolean {
 export function canSeePrices(role: OfficeRole): boolean {
   return role !== "supervisor";
 }
+
+/** Only Admin changes products and prices (PRD §2). The editProduct Cloud Function checks again. */
+export function canEditProducts(role: OfficeRole): boolean {
+  return role === "admin";
+}

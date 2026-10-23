@@ -1,6 +1,7 @@
 import { collection, onSnapshot, query, where, type Unsubscribe } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { BaseUnit } from "@technofluid/core";
+import { pricesFromDoc } from "./priceService";
 
 /**
  * A sellable variant = one product, in one grade, in one pack size. Same `products`
@@ -23,9 +24,13 @@ export interface Product {
   dealerPricePaise: number | null;
   distributorPricePaise: number | null;
   gstPct: number;
+  /** Tax classification code printed on invoices (4/6/8 digits), or null until set. */
+  hsnCode: string | null;
   segment: "Automotive" | "Industrial" | "Both" | null;
   densityKgPerL: number | null;
   recipe: string[];
+  /** false = hidden from new sales (not deleted). */
+  active: boolean;
 }
 
 function toProduct(id: string, d: Record<string, unknown>): Product {
@@ -42,13 +47,13 @@ function toProduct(id: string, d: Record<string, unknown>): Product {
     packLabel: str(d.orderableUnit),
     packQty: num(d.packQty) ?? 0,
     baseUnit: unit === "kg" || unit === "piece" ? unit : "L",
-    pricePer: str(d.pricePer) || null,
-    dealerPricePaise: num(d.dealerPrice),
-    distributorPricePaise: num(d.distributorPrice),
+    ...pricesFromDoc(d),
     gstPct: num(d.gstPct) ?? 18,
+    hsnCode: str(d.hsnCode) || null,
     segment: segment === "Automotive" || segment === "Industrial" || segment === "Both" ? segment : null,
     densityKgPerL: num(d.densityKgPerL),
     recipe: Array.isArray(d.recipe) ? d.recipe.filter((x): x is string => typeof x === "string") : [],
+    active: d.active !== false,
   };
 }
 
