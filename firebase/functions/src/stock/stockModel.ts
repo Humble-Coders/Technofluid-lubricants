@@ -18,8 +18,22 @@ export const MOVEMENTS = "stockMovements";
 /** One record per handled request id — makes retries safe. Server-only. */
 export const REQUESTS = "stockRequests";
 
-export const ITEM_KINDS = ["product_pool", "raw_material", "consumable"] as const;
+export const ITEM_KINDS = ["product_pool", "raw_material", "consumable", "premix", "blend"] as const;
 export type ItemKind = (typeof ITEM_KINDS)[number];
+
+/**
+ * Premixes (Gaurav's Sheet2) and blends (Sheet3) — "half-made" oils with recipes of
+ * their own (Sharnya, 23 Oct 2026). Each is either mixed on the spot ("breakDown":
+ * making a product deducts its raw materials) or kept in stock ("stocked": made in
+ * advance, then taken as itself). Default breakDown; only an Admin changes it.
+ */
+export const MIX_KINDS = ["premix", "blend"] as const;
+export const STOCK_MODES = ["breakDown", "stocked"] as const;
+export type StockMode = (typeof STOCK_MODES)[number];
+
+/** What can be MADE in the factory: products, premixes and blends. */
+export const MADE_KINDS: readonly string[] = ["product_pool", ...MIX_KINDS];
+export const isMixKind = (kind: unknown): boolean => (MIX_KINDS as readonly unknown[]).includes(kind);
 
 export const BASE_UNITS = ["L", "kg", "piece"] as const;
 export type BaseUnit = (typeof BASE_UNITS)[number];

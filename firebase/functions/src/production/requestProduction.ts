@@ -3,7 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {applyRecipe, readPool, reasonText, sameRecipe} from "../recipes/recipeModel";
+import {applyRecipe, readTarget, reasonText, sameRecipe, targetFields} from "../recipes/recipeModel";
 import {parseJournalLines, readJournalItems, writeJournal, type ParsedLine} from "../stock/journalWriter";
 import {bad, journalDate, poolId, requestId as parseRequestId} from "../stock/stockModel";
 import {parseRecipeChanges, PRODUCTION_REQUESTS} from "./productionModel";
@@ -27,7 +27,8 @@ export const requestProduction = onCall({region: "us-central1"}, async (request)
   const reason = reasonText(request.data?.reason, isAdmin);
   const made = new Set(lines.filter((l) => l.kind === "MADE").map((l) => l.itemId));
   for (const c of changes) {
-    if (!made.has(poolId(c.productKey))) bad("A changed recipe must be for a product made in this entry.");
+    const madeId = "productKey" in c.target ? poolId(c.target.productKey) : c.target.itemId;
+    if (!made.has(madeId)) bad("A changed recipe must be for something made in this entry.");
   }
 
   const db = admin.firestore();
@@ -39,7 +40,7 @@ export const requestProduction = onCall({region: "us-central1"}, async (request)
     if (existing.exists) {
       return {requestId: reqId, status: existing.data()?.status, recorded: 0, alreadyRecorded: true, skipped: [], belowZero: []};
     }
-    const pools = await Promise.all(changes.map((c) => readPool(tx, db, c.productKey)));
+    const pools = await Promise.all(changes.map((c) => readTarget(tx, db, c.target)));
     const read = await readJournalItems(tx, db, reqId, lines);
     pools.forEach((p, i) => {
       if (sameRecipe(changes[i].recipe, p.recipe)) bad(`${p.name}: that's the same as the current recipe.`);
@@ -61,12 +62,13 @@ export const requestProduction = onCall({region: "us-central1"}, async (request)
         };
       }),
       recipeChanges: changes.map((c, i) => ({
-        productKey: c.productKey,
+        ...targetFields(c.target),
         productName: pools[i].name,
         currentRecipe: pools[i].recipe,
         proposedRecipe: c.recipe,
       })),
-      productKeys: changes.map((c) => c.productKey),
+      productKeys: changes.flatMap((c) => ("productKey" in c.target ? [c.target.productKey] : [])),
+      itemIds: changes.flatMap((c) => ("itemId" in c.target ? [c.target.itemId] : [])),
       reason,
       requestedBy: by,
       requestedAt: now,

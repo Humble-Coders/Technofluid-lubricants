@@ -3,7 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {applyRecipe, bad, readPool, reasonText, sameRecipe} from "../recipes/recipeModel";
+import {applyRecipe, bad, readTarget, reasonText, sameRecipe} from "../recipes/recipeModel";
 import {parseJournalLines, readJournalItems, writeJournal} from "../stock/journalWriter";
 import {PRODUCTION_REQUESTS} from "./productionModel";
 
@@ -40,8 +40,11 @@ export const decideProductionRequest = onCall({region: "us-central1"}, async (re
       return {status: "rejected", recorded: 0, alreadyRecorded: false, skipped: [], belowZero: []};
     }
 
-    const changes = (req.recipeChanges ?? []) as {productKey: string; productName: string; currentRecipe: string[]; proposedRecipe: string[]}[];
-    const pools = await Promise.all(changes.map((c) => readPool(tx, db, c.productKey)));
+    type Change = {productKey?: string | null; itemId?: string | null; productName: string; currentRecipe: string[]; proposedRecipe: string[]};
+    const changes = (req.recipeChanges ?? []) as Change[];
+    const pools = await Promise.all(
+      changes.map((c) => readTarget(tx, db, c.itemId ? {itemId: c.itemId} : {productKey: String(c.productKey)})),
+    );
     const lines = parseJournalLines(req.lines);
     const read = await readJournalItems(tx, db, id, lines);
     pools.forEach((p, i) => {

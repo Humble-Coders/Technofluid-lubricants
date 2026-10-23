@@ -3,7 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {applyRecipe, bad, readPool, reasonText, REQUESTS, sameRecipe} from "./recipeModel";
+import {applyRecipe, bad, readTarget, reasonText, REQUESTS, sameRecipe} from "./recipeModel";
 
 /**
  * Admin approves or rejects a waiting recipe change.
@@ -34,7 +34,7 @@ export const decideRecipeChange = onCall({region: "us-central1"}, async (request
     if (req.status !== "pending") {
       throw new HttpsError("failed-precondition", `That request was already ${req.status}.`);
     }
-    const pool = await readPool(tx, db, String(req.productKey));
+    const pool = await readTarget(tx, db, req.itemId ? {itemId: String(req.itemId)} : {productKey: String(req.productKey)});
     const now = FieldValue.serverTimestamp();
 
     if (decision === "approve") {

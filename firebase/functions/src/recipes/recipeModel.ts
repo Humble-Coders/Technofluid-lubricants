@@ -17,6 +17,9 @@ import {HttpsError} from "firebase-functions/v2/https";
  *  - Alternate materials (Sharnya, 22 Oct 2026): for a recipe line, other materials that
  *    can be used instead, each with its own percent. Only an Admin sets them; stored on
  *    products/{sku}.recipeAlternates as "main>code/percent" ("w150>w150n/46").
+ *  - A recipe can also belong to a PREMIX or BLEND stock item (Sharnya, 23 Oct 2026):
+ *    stockItems/{id}.recipe / .recipeAlternates, changed through the same requests.
+ *    A request names its target by `productKey` (a product) or `itemId` (a premix/blend).
  */
 
 export const REQUESTS = "recipeChangeRequests";
@@ -123,6 +126,42 @@ export function reasonText(value: unknown, optional = false): string | null {
   return t;
 }
 
+/** What a recipe belongs to: a product (all its pack sizes) or a premix/blend stock item. */
+export type RecipeTarget = {productKey: string} | {itemId: string};
+
+/** Reads `productKey` or `itemId` (exactly one) from a request. */
+export function parseTarget(data: unknown): RecipeTarget {
+  const d = (data ?? {}) as Record<string, unknown>;
+  const productKey = typeof d.productKey === "string" ? d.productKey.trim() : "";
+  const itemId = typeof d.itemId === "string" ? d.itemId.trim() : "";
+  if (productKey && itemId) bad("Send productKey or itemId, not both.");
+  if (productKey) return {productKey};
+  if (itemId) return {itemId};
+  return bad("productKey (a product) or itemId (a premix or blend) is required.");
+}
+
+/** The request fields that name a target, for storing and querying. */
+export const targetFields = (t: RecipeTarget) =>
+  "productKey" in t ? {productKey: t.productKey, itemId: null} : {productKey: null, itemId: t.itemId};
+
+export type RecipeOwner = Awaited<ReturnType<typeof readPool>>;
+
+/** The target's documents, name and current recipe. A stock item must be a premix or blend. */
+export async function readTarget(
+  tx: admin.firestore.Transaction,
+  db: admin.firestore.Firestore,
+  target: RecipeTarget,
+): Promise<RecipeOwner> {
+  if ("productKey" in target) return readPool(tx, db, target.productKey);
+  const ref = db.collection("stockItems").doc(target.itemId);
+  const snap = await tx.get(ref);
+  const d = snap.data();
+  if (!snap.exists || !d || d.deleted === true) throw new HttpsError("not-found", "That stock item doesn't exist.");
+  if (d.kind !== "premix" && d.kind !== "blend") bad("Only premixes and blends have recipes of their own.");
+  const strings = (x: unknown) => (Array.isArray(x) ? x.filter((v): v is string => typeof v === "string") : []);
+  return {refs: [ref], skus: [], name: String(d.name ?? target.itemId), recipe: strings(d.recipe), alternates: strings(d.recipeAlternates)};
+}
+
 /** The pool's products (not deleted) and its current recipe. */
 export async function readPool(
   tx: admin.firestore.Transaction,
@@ -193,6 +232,8 @@ export function applyRecipe(
         at: now,
         reason: `Recipe change approved (request ${requestId})`,
       });
+    // Product changes are logged per SKU; a premix/blend's history is its request records.
+    if (ref.parent.id !== "products") continue;
     if (recipeChanged) log("recipe", pool.recipe, recipe);
     if (alternatesChanged) log("recipeAlternates", pool.alternates, alternates);
   }

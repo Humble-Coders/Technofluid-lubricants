@@ -9,9 +9,11 @@ import {
   keepAlternates,
   parseAlternatesInput,
   parseRecipeInput,
-  readPool,
+  parseTarget,
+  readTarget,
   reasonText,
   REQUESTS,
+  targetFields,
   sameList,
   sameRecipe,
 } from "./recipeModel";
@@ -29,8 +31,8 @@ import {
  */
 export const requestRecipeChange = onCall({region: "us-central1"}, async (request) => {
   const caller = await requireRole(request, ["admin", "supervisor"]);
-  const productKey = typeof request.data?.productKey === "string" ? request.data.productKey.trim() : "";
-  if (!productKey) bad("productKey is required.");
+  const target = parseTarget(request.data);
+  const key = targetFields(target);
   const recipe = parseRecipeInput(request.data?.recipe);
   const reason = reasonText(request.data?.reason, caller.role === "admin");
 
@@ -39,9 +41,11 @@ export const requestRecipeChange = onCall({region: "us-central1"}, async (reques
   const by = {uid: caller.uid, name: caller.name};
 
   return db.runTransaction(async (tx) => {
-    const pool = await readPool(tx, db, productKey);
+    const pool = await readTarget(tx, db, target);
     const waiting = await tx.get(
-      db.collection(REQUESTS).where("productKey", "==", productKey).where("status", "==", "pending"),
+      "productKey" in target ?
+        db.collection(REQUESTS).where("productKey", "==", target.productKey).where("status", "==", "pending") :
+        db.collection(REQUESTS).where("itemId", "==", target.itemId).where("status", "==", "pending"),
     );
     const isAdmin = caller.role === "admin";
     const sent = request.data?.alternates;
@@ -56,12 +60,12 @@ export const requestRecipeChange = onCall({region: "us-central1"}, async (reques
     if (!isAdmin && !waiting.empty) {
       throw new HttpsError(
         "failed-precondition",
-        "A recipe change for this product is already waiting for approval.",
+        `A recipe change for this ${"productKey" in target ? "product" : "item"} is already waiting for approval.`,
       );
     }
 
     tx.create(ref, {
-      productKey,
+      ...key,
       productName: pool.name,
       skus: pool.skus,
       currentRecipe: pool.recipe,

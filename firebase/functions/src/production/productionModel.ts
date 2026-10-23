@@ -1,5 +1,5 @@
 import {bad} from "../stock/stockModel";
-import {parseRecipeInput} from "../recipes/recipeModel";
+import {parseRecipeInput, parseTarget, type RecipeTarget} from "../recipes/recipeModel";
 
 /**
  * Production that comes with a recipe change (Sharnya, 22 Oct 2026).
@@ -15,7 +15,8 @@ import {parseRecipeInput} from "../recipes/recipeModel";
 export const PRODUCTION_REQUESTS = "productionRequests";
 
 export interface RecipeChange {
-  productKey: string;
+  /** A product (productKey) or a premix/blend stock item (itemId). */
+  target: RecipeTarget;
   /** "code/percent" strings; percents total 100%. */
   recipe: string[];
 }
@@ -26,10 +27,10 @@ export function parseRecipeChanges(value: unknown): RecipeChange[] {
   const seen = new Set<string>();
   return value.map((raw, i) => {
     if (typeof raw !== "object" || raw === null) bad(`Recipe change ${i + 1} is empty.`);
-    const productKey = typeof raw.productKey === "string" ? raw.productKey.trim() : "";
-    if (!productKey) bad(`Recipe change ${i + 1}: productKey is required.`);
-    if (seen.has(productKey)) bad("Each product's recipe can change only once per entry.");
-    seen.add(productKey);
-    return {productKey, recipe: parseRecipeInput(raw.recipe)};
+    const target = parseTarget(raw);
+    const key = "productKey" in target ? `p:${target.productKey}` : `i:${target.itemId}`;
+    if (seen.has(key)) bad(`Recipe change ${i + 1}: each recipe can change only once per entry.`);
+    seen.add(key);
+    return {target, recipe: parseRecipeInput(raw.recipe)};
   });
 }
