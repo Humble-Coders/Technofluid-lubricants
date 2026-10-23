@@ -13,6 +13,7 @@
     "build": "npm run build -w desktop",
     "emulators": "node emulator/start.mjs",
     "seed": "node emulator/seed.mjs",
+    "seed:stock": "node emulator/seed-stock.mjs",
     "test:emulator": "node emulator/run-tests.mjs"
   },
   "engines": {

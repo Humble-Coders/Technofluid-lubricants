@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Field, Input, Select } from "@/components/ui";
+import { useStaff } from "@/features/auth/session";
 import { saveStockItem, type StockItem } from "@/services/stockService";
 
 /**
@@ -20,7 +21,10 @@ export function StockItemForm({
   );
   const [name, setName] = useState(item?.name ?? "");
   const [code, setCode] = useState(item?.code ?? "");
-  const [baseUnit, setBaseUnit] = useState(item?.baseUnit ?? "L");
+  const { role } = useStaff();
+  // An item imported without a unit keeps none until an Admin sets it.
+  const unitless = Boolean(item && !item.unitSet);
+  const [baseUnit, setBaseUnit] = useState<"" | StockItem["baseUnit"]>(unitless ? "" : (item?.baseUnit ?? "L"));
   const [density, setDensity] = useState(item?.densityKgPerL != null ? String(item.densityKgPerL) : "");
   const [aliases, setAliases] = useState((item?.aliases ?? []).join(", "));
   const [busy, setBusy] = useState(false);
@@ -38,7 +42,7 @@ export function StockItemForm({
         ...(item ? { itemId: item.id } : { kind }),
         name: name.trim(),
         code: kind === "raw_material" && code.trim() ? code.trim() : null,
-        baseUnit,
+        baseUnit: baseUnit || null,
         densityKgPerL: d,
         aliases: aliases
           .split(",")
@@ -81,13 +85,26 @@ export function StockItemForm({
           </Field>
         ) : null}
         <div className="grid grid-cols-2 gap-2">
-          <Field label="Counted in" htmlFor="si-unit" help={hasHistory ? "Fixed — it has stock history." : undefined}>
+          <Field
+            label="Counted in"
+            htmlFor="si-unit"
+            help={
+              hasHistory
+                ? "Fixed — it has stock history."
+                : unitless && role !== "admin"
+                  ? "Only an Admin can set the unit."
+                  : unitless
+                    ? "Not set yet — choose it to start counting."
+                    : undefined
+            }
+          >
             <Select
               id="si-unit"
               value={baseUnit}
               onChange={(e) => setBaseUnit(e.target.value as typeof baseUnit)}
-              disabled={hasHistory}
+              disabled={hasHistory || (unitless && role !== "admin")}
             >
+              {unitless ? <option value="">Not set</option> : null}
               <option value="L">Litres</option>
               <option value="kg">Kilograms</option>
               <option value="piece">Pieces</option>

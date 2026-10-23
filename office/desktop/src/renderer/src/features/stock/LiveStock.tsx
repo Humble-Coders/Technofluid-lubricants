@@ -222,8 +222,14 @@ function StockTable({
                   </span>
                 )}
                 <span className={clsx("num font-medium", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
-                  {item.onHandMilli < 0 ? <AlertTriangle className="mr-1 inline size-3.5 align-[-2px]" /> : null}
-                  {formatQuantity(item.onHandMilli, item.baseUnit)}
+                  {!item.unitSet ? (
+                    <Badge tone="warning">Unit not set</Badge>
+                  ) : (
+                    <>
+                      {item.onHandMilli < 0 ? <AlertTriangle className="mr-1 inline size-3.5 align-[-2px]" /> : null}
+                      {formatQuantity(item.onHandMilli, item.baseUnit)}
+                    </>
+                  )}
                 </span>
                 {compact ? null : (
                   <span className="truncate text-[12px] text-ink-muted">{packsSummary(item, products).join(" · ") || "—"}</span>
@@ -377,6 +383,17 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
       setBusy(false);
     }
   };
+
+  if (!item.unitSet) {
+    return (
+      <div className="mt-1 space-y-1">
+        <Badge tone="warning">Unit not set</Badge>
+        <p className="text-[12px] text-ink-muted">
+          An Admin sets it with Edit (top right): litres, kg or pieces. No stock can be recorded until then.
+        </p>
+      </div>
+    );
+  }
 
   const note = message ? (
     <p

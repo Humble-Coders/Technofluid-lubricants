@@ -30,7 +30,10 @@ export interface StockItem {
   /** Raw materials: the short name recipes use, e.g. "w150". */
   code: string | null;
   productKey: string | null;
+  /** "L" when the unit isn't set yet — check `unitSet` first. */
   baseUnit: BaseUnit;
+  /** false for an item imported without a unit: no stock until an Admin sets it. */
+  unitSet: boolean;
   densityKgPerL: number | null;
   aliases: string[];
   onHandMilli: number;
@@ -82,6 +85,7 @@ function toItem(id: string, d: DocumentData): StockItem {
     code: str(d.code),
     productKey: str(d.productKey),
     baseUnit: unit(d.baseUnit),
+    unitSet: d.baseUnit === "L" || d.baseUnit === "kg" || d.baseUnit === "piece",
     densityKgPerL: typeof d.densityKgPerL === "number" ? d.densityKgPerL : null,
     aliases: Array.isArray(d.aliases) ? d.aliases.filter((a: unknown): a is string => typeof a === "string") : [],
     onHandMilli: typeof d.onHandMilli === "number" ? d.onHandMilli : 0,
@@ -215,7 +219,8 @@ export interface StockItemInput {
   kind?: "raw_material" | "consumable";
   name: string;
   code?: string | null;
-  baseUnit: BaseUnit;
+  /** null only to keep an imported item's unit unset. */
+  baseUnit: BaseUnit | null;
   densityKgPerL?: number | null;
   aliases?: string[];
 }

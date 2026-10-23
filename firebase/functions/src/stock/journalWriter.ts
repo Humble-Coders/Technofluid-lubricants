@@ -102,6 +102,7 @@ export async function readJournalItems(
     if (!snap.exists || !d || d.deleted === true) {
       throw new HttpsError("not-found", `Stock item "${ids[i]}" doesn't exist.`);
     }
+    if (!d.baseUnit) bad(`${String(d.name ?? ids[i])} has no unit yet — an Admin must set it before stock can be recorded.`);
     items.set(ids[i], {
       name: String(d.name ?? ids[i]),
       kind: String(d.kind ?? ""),

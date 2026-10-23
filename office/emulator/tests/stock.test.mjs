@@ -326,3 +326,31 @@ describe("production (made + used, one entry)", () => {
     assert.equal(replacement.productionId, used.productionId);
   });
 });
+
+describe("items imported without a unit", () => {
+  const ID = "test-no-unit-additive";
+  before(async () => {
+    await adminDb.doc(`stockItems/${ID}`).set({
+      kind: "raw_material", name: "TEST NO UNIT ADDITIVE", nameLower: "test no unit additive", code: "tnu", baseUnit: null,
+      densityKgPerL: null, aliases: [], productKey: null, onHandMilli: 0, lastMovementAt: null, deleted: false,
+    });
+  });
+
+  test("no stock can be recorded until the unit is set", async () => {
+    await rejectsWith(record(admin, [{ itemId: ID, kind: "OPENING", qtyMilli: 5_000 }]), "invalid-argument", /no unit yet/);
+  });
+
+  test("only an Admin sets the unit; other edits keep it unset", async () => {
+    await stock.call("saveStockItem", { itemId: ID, name: "TEST NO UNIT ADDITIVE", code: "tnu", baseUnit: null, aliases: ["tnu x"] });
+    assert.equal((await item(ID)).baseUnit, null);
+    await rejectsWith(stock.call("saveStockItem", { itemId: ID, name: "TEST NO UNIT ADDITIVE", code: "tnu", baseUnit: "kg" }), "invalid-argument", /Only an Admin/);
+    await admin.call("saveStockItem", { itemId: ID, name: "TEST NO UNIT ADDITIVE", code: "tnu", baseUnit: "kg" });
+    assert.equal((await item(ID)).baseUnit, "kg");
+    await record(admin, [{ itemId: ID, kind: "OPENING", qtyMilli: 5_000 }]);
+    assert.equal((await item(ID)).onHandMilli, 5_000);
+  });
+
+  test("a new item still needs a unit", async () => {
+    await rejectsWith(admin.call("saveStockItem", { kind: "raw_material", name: "TEST NEW NO UNIT", baseUnit: null }), "invalid-argument", /Unit must be/);
+  });
+});

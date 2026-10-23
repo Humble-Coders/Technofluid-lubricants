@@ -86,6 +86,10 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
         found[l.key] = "Choose an item.";
         continue;
       }
+      if (!l.item.unitSet) {
+        found[l.key] = `${l.item.name} has no unit yet — an Admin must set it first (Live stock → Edit).`;
+        continue;
+      }
       let milli: number;
       try {
         milli = parseQuantityToMilli(l.qty);
@@ -250,7 +254,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                               aria-label="Quantity"
                             />
                             <span className="inline-flex h-9 min-w-11 items-center justify-center rounded-r-md border border-l-0 border-line-strong bg-canvas px-3 text-[13px] text-ink-muted">
-                              {l.item ? unitWord(l.item.baseUnit) : "—"}
+                              {l.item?.unitSet ? unitWord(l.item.baseUnit) : "—"}
                             </span>
                           </div>
                           <Input

@@ -13,6 +13,9 @@ import {bad, BASE_UNITS, ITEMS, type BaseUnit} from "./stockModel";
  *  - `code` (raw materials): the short name recipes use, e.g. "w150" — unique.
  *  - Names are unique within a kind, so a journal line can't pick the wrong one.
  *  - The unit can't change once the item has stock history.
+ *  - An item imported without a unit (Gaurav's sheet gives none for a few) keeps
+ *    none until an Admin sets it (Sharnya, 23 Oct 2026); no stock is recorded for
+ *    it meanwhile. New items always need a unit.
  *  - Delete is soft and only when nothing is on hand (count it to 0 first).
  */
 
@@ -60,8 +63,15 @@ export const saveStockItem = onCall({region: "us-central1"}, async (request) => 
     const kind = existing ? existing.kind : data.kind;
     if (!(KINDS as readonly string[]).includes(kind)) bad("Kind must be raw material or consumable.");
     const name = text(data.name, "Name", 80);
-    if (!(BASE_UNITS as readonly string[]).includes(data.baseUnit)) bad("Unit must be L, kg or piece.");
-    const baseUnit = data.baseUnit as BaseUnit;
+    const unitless = Boolean(existing) && !(BASE_UNITS as readonly string[]).includes(existing?.baseUnit);
+    let baseUnit: BaseUnit | null;
+    if (unitless && (data.baseUnit === null || data.baseUnit === undefined)) {
+      baseUnit = null; // still not set
+    } else {
+      if (!(BASE_UNITS as readonly string[]).includes(data.baseUnit)) bad("Unit must be L, kg or piece.");
+      baseUnit = data.baseUnit as BaseUnit;
+      if (unitless && caller.role !== "admin") bad("Only an Admin can set the unit.");
+    }
     if (existing && hasHistory && existing.baseUnit !== baseUnit) {
       bad(`${existing.name} already has stock history in ${existing.baseUnit} — its unit can't change.`);
     }

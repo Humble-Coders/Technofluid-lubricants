@@ -52,7 +52,7 @@ export interface UseLine extends ReviewLine {
   alternates: RecipeIngredient[];
   /** The alternate in use instead of the recipe line, or null for the line itself. */
   useCode: string | null;
-  status: ConsumptionStatus | "added";
+  status: ConsumptionStatus | "added" | "no_unit";
   /** Amount typed by the person — don't recompute it when the amount made changes. */
   touched: boolean;
 }
@@ -101,7 +101,9 @@ export function alternatesFor(pool: StockItem, products: Product[]): RecipeAlter
 /** What one recipe line (or alternate) needs for `madeMilli` of `pool`. */
 function workOut(pool: StockItem, madeMilli: number | null, ingredient: RecipeIngredient, items: StockItem[]) {
   const find = materialFinder(items);
-  if (madeMilli === null) return { item: find(ingredient.code), qty: "", status: "ok" as const };
+  const found = find(ingredient.code);
+  if (found && !found.unitSet) return { item: found, qty: "", status: "no_unit" as const };
+  if (madeMilli === null) return { item: found, qty: "", status: "ok" as const };
   const [p] = proposeConsumption({
     madeMilli,
     productUnit: pool.baseUnit,
@@ -289,6 +291,10 @@ export function readReview(groups: ReviewGroup[]): { lines: JournalLine[]; probl
         if (qty === null || qty === 0) continue;
         if (!u.item) {
           problems.push({ key: u.key, message: "Pick which stock item this is, or clear the quantity to skip it." });
+          continue;
+        }
+        if (!u.item.unitSet) {
+          problems.push({ key: u.key, message: `${u.item.name} has no unit yet — an Admin must set it, or clear the amount to skip it.` });
           continue;
         }
         const ing = effectiveIngredient(u);

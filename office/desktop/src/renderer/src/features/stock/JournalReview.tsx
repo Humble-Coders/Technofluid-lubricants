@@ -42,6 +42,7 @@ const STATUS: Record<UseLine["status"], { tag: string; help: string; warn: boole
   needs_density: { tag: "Enter amount", help: "Litres ↔ kg needs a density that isn't known. Type how much was used.", warn: true },
   unit_mismatch: { tag: "Enter amount", help: "This can't be worked out from a percent. Type how much was used.", warn: true },
   added: { tag: "Added", help: "Added by you.", warn: false },
+  no_unit: { tag: "Unit not set", help: "This material has no unit yet — an Admin sets it on Live stock (Edit). Until then it can't be deducted.", warn: true },
 };
 
 const CHIP = "inline-flex h-6 items-center rounded-md px-2 text-[12px] font-medium whitespace-nowrap";
