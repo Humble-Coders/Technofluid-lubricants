@@ -1,0 +1,1147 @@
+[
+ {
+  "code": "r5",
+  "name": "r5",
+  "aliases": [
+   "cf4",
+   "sm"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sae40",
+    "pctBp": 4530,
+    "raw": "SAE40/45.3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 1500,
+    "raw": "w150/15",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 20,
+    "raw": "ppd/0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "tb",
+    "pctBp": 3200,
+    "raw": "TB/32",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "turbine"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 700,
+    "raw": "w150vi10kg/7",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 50,
+    "raw": "EO additive/0.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 2",
+  "totalBp": 10000
+ },
+ {
+  "code": "sn",
+  "name": "sn",
+  "aliases": [
+   "ci4"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 3000,
+    "raw": "w500/30",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 3530,
+    "raw": "w150/35.3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "sn500",
+    "pctBp": null,
+    "raw": "sn500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "sae40",
+    "pctBp": 2500,
+    "raw": "sae40/25",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sae40"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 20,
+    "raw": "ppd/0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 700,
+    "raw": "w150vi10kg/7",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 250,
+    "raw": "EO additive/2.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 3",
+  "totalBp": 10000
+ },
+ {
+  "code": "g90",
+  "name": "g90",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn500",
+    "pctBp": 8705,
+    "raw": "sn500/87.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500vi10kg",
+    "pctBp": 1200,
+    "raw": "sn500vi10kg/12",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "sn500vi10kg"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": null,
+    "raw": "w500vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 20,
+    "raw": "ppd/ 0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 4",
+  "totalBp": 10000
+ },
+ {
+  "code": "g75w90",
+  "name": "g75w90",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn500",
+    "pctBp": 7405,
+    "raw": "sn500/74.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500vi10kg",
+    "pctBp": 1500,
+    "raw": "sn500vi10kg/15",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "sn500vi10kg"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": null,
+    "raw": "w500vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 20,
+    "raw": "ppd/ 0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 1000,
+    "raw": "w150/10",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 5",
+  "totalBp": 10000
+ },
+ {
+  "code": "gl5",
+  "name": "gl5",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 8630,
+    "raw": "w500/86.3",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500vi10kg",
+    "pctBp": 1200,
+    "raw": "sn500vi10kg/12",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "sn500vi10kg"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": null,
+    "raw": "w500vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 150,
+    "raw": "ep additive/1.5",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 20,
+    "raw": "ppd/ 0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": null,
+    "raw": "w150/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "bs",
+    "pctBp": null,
+    "raw": "BS/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "bs"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 6",
+  "totalBp": 10000
+ },
+ {
+  "code": "nh",
+  "name": "nh",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 9050,
+    "raw": "n4/90.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "nvi10kg",
+    "pctBp": 950,
+    "raw": "nvi10kg/9.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "n4vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 7",
+  "totalBp": 10000
+ },
+ {
+  "code": "va19.1",
+  "name": "va19.1",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 9520,
+    "raw": "va/95.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 480,
+    "raw": "vavi10kg/4.8",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 8",
+  "totalBp": 10000
+ },
+ {
+  "code": "va18.2",
+  "name": "va18.2",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 9050,
+    "raw": "va/90.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 950,
+    "raw": "vavi10kg/9.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 9",
+  "totalBp": 10000
+ },
+ {
+  "code": "va17.3",
+  "name": "va17.3",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 8570,
+    "raw": "va/85.7",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 1430,
+    "raw": "vavi10kg/14.3",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 10",
+  "totalBp": 10000
+ },
+ {
+  "code": "va16.4",
+  "name": "va16.4",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 8090,
+    "raw": "va/80.9",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 1910,
+    "raw": "vavi10kg/19.1",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 11",
+  "totalBp": 10000
+ },
+ {
+  "code": "va15.5",
+  "name": "va15.5",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 7620,
+    "raw": "va/76.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 2380,
+    "raw": "vavi10kg/23.8",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 12",
+  "totalBp": 10000
+ },
+ {
+  "code": "va13.7",
+  "name": "va13.7",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 6660,
+    "raw": "va/66.6",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 3340,
+    "raw": "vavi10kg/33.4",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 13",
+  "totalBp": 10000
+ },
+ {
+  "code": "va12.8",
+  "name": "va12.8",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 6200,
+    "raw": "va/62",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 3800,
+    "raw": "vavi10kg/38",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 14",
+  "totalBp": 10000
+ },
+ {
+  "code": "h68",
+  "name": "h68",
+  "aliases": [
+   "hlp68"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 8800,
+    "raw": "w150/88",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 1200,
+    "raw": "w150vi10kg/12",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 15",
+  "totalBp": 10000
+ },
+ {
+  "code": "h100",
+  "name": "h100",
+  "aliases": [
+   "hlp100"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 8300,
+    "raw": "w150/83",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 1700,
+    "raw": "w150vi10kg/17",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 16",
+  "totalBp": 10000
+ },
+ {
+  "code": "h150",
+  "name": "h150",
+  "aliases": [
+   "hlp150"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 7850,
+    "raw": "w150/78.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 2150,
+    "raw": "w150vi10kg/21.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 17",
+  "totalBp": 10000
+ },
+ {
+  "code": "wet brake oil",
+  "name": "wet brake oil",
+  "aliases": [
+   "rear axle oil",
+   "utto"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 8900,
+    "raw": "w150/89",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 950,
+    "raw": "w150vi10kg/9.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "utto additive",
+    "pctBp": 150,
+    "raw": "utto additive/1.5",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 18",
+  "totalBp": 10000
+ },
+ {
+  "code": "brake fluid",
+  "name": "brake fluid",
+  "aliases": [
+   "dot 3",
+   "dot 4",
+   "dot 5"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [],
+  "flags": [
+   "no recipe — likely a bought-in finished product, not a blend"
+  ],
+  "source": "Sheet3 row 19",
+  "totalBp": 0
+ },
+ {
+  "code": "chain oil",
+  "name": "chain oil",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9880,
+    "raw": "w500/98.8",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "polymer",
+    "pctBp": 120,
+    "raw": "polymer/1.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 20",
+  "totalBp": 10000
+ },
+ {
+  "code": "0w-20",
+  "name": "0w-20",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "4cst",
+    "pctBp": 4805,
+    "raw": "4cst/48.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "4cst"
+    }
+   },
+   {
+    "code": "6cst",
+    "pctBp": 4000,
+    "raw": "6cst/40",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "6cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 400,
+    "raw": "eo additive/4",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 40,
+    "raw": "ppd/0.4",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 550,
+    "raw": "w150vi10kg/5.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 21",
+  "totalBp": 10000
+ },
+ {
+  "code": "5w-30",
+  "name": "5w-30",
+  "aliases": [
+   "ck4"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "4cst",
+    "pctBp": 4200,
+    "raw": "4cst/42",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "4cst"
+    }
+   },
+   {
+    "code": "6cst",
+    "pctBp": 4705,
+    "raw": "6cst/47.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "6cst"
+    }
+   },
+   {
+    "code": "pao4",
+    "pctBp": 200,
+    "raw": "pao4/2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "pao4"
+    }
+   },
+   {
+    "code": "eo additive",
+    "pctBp": 400,
+    "raw": "eo additive/4",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "eo additive"
+    }
+   },
+   {
+    "code": "ppd",
+    "pctBp": 40,
+    "raw": "ppd/0.4",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "antifoam",
+    "pctBp": 5,
+    "raw": "antifoam/0.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "antifoam"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 450,
+    "raw": "w150vi10kg/4.5",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 22",
+  "totalBp": 10000
+ },
+ {
+  "code": "tq",
+  "name": "tq",
+  "aliases": [
+   "transmission fluid atf",
+   "transmission fluid tq"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 4000,
+    "raw": "w500/40",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w150",
+    "pctBp": 5850,
+    "raw": "w150/58.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "tq additive",
+    "pctBp": 150,
+    "raw": "tq additive/1.5",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 23",
+  "totalBp": 10000
+ },
+ {
+  "code": "tfsae30",
+  "name": "tfsae30",
+  "aliases": [
+   "transmission fluid sae 30",
+   "transmission fluis cf4 sae 30"
+  ],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn500",
+    "pctBp": 9850,
+    "raw": "sn500/98.5",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "tq additive",
+    "pctBp": 150,
+    "raw": "tq additive/1.5",
+    "resolvesTo": null
+   }
+  ],
+  "flags": [],
+  "source": "Sheet3 row 24",
+  "totalBp": 10000
+ },
+ {
+  "code": "g140",
+  "name": "g140",
+  "aliases": [],
+  "baseUnit": "L",
+  "basis": "unconfirmed (by volume assumed)",
+  "lines": [
+   {
+    "code": "sn500",
+    "pctBp": 7205,
+    "raw": "sn500/72.05",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "go",
+    "pctBp": null,
+    "raw": "go/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "go"
+    }
+   },
+   {
+    "code": "sn500vi10kg",
+    "pctBp": 2700,
+    "raw": "sn500vi10kg/27",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "sn500vi10kg"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": null,
+    "raw": "w500vi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   },
+   {
+    "code": "ep additive",
+    "pctBp": 75,
+    "raw": "ep additive/0.75",
+    "resolvesTo": null
+   },
+   {
+    "code": "ppd",
+    "pctBp": 20,
+    "raw": "ppd/ 0.2",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "ppd"
+    }
+   },
+   {
+    "code": "w500",
+    "pctBp": null,
+    "raw": "w500/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": null,
+    "raw": "vavi10kg/",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   }
+  ],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet3 row 25",
+  "totalBp": 10000
+ }
+]
