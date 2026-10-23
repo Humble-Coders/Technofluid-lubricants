@@ -189,6 +189,29 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── Customers & suppliers ("entities") — office, with Humble Ledger ────────
+    // Admin + Accounts read; only Cloud Functions write. Stock & Production never sees
+    // customers, suppliers or money. Balances live in Humble Ledger, not here.
+
+    match /entities/{entityId} {
+      allow read:  if isAdmin() || isAccounts();
+      allow write: if false;
+
+      match /history/{historyId} {
+        allow read:  if isAdmin() || isAccounts();
+        allow write: if false;
+      }
+    }
+
+    match /entityRequests/{requestId} {
+      allow read, write: if false;
+    }
+
+    // The emulator's stand-in for Humble Ledger — server only.
+    match /_fakeHl/{document=**} {
+      allow read, write: if false;
+    }
+
     // ─── Coupons ──────────────────────────────────────────────────────────────
 
     match /coupons/{couponId} {
