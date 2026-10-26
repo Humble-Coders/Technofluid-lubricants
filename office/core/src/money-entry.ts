@@ -118,7 +118,19 @@ export function isSameAccountAs(a: MoneyAccountRef, b: MoneyAccountRef): boolean
 }
 
 export const canReverse = (e: MoneyEntryState) => e.syncStatus === "SYNCED" && !e.reversedByEntryId && !e.reversesEntryId;
-export const isCancelled = (e: MoneyEntryState) => Boolean(e.reversedByEntryId || e.reversesEntryId);
+
+export type ReversalState = "none" | "pending" | "failed" | "done";
+/**
+ * Where a reversed pair stands. Only a mirror that's IN THE BOOKS cancels the pair; until
+ * then the original still happened (shown, counted in totals). For an original, pass its
+ * mirror's sync status (not loaded yet = pending); a mirror is judged by its own status.
+ */
+export function reversalState(e: MoneyEntryState, mirrorStatus?: MoneyEntryState["syncStatus"] | null): ReversalState {
+  if (!e.reversesEntryId && !e.reversedByEntryId) return "none";
+  const s = e.reversesEntryId ? e.syncStatus : mirrorStatus;
+  return s === "SYNCED" ? "done" : s === "FAILED" ? "failed" : "pending";
+}
+export const isCancelled = (e: MoneyEntryState, mirrorStatus?: MoneyEntryState["syncStatus"] | null) => reversalState(e, mirrorStatus) === "done";
 
 function isRealDay(ymd: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return false;

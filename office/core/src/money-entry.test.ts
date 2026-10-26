@@ -5,12 +5,15 @@ import {
   correctionFor,
   DEFAULT_CASH_REGISTER_ID,
   expenseGstSplit,
+  isCancelled,
   isSameAccountAs,
   moneyDirection,
   moneyEntryError,
   moneySourceIds,
+  reversalState,
   type MoneyAccountRef,
   type MoneyEntryInput,
+  type MoneyEntryState,
 } from "./index";
 
 // The same table is run against the Cloud Functions mirror (office/emulator/tests/money.test.mjs).
@@ -33,6 +36,14 @@ describe("money-entry rules (money-entry.cases.json)", () => {
   for (const c of cases.correction) {
     it(`correction: ${c.case}`, () => {
       expect(correctionFor(c.target as never, c.current, c.wanted)).toEqual(c.expect);
+    });
+  }
+  for (const c of cases.reversal) {
+    it(`reversal: ${c.case}`, () => {
+      const e = c.entry as MoneyEntryState;
+      const m = c.mirrorStatus as MoneyEntryState["syncStatus"] | null;
+      expect(reversalState(e, m)).toBe(c.expect);
+      expect(isCancelled(e, m)).toBe(c.expect === "done");
     });
   }
 });

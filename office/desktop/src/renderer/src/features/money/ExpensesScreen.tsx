@@ -6,6 +6,7 @@ import {
   formatINR,
   GST_STATES,
   indiaDate,
+  isCancelled,
   moneyEntryError,
   MONEY_ERROR_TEXT,
   rupeesToPaise,
@@ -60,7 +61,8 @@ export function ExpensesScreen() {
   const totals = useMemo(() => {
     const t = new Map<string, number>();
     for (const e of rows) {
-      if (e.reversesEntryId || e.reversedByEntryId) continue;
+      // The original counts until its reversal is in the books; the mirror itself never does.
+      if (e.reversesEntryId || isCancelled(e, e.mirrorStatus)) continue;
       if (e.to.kind !== "EXPENSE") continue;
       t.set(e.to.name, (t.get(e.to.name) ?? 0) + e.amountPaise);
     }

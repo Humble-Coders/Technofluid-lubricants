@@ -80,7 +80,7 @@ export interface HlMoneyMove {
   date: string;
   sourceId: string;
   actorRef: string;
-  /** Our wording — HL's /payments and /customer-payouts take it as metadata.description. */
+  /** Our wording — sent as `description` (and metadata.description) to /payments and /customer-payouts. */
   description: string;
 }
 

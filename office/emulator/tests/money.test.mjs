@@ -117,11 +117,12 @@ after(async () => {
 });
 
 describe("the shared rules table (money-entry.cases.json) against the server's copy", () => {
-  test("validation codes, direction, GST split and corrections", () => {
+  test("validation codes, direction, GST split, corrections and reversal state", () => {
     for (const c of CASES.validate) assert.equal(model.moneyEntryError(c.input, CASES.today), c.expect, c.case);
     for (const c of CASES.direction) assert.equal(model.moneyDirection({ from: c.from, to: c.to }), c.expect, c.case);
     for (const c of CASES.gstSplit) assert.deepEqual(model.expenseGstSplit(c.input), c.expect, c.case);
     for (const c of CASES.correction) assert.deepEqual(model.correctionFor(c.target, c.current, c.wanted), c.expect, c.case);
+    for (const c of CASES.reversal) assert.equal(model.reversalState(c.entry, c.mirrorStatus), c.expect, c.case);
   });
 
   test("the callable refuses what the form refuses, with the same code", async () => {
@@ -285,7 +286,13 @@ describe("posting routes", () => {
   });
 
   describe("reversal", () => {
-    test("the mirror nets every route to zero (GST expense included)", async () => {
+    test("the mirror is the original's stored legs flipped, for every route — even after the register is renamed and re-pinned", async () => {
+      // Today's state must not leak into a reversal: rename the cash box and point it at another account.
+      const cash = await get("registers", "default-cash");
+      await libDb.doc("registers/default-cash").update({ name: "Renamed till", hlAccountId: "acc_somewhere_else" });
+      const legSet = (legs) => legs.map(({ accountId, type, amountPaise }) => `${accountId}|${type}|${amountPaise}`).sort();
+      const flip = (t) => (t === "DEBIT" ? "CREDIT" : "DEBIT");
+      try {
       for (const id of [ids.received, ids.paid, ids.transfer, ids.move, ids.expense, ids.igst]) {
         const before = await txnOf(id);
         const { entryId } = await accounts.call("reverseMoneyEntry", { requestId: rid(), entryId: id, reason: "Entered twice" });
@@ -294,10 +301,17 @@ describe("posting routes", () => {
         assert.equal((await get("moneyEntries", id)).reversedByEntryId, entryId);
         const after = await txnOf(entryId);
         assert.equal(after.postingType, "REVERSAL");
+        // The original stores the legs it posted; the mirror is exactly those, flipped.
+        const stored = (await get("moneyEntries", id)).hlLegs;
+        assert.deepEqual(legSet(stored), legSet(before.legs), `${id} stores the legs it posted`);
+        assert.deepEqual(legSet(after.legs), legSet(stored.map((l) => ({ ...l, type: flip(l.type) }))), `${id} mirror = original flipped`);
         for (const acct of new Set(before.legs.map((l) => l.accountId))) {
           const net = [...before.legs, ...after.legs].filter((l) => l.accountId === acct).reduce((s, l) => s + (l.type === "DEBIT" ? l.amountPaise : -l.amountPaise), 0);
           assert.equal(net, 0, `${id} nets to zero on ${acct}`);
         }
+      }
+      } finally {
+        await libDb.doc("registers/default-cash").update({ name: cash.name, hlAccountId: cash.hlAccountId });
       }
     });
 
@@ -309,6 +323,38 @@ describe("posting routes", () => {
       await rejectsWith(accounts.call("reverseMoneyEntry", { requestId: rid(), entryId: ids.correction, reason: "Wrong" }), "permission-denied");
       const { entryId } = await admin.call("reverseMoneyEntry", { requestId: rid(), entryId: ids.correction, reason: "Wrong" });
       await status("moneyEntries", entryId, "SYNCED");
+    });
+
+    test("a reversal posts even after the expense's category is archived", async () => {
+      const cat = (await accounts.call("saveExpenseCategory", { requestId: rid(), name: "TEST MNY One-off" })).categoryId;
+      const { entryId: orig } = await accounts.call("recordExpense", { requestId: rid(), categoryId: cat, registerKind: "CASH", registerId: "default-cash", amountPaise: 5_000, businessDay: today, note: null, gst: null });
+      await status("moneyEntries", orig, "SYNCED");
+      await admin.call("saveExpenseCategory", { requestId: rid(), categoryId: cat, name: "TEST MNY One-off", isActive: false });
+      const { entryId } = await accounts.call("reverseMoneyEntry", { requestId: rid(), entryId: orig, reason: "Wrong category" });
+      await status("moneyEntries", entryId, "SYNCED");
+    });
+
+    test("until the reversal is in the books the original still counts; a FAILED one can be retried", async () => {
+      const { entryId: orig } = await record(accounts, ref.cash(), ref.bank("default-bank"), 7_000, { note: "Deposit" });
+      await status("moneyEntries", orig, "SYNCED");
+      await control({ down: true });
+      let mirrorId;
+      try {
+        mirrorId = (await accounts.call("reverseMoneyEntry", { requestId: rid(), entryId: orig, reason: "Never went" })).entryId;
+        const m = await status("moneyEntries", mirrorId, "FAILED");
+        const o = await get("moneyEntries", orig);
+        assert.equal(o.reversedByEntryId, mirrorId);
+        assert.equal(model.reversalState(o, m.syncStatus), "failed");
+        assert.equal(model.isCancelled(o, m.syncStatus), false, "still shown and counted");
+        assert.equal(model.isCancelled(m), false);
+        assert.equal(await txnOf(mirrorId), undefined, "nothing in the books");
+      } finally {
+        await control({});
+      }
+      await accounts.call("retryMoneyEntrySync", { entryId: mirrorId });
+      const m = await status("moneyEntries", mirrorId, "SYNCED");
+      assert.equal(model.isCancelled(await get("moneyEntries", orig), m.syncStatus), true);
+      assert.equal(model.isCancelled(m), true);
     });
   });
 });

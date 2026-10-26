@@ -174,9 +174,6 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
   const note: string = e.note ?? "";
 
   try {
-    // Resolve every side before posting anything.
-    const [from, to] = await Promise.all([resolveSide(db, e.from), resolveSide(db, e.to)]);
-    const account = accountCache(hl);
     let legs: HlLeg[];
     let txnId: string;
 
@@ -187,85 +184,93 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
 
     if (e.reversesEntryId) {
       // 0. Reversal: the original's recorded legs, flipped — exact for every route (GST too).
+      // No sides are resolved: an archived category or register (or a renamed / re-pinned
+      // one) must never make a reversal unpostable or change what it posts.
       const o = (await db.collection(MONEY_ENTRIES).doc(String(e.reversesEntryId)).get()).data();
       if (!o?.hlLegs || !Array.isArray(o.hlLegs)) throw new Permanent("The original entry isn't in the books.");
       const flipped = (o.hlLegs as HlLeg[]).map((l) => ({...l, type: l.type === "DEBIT" ? ("CREDIT" as const) : ("DEBIT" as const)}));
       await journal("REVERSAL", note || "Reversal", flipped);
-    } else if (e.isCorrection) {
-      // 1. Correction — FIRST.
-      const partySide = from.ref.kind === "PARTY" || to.ref.kind === "PARTY";
-      const adj = partySide ? SYSTEM_ACCOUNTS.balanceAdjustments : SYSTEM_ACCOUNTS.cashOverShort;
-      const adjId = (await account(adj.name, adj.type)).id;
-      const fromId = from.accountId ?? adjId;
-      const toId = to.accountId ?? adjId;
-      await journal("JOURNAL", `Correction: ${note}`, [
-        {accountId: toId, type: "DEBIT", amountPaise: e.amountPaise},
-        {accountId: fromId, type: "CREDIT", amountPaise: e.amountPaise},
-      ]);
-    } else if (to.ref.kind === "EXPENSE") {
-      // 2. Expense, with GST input when there's a bill.
-      if (!isReg(from.ref) || !from.accountId || !to.accountId) throw new Permanent("An expense must be paid from cash or a bank.");
-      const g = e.gst;
-      const l: HlLeg[] = [{accountId: to.accountId, type: "DEBIT", amountPaise: g ? g.taxablePaise : e.amountPaise}];
-      if (g) {
-        for (const [paise, acct] of [
-          [g.cgstPaise, SYSTEM_ACCOUNTS.inputCgst],
-          [g.sgstPaise, SYSTEM_ACCOUNTS.inputSgst],
-          [g.igstPaise, SYSTEM_ACCOUNTS.inputIgst],
-        ] as const) {
-          if (paise > 0) l.push({accountId: (await account(acct.name, acct.type, true)).id, type: "DEBIT", amountPaise: paise});
-        }
-      }
-      l.push({accountId: from.accountId, type: "CREDIT", amountPaise: e.amountPaise});
-      await journal("EXPENSE", `${name(to.ref)}${note ? `: ${note}` : ""}${g ? ` (bill ${g.billNo}, ${g.supplier.name})` : ""}`, l);
-    } else if (from.ref.kind === "PARTY" && isReg(to.ref)) {
-      // 3. Money received.
-      const r = await hl.postPayment({
-        customerId: from.customerId!,
-        amountPaise: e.amountPaise,
-        method: to.ref.kind as "CASH" | "BANK",
-        paymentAccountId: to.accountId!,
-        date: e.businessDay,
-        sourceId,
-        actorRef,
-        description: note ? `Payment received: ${note}` : "Payment received",
-      });
-      legs = [
-        {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
-        {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
-      ];
-      txnId = r.txnId;
-    } else if (isReg(from.ref) && to.ref.kind === "PARTY") {
-      // 4. Money paid.
-      const r = await hl.postPayout({
-        customerId: to.customerId!,
-        amountPaise: e.amountPaise,
-        method: from.ref.kind as "CASH" | "BANK",
-        paymentAccountId: from.accountId!,
-        date: e.businessDay,
-        sourceId,
-        actorRef,
-        description: note ? `Payment made: ${note}` : "Payment made",
-      });
-      legs = [
-        {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
-        {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
-      ];
-      txnId = r.txnId;
-    } else if (from.ref.kind === "PARTY" && to.ref.kind === "PARTY") {
-      // 5. Balance moved: `to` owes more, `from` owes less.
-      await journal("JOURNAL", `Balance moved from ${name(from.ref)} to ${name(to.ref)}${note ? `: ${note}` : ""}`, [
-        {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
-        {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
-      ]);
-    } else if (isReg(from.ref) && isReg(to.ref)) {
-      // 6. Deposit / withdrawal / transfer.
-      await journal("JOURNAL", `Transfer from ${name(from.ref)} to ${name(to.ref)}${note ? `: ${note}` : ""}`, [
-        {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
-        {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
-      ]);
     } else {
-      throw new Permanent("This kind of entry can't be posted.");
+      // Resolve every side before posting anything.
+      const [from, to] = await Promise.all([resolveSide(db, e.from), resolveSide(db, e.to)]);
+      const account = accountCache(hl);
+
+      if (e.isCorrection) {
+        // 1. Correction — FIRST.
+        const partySide = from.ref.kind === "PARTY" || to.ref.kind === "PARTY";
+        const adj = partySide ? SYSTEM_ACCOUNTS.balanceAdjustments : SYSTEM_ACCOUNTS.cashOverShort;
+        const adjId = (await account(adj.name, adj.type)).id;
+        const fromId = from.accountId ?? adjId;
+        const toId = to.accountId ?? adjId;
+        await journal("JOURNAL", `Correction: ${note}`, [
+          {accountId: toId, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: fromId, type: "CREDIT", amountPaise: e.amountPaise},
+        ]);
+      } else if (to.ref.kind === "EXPENSE") {
+        // 2. Expense, with GST input when there's a bill.
+        if (!isReg(from.ref) || !from.accountId || !to.accountId) throw new Permanent("An expense must be paid from cash or a bank.");
+        const g = e.gst;
+        const l: HlLeg[] = [{accountId: to.accountId, type: "DEBIT", amountPaise: g ? g.taxablePaise : e.amountPaise}];
+        if (g) {
+          for (const [paise, acct] of [
+            [g.cgstPaise, SYSTEM_ACCOUNTS.inputCgst],
+            [g.sgstPaise, SYSTEM_ACCOUNTS.inputSgst],
+            [g.igstPaise, SYSTEM_ACCOUNTS.inputIgst],
+          ] as const) {
+            if (paise > 0) l.push({accountId: (await account(acct.name, acct.type, true)).id, type: "DEBIT", amountPaise: paise});
+          }
+        }
+        l.push({accountId: from.accountId, type: "CREDIT", amountPaise: e.amountPaise});
+        await journal("EXPENSE", `${name(to.ref)}${note ? `: ${note}` : ""}${g ? ` (bill ${g.billNo}, ${g.supplier.name})` : ""}`, l);
+      } else if (from.ref.kind === "PARTY" && isReg(to.ref)) {
+        // 3. Money received.
+        const r = await hl.postPayment({
+          customerId: from.customerId!,
+          amountPaise: e.amountPaise,
+          method: to.ref.kind as "CASH" | "BANK",
+          paymentAccountId: to.accountId!,
+          date: e.businessDay,
+          sourceId,
+          actorRef,
+          description: note ? `Payment received: ${note}` : "Payment received",
+        });
+        legs = [
+          {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
+        ];
+        txnId = r.txnId;
+      } else if (isReg(from.ref) && to.ref.kind === "PARTY") {
+        // 4. Money paid.
+        const r = await hl.postPayout({
+          customerId: to.customerId!,
+          amountPaise: e.amountPaise,
+          method: from.ref.kind as "CASH" | "BANK",
+          paymentAccountId: from.accountId!,
+          date: e.businessDay,
+          sourceId,
+          actorRef,
+          description: note ? `Payment made: ${note}` : "Payment made",
+        });
+        legs = [
+          {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
+        ];
+        txnId = r.txnId;
+      } else if (from.ref.kind === "PARTY" && to.ref.kind === "PARTY") {
+        // 5. Balance moved: `to` owes more, `from` owes less.
+        await journal("JOURNAL", `Balance moved from ${name(from.ref)} to ${name(to.ref)}${note ? `: ${note}` : ""}`, [
+          {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
+        ]);
+      } else if (isReg(from.ref) && isReg(to.ref)) {
+        // 6. Deposit / withdrawal / transfer.
+        await journal("JOURNAL", `Transfer from ${name(from.ref)} to ${name(to.ref)}${note ? `: ${note}` : ""}`, [
+          {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
+        ]);
+      } else {
+        throw new Permanent("This kind of entry can't be posted.");
+      }
     }
 
     await ref.set(

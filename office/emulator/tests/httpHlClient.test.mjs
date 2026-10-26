@@ -199,7 +199,7 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     });
   });
 
-  test("payments and payouts: our wording goes in metadata.description; no txn id → fails loud", async () => {
+  test("payments and payouts: our wording goes in description (and metadata); no txn id → fails loud", async () => {
     const s = stub([
       () => json(201, { success: true, data: { transactionId: "p1" } }),
       () => json(201, { success: true, data: { transaction: { id: "p2" } } }),
@@ -209,6 +209,7 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     const move = { customerId: "c1", amountPaise: 500, method: "BANK", paymentAccountId: "bank", date: "2026-10-20", sourceId: "money_m2", actorRef: "u1", description: "Payment received" };
     assert.equal((await c.postPayment(move)).txnId, "p1");
     assert.equal(s.hl()[0].url, "https://hl.example/api/v1/payments");
+    assert.equal(s.hl()[0].body.description, "Payment received");
     assert.deepEqual(s.hl()[0].body.metadata, { description: "Payment received" });
     assert.equal(s.hl()[0].body.amount, 5);
     assert.equal(s.hl()[0].body.invoiceId, undefined);

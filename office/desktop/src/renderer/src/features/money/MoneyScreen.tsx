@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, CloudOff, Landmark, RefreshCw, Scale, Settings2, Shuffle, Undo2, Wallet } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { canReverse, formatINR, indiaDate, isCancelled, moneyDirection, type MoneyAccountRef } from "@technofluid/core";
+import { canReverse, formatINR, indiaDate, isCancelled, moneyDirection, reversalState, type MoneyAccountRef } from "@technofluid/core";
 import { Badge, Button, EmptyState, Input, Select, Spinner } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { Modal } from "@/features/entities/EntityDetail";
@@ -71,7 +71,7 @@ export function MoneyScreen() {
   const rows = useMemo(() => {
     if (entries.status !== "ready") return [];
     return entries.data.filter((e) => {
-      if (!showReversed && isCancelled(e)) return false;
+      if (!showReversed && isCancelled(e, e.mirrorStatus)) return false;
       if (direction !== "all" && moneyDirection(e) !== direction) return false;
       const ids = [e.from, e.to].map((r) => (r.kind === "PARTY" ? r.entityId : r.kind === "CASH" || r.kind === "BANK" ? r.registerId : ""));
       if (registerFilter && !ids.includes(registerFilter)) return false;
@@ -248,7 +248,7 @@ export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin
         <tbody>
           {rows.map((e) => {
             const dir = moneyDirection(e);
-            const cancelled = isCancelled(e);
+            const cancelled = isCancelled(e, e.mirrorStatus);
             return (
               <tr key={e.id} className={clsx("border-b border-line/70 align-top", cancelled && "text-ink-faint")}>
                 <td className="py-2 pr-3 whitespace-nowrap">{e.businessDay}</td>
@@ -258,7 +258,7 @@ export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin
                   </span>
                   {e.to.kind === "EXPENSE" ? <Badge tone="danger" className="ml-1.5">Expense</Badge> : null}
                   {e.isCorrection ? <Badge tone="warning" className="ml-1.5">Correction</Badge> : null}
-                  {e.reversesEntryId ? <Badge className="ml-1.5">Reversal</Badge> : e.reversedByEntryId ? <Badge className="ml-1.5">Reversed</Badge> : null}
+                  {e.reversesEntryId ? <Badge className="ml-1.5">Reversal</Badge> : e.reversedByEntryId ? <ReversedBadge entry={e} /> : null}
                   {e.gst ? <span className="ml-1.5 text-2xs text-ink-muted">GST bill {e.gst.billNo}</span> : null}
                 </td>
                 <td className={clsx("py-2 pr-3 text-right", cancelled ? "num text-ink-faint" : amountClass(dir))}>{formatINR(e.amountPaise)}</td>
@@ -281,6 +281,30 @@ export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin
       </table>
       {reversing ? <ReverseDialog entry={reversing} onClose={() => setReversing(null)} /> : null}
     </>
+  );
+}
+
+/** An original's reversal: it only counts as undone once the reversal is in the books. */
+function ReversedBadge({ entry: e }: { entry: MoneyEntryRow }) {
+  const [busy, setBusy] = useState(false);
+  const state = reversalState(e, e.mirrorStatus);
+  if (state === "done") return <Badge className="ml-1.5">Reversed</Badge>;
+  if (state === "pending") return <Badge tone="warning" className="ml-1.5">Reversal pending</Badge>;
+  return (
+    <span className="ml-1.5 inline-flex items-center gap-1">
+      <Badge tone="danger">Reversal not posted</Badge>
+      <button
+        type="button"
+        className="text-[12px] font-medium text-info hover:underline disabled:opacity-50"
+        disabled={busy}
+        onClick={() => {
+          setBusy(true);
+          void retryMoneyEntrySync(e.reversedByEntryId!).finally(() => setBusy(false));
+        }}
+      >
+        Retry
+      </button>
+    </span>
   );
 }
 

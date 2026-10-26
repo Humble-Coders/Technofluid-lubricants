@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getRegisterBalances,
   getRegisterStatement,
   watchCategories,
   watchMoneyEntries,
   watchMoneyEntry,
+  watchMoneyEntryStatuses,
   watchRegisters,
   type CategoryRow,
   type MoneyEntryRow,
   type RegisterRow,
   type RegisterStatement,
+  type SyncStatus,
 } from "@/services/moneyService";
 import type { LoadState } from "./useProducts";
 
@@ -28,7 +30,32 @@ function useWatch<T>(subscribe: (ok: (v: T) => void, err: (e: Error) => void) =>
 
 export const useRegisters = () => useWatch<RegisterRow[]>(watchRegisters, []);
 export const useCategories = () => useWatch<CategoryRow[]>(watchCategories, []);
-export const useMoneyEntries = (from: string, to: string) => useWatch<MoneyEntryRow[]>((ok, err) => watchMoneyEntries(from, to, ok, err), [from, to]);
+/**
+ * Entries in a business-day range, each reversed original carrying its mirror's status —
+ * a pair only counts as cancelled once the mirror is in the books (core reversalState).
+ * Mirrors outside the range (reversed later) are watched by id.
+ */
+export function useMoneyEntries(from: string, to: string): LoadState<MoneyEntryRow[]> {
+  const base = useWatch<MoneyEntryRow[]>((ok, err) => watchMoneyEntries(from, to, ok, err), [from, to]);
+  const rows = base.status === "ready" ? base.data : null;
+  const missing = useMemo(() => {
+    if (!rows) return "";
+    const here = new Set(rows.map((e) => e.id));
+    return [...new Set(rows.flatMap((e) => (e.reversedByEntryId && !here.has(e.reversedByEntryId) ? [e.reversedByEntryId] : [])))].sort().join(",");
+  }, [rows]);
+  const [outside, setOutside] = useState<Record<string, SyncStatus>>({});
+  useEffect(() => {
+    setOutside({});
+    if (!missing) return;
+    return watchMoneyEntryStatuses(missing.split(","), setOutside);
+  }, [missing]);
+  return useMemo(() => {
+    if (!rows) return base;
+    const own = new Map(rows.map((e) => [e.id, e.syncStatus]));
+    const data = rows.map((e) => (e.reversedByEntryId ? { ...e, mirrorStatus: own.get(e.reversedByEntryId) ?? outside[e.reversedByEntryId] ?? null } : e));
+    return { status: "ready", data };
+  }, [base, rows, outside]);
+}
 
 /** One entry, live, until it's saved to the books (then the caller refreshes balances). */
 export function useMoneyEntry(entryId: string | null) {

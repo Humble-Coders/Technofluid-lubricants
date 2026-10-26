@@ -97,9 +97,12 @@ Sales/invoices (our own FY invoice numbers, e.g. TF/2026-27/0001, from a Functio
 
 ## Agreed deviations and notes (26 Oct 2026)
 - **(a) Reversal posting.** A mirror posts as `POST /transactions` postingType **REVERSAL**: the original's recorded legs (`hlLegs`), flipped, sourceId `money_<mirrorId>`, description "Reversal: <reason>".
-  - Why not route it through the cascade: that would turn a reversed payment into a payout and the other way round. `/payments` rejects over-payments, and neither endpoint carries a description.
+  - Why not route it through the cascade: that would turn a reversed payment into a payout and the other way round, and `/payments` rejects over-payments.
   - HL's `/transactions/{id}/reverse` isn't used, because it takes no sourceId, so it isn't retry-safe.
-- **(b) Wording on payments and payouts.** `/payments` and `/customer-payouts` take no `description`, so our wording goes in `metadata.description`. Statements label money rows from the joined `moneyEntries` doc.
+  - Every original stores the legs it posted (`hlLegs`, payments and payouts included), taken from the account ids at posting time. The mirror posts exactly those, flipped, and resolves nothing from today's state: an archived category or register, or a renamed or re-pinned one, can't change a reversal or make it unpostable. Tested for every route.
+  - **HL's own payment and payout records are NOT marked reversed by this.** Only the ledger nets to zero. That's fine for now, because we don't use HL's payment lists.
+  - A reversed pair only counts as cancelled once the mirror is in the books (core `reversalState`). Until then the original is still shown, with "Reversal pending" or "Reversal not posted · Retry", and still counts in the expense totals.
+- **(b) Wording on payments and payouts.** Our wording goes in the top-level `description` of `/payments` and `/customer-payouts` (both have it, per HL's OpenAPI), and in `metadata.description` too. Our statements label money rows from the joined `moneyEntries` doc.
 - **(c) Advances.** `/payments` 422 OVERPAYMENT is tied to invoices; we send no invoiceId, so an advance should land as a credit. **Verify on first live call.**
 - **(d) Expenses use `/transactions`.** We post postingType EXPENSE with explicit legs; HL's `/expenses` takes one tax account and can't split CGST + SGST.
 - **(e) Undocumented response bodies** (balance sheet, payments, payouts, transactions 201) are read defensively and fail loud on surprises. Each is marked "VERIFY ON FIRST LIVE CALL".

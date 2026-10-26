@@ -289,8 +289,8 @@ export class HttpHlClient implements HlClient {
   }
 
   /**
-   * VERIFY ON FIRST LIVE CALL (payments and payouts): the 201 bodies aren't documented,
-   * and neither takes a `description` — our wording goes in metadata.description.
+   * VERIFY ON FIRST LIVE CALL (payments and payouts): the 201 bodies aren't documented.
+   * Our wording goes in `description` (so HL's statement reads properly) and metadata.description.
    * No invoiceId (Sales isn't built), so HL's 422 OVERPAYMENT (tied to invoices) shouldn't
    * apply to an advance; confirm.
    */
@@ -304,6 +304,7 @@ export class HttpHlClient implements HlClient {
       appId: HL_APP_ID,
       sourceId: p.sourceId,
       actorRef: p.actorRef,
+      description: p.description,
       metadata: {description: p.description},
     });
     return {txnId: txnIdOf(res, path.slice(1)), idempotent: res.idempotent === true};

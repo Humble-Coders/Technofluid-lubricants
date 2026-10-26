@@ -1,5 +1,5 @@
 import { FirebaseError } from "firebase/app";
-import { collection, doc, onSnapshot, orderBy, query, where, type DocumentData, type Unsubscribe } from "firebase/firestore";
+import { collection, doc, documentId, onSnapshot, orderBy, query, where, type DocumentData, type Unsubscribe } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { DEFAULT_REGISTERS, type ExpenseGst, type MoneyAccountRef, type RegisterKind } from "@technofluid/core";
 import { db, functions } from "@/lib/firebase";
@@ -46,6 +46,8 @@ export interface MoneyEntryRow {
   gst: ExpenseGst | null;
   reversesEntryId: string | null;
   reversedByEntryId: string | null;
+  /** For a reversed original: its mirror's sync status (filled by useMoneyEntries; null = not loaded yet). */
+  mirrorStatus?: SyncStatus | null;
   syncStatus: SyncStatus;
   hlSyncError: string | null;
   createdBy: string;
@@ -128,6 +130,20 @@ export function watchMoneyEntries(from: string, to: string, onChange: (rows: Mon
       ),
     onError,
   );
+}
+
+/** The live sync status of some entries by id — the mirrors of reversed entries outside the loaded range. */
+export function watchMoneyEntryStatuses(ids: string[], onChange: (statuses: Record<string, SyncStatus>) => void): Unsubscribe {
+  const found: Record<string, SyncStatus> = {};
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
+  const stops = chunks.map((chunk) =>
+    onSnapshot(query(collection(db, "moneyEntries"), where(documentId(), "in", chunk)), (snap) => {
+      for (const d of snap.docs) found[d.id] = status(d.data().syncStatus);
+      onChange({ ...found });
+    }),
+  );
+  return () => stops.forEach((stop) => stop());
 }
 
 /** One entry, live — to show "Saving to books…" until it's SYNCED (no polling). */

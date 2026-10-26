@@ -1059,5 +1059,87 @@
    "wanted": -100,
    "expect": null
   }
+ ],
+ "reversal": [
+  {
+   "case": "never reversed",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": null,
+    "reversesEntryId": null
+   },
+   "mirrorStatus": null,
+   "expect": "none"
+  },
+  {
+   "case": "original, mirror still saving: still counts",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": "PENDING",
+   "expect": "pending"
+  },
+  {
+   "case": "original, mirror not loaded yet: still counts",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": null,
+   "expect": "pending"
+  },
+  {
+   "case": "original, mirror FAILED: still counts",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": "FAILED",
+   "expect": "failed"
+  },
+  {
+   "case": "original, mirror in the books: cancelled",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": "SYNCED",
+   "expect": "done"
+  },
+  {
+   "case": "mirror saving",
+   "entry": {
+    "syncStatus": "PENDING",
+    "reversedByEntryId": null,
+    "reversesEntryId": "m1"
+   },
+   "mirrorStatus": null,
+   "expect": "pending"
+  },
+  {
+   "case": "mirror FAILED",
+   "entry": {
+    "syncStatus": "FAILED",
+    "reversedByEntryId": null,
+    "reversesEntryId": "m1"
+   },
+   "mirrorStatus": null,
+   "expect": "failed"
+  },
+  {
+   "case": "mirror in the books",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": null,
+    "reversesEntryId": "m1"
+   },
+   "mirrorStatus": null,
+   "expect": "done"
+  }
  ]
 }
