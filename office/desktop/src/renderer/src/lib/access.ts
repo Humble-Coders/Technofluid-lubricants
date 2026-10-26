@@ -56,7 +56,7 @@ export const NAV: readonly NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "accounts", "supervisor"], group: "Overview", shortcut: "1" },
 
   { path: "/sales", label: "Sales & invoices", icon: ReceiptIndianRupee, roles: ["admin", "accounts"], group: "Sales", shortcut: "2" },
-  { path: "/customers", label: "Customers", icon: Users, roles: ["admin", "accounts"], group: "Sales", shortcut: "3" },
+  { path: "/customers", label: "Customers & suppliers", icon: Users, roles: ["admin", "accounts"], group: "Sales", shortcut: "3" },
   { path: "/payments", label: "Payments", icon: Wallet, roles: ["admin", "accounts"], group: "Sales" },
 
   { path: "/products", label: "Products", icon: Package, roles: ["admin", "accounts", "supervisor"], group: "Stock", shortcut: "4" },

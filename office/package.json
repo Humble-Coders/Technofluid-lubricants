@@ -14,6 +14,8 @@
     "emulators": "node emulator/start.mjs",
     "seed": "node emulator/seed.mjs",
     "seed:stock": "node emulator/seed-stock.mjs",
+    "seed:entities": "node emulator/seed-entities.mjs",
+    "fake-hl": "node emulator/fake-hl.mjs",
     "test:emulator": "node emulator/run-tests.mjs"
   },
   "engines": {
