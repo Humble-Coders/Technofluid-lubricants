@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import {FieldPath} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
@@ -22,11 +23,23 @@ function dateParam(value: unknown, label: string): string {
 
 const WHAT: Record<string, string> = {
   entity: "Opening balance",
+  money: "Money",
   sale: "Sale",
   payment: "Payment received",
   purchase: "Purchase",
   payout: "Payment made",
 };
+
+/** "Payment received", "Balance moved to X", "Correction: …", "Reversal: …" — from `entityId`'s side. */
+export function moneyLabel(m: FirebaseFirestore.DocumentData, entityId: string): string {
+  if (m.reversesEntryId) return String(m.note ?? "Reversal");
+  if (m.isCorrection) return `Correction: ${String(m.note ?? "")}`.trim();
+  const fromMe = m.from?.kind === "PARTY" && m.from.entityId === entityId;
+  if (m.from?.kind === "PARTY" && m.to?.kind === "PARTY") return fromMe ? `Balance moved to ${m.to.name}` : `Balance moved from ${m.from.name}`;
+  if (fromMe) return "Payment received";
+  if (m.to?.kind === "PARTY") return "Payment made";
+  return "Money";
+}
 
 export const getEntityStatement = onCall({region: "us-central1", secrets: HL_SECRETS}, async (request) => {
   await requireRole(request, ["admin", "accounts"]);
@@ -65,6 +78,17 @@ export const getEntityStatement = onCall({region: "us-central1", secrets: HL_SEC
     } else {
       const prefix = group.split("_")[0] ?? "";
       rows.push({date: r.date, what: WHAT[prefix] ?? r.description, group, debitPaise: debit, creditPaise: credit, balancePaise: balance, txnIds: [r.txnId]});
+    }
+  }
+  // Money rows are labelled from the entry itself, from this party's side (brief §4).
+  const moneyIds = rows.map((r) => /^money_(.+)$/.exec(r.group)?.[1]).filter((x): x is string => Boolean(x));
+  const db = admin.firestore();
+  for (let i = 0; i < moneyIds.length; i += 30) {
+    const snap = await db.collection("moneyEntries").where(FieldPath.documentId(), "in", moneyIds.slice(i, i + 30)).get();
+    const byId = new Map(snap.docs.map((x) => [x.id, x.data()]));
+    for (const row of rows) {
+      const m = byId.get(/^money_(.+)$/.exec(row.group)?.[1] ?? "");
+      if (m) row.what = moneyLabel(m, entityId);
     }
   }
   const openingPaise = hlAmountToPaise(String(res.openingBalance ?? "0"));

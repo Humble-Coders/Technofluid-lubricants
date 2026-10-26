@@ -4,6 +4,7 @@
  */
 import { existsSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
+import { ensureEmulatorSecrets } from "./emulatorSecrets.mjs";
 
 // Uses the real project config (firebase/firebase.json): the live security rules and
 // the real Cloud Functions — so what passes here is what ships.
@@ -19,6 +20,7 @@ if (!existsSync(`${functionsDir}/node_modules`)) {
   console.log("Installing Cloud Functions packages (first run only)…");
   execFileSync(npm, ["--prefix", functionsDir, "ci"], { stdio: "inherit", shell: isWindows });
 }
+ensureEmulatorSecrets(functionsDir);
 console.log("Building Cloud Functions…");
 execFileSync(npm, ["--prefix", functionsDir, "run", "build"], { stdio: "inherit", shell: isWindows });
 const watcher = spawn(
