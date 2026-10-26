@@ -223,7 +223,8 @@ describe("saving an entity and its copy in the books", () => {
 
 describe("when the books fail", () => {
   test("HL failing → FAILED with a plain message → Retry → SYNCED", async () => {
-    await control({ failNext: 6 });
+    // Generous: other background calls share the fake's failNext counter.
+    await control({ failNext: 50 });
     const { entityId } = await save(accounts, base({ name: "TEST ENT Flaky" }));
     const failed = await waitFor(async () => ((await entity(entityId)).syncStatus === "FAILED" ? entity(entityId) : null), "FAILED");
     assert.match(failed.hlSyncError, /couldn't be reached/);
@@ -457,6 +458,10 @@ describe("trigger retries", () => {
       opening: null,
     });
     const hl = new FakeHlClient(libDb);
+    // As on a real project (the emulators never redeliver, so they never rethrow).
+    const project = process.env.GCLOUD_PROJECT;
+    process.env.GCLOUD_PROJECT = "techno-fluid";
+    after(() => (process.env.GCLOUD_PROJECT = project));
     await control({ failNext: 1 });
     await assert.rejects(syncEntity(libDb, hl, id, { fromTrigger: true })); // 2 < 3 → redeliver
     assert.equal((await entity(id)).syncAttempts, 3);
@@ -465,5 +470,6 @@ describe("trigger retries", () => {
     assert.equal((await entity(id)).syncAttempts, 4);
     await control({});
     assert.equal(await syncEntity(libDb, hl, id), "synced");
+    process.env.GCLOUD_PROJECT = project;
   });
 });

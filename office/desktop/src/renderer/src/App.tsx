@@ -11,6 +11,9 @@ import { ProductsScreen } from "@/features/products/ProductsScreen";
 import { StockScreen } from "@/features/stock/StockScreen";
 import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
 import { EntitiesScreen } from "@/features/entities/EntitiesScreen";
+import { ExpensesScreen } from "@/features/money/ExpensesScreen";
+import { MoneyScreen } from "@/features/money/MoneyScreen";
+import { RegisterHistory } from "@/features/money/RegisterHistory";
 
 /** Shows a screen only to roles allowed to open it (UX only — rules + Functions are the real gate). */
 function Guarded() {
@@ -31,11 +34,12 @@ const router = createHashRouter([
           { path: "products", element: <ProductsScreen /> },
           { path: "sales", element: <ComingNext title="Sales & invoices" description="Pick a customer and products, GST is worked out, stock goes down and the sale is posted to the books." /> },
           { path: "customers", element: <EntitiesScreen /> },
-          { path: "payments", element: <ComingNext title="Payments" description="Record money received, cash or bank, against one or more invoices." /> },
+          { path: "payments", element: <MoneyScreen /> },
+          { path: "payments/registers/:registerId", element: <RegisterHistory /> },
           { path: "stock", element: <StockScreen /> },
           { path: "production", element: <ComingNext title="Production" description="Log a batch: stock of the finished product goes up, raw materials go down by the recipe." /> },
           { path: "purchases", element: <ComingNext title="Suppliers & purchases" description="Raw-material bills, payments to suppliers and what we owe." /> },
-          { path: "expenses", element: <ComingNext title="Expenses" description="Freight, electricity, salaries and other costs, with GST input." /> },
+          { path: "expenses", element: <ExpensesScreen /> },
           { path: "reports", element: <ComingNext title="Reports" description="Profit & loss, balance sheet, sales and stock reports." /> },
           { path: "approvals", element: <ApprovalsScreen /> },
           { path: "settings", element: <ComingNext title="Settings" description="Staff logins and roles, company details, invoice settings." /> },

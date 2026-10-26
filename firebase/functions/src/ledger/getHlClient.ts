@@ -32,6 +32,15 @@ export function currentProjectId(): string {
   }
 }
 
+/**
+ * Whether a failed background sync should be rethrown so the platform redelivers it.
+ * Not in the emulators (demo- projects): they don't redeliver, and an unhandled error
+ * kills the worker — losing any other event it was running at the time.
+ */
+export function platformRedelivers(): boolean {
+  return !currentProjectId().startsWith("demo-");
+}
+
 export function hlModeFor(projectId: string, requested: string): "fake" | "live" | "off" {
   if (projectId.startsWith("demo-")) return "fake";
   return projectId && requested === "live" ? "live" : "off";

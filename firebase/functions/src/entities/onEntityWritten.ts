@@ -1,11 +1,10 @@
 import * as admin from "firebase-admin";
 import {onDocumentWritten} from "firebase-functions/v2/firestore";
-import {onSchedule} from "firebase-functions/v2/scheduler";
-import {logger} from "firebase-functions/v2";
 
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {hlProfileChanged} from "./entityModel";
-import {reconcileOnce, syncEntity} from "./sync";
+import {postWaitingFor} from "../money/sync";
+import {syncEntity} from "./sync";
 
 /**
  * Background copy to Humble Ledger. Region asia-south1 — the Firestore database is there
@@ -27,15 +26,12 @@ export const onEntityWritten = onDocumentWritten(
     const pending = after.syncStatus === "PENDING";
     const profileMoved = after.syncStatus === "SYNCED" && Boolean(after.hlCustomerId) && Boolean(before) && hlProfileChanged(before as never, after as never);
     if (!pending && !profileMoved) return;
-    await syncEntity(admin.firestore(), getHlClient(), event.params.entityId, {fromTrigger: true});
+    const db = admin.firestore();
+    const hl = getHlClient();
+    const outcome = await syncEntity(db, hl, event.params.entityId, {fromTrigger: true});
+    // Money entries that were waiting for this party to reach the books go now.
+    if (outcome === "synced") await postWaitingFor(db, hl, event.params.entityId);
   },
 );
 
-/** Every 10 minutes: re-tries entities still PENDING / FAILED (see reconcileOnce). */
-export const reconcileEntitySync = onSchedule(
-  {schedule: "every 10 minutes", region: "asia-south1", secrets: HL_SECRETS},
-  async () => {
-    const result = await reconcileOnce(admin.firestore(), getHlClient());
-    logger.info("Entity reconcile", result);
-  },
-);
+// The 10-minute reconcile is reconcileLedgerSync (money/triggers.ts): entities first, then money.

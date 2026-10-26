@@ -207,6 +207,28 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ─── Money in & out — office, with Humble Ledger ─────────────────────────
+    // Admin + Accounts read; only Cloud Functions write. No balances are stored here.
+
+    match /moneyEntries/{entryId} {
+      allow read:  if isAdmin() || isAccounts();
+      allow write: if false;
+    }
+
+    match /registers/{registerId} {
+      allow read:  if isAdmin() || isAccounts();
+      allow write: if false;
+    }
+
+    match /expenseCategories/{categoryId} {
+      allow read:  if isAdmin() || isAccounts();
+      allow write: if false;
+    }
+
+    match /moneyRequests/{requestId} {
+      allow read, write: if false;
+    }
+
     // The emulator's stand-in for Humble Ledger — server only.
     match /_fakeHl/{document=**} {
       allow read, write: if false;

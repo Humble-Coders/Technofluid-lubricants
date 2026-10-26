@@ -11,6 +11,7 @@ import { existsSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { ensureEmulatorSecrets } from "./emulatorSecrets.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const firebaseDir = path.resolve(here, "../../firebase");
@@ -21,6 +22,7 @@ const npm = isWindows ? "npm.cmd" : "npm";
 if (!existsSync(path.join(functionsDir, "node_modules"))) {
   execFileSync(npm, ["--prefix", functionsDir, "ci"], { stdio: "inherit", shell: isWindows });
 }
+ensureEmulatorSecrets(functionsDir);
 execFileSync(npm, ["--prefix", functionsDir, "run", "build"], { stdio: "inherit", shell: isWindows });
 
 const env = { ...process.env };

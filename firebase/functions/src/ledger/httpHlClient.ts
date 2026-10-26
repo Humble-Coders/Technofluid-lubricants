@@ -1,6 +1,19 @@
 import {logger} from "firebase-functions/v2";
 
-import {HL_APP_ID, HL_MAX_PAGE, HlError, type HlClient, type HlCustomer, type HlLedgerRow, type HlProfilePayload} from "./hlClient";
+import {
+  HL_APP_ID,
+  HL_MAX_PAGE,
+  HlError,
+  type HlAccount,
+  type HlAccountType,
+  type HlClient,
+  type HlCustomer,
+  type HlLedgerRow,
+  type HlLeg,
+  type HlMoneyMove,
+  type HlPostingType,
+  type HlProfilePayload,
+} from "./hlClient";
 
 /**
  * The live Humble Ledger client. Not used until Technofluid's HL company exists and
@@ -55,6 +68,21 @@ function toCustomer(x: unknown, what: string): HlCustomer {
     outstanding: strOrNull(c.outstanding),
     balance: strOrNull(c.balance),
   };
+}
+
+function toAccount(x: unknown, what: string): HlAccount {
+  const a = obj(x);
+  if (!a || typeof a.id !== "string" || typeof a.name !== "string") throw unexpected(what);
+  return {id: a.id, name: a.name, type: String(a.type ?? "") as HlAccountType, isActive: a.isActive !== false, isTaxAccount: a.isTaxAccount === true};
+}
+
+/** A posting's txn id, wherever this (partly undocumented) response keeps it. */
+function txnIdOf(res: Body, what: string): string {
+  const data = obj(res.data) ?? {};
+  const txn = obj(data.transaction) ?? {};
+  const id = [data.transactionId, txn.id, data.txnId, data.id, res.transactionId, res.txnId].map(strOrNull).find(Boolean);
+  if (!id) throw unexpected(what);
+  return id;
 }
 
 export class HttpHlClient implements HlClient {
@@ -223,5 +251,92 @@ export class HttpHlClient implements HlClient {
       };
     });
     return {openingBalance: opening, rows, hasMore: meta.hasMore === true};
+  }
+
+  async listAccounts(p: {type?: HlAccountType; search?: string; page: number; limit: number}) {
+    const q = new URLSearchParams({page: String(p.page), limit: String(Math.min(p.limit, HL_MAX_PAGE))});
+    if (p.type) q.set("type", p.type);
+    if (p.search) q.set("search", p.search);
+    const res = await this.call("GET", `/accounts?${q.toString()}`);
+    if (!Array.isArray(res.data)) throw unexpected("list-accounts");
+    const meta = obj(res.meta);
+    if (!meta || typeof meta.hasMore !== "boolean") throw unexpected("list-accounts (meta.hasMore)");
+    return {data: res.data.map((a) => toAccount(a, "list-accounts")), hasMore: meta.hasMore};
+  }
+
+  /** VERIFY ON FIRST LIVE CALL: the 201 body is "Account created" (assumed {data: Account}). */
+  async createAccount(p: {name: string; type: HlAccountType; isTaxAccount?: boolean}) {
+    try {
+      const res = await this.call("POST", "/accounts", {name: p.name, type: p.type, isTaxAccount: p.isTaxAccount === true});
+      return toAccount(res.data, "create-account");
+    } catch (e) {
+      if (e instanceof HlError && e.status === 409) throw new HlError(e.message, 409, false, "ACCOUNT_EXISTS");
+      throw e;
+    }
+  }
+
+  async postTransaction(p: {postingType: HlPostingType; description: string; date: string; sourceId: string; actorRef: string; legs: HlLeg[]}) {
+    const res = await this.call("POST", "/transactions", {
+      appId: HL_APP_ID,
+      sourceId: p.sourceId,
+      postingType: p.postingType,
+      description: p.description,
+      date: p.date,
+      actorRef: p.actorRef,
+      entries: p.legs.map((l) => ({accountId: l.accountId, type: l.type, amount: toHlAmount(l.amountPaise)})),
+    });
+    return {txnId: txnIdOf(res, "transaction"), idempotent: res.idempotent === true};
+  }
+
+  /**
+   * VERIFY ON FIRST LIVE CALL (payments and payouts): the 201 bodies aren't documented.
+   * Our wording goes in `description` (so HL's statement reads properly) and metadata.description.
+   * No invoiceId (Sales isn't built), so HL's 422 OVERPAYMENT (tied to invoices) shouldn't
+   * apply to an advance; confirm.
+   */
+  private async move(path: string, p: HlMoneyMove) {
+    const res = await this.call("POST", path, {
+      customerId: p.customerId,
+      amount: toHlAmount(p.amountPaise),
+      method: p.method,
+      paymentAccountId: p.paymentAccountId,
+      date: p.date,
+      appId: HL_APP_ID,
+      sourceId: p.sourceId,
+      actorRef: p.actorRef,
+      description: p.description,
+      metadata: {description: p.description},
+    });
+    return {txnId: txnIdOf(res, path.slice(1)), idempotent: res.idempotent === true};
+  }
+
+  postPayment(p: HlMoneyMove) {
+    return this.move("/payments", p);
+  }
+
+  postPayout(p: HlMoneyMove) {
+    return this.move("/customer-payouts", p);
+  }
+
+  /**
+   * VERIFY ON FIRST LIVE CALL: the report body is only "Balance sheet". We collect every
+   * node that has an account id and a balance, anywhere under data, and fail loud if the
+   * body isn't an object — a missing report is an error, never "everything is ₹0".
+   */
+  async getBalanceSheet(date: string) {
+    const res = await this.call("GET", `/reports/balance-sheet?date=${encodeURIComponent(date)}`);
+    if (!obj(res.data) && !Array.isArray(res.data)) throw unexpected("balance-sheet");
+    const out: Record<string, string> = {};
+    const walk = (x: unknown) => {
+      if (Array.isArray(x)) return x.forEach(walk);
+      const o = obj(x);
+      if (!o) return;
+      const id = strOrNull(o.accountId ?? o.id);
+      const bal = strOrNull(o.balance ?? o.amount ?? o.closingBalance);
+      if (id && bal !== null) out[id] = bal;
+      Object.values(o).forEach(walk);
+    };
+    walk(res.data);
+    return out;
   }
 }

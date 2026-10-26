@@ -1,0 +1,1145 @@
+{
+ "_about": "ONE table of money-entry rules, run by BOTH office/core (vitest) and the Cloud Functions mirror (emulator tests). `today` is 2026-10-26 for every case.",
+ "today": "2026-10-26",
+ "validate": [
+  {
+   "case": "money received: party → cash",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": null
+  },
+  {
+   "case": "money paid: bank → party",
+   "input": {
+    "from": {
+     "kind": "BANK",
+     "registerId": "default-bank",
+     "name": "Bank"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": null
+  },
+  {
+   "case": "transfer: cash → bank",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "BANK",
+     "registerId": "default-bank",
+     "name": "Bank"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": null
+  },
+  {
+   "case": "move balance: party → party",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e2",
+     "name": "Karnal Auto"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": null
+  },
+  {
+   "case": "expense paid from cash",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": null
+  },
+  {
+   "case": "correction up a party",
+   "input": {
+    "from": {
+     "kind": "ADJUSTMENT"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": "Old ledger",
+    "isCorrection": true
+   },
+   "expect": null
+  },
+  {
+   "case": "correction till short",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "ADJUSTMENT"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": "Till short",
+    "isCorrection": true
+   },
+   "expect": null
+  },
+  {
+   "case": "intra-state GST expense",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZU",
+      "stateCode": "06"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 900,
+     "sgstPaise": 900,
+     "igstPaise": 0
+    }
+   },
+   "expect": null
+  },
+  {
+   "case": "inter-state GST expense",
+   "input": {
+    "from": {
+     "kind": "BANK",
+     "registerId": "default-bank",
+     "name": "Bank"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Delhi Couriers",
+      "gstin": "07AAACR5055K1Z9",
+      "stateCode": "07"
+     },
+     "billNo": "D-9",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 0,
+     "sgstPaise": 0,
+     "igstPaise": 1800
+    }
+   },
+   "expect": null
+  },
+  {
+   "case": "1 correction without a reason",
+   "input": {
+    "from": {
+     "kind": "ADJUSTMENT"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": true
+   },
+   "expect": "REASON_REQUIRED"
+  },
+  {
+   "case": "2 money from an expense",
+   "input": {
+    "from": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "EXPENSE_REVERSAL_ONLY"
+  },
+  {
+   "case": "3 expense paid by a party",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "EXPENSE_NEEDS_REGISTER"
+  },
+  {
+   "case": "4 adjustment on both sides",
+   "input": {
+    "from": {
+     "kind": "ADJUSTMENT"
+    },
+    "to": {
+     "kind": "ADJUSTMENT"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": "x",
+    "isCorrection": true
+   },
+   "expect": "ADJUSTMENT_NEEDS_PARTY_OR_REGISTER"
+  },
+  {
+   "case": "5 adjustment but not marked a correction",
+   "input": {
+    "from": {
+     "kind": "ADJUSTMENT"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": "x",
+    "isCorrection": false
+   },
+   "expect": "CORRECTION_MISMATCH"
+  },
+  {
+   "case": "5 marked a correction without an adjustment",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": "x",
+    "isCorrection": true
+   },
+   "expect": "CORRECTION_MISMATCH"
+  },
+  {
+   "case": "6 same register",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "renamed"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "SAME_ACCOUNT"
+  },
+  {
+   "case": "6 same party",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "x"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "SAME_ACCOUNT"
+  },
+  {
+   "case": "6 different banks are fine",
+   "input": {
+    "from": {
+     "kind": "BANK",
+     "registerId": "default-bank",
+     "name": "Bank"
+    },
+    "to": {
+     "kind": "BANK",
+     "registerId": "hdfc",
+     "name": "HDFC Current"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": null
+  },
+  {
+   "case": "7 zero amount",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 0,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "INVALID_AMOUNT"
+  },
+  {
+   "case": "7 fractional paise",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 10.5,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "INVALID_AMOUNT"
+  },
+  {
+   "case": "8 impossible day",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-02-30",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "BAD_DAY"
+  },
+  {
+   "case": "8 future day",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-27",
+    "note": null,
+    "isCorrection": false
+   },
+   "expect": "FUTURE_DAY"
+  },
+  {
+   "case": "9 note too long",
+   "input": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 10000,
+    "businessDay": "2026-10-20",
+    "note": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "isCorrection": false
+   },
+   "expect": "NOTE_TOO_LONG"
+  },
+  {
+   "case": "10 bad GSTIN check digit",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZA",
+      "stateCode": "06"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 900,
+     "sgstPaise": 900,
+     "igstPaise": 0
+    }
+   },
+   "expect": "GST_BAD_GSTIN"
+  },
+  {
+   "case": "10 GSTIN from another state",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZU",
+      "stateCode": "07"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 900,
+     "sgstPaise": 900,
+     "igstPaise": 0
+    }
+   },
+   "expect": "GST_BAD_GSTIN"
+  },
+  {
+   "case": "10 parts don't add up to the total",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 12000,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZU",
+      "stateCode": "06"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 900,
+     "sgstPaise": 900,
+     "igstPaise": 0
+    }
+   },
+   "expect": "GST_SPLIT_MISMATCH"
+  },
+  {
+   "case": "10 tax doesn't match the rate",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11900,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZU",
+      "stateCode": "06"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 950,
+     "sgstPaise": 950,
+     "igstPaise": 0
+    }
+   },
+   "expect": "GST_SPLIT_MISMATCH"
+  },
+  {
+   "case": "10 IGST on a Haryana bill",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZU",
+      "stateCode": "06"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 0,
+     "sgstPaise": 0,
+     "igstPaise": 1800
+    }
+   },
+   "expect": "GST_WRONG_TYPE"
+  },
+  {
+   "case": "10 CGST+SGST on a Delhi bill",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "EXPENSE",
+     "categoryId": "freight",
+     "name": "Freight"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Delhi Couriers",
+      "gstin": "07AAACR5055K1Z9",
+      "stateCode": "07"
+     },
+     "billNo": "D-9",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 900,
+     "sgstPaise": 900,
+     "igstPaise": 0
+    }
+   },
+   "expect": "GST_WRONG_TYPE"
+  },
+  {
+   "case": "10 GST on something that isn't an expense",
+   "input": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 11800,
+    "businessDay": "2026-10-20",
+    "note": null,
+    "isCorrection": false,
+    "gst": {
+     "supplier": {
+      "entityId": null,
+      "name": "Haryana Freight",
+      "gstin": "06AABCT1234F1ZU",
+      "stateCode": "06"
+     },
+     "billNo": "F-1",
+     "billDate": "2026-10-19",
+     "rateBp": 1800,
+     "taxablePaise": 10000,
+     "cgstPaise": 900,
+     "sgstPaise": 900,
+     "igstPaise": 0
+    }
+   },
+   "expect": "GST_WRONG_TYPE"
+  }
+ ],
+ "direction": [
+  {
+   "case": "received",
+   "from": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "to": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "expect": "IN"
+  },
+  {
+   "case": "paid",
+   "from": {
+    "kind": "BANK",
+    "registerId": "default-bank",
+    "name": "Bank"
+   },
+   "to": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "expect": "OUT"
+  },
+  {
+   "case": "expense",
+   "from": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "to": {
+    "kind": "EXPENSE",
+    "categoryId": "freight",
+    "name": "Freight"
+   },
+   "expect": "OUT"
+  },
+  {
+   "case": "expense mirror",
+   "from": {
+    "kind": "EXPENSE",
+    "categoryId": "freight",
+    "name": "Freight"
+   },
+   "to": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "expect": "IN"
+  },
+  {
+   "case": "move balance",
+   "from": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "to": {
+    "kind": "PARTY",
+    "entityId": "e2",
+    "name": "Karnal Auto"
+   },
+   "expect": "INTERNAL"
+  },
+  {
+   "case": "transfer",
+   "from": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "to": {
+    "kind": "BANK",
+    "registerId": "default-bank",
+    "name": "Bank"
+   },
+   "expect": "INTERNAL"
+  },
+  {
+   "case": "correction up a party",
+   "from": {
+    "kind": "ADJUSTMENT"
+   },
+   "to": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "expect": "IN"
+  },
+  {
+   "case": "correction down a party",
+   "from": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "to": {
+    "kind": "ADJUSTMENT"
+   },
+   "expect": "IN"
+  },
+  {
+   "case": "till over",
+   "from": {
+    "kind": "ADJUSTMENT"
+   },
+   "to": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "expect": "IN"
+  },
+  {
+   "case": "till short",
+   "from": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "to": {
+    "kind": "ADJUSTMENT"
+   },
+   "expect": "INTERNAL"
+  }
+ ],
+ "gstSplit": [
+  {
+   "case": "from taxable, Haryana",
+   "input": {
+    "taxablePaise": 10000,
+    "rateBp": 1800,
+    "supplierStateCode": "06"
+   },
+   "expect": {
+    "taxablePaise": 10000,
+    "cgstPaise": 900,
+    "sgstPaise": 900,
+    "igstPaise": 0,
+    "grossPaise": 11800
+   }
+  },
+  {
+   "case": "from taxable, Delhi",
+   "input": {
+    "taxablePaise": 10000,
+    "rateBp": 1800,
+    "supplierStateCode": "07"
+   },
+   "expect": {
+    "taxablePaise": 10000,
+    "cgstPaise": 0,
+    "sgstPaise": 0,
+    "igstPaise": 1800,
+    "grossPaise": 11800
+   }
+  },
+  {
+   "case": "from a total that splits exactly",
+   "input": {
+    "grossPaise": 11800,
+    "rateBp": 1800,
+    "supplierStateCode": "06"
+   },
+   "expect": {
+    "taxablePaise": 10000,
+    "cgstPaise": 900,
+    "sgstPaise": 900,
+    "igstPaise": 0,
+    "grossPaise": 11800
+   }
+  },
+  {
+   "case": "from an awkward total: the taxable value absorbs the paisa",
+   "input": {
+    "grossPaise": 100001,
+    "rateBp": 1800,
+    "supplierStateCode": "06"
+   },
+   "expect": {
+    "taxablePaise": 84747,
+    "cgstPaise": 7627,
+    "sgstPaise": 7627,
+    "igstPaise": 0,
+    "grossPaise": 100001
+   }
+  },
+  {
+   "case": "5% inter-state",
+   "input": {
+    "grossPaise": 52500,
+    "rateBp": 500,
+    "supplierStateCode": "27"
+   },
+   "expect": {
+    "taxablePaise": 50000,
+    "cgstPaise": 0,
+    "sgstPaise": 0,
+    "igstPaise": 2500,
+    "grossPaise": 52500
+   }
+  }
+ ],
+ "correction": [
+  {
+   "case": "party should owe more",
+   "target": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "current": 10000,
+   "wanted": 15000,
+   "expect": {
+    "from": {
+     "kind": "ADJUSTMENT"
+    },
+    "to": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "amountPaise": 5000,
+    "isCorrection": true
+   }
+  },
+  {
+   "case": "party should owe less",
+   "target": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "current": 10000,
+   "wanted": 2500,
+   "expect": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "ADJUSTMENT"
+    },
+    "amountPaise": 7500,
+    "isCorrection": true
+   }
+  },
+  {
+   "case": "a party we owe (negative) should be owed even more",
+   "target": {
+    "kind": "PARTY",
+    "entityId": "e1",
+    "name": "Panipat Tractor House"
+   },
+   "current": -10000,
+   "wanted": -25000,
+   "expect": {
+    "from": {
+     "kind": "PARTY",
+     "entityId": "e1",
+     "name": "Panipat Tractor House"
+    },
+    "to": {
+     "kind": "ADJUSTMENT"
+    },
+    "amountPaise": 15000,
+    "isCorrection": true
+   }
+  },
+  {
+   "case": "till over",
+   "target": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "current": 50000,
+   "wanted": 51000,
+   "expect": {
+    "from": {
+     "kind": "ADJUSTMENT"
+    },
+    "to": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "amountPaise": 1000,
+    "isCorrection": true
+   }
+  },
+  {
+   "case": "till short",
+   "target": {
+    "kind": "CASH",
+    "registerId": "default-cash",
+    "name": "Cash in hand"
+   },
+   "current": 50000,
+   "wanted": 49000,
+   "expect": {
+    "from": {
+     "kind": "CASH",
+     "registerId": "default-cash",
+     "name": "Cash in hand"
+    },
+    "to": {
+     "kind": "ADJUSTMENT"
+    },
+    "amountPaise": 1000,
+    "isCorrection": true
+   }
+  },
+  {
+   "case": "already right",
+   "target": {
+    "kind": "BANK",
+    "registerId": "default-bank",
+    "name": "Bank"
+   },
+   "current": -100,
+   "wanted": -100,
+   "expect": null
+  }
+ ],
+ "reversal": [
+  {
+   "case": "never reversed",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": null,
+    "reversesEntryId": null
+   },
+   "mirrorStatus": null,
+   "expect": "none"
+  },
+  {
+   "case": "original, mirror still saving: still counts",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": "PENDING",
+   "expect": "pending"
+  },
+  {
+   "case": "original, mirror not loaded yet: still counts",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": null,
+   "expect": "pending"
+  },
+  {
+   "case": "original, mirror FAILED: still counts",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": "FAILED",
+   "expect": "failed"
+  },
+  {
+   "case": "original, mirror in the books: cancelled",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": "m2",
+    "reversesEntryId": null
+   },
+   "mirrorStatus": "SYNCED",
+   "expect": "done"
+  },
+  {
+   "case": "mirror saving",
+   "entry": {
+    "syncStatus": "PENDING",
+    "reversedByEntryId": null,
+    "reversesEntryId": "m1"
+   },
+   "mirrorStatus": null,
+   "expect": "pending"
+  },
+  {
+   "case": "mirror FAILED",
+   "entry": {
+    "syncStatus": "FAILED",
+    "reversedByEntryId": null,
+    "reversesEntryId": "m1"
+   },
+   "mirrorStatus": null,
+   "expect": "failed"
+  },
+  {
+   "case": "mirror in the books",
+   "entry": {
+    "syncStatus": "SYNCED",
+    "reversedByEntryId": null,
+    "reversesEntryId": "m1"
+   },
+   "mirrorStatus": null,
+   "expect": "done"
+  }
+ ]
+}

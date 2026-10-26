@@ -57,12 +57,12 @@ export const NAV: readonly NavItem[] = [
 
   { path: "/sales", label: "Sales & invoices", icon: ReceiptIndianRupee, roles: ["admin", "accounts"], group: "Sales", shortcut: "2" },
   { path: "/customers", label: "Customers & suppliers", icon: Users, roles: ["admin", "accounts"], group: "Sales", shortcut: "3" },
-  { path: "/payments", label: "Payments", icon: Wallet, roles: ["admin", "accounts"], group: "Sales" },
 
   { path: "/products", label: "Products", icon: Package, roles: ["admin", "accounts", "supervisor"], group: "Stock", shortcut: "4" },
   { path: "/stock", label: "Stock", icon: Boxes, roles: ["admin", "accounts", "supervisor"], group: "Stock", shortcut: "5" },
   { path: "/production", label: "Production", icon: Factory, roles: ["admin", "supervisor"], group: "Stock" },
 
+  { path: "/payments", label: "Money in & out", icon: Wallet, roles: ["admin", "accounts"], group: "Money" },
   { path: "/purchases", label: "Suppliers & purchases", icon: Truck, roles: ["admin", "accounts"], group: "Money" },
   { path: "/expenses", label: "Expenses", icon: ShoppingCart, roles: ["admin", "accounts"], group: "Money" },
   { path: "/reports", label: "Reports", icon: BarChart3, roles: ["admin", "accounts"], group: "Money", shortcut: "6" },

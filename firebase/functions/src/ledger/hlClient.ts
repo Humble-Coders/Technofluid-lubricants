@@ -52,6 +52,38 @@ export interface HlLedgerRow {
   balance: string;
 }
 
+export type HlAccountType = "ASSET" | "LIABILITY" | "EQUITY" | "INCOME" | "EXPENSE";
+
+export interface HlAccount {
+  id: string;
+  name: string;
+  type: HlAccountType;
+  isActive: boolean;
+  isTaxAccount: boolean;
+}
+
+/** One leg of a double-entry transaction (HL's EntryInput), in paise until the boundary. */
+export interface HlLeg {
+  accountId: string;
+  type: "DEBIT" | "CREDIT";
+  amountPaise: number;
+}
+
+export type HlPostingType = "SALE" | "PAYMENT" | "ADVANCE" | "ADVANCE_APPLIED" | "EXPENSE" | "PURCHASE" | "PAYOUT" | "REFUND" | "REVERSAL" | "JOURNAL";
+
+/** A customer payment in, or a payout to a customer, against one of our cash/bank accounts. */
+export interface HlMoneyMove {
+  customerId: string;
+  amountPaise: number;
+  method: "CASH" | "BANK";
+  paymentAccountId: string;
+  date: string;
+  sourceId: string;
+  actorRef: string;
+  /** Our wording — sent as `description` (and metadata.description) to /payments and /customer-payouts. */
+  description: string;
+}
+
 export interface HlClient {
   /** "off" = a non-demo project without HL_MODE=live: every call fails (NOT_CONNECTED). */
   readonly mode: "fake" | "live" | "off";
@@ -70,6 +102,25 @@ export interface HlClient {
     rows: HlLedgerRow[];
     hasMore: boolean;
   }>;
+  /** Accounts by name/type (paged). */
+  listAccounts(p: {type?: HlAccountType; search?: string; page: number; limit: number}): Promise<{data: HlAccount[]; hasMore: boolean}>;
+  /** 409 (an account with that name exists) → HlError code ACCOUNT_EXISTS. */
+  createAccount(p: {name: string; type: HlAccountType; isTaxAccount?: boolean}): Promise<HlAccount>;
+  /** A raw double-entry transaction; idempotent on (appId, sourceId). Must balance. */
+  postTransaction(p: {
+    postingType: HlPostingType;
+    description: string;
+    date: string;
+    sourceId: string;
+    actorRef: string;
+    legs: HlLeg[];
+  }): Promise<{txnId: string; idempotent: boolean}>;
+  /** DR our cash/bank, CR the customer — money received (no invoice yet). */
+  postPayment(p: HlMoneyMove): Promise<{txnId: string; idempotent: boolean}>;
+  /** DR the customer, CR our cash/bank — money paid to a party we owe. */
+  postPayout(p: HlMoneyMove): Promise<{txnId: string; idempotent: boolean}>;
+  /** Balance of every account on `date`, by account id (decimal strings). */
+  getBalanceSheet(date: string): Promise<Record<string, string>>;
 }
 
 /** An HL failure. `transient` = worth retrying (network, 5xx, 429); else the data is wrong. */
@@ -105,6 +156,12 @@ export class NotConnectedHlClient implements HlClient {
   listCustomers = () => this.fail();
   getCustomer = () => this.fail();
   getLedger = () => this.fail();
+  listAccounts = () => this.fail();
+  createAccount = () => this.fail();
+  postTransaction = () => this.fail();
+  postPayment = () => this.fail();
+  postPayout = () => this.fail();
+  getBalanceSheet = () => this.fail();
 }
 
 /**

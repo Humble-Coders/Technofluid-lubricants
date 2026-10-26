@@ -156,4 +156,80 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     assert.equal(r.openingBalance, "100.00");
     assert.deepEqual(r.rows[0], { txnId: "t1", date: "2026-04-02", description: "Sale", sourceId: "sale_s1:goods", debit: "50.00", credit: "0.00", balance: "150.00" });
   });
+
+  test("accounts: list reads data + meta.hasMore; a 409 on create is ACCOUNT_EXISTS", async () => {
+    const s = stub([
+      () => json(200, { success: true, data: [{ id: "a1", name: "Input CGST", type: "ASSET", isActive: true, isTaxAccount: true }], meta: { hasMore: false } }),
+      () => json(409, { success: false, error: { code: "CONFLICT", message: "Account name already exists in this company" } }),
+    ]);
+    const c = new HttpHlClient(CFG);
+    const list = await c.listAccounts({ type: "ASSET", search: "Input CGST", page: 1, limit: 100 });
+    assert.equal(list.data[0].isTaxAccount, true);
+    const q = new URL(s.hl()[0].url).searchParams;
+    assert.equal(q.get("type"), "ASSET");
+    assert.equal(q.get("search"), "Input CGST");
+    await assert.rejects(c.createAccount({ name: "Input CGST", type: "ASSET", isTaxAccount: true }), (e) => e.code === "ACCOUNT_EXISTS" && e.status === 409);
+  });
+
+  test("a transaction: entries in rupees from paise, with appId + sourceId; the txn id comes from data", async () => {
+    const s = stub([() => json(201, { success: true, data: { id: "t9", postingType: "JOURNAL" } })]);
+    const r = await new HttpHlClient(CFG).postTransaction({
+      postingType: "JOURNAL",
+      description: "Transfer",
+      date: "2026-10-20",
+      sourceId: "money_m1",
+      actorRef: "u1",
+      legs: [
+        { accountId: "bank", type: "DEBIT", amountPaise: 1_000_050 },
+        { accountId: "cash", type: "CREDIT", amountPaise: 1_000_050 },
+      ],
+    });
+    assert.equal(r.txnId, "t9");
+    assert.deepEqual(s.hl()[0].body, {
+      appId: "technofluid-office",
+      sourceId: "money_m1",
+      postingType: "JOURNAL",
+      description: "Transfer",
+      date: "2026-10-20",
+      actorRef: "u1",
+      entries: [
+        { accountId: "bank", type: "DEBIT", amount: 10000.5 },
+        { accountId: "cash", type: "CREDIT", amount: 10000.5 },
+      ],
+    });
+  });
+
+  test("payments and payouts: our wording goes in description (and metadata); no txn id → fails loud", async () => {
+    const s = stub([
+      () => json(201, { success: true, data: { transactionId: "p1" } }),
+      () => json(201, { success: true, data: { transaction: { id: "p2" } } }),
+      () => json(201, { success: true, data: {} }),
+    ]);
+    const c = new HttpHlClient(CFG);
+    const move = { customerId: "c1", amountPaise: 500, method: "BANK", paymentAccountId: "bank", date: "2026-10-20", sourceId: "money_m2", actorRef: "u1", description: "Payment received" };
+    assert.equal((await c.postPayment(move)).txnId, "p1");
+    assert.equal(s.hl()[0].url, "https://hl.example/api/v1/payments");
+    assert.equal(s.hl()[0].body.description, "Payment received");
+    assert.deepEqual(s.hl()[0].body.metadata, { description: "Payment received" });
+    assert.equal(s.hl()[0].body.amount, 5);
+    assert.equal(s.hl()[0].body.invoiceId, undefined);
+    assert.equal((await c.postPayout(move)).txnId, "p2");
+    assert.equal(s.hl()[1].url, "https://hl.example/api/v1/customer-payouts");
+    await assert.rejects(c.postPayment(move), (e) => e.code === "UNEXPECTED_SHAPE");
+  });
+
+  test("the balance sheet is read by account id wherever it sits; a body that isn't one fails loud", async () => {
+    stub([
+      () =>
+        json(200, {
+          success: true,
+          data: { asOf: "2026-10-26", assets: { total: "99.00", groups: [{ name: "Cash", accounts: [{ accountId: "cash", name: "Cash", balance: "120.50" }, { id: "bank", balance: "-3.00" }] }] } },
+        }),
+    ]);
+    const sheet = await new HttpHlClient(CFG).getBalanceSheet("2026-10-26");
+    assert.equal(sheet.cash, "120.50");
+    assert.equal(sheet.bank, "-3.00");
+    stub([() => json(200, { success: true })]);
+    await assert.rejects(new HttpHlClient(CFG).getBalanceSheet("2026-10-26"), (e) => e.code === "UNEXPECTED_SHAPE");
+  });
 });
