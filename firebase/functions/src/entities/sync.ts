@@ -2,6 +2,7 @@ import * as admin from "firebase-admin";
 import {FieldValue} from "firebase-admin/firestore";
 import {logger} from "firebase-functions/v2";
 
+import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, isNotFound, plainHlMessage, type HlClient, type HlCustomer} from "../ledger/hlClient";
 import {ENTITIES, hlProfileChanged, sourceIds, type HlProfile} from "./entityModel";
 
@@ -140,7 +141,7 @@ export async function syncEntity(
       },
       {merge: true},
     );
-    if (transient && opts.fromTrigger && priorAttempts < TRIGGER_RETRIES) throw e;
+    if (transient && opts.fromTrigger && priorAttempts < TRIGGER_RETRIES && platformRedelivers()) throw e;
     return "failed";
   }
 }

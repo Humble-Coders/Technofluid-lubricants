@@ -4,6 +4,7 @@ import {logger} from "firebase-functions/v2";
 
 import {ENTITIES} from "../entities/entityModel";
 import {backoffMinutes, reconcileOnce as reconcileEntities, TRIGGER_RETRIES, type SyncOutcome} from "../entities/sync";
+import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, plainHlMessage, type HlClient, type HlLeg, type HlPostingType} from "../ledger/hlClient";
 import {accountCache, categoryAccountName, registerAccountName} from "./hlAccounts";
 import {EXPENSE_CATEGORIES, MONEY_ENTRIES, REGISTERS, SYSTEM_ACCOUNTS, moneySourceIds, type MoneyAccountRef} from "./moneyModel";
@@ -46,7 +47,7 @@ async function fail(ref: admin.firestore.DocumentReference, id: string, e: unkno
     },
     {merge: true},
   );
-  if (!permanent && fromTrigger && priorAttempts < TRIGGER_RETRIES) throw e;
+  if (!permanent && fromTrigger && priorAttempts < TRIGGER_RETRIES && platformRedelivers()) throw e;
   return "failed";
 }
 

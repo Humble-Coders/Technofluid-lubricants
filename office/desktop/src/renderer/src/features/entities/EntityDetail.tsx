@@ -1,10 +1,12 @@
 import clsx from "clsx";
-import { Archive, ArchiveRestore, History, Link2, Pencil, RefreshCw, X } from "lucide-react";
+import { Archive, ArchiveRestore, History, IndianRupee, Link2, Pencil, RefreshCw, Scale, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { formatINR, GST_STATES, indiaDate } from "@technofluid/core";
 import { Badge, Button, Input, Segmented, Select, Spinner } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
-import { useEntityHistory, useEntityStatement } from "@/hooks/useEntities";
+import { useEntities, useEntityHistory, useEntityStatement } from "@/hooks/useEntities";
+import { useMoneyEntry, useRegisters } from "@/hooks/useMoney";
+import { CorrectionDialog, MoneyEntryForm } from "@/features/money/MoneyForms";
 import {
   linkEntityToDistributor,
   retryEntitySync,
@@ -69,6 +71,21 @@ export function EntityDetail({
   const [tab, setTab] = useState<"statement" | "history">("statement");
   const [archiving, setArchiving] = useState(false);
   const [linking, setLinking] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [correcting, setCorrecting] = useState(false);
+  // After a payment or correction, refresh the balance only once it's in the books.
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const saved = useMoneyEntry(lastSaved);
+  useEffect(() => {
+    if (saved?.syncStatus === "SYNCED") {
+      setLastSaved(null);
+      onChanged();
+    }
+  }, [saved?.syncStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+  const registers = useRegisters();
+  const regs = registers.status === "ready" ? registers.data.filter((r) => !r.placeholder) : [];
+  const all = useEntities();
+  const parties = all.status === "ready" ? all.data : [];
   const state = e.address.stateCode ? GST_STATES[e.address.stateCode] : null;
 
   return (
@@ -116,6 +133,11 @@ export function EntityDetail({
             </p>
           ) : null}
           <SyncLine entity={e} />
+          {saved && saved.syncStatus !== "SYNCED" ? (
+            <p className={clsx("mt-1 text-[12px]", saved.syncStatus === "FAILED" ? "text-danger" : "text-ink-muted")}>
+              {saved.syncStatus === "FAILED" ? `Not posted: ${saved.hlSyncError ?? "the books refused it"}` : "Saving to books…"}
+            </p>
+          ) : null}
         </section>
 
         <section className="space-y-1.5 text-[13px]">
@@ -154,6 +176,16 @@ export function EntityDetail({
         </section>
 
         <div className="flex flex-wrap gap-2">
+          {e.isActive ? (
+            <Button size="sm" variant="primary" icon={<IndianRupee className="size-3.5" />} onClick={() => setPaying(true)}>
+              Record payment
+            </Button>
+          ) : null}
+          {isAdmin && e.isActive ? (
+            <Button size="sm" icon={<Scale className="size-3.5" />} onClick={() => setCorrecting(true)}>
+              Correct balance
+            </Button>
+          ) : null}
           {!e.isWalkIn ? (
             <Button size="sm" icon={e.isActive ? <Archive className="size-3.5" /> : <ArchiveRestore className="size-3.5" />} onClick={() => setArchiving(true)}>
               {e.isActive ? "Archive" : "Un-archive"}
@@ -184,6 +216,31 @@ export function EntityDetail({
         />
       ) : null}
       {linking ? <LinkDialog entity={e} onClose={() => setLinking(false)} /> : null}
+      {paying ? (
+        <MoneyEntryForm
+          action={balance && balance.balancePaise < 0 ? "paid" : "received"}
+          parties={parties}
+          registers={regs}
+          initial={balance && balance.balancePaise < 0 ? { to: `P:${e.id}` } : { from: `P:${e.id}` }}
+          onClose={(id) => {
+            setPaying(false);
+            if (id) setLastSaved(id);
+          }}
+        />
+      ) : null}
+      {correcting ? (
+        <CorrectionDialog
+          parties={parties}
+          registers={regs}
+          partyBalances={balance ? { [e.id]: balance } : null}
+          registerBalances={null}
+          initialTarget={`P:${e.id}`}
+          onClose={(id) => {
+            setCorrecting(false);
+            if (id) setLastSaved(id);
+          }}
+        />
+      ) : null}
     </aside>
   );
 }
