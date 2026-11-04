@@ -35,3 +35,7 @@ export { saveExpenseCategory } from "./money/categories";
 export { recordMoneyEntry, recordExpense, correctBalance, reverseMoneyEntry, retryMoneyEntrySync } from "./money/entries";
 export { getRegisterBalances, getRegisterStatement } from "./money/reports";
 export { onRegisterWritten, onExpenseCategoryWritten, onMoneyEntryWritten, reconcileLedgerSync } from "./money/triggers";
+export { saveCompanyProfile } from "./sales/company";
+export { createSale } from "./sales/createSale";
+export { cancelSale, retrySaleSync } from "./sales/cancelSale";
+export { onSaleWritten } from "./sales/triggers";

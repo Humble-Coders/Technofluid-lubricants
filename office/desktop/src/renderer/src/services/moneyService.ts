@@ -46,6 +46,9 @@ export interface MoneyEntryRow {
   gst: ExpenseGst | null;
   reversesEntryId: string | null;
   reversedByEntryId: string | null;
+  /** Money received against one invoice. */
+  saleId: string | null;
+  invoiceNo: string | null;
   /** For a reversed original: its mirror's sync status (filled by useMoneyEntries; null = not loaded yet). */
   mirrorStatus?: SyncStatus | null;
   syncStatus: SyncStatus;
@@ -111,6 +114,8 @@ const toEntry = (id: string, d: DocumentData): MoneyEntryRow => ({
   gst: d.gst ?? null,
   reversesEntryId: d.reversesEntryId ?? null,
   reversedByEntryId: d.reversedByEntryId ?? null,
+  saleId: typeof d.saleId === "string" ? d.saleId : null,
+  invoiceNo: typeof d.invoiceNo === "string" ? d.invoiceNo : null,
   syncStatus: status(d.syncStatus),
   hlSyncError: typeof d.hlSyncError === "string" ? d.hlSyncError : null,
   createdBy: String(d.createdBy?.name ?? "Someone"),
@@ -146,6 +151,24 @@ export function watchMoneyEntryStatuses(ids: string[], onChange: (statuses: Reco
   return () => stops.forEach((stop) => stop());
 }
 
+/** Money received against these invoices (any date), live. */
+export function watchSalePayments(saleIds: string[], onChange: (rows: MoneyEntryRow[]) => void): Unsubscribe {
+  const found = new Map<string, MoneyEntryRow[]>();
+  const chunks: string[][] = [];
+  for (let i = 0; i < saleIds.length; i += 30) chunks.push(saleIds.slice(i, i + 30));
+  if (chunks.length === 0) {
+    onChange([]);
+    return () => {};
+  }
+  const stops = chunks.map((chunk, i) =>
+    onSnapshot(query(collection(db, "moneyEntries"), where("saleId", "in", chunk)), (snap) => {
+      found.set(String(i), snap.docs.filter((d) => d.data().deleted !== true).map((d) => toEntry(d.id, d.data({ serverTimestamps: "estimate" }))));
+      onChange([...found.values()].flat());
+    }),
+  );
+  return () => stops.forEach((stop) => stop());
+}
+
 /** One entry, live — to show "Saving to books…" until it's SYNCED (no polling). */
 export function watchMoneyEntry(entryId: string, onChange: (row: MoneyEntryRow | null) => void): Unsubscribe {
   return onSnapshot(doc(db, "moneyEntries", entryId), (snap) => onChange(snap.exists() ? toEntry(snap.id, snap.data({ serverTimestamps: "estimate" })) : null));
@@ -165,7 +188,7 @@ async function call<Req, Res>(name: string, data: Req): Promise<Res> {
 type Ref = MoneyAccountRef;
 const strip = (r: Ref) => (r.kind === "ADJUSTMENT" ? r : { ...r });
 
-export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean }) {
+export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean; saleId?: string | null }) {
   return call<unknown, { entryId: string }>("recordMoneyEntry", { requestId: newRequestId(), ...e, from: strip(e.from), to: strip(e.to) });
 }
 

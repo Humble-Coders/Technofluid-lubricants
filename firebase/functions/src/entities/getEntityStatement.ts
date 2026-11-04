@@ -1,15 +1,15 @@
 import * as admin from "firebase-admin";
-import {FieldPath} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {HL_MAX_PAGE, plainHlMessage, type HlLedgerRow} from "../ledger/hlClient";
-import {ENTITIES, bad, hlAmountToPaise, sourceGroup} from "./entityModel";
+import {txnSources, type TxnSource} from "../ledger/txnSources";
+import {ENTITIES, bad, hlAmountToPaise} from "./entityModel";
 
 /**
  * One entity's statement for a date range, from Humble Ledger /ledger: an opening line
- * for `from`, then one row per sourceId group (a sale's legs together) with HL's running
+ * for `from`, then one row per HL transaction (labelled from our own record of it) with HL's running
  * balance AS GIVEN — never recomputed here (§9b.8). Amounts in integer paise.
  */
 
@@ -21,14 +21,25 @@ function dateParam(value: unknown, label: string): string {
   return value;
 }
 
-const WHAT: Record<string, string> = {
-  entity: "Opening balance",
-  money: "Money",
-  sale: "Sale",
-  payment: "Payment received",
-  purchase: "Purchase",
-  payout: "Payment made",
-};
+/** What a statement row is, in plain words: our record of it, else HL's posting type. */
+function rowLabel(src: TxnSource | undefined, r: HlLedgerRow, entityId: string): string {
+  if (src?.kind === "money") return moneyLabel(src.entry, entityId);
+  if (src?.kind === "sale") return `Sale ${src.sale.invoiceNo}`;
+  if (src?.kind === "salePayment") return `Payment received for ${src.sale.invoiceNo}`;
+  if (src?.kind === "entityOpening") return "Opening balance";
+  switch (r.postingType) {
+  case "SALE":
+    return "Sale";
+  case "PAYMENT":
+    return "Payment received";
+  case "PAYOUT":
+    return "Payment made";
+  case "REVERSAL":
+    return r.description || "Reversal";
+  default:
+    return r.description || "Entry";
+  }
+}
 
 /** "Payment received", "Balance moved to X", "Correction: …", "Reversal: …" — from `entityId`'s side. */
 export function moneyLabel(m: FirebaseFirestore.DocumentData, entityId: string): string {
@@ -62,34 +73,22 @@ export const getEntityStatement = onCall({region: "us-central1", secrets: HL_SEC
     throw new HttpsError("unavailable", plainHlMessage(e));
   }
 
-  // Group consecutive rows of one source (e.g. a sale's goods + GST legs) into one line.
+  // One row per HL transaction, labelled from OUR record of it (matched by txn id — live
+  // HL's rows carry no sourceId), from this party's side.
+  const sources = await txnSources(admin.firestore(), (res.rows as HlLedgerRow[]).map((r) => r.txnId));
   const rows: {date: string; what: string; group: string; debitPaise: number; creditPaise: number; balancePaise: number; txnIds: string[]}[] = [];
   for (const r of res.rows as HlLedgerRow[]) {
-    const group = r.sourceId ? sourceGroup(r.sourceId) : r.txnId;
-    const last = rows[rows.length - 1];
     const debit = hlAmountToPaise(String(r.debit ?? "0"));
     const credit = hlAmountToPaise(String(r.credit ?? "0"));
     const balance = hlAmountToPaise(String(r.balance));
-    if (last && last.group === group) {
+    const last = rows[rows.length - 1];
+    if (last && last.group === r.txnId) {
       last.debitPaise += debit;
       last.creditPaise += credit;
       last.balancePaise = balance;
-      last.txnIds.push(r.txnId);
-    } else {
-      const prefix = group.split("_")[0] ?? "";
-      rows.push({date: r.date, what: WHAT[prefix] ?? r.description, group, debitPaise: debit, creditPaise: credit, balancePaise: balance, txnIds: [r.txnId]});
+      continue;
     }
-  }
-  // Money rows are labelled from the entry itself, from this party's side (brief §4).
-  const moneyIds = rows.map((r) => /^money_(.+)$/.exec(r.group)?.[1]).filter((x): x is string => Boolean(x));
-  const db = admin.firestore();
-  for (let i = 0; i < moneyIds.length; i += 30) {
-    const snap = await db.collection("moneyEntries").where(FieldPath.documentId(), "in", moneyIds.slice(i, i + 30)).get();
-    const byId = new Map(snap.docs.map((x) => [x.id, x.data()]));
-    for (const row of rows) {
-      const m = byId.get(/^money_(.+)$/.exec(row.group)?.[1] ?? "");
-      if (m) row.what = moneyLabel(m, entityId);
-    }
+    rows.push({date: r.date, what: rowLabel(sources.get(r.txnId), r, entityId), group: r.txnId, debitPaise: debit, creditPaise: credit, balancePaise: balance, txnIds: [r.txnId]});
   }
   const openingPaise = hlAmountToPaise(String(res.openingBalance ?? "0"));
   return {

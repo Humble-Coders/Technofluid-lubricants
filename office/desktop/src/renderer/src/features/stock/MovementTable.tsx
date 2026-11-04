@@ -6,7 +6,7 @@ import { Badge, Button, Spinner } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import type { StockMovement } from "@/services/stockService";
 import { UndoForm } from "./MovementList";
-import { EDITABLE_TYPES, KIND_LABEL, signedQuantity, TYPE_LABEL } from "./stockFormat";
+import { EDITABLE_TYPES, isSaleLine, KIND_LABEL, signedQuantity, TYPE_LABEL } from "./stockFormat";
 
 const businessDate = (d: string) =>
   d ? new Date(`${d}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
@@ -52,7 +52,7 @@ export function MovementTable({
       <tbody>
         {state.data.map((m) => {
           const undone = Boolean(m.reversedById);
-          const editable = canEdit && !undone && m.type !== "REVERSAL";
+          const editable = canEdit && !undone && m.type !== "REVERSAL" && !isSaleLine(m.type);
           const isOpen = open?.id === m.id;
           return (
             <Fragment key={m.id}>

@@ -3,9 +3,10 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {ENTITIES, hlAmountToPaise} from "../entities/entityModel";
+import {ENTITIES, formatRupees, hlAmountToPaise} from "../entities/entityModel";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {plainHlMessage} from "../ledger/hlClient";
+import {SALES} from "../sales/saleModel";
 import {requestId as parseRequestId} from "../stock/stockModel";
 import {indiaToday, onceInTx, text} from "./common";
 import {
@@ -114,12 +115,43 @@ export const recordMoneyEntry = onCall({region: "us-central1"}, async (request) 
   if (from.kind === "EXPENSE" || to.kind === "EXPENSE") bad("Record expenses with the expense form.");
   const input: MoneyEntryInput = {from, to, amountPaise: data.amountPaise, businessDay: String(data.businessDay ?? ""), note: noteOf(data.note), isCorrection};
   check(input);
+  const saleId = typeof data.saleId === "string" && data.saleId.trim() ? data.saleId.trim() : null;
+  const link = saleId ? await saleLink(db, saleId, input) : null;
   return onceInTx(db, reqId, "recordMoneyEntry", async (tx) => {
     const ref = db.collection(MONEY_ENTRIES).doc();
-    tx.create(ref, entryDoc(input, caller));
+    const doc = entryDoc(input, caller, link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : {});
+    if (link) doc.sideIds = [...doc.sideIds, link.saleId];
+    tx.create(ref, doc);
     return {entryId: ref.id};
   });
 });
+
+/**
+ * Money received against one invoice: the customer must be the invoice's, the invoice
+ * not cancelled, and the amount no more than what's still due on it — paid at billing
+ * plus the payments already linked (a reversed one only stops counting once its
+ * reversal is in the books). HL then marks the invoice part-paid / paid.
+ */
+async function saleLink(db: admin.firestore.Firestore, saleId: string, input: MoneyEntryInput) {
+  if (input.from.kind !== "PARTY" || (input.to.kind !== "CASH" && input.to.kind !== "BANK")) bad("Only money received from the customer can be linked to an invoice.");
+  const sale = (await db.collection(SALES).doc(saleId).get()).data();
+  if (!sale || sale.deleted === true) throw new HttpsError("not-found", "That invoice doesn't exist.");
+  if (sale.customer?.entityId !== input.from.entityId) bad(`${sale.invoiceNo} is ${sale.customer?.name}'s invoice, not ${input.from.name}'s.`);
+  if (sale.status === "CANCELLED") bad(`${sale.invoiceNo} is cancelled — record it as money received without an invoice.`);
+  const linked = await db.collection(MONEY_ENTRIES).where("saleId", "==", saleId).get();
+  const mirrors = linked.docs.map((d) => d.data().reversedByEntryId).filter((x): x is string => typeof x === "string");
+  const mirrorStatus = new Map<string, string>();
+  if (mirrors.length) for (const m of await db.getAll(...mirrors.map((id) => db.collection(MONEY_ENTRIES).doc(id)))) mirrorStatus.set(m.id, String(m.data()?.syncStatus ?? ""));
+  const paidLater = linked.docs
+    .map((d) => d.data())
+    .filter((e) => e.deleted !== true && !e.reversesEntryId && !(e.reversedByEntryId && mirrorStatus.get(e.reversedByEntryId) === "SYNCED"))
+    .reduce((sum, e) => sum + Number(e.amountPaise ?? 0), 0);
+  const due = Number(sale.totals?.grandTotalPaise ?? 0) - Number(sale.paidAtBillingPaise ?? 0) - paidLater;
+  if (input.amountPaise > due) {
+    bad(due <= 0 ? `${sale.invoiceNo} is already paid in full.` : `That's more than what's still due on ${sale.invoiceNo} (${formatRupees(due)}) — record the extra separately.`, "MORE_THAN_DUE");
+  }
+  return {saleId, invoiceNo: String(sale.invoiceNo)};
+}
 
 /** An expense paid from cash or a bank, with its GST bill when there is one. */
 export const recordExpense = onCall({region: "us-central1"}, async (request) => {

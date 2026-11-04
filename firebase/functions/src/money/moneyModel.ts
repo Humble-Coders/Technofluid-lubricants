@@ -22,7 +22,9 @@ export const MONEY_REQUESTS = "moneyRequests";
 
 /** HL system accounts (made on first use, then found by name — names are unique in HL). */
 export const SYSTEM_ACCOUNTS = {
-  openingEquity: {name: "Opening Balance Equity", type: "EQUITY"},
+  // NOT "Opening Balance Equity": HL creates that one itself on a customer's first opening
+  // balance, and a same-named account of ours would clash with it (Ansh HL, 27 Oct 2026).
+  openingEquity: {name: "Opening Balances · Cash & Bank", type: "EQUITY"},
   balanceAdjustments: {name: "Balance Adjustments", type: "EXPENSE"},
   cashOverShort: {name: "Cash Over and Short", type: "EXPENSE"},
   inputCgst: {name: "Input CGST", type: "ASSET", isTaxAccount: true},

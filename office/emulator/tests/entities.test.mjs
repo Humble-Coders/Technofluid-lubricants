@@ -403,7 +403,7 @@ describe("website distributors", () => {
 });
 
 describe("which Humble Ledger", () => {
-  const live = () => ({ gatewayBaseUrl: "https://gw.example", hlBaseUrl: "https://hl.example", projectId: "p", adminToken: "t" });
+  const live = () => ({ hlBaseUrl: "https://hl.example", email: "office-app@technofluid.test", password: "t" });
 
   test("a demo- project gets the fake one even with HL_MODE=live", () => {
     assert.equal(createHlClient({ projectId: "demo-technofluid", mode: "live", db: libDb, live }).mode, "fake");

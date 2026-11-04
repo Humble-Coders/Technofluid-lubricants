@@ -6,3 +6,4 @@ export * from "./recipe";
 export * from "./explode";
 export * from "./entity";
 export * from "./money-entry";
+export * from "./sale";

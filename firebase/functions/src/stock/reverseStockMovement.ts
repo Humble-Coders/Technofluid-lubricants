@@ -47,6 +47,9 @@ export const reverseStockMovement = onCall({region: "us-central1"}, async (reque
     if (original.type === "REVERSAL") {
       throw new HttpsError("failed-precondition", "An undo can't be undone — record a new line instead.");
     }
+    if (original.type === "SALE" || original.type === "SALE_CANCEL") {
+      throw new HttpsError("failed-precondition", `This line belongs to invoice ${String(original.invoiceNo ?? "")} — cancel the invoice instead.`);
+    }
 
     let newQty = 0;
     if (editing) {

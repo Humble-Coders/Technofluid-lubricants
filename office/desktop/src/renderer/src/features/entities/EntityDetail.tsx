@@ -1,6 +1,7 @@
 import clsx from "clsx";
-import { Archive, ArchiveRestore, History, IndianRupee, Link2, Pencil, RefreshCw, Scale, X } from "lucide-react";
+import { Archive, ArchiveRestore, History, IndianRupee, Link2, Pencil, ReceiptIndianRupee, RefreshCw, Scale, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { formatINR, GST_STATES, indiaDate } from "@technofluid/core";
 import { Badge, Button, Input, Segmented, Select, Spinner } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
@@ -68,6 +69,7 @@ export function EntityDetail({
 }) {
   const { role } = useStaff();
   const isAdmin = role === "admin";
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"statement" | "history">("statement");
   const [archiving, setArchiving] = useState(false);
   const [linking, setLinking] = useState(false);
@@ -177,7 +179,12 @@ export function EntityDetail({
 
         <div className="flex flex-wrap gap-2">
           {e.isActive ? (
-            <Button size="sm" variant="primary" icon={<IndianRupee className="size-3.5" />} onClick={() => setPaying(true)}>
+            <Button size="sm" variant="primary" icon={<ReceiptIndianRupee className="size-3.5" />} onClick={() => navigate(`/sales/new?customer=${encodeURIComponent(e.id)}`)}>
+              New sale
+            </Button>
+          ) : null}
+          {e.isActive ? (
+            <Button size="sm" icon={<IndianRupee className="size-3.5" />} onClick={() => setPaying(true)}>
               Record payment
             </Button>
           ) : null}

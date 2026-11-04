@@ -1,3 +1,4 @@
+import {realBooksFromEmulator} from "../ledger/getHlClient";
 import {HL_MAX_PAGE, HlError, type HlAccount, type HlAccountType, type HlClient} from "../ledger/hlClient";
 
 /**
@@ -39,5 +40,11 @@ export function accountCache(hl: HlClient) {
   };
 }
 
-export const registerAccountName = (kind: "CASH" | "BANK", name: string, id: string) => `${kind === "CASH" ? "Cash" : "Bank"} · ${name} · ${id}`;
-export const categoryAccountName = (name: string, id: string) => `Expense · ${name} · ${id}`;
+/**
+ * A real-books test run (emulators:real-books) marks the accounts it makes "· TEST", so the
+ * live app — whose default registers have the same fixed ids — never finds and reuses them.
+ */
+const testMark = () => (realBooksFromEmulator() ? " · TEST" : "");
+
+export const registerAccountName = (kind: "CASH" | "BANK", name: string, id: string) => `${kind === "CASH" ? "Cash" : "Bank"} · ${name} · ${id}${testMark()}`;
+export const categoryAccountName = (name: string, id: string) => `Expense · ${name} · ${id}${testMark()}`;

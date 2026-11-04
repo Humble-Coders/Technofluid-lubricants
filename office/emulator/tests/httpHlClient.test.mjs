@@ -11,18 +11,21 @@ import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fnRequire = createRequire(path.join(path.resolve(here, "../../../firebase/functions"), "package.json"));
-const { HttpHlClient, toHlAmount } = fnRequire("./lib/ledger/httpHlClient.js");
+const { HttpHlClient, toHlAmount, clearHlTokens } = fnRequire("./lib/ledger/httpHlClient.js");
+const { realBooksFromEmulator } = fnRequire("./lib/ledger/getHlClient.js");
 
 const realFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = realFetch;
+  clearHlTokens();
 });
 
-const CFG = { gatewayBaseUrl: "https://gw.example", hlBaseUrl: "https://hl.example", projectId: "technofluid", adminToken: "admin-secret" };
+// No gateway (Ansh, 27 Oct 2026): the functions sign in to HL as the app's own user.
+const CFG = { hlBaseUrl: "https://hl.example", email: "office-app@technofluid.test", password: "pw-test" };
 const customer = (id, extra = {}) => ({ id, accountId: `acc-${id}`, name: `C ${id}`, email: null, phone: null, gstin: null, externalId: `ext-${id}`, isActive: true, outstanding: "0.00", ...extra });
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
-/** fetch stub: `handlers` answer HL calls in order; the gateway always returns a token. */
+/** fetch stub: `handlers` answer HL calls in order; every sign-in (/auth/login) returns a new token. */
 function stub(handlers) {
   const calls = [];
   let tokens = 0;
@@ -30,30 +33,41 @@ function stub(handlers) {
     const u = String(url);
     const body = init.body ? JSON.parse(init.body) : undefined;
     calls.push({ url: u, method: init.method, headers: init.headers, body });
-    if (u.startsWith("https://gw.example/")) {
+    if (u.endsWith("/api/v1/auth/login")) {
       tokens += 1;
-      return json(200, { token: `tok-${tokens}` });
+      return json(200, { success: true, data: { accessToken: `tok-${tokens}`, refreshToken: `ref-${tokens}` } });
     }
     const next = handlers.shift();
     if (!next) throw new Error(`Unexpected HL call: ${init.method} ${u}`);
     return next({ url: u, method: init.method, headers: init.headers, body });
   };
-  return { calls, hl: () => calls.filter((c) => c.url.startsWith("https://hl.example")), tokens: () => tokens };
+  return { calls, hl: () => calls.filter((c) => c.url.startsWith("https://hl.example") && !c.url.endsWith("/auth/login")), tokens: () => tokens };
 }
 
 describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
-  test("paths are under /api/v1 (and a base that already ends in /api/v1 isn't doubled); the token comes from the gateway", async () => {
-    const s = stub([() => json(200, { success: true, data: customer("1") })]);
+  test("paths are under /api/v1 (a base already ending in /api/v1 isn't doubled); it signs in as the app user, once per instance", async () => {
+    const s = stub([() => json(200, { success: true, data: customer("1") }), () => json(200, { success: true, data: customer("1") })]);
     await new HttpHlClient(CFG).getCustomer("1");
+    await new HttpHlClient(CFG).getCustomer("1"); // a new client in the same instance reuses the token
     assert.equal(s.hl()[0].url, "https://hl.example/api/v1/customers/1");
     assert.equal(s.hl()[0].headers.Authorization, "Bearer tok-1");
-    const gw = s.calls.find((c) => c.url === "https://gw.example/internal/hl-token");
-    assert.equal(gw.headers["X-Admin-Token"], "admin-secret");
-    assert.deepEqual(gw.body, { projectId: "technofluid" });
+    assert.equal(s.hl()[1].headers.Authorization, "Bearer tok-1");
+    assert.equal(s.tokens(), 1);
+    const login = s.calls.find((c) => c.url === "https://hl.example/api/v1/auth/login");
+    assert.deepEqual(login.body, { email: "office-app@technofluid.test", password: "pw-test" });
+    assert.equal(login.headers.Authorization, undefined);
+    assert.ok(!s.calls.some((c) => /gateway|internal\/hl-token/.test(c.url)));
 
+    clearHlTokens();
     const s2 = stub([() => json(200, { success: true, data: customer("1") })]);
     await new HttpHlClient({ ...CFG, hlBaseUrl: "https://hl.example/api/v1/" }).getCustomer("1");
     assert.equal(s2.hl()[0].url, "https://hl.example/api/v1/customers/1");
+  });
+
+  test("a refused sign-in is a permanent LOGIN_FAILED; missing settings are NOT_CONNECTED", async () => {
+    globalThis.fetch = async () => json(401, { success: false, error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password" } });
+    await assert.rejects(new HttpHlClient(CFG).getCustomer("1"), (e) => e.code === "LOGIN_FAILED" && e.transient === false);
+    assert.throws(() => new HttpHlClient({ ...CFG, password: "" }), (e) => e.code === "NOT_CONNECTED");
   });
 
   test("create: `idempotent` is read from the envelope (true and false); blank fields are left out", async () => {
@@ -117,9 +131,9 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     await assert.rejects(new HttpHlClient(CFG).archiveCustomer("1"), (e) => e.code === "CUSTOMER_HAS_BALANCE" && e.transient === false && e.status === 422);
   });
 
-  test("opening balance: amount in rupees from paise, date + appId + sourceId sent; no txn id → fails loud", async () => {
+  test("opening balance: amount in rupees from paise, date + appId + sourceId sent; txn id at data.transaction.id; none → fails loud", async () => {
     const s = stub([
-      () => json(201, { success: true, data: { transactionId: "txn-1" }, idempotent: false }),
+      () => json(201, { success: true, data: { transaction: { id: "txn-1" }, customer: { id: "1", balance: 12500.5 }, idempotent: false }, idempotent: false }),
       () => json(201, { success: true, data: {} }),
     ]);
     const c = new HttpHlClient(CFG);
@@ -139,22 +153,85 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     await assert.rejects(new HttpHlClient(CFG).listCustomers({ page: 1, limit: 100 }), (e) => e.code === "UNEXPECTED_SHAPE");
     stub([() => json(200, { success: true, data: { id: "1" } })]); // no accountId
     await assert.rejects(new HttpHlClient(CFG).getCustomer("1"), (e) => e.code === "UNEXPECTED_SHAPE");
-    stub([() => json(200, { success: true, data: { rows: [] } })]); // ledger without an opening balance
+    stub([() => json(200, { success: true, data: { rows: [] } })]); // empty range and no closingBalance — nothing to open with
     await assert.rejects(new HttpHlClient(CFG).getLedger({ accountId: "a", from: "2026-04-01", to: "2026-04-30", page: 1, limit: 100 }), (e) => e.code === "UNEXPECTED_SHAPE");
   });
 
-  test("ledger: rows, opening balance and hasMore are read from the envelope", async () => {
+  test("ledger (HL's real shape): rows by transactionId, no sourceId; the opening is worked out from the first row or the closing balance", async () => {
+    const row = { transactionId: "t1", date: "2026-04-02T00:00:00Z", description: "Sale TF/2026-27/0001", postingType: "SALE", debit: "50.00", credit: null, balance: "150.00" };
     stub([
-      () =>
-        json(200, {
-          success: true,
-          data: { openingBalance: "100.00", rows: [{ id: "t1", date: "2026-04-02T00:00:00Z", description: "Sale", sourceId: "sale_s1:goods", debit: "50.00", credit: "0.00", balance: "150.00" }] },
-          meta: { hasMore: false },
-        }),
+      () => json(200, { success: true, data: { rows: [row], closingBalance: "150.00", account: { id: "a", type: "ASSET" }, meta: { page: 1, limit: 100, total: 1, totalPages: 1, hasMore: false } } }),
+      () => json(200, { success: true, data: { rows: [], closingBalance: "75.50", account: { id: "a", type: "ASSET" }, meta: { hasMore: false } } }),
+      () => json(200, { success: true, data: { rows: [{ ...row, debit: null, credit: "30.00", balance: "130.00" }], closingBalance: "130.00", account: { id: "l", type: "LIABILITY" }, meta: { hasMore: true } } }),
     ]);
-    const r = await new HttpHlClient(CFG).getLedger({ accountId: "a", from: "2026-04-01", to: "2026-04-30", page: 1, limit: 100 });
+    const c = new HttpHlClient(CFG);
+    const q = { accountId: "a", from: "2026-04-01", to: "2026-04-30", page: 1, limit: 100 };
+    const r = await c.getLedger(q);
     assert.equal(r.openingBalance, "100.00");
-    assert.deepEqual(r.rows[0], { txnId: "t1", date: "2026-04-02", description: "Sale", sourceId: "sale_s1:goods", debit: "50.00", credit: "0.00", balance: "150.00" });
+    assert.deepEqual(r.rows[0], { txnId: "t1", date: "2026-04-02", description: "Sale TF/2026-27/0001", sourceId: null, postingType: "SALE", debit: "50.00", credit: "0", balance: "150.00" });
+    assert.equal(r.hasMore, false);
+    assert.equal((await c.getLedger(q)).openingBalance, "75.50");
+    const l = await c.getLedger(q);
+    assert.equal(l.openingBalance, "100.00"); // credit-normal: 130 less its own +30
+    assert.equal(l.hasMore, true);
+  });
+
+  test("a sale: our invoice number, one tax line per leg (rate as a fraction), ids from data.invoice / data.transaction; a replay's existing ids", async () => {
+    const s = stub([
+      () => json(201, { success: true, data: { invoice: { id: "inv-1", invoiceNumber: "TF/2026-27/0001" }, transaction: { id: "tx-1" } }, idempotent: false }),
+      () => json(201, { success: true, data: {}, idempotent: true, existingTransactionId: "tx-1", existingInvoiceId: "inv-1" }),
+      () => json(201, { success: true, data: { transaction: { id: "tx-2" } } }),
+    ]);
+    const c = new HttpHlClient(CFG);
+    const sale = {
+      customerId: "c1",
+      amountPaise: 1_414_572,
+      taxLines: [
+        { label: "CGST 9%", rateBp: 900, accountId: "cgst", amountPaise: 127_314 },
+        { label: "SGST 9%", rateBp: 900, accountId: "sgst", amountPaise: 127_314 },
+      ],
+      revenueAccountId: "rev",
+      description: "Sale TF/2026-27/0001",
+      date: "2026-10-27",
+      sourceId: "sale_s1:sale",
+      actorRef: "u1",
+      invoiceNumber: "TF/2026-27/0001",
+    };
+    assert.deepEqual(await c.postSale(sale), { txnId: "tx-1", invoiceId: "inv-1", idempotent: false });
+    assert.deepEqual(s.hl()[0].body, {
+      customerId: "c1",
+      amount: 14145.72,
+      taxAmount: 2546.28,
+      taxLines: [
+        { amount: 1273.14, accountId: "cgst", rate: 0.09, label: "CGST 9%" },
+        { amount: 1273.14, accountId: "sgst", rate: 0.09, label: "SGST 9%" },
+      ],
+      revenueAccountId: "rev",
+      description: "Sale TF/2026-27/0001",
+      date: "2026-10-27",
+      appId: "technofluid-office",
+      sourceId: "sale_s1:sale",
+      actorRef: "u1",
+      invoiceNumber: "TF/2026-27/0001",
+    });
+    assert.deepEqual(await c.postSale(sale), { txnId: "tx-1", invoiceId: "inv-1", idempotent: true });
+    await assert.rejects(c.postSale(sale), (e) => e.code === "UNEXPECTED_SHAPE"); // no invoice id
+  });
+
+  test("invoices: read one; cancel sends reason + date; a payment against an invoice sends invoiceId", async () => {
+    const s = stub([
+      () => json(200, { success: true, data: { id: "inv-1", invoiceNumber: "TF/2026-27/0001", status: "PARTIAL", total: "16692.00", amountPaid: "5000.00" } }),
+      () => json(200, { success: true, data: { id: "inv-1", status: "CANCELLED" } }),
+      () => json(201, { success: true, data: { transaction: { id: "p1" }, invoice: { id: "inv-1" } } }),
+    ]);
+    const c = new HttpHlClient(CFG);
+    assert.deepEqual(await c.getInvoice("inv-1"), { id: "inv-1", invoiceNumber: "TF/2026-27/0001", status: "PARTIAL", total: "16692.00", amountPaid: "5000.00" });
+    await c.cancelInvoice("inv-1", { reason: "Wrong customer", date: "2026-10-28" });
+    assert.equal(s.hl()[1].url, "https://hl.example/api/v1/invoices/inv-1/cancel");
+    assert.deepEqual(s.hl()[1].body, { reason: "Wrong customer", date: "2026-10-28" });
+    const r = await c.postPayment({ customerId: "c1", amountPaise: 500_000, method: "CASH", paymentAccountId: "cash", date: "2026-10-27", sourceId: "sale_s1:payment_0", actorRef: "u1", description: "Payment received with TF/2026-27/0001", invoiceId: "inv-1" });
+    assert.equal(r.txnId, "p1");
+    assert.equal(s.hl()[2].body.invoiceId, "inv-1");
   });
 
   test("accounts: list reads data + meta.hasMore; a 409 on create is ACCOUNT_EXISTS", async () => {
@@ -231,5 +308,14 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     assert.equal(sheet.bank, "-3.00");
     stub([() => json(200, { success: true })]);
     await assert.rejects(new HttpHlClient(CFG).getBalanceSheet("2026-10-26"), (e) => e.code === "UNEXPECTED_SHAPE");
+  });
+
+  test("the real-books switch: only inside the Functions emulator, only when emulators:real-books sets all of it", () => {
+    const all = { FUNCTIONS_EMULATOR: "true", TECHNOFLUID_REAL_BOOKS: "yes", TECHNOFLUID_REAL_BOOKS_URL: "https://hl.example", TECHNOFLUID_REAL_BOOKS_EMAIL: "office-app@technofluid.test", TECHNOFLUID_REAL_BOOKS_PASSWORD: "pw" };
+    assert.deepEqual(realBooksFromEmulator(all), { hlBaseUrl: "https://hl.example", email: "office-app@technofluid.test", password: "pw" });
+    assert.equal(realBooksFromEmulator({ ...all, FUNCTIONS_EMULATOR: undefined }), null); // a deployed function: never
+    assert.equal(realBooksFromEmulator({ ...all, TECHNOFLUID_REAL_BOOKS: "true" }), null); // only the exact "yes"
+    assert.equal(realBooksFromEmulator({ ...all, TECHNOFLUID_REAL_BOOKS_PASSWORD: "" }), null);
+    assert.equal(realBooksFromEmulator({}), null);
   });
 });

@@ -142,13 +142,13 @@ describe("registers", () => {
     await rejectsWith(accounts.call("saveRegister", { requestId: rid(), name: "Petty cash", kind: "CASH" }), "permission-denied");
   });
 
-  test("the opening is posted once, on its as-of date, against Opening Balance Equity; it can't be set twice", async () => {
+  test("the opening is posted once, on its as-of date, against our own opening-balances equity account; it can't be set twice", async () => {
     await admin.call("setRegisterOpening", { requestId: rid(), registerId: hdfc, amountPaise: 10_000_000, asOf: "2026-04-01" });
     const r = await status("registers", hdfc, "SYNCED");
     assert.equal(r.opening.posted, true);
     const t = (await adminDb.doc(`_fakeHl/books/txns/technofluid-office~register_${hdfc}:opening`).get()).data();
     assert.equal(t.date, "2026-04-01");
-    const equity = await accountIdByName("Opening Balance Equity");
+    const equity = await accountIdByName("Opening Balances · Cash & Bank");
     assert.deepEqual(
       t.legs.map((l) => [l.accountId === r.hlAccountId ? "register" : l.accountId === equity ? "equity" : l.accountId, l.type, l.amountPaise]),
       [["register", "DEBIT", 10_000_000], ["equity", "CREDIT", 10_000_000]],
