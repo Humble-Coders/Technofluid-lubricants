@@ -1,0 +1,456 @@
+[
+ {
+  "code": "vavi10kg",
+  "name": "vavi10kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 9448,
+    "raw": "va/94.48",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": 552,
+    "raw": "lubimax141/5.52",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet2 row 2",
+  "totalBp": 10000
+ },
+ {
+  "code": "vavi5kg",
+  "name": "vavi5kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "va",
+    "pctBp": 5000,
+    "raw": "va/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "va"
+    }
+   },
+   {
+    "code": "vavi10kg",
+    "pctBp": 5000,
+    "raw": "vavi10kg/50",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "vavi10kg"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": null,
+    "raw": "lubimax141/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet2 row 3",
+  "totalBp": 10000
+ },
+ {
+  "code": "n4vi10kg",
+  "name": "N4vi10kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 9448,
+    "raw": "n4/94.48",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": 552,
+    "raw": "lubimax141/5.52",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [
+   "nvi10kg"
+  ],
+  "flags": [
+   "alias \"nvi10kg\" assumed: Sheet3 'nh' uses nvi10kg; Sheet2 defines N4vi10kg (N4 + polymer) — assumed the same premix"
+  ],
+  "source": "Sheet2 row 4",
+  "totalBp": 10000
+ },
+ {
+  "code": "n4vi5kg",
+  "name": "N4vi5kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "n4",
+    "pctBp": 5000,
+    "raw": "n4/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "n4"
+    }
+   },
+   {
+    "code": "n4vi10kg",
+    "pctBp": 5000,
+    "raw": "n4vi10kg/50",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "n4vi10kg"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": null,
+    "raw": "lubimax141/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet2 row 5",
+  "totalBp": 10000
+ },
+ {
+  "code": "w150vi10kg",
+  "name": "w150vi10kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 9448,
+    "raw": "w150/94.48",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": 552,
+    "raw": "lubimax141/5.52",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet2 row 6",
+  "totalBp": 10000
+ },
+ {
+  "code": "w150vi5kg",
+  "name": "w150vi5kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "w150",
+    "pctBp": 5000,
+    "raw": "w150/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w150"
+    }
+   },
+   {
+    "code": "w150vi10kg",
+    "pctBp": 5000,
+    "raw": "w150vi10kg/50",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w150vi10kg"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": null,
+    "raw": "lubimax141/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet2 row 7",
+  "totalBp": 10000
+ },
+ {
+  "code": "w500vi10kg",
+  "name": "w500vi10kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9448,
+    "raw": "w500/94.48",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": 552,
+    "raw": "lubimax141/5.52",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet2 row 8",
+  "totalBp": 10000
+ },
+ {
+  "code": "w500vi5kg",
+  "name": "w500vi5kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 5000,
+    "raw": "w500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w500vi10kg",
+    "pctBp": 5000,
+    "raw": "w500vi10kg/50",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vi10kg"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": null,
+    "raw": "lubimax141/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet2 row 9",
+  "totalBp": 10000
+ },
+ {
+  "code": "sn500vi10kg",
+  "name": "SN500vi10kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "sn500",
+    "pctBp": 9448,
+    "raw": "sn500/94.48",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": 552,
+    "raw": "lubimax141/5.52",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet2 row 10",
+  "totalBp": 10000
+ },
+ {
+  "code": "sn500vi5kg",
+  "name": "SN500vi5kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "sn500",
+    "pctBp": 5000,
+    "raw": "sn500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "sn500"
+    }
+   },
+   {
+    "code": "sn500vi10kg",
+    "pctBp": 5000,
+    "raw": "SN500vi10kg/50",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "sn500vi10kg"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": null,
+    "raw": "lubimax141/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet2 row 11",
+  "totalBp": 10000
+ },
+ {
+  "code": "w500vifg10kg",
+  "name": "w500vifg10kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 9448,
+    "raw": "w500/94.48",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": 552,
+    "raw": "lubimax141/5.52",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet2 row 12",
+  "totalBp": 10000
+ },
+ {
+  "code": "w500vifg5kg",
+  "name": "w500vifg5kg",
+  "tradeName": "lubricating oil",
+  "baseUnit": "L",
+  "basis": "litre",
+  "lines": [
+   {
+    "code": "w500",
+    "pctBp": 5000,
+    "raw": "w500/50",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "w500"
+    }
+   },
+   {
+    "code": "w500vifg10kg",
+    "pctBp": 5000,
+    "raw": "w500vifg10kg/50",
+    "resolvesTo": {
+     "kind": "premix",
+     "code": "w500vifg10kg"
+    }
+   },
+   {
+    "code": "lubimax141",
+    "pctBp": null,
+    "raw": "lubimax141/",
+    "resolvesTo": {
+     "kind": "raw_material",
+     "code": "polymer"
+    }
+   }
+  ],
+  "kgBasisColumnsBlank": true,
+  "aliases": [],
+  "flags": [
+   "has ingredients with no % (meaning unconfirmed — read as 'alternative')"
+  ],
+  "source": "Sheet2 row 13",
+  "totalBp": 10000
+ }
+]

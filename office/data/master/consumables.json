@@ -1,0 +1,198 @@
+[
+ {
+  "code": "beri cap",
+  "name": "beri cap",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 4.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 2"
+ },
+ {
+  "code": "empty cane 500 ml",
+  "name": "empty cane 500 ml",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 50.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 3"
+ },
+ {
+  "code": "empty cane 1 liter",
+  "name": "empty cane 1 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 70.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 4"
+ },
+ {
+  "code": "empty cane 3 liter",
+  "name": "empty cane 3 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 200.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 5"
+ },
+ {
+  "code": "empty cane 5 liter",
+  "name": "empty cane 5 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 250.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 6"
+ },
+ {
+  "code": "empty carton 20x1 liter / 900 ml",
+  "name": "empty carton 20x1 liter / 900 ml",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 880.0,
+  "aliases": [
+   "empty caton 20x1 liter / 900 ml"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 7"
+ },
+ {
+  "code": "empty carton 4x3 liter/3.5 liter/ 2.5 liter",
+  "name": "empty carton 4x3 liter/3.5 liter/ 2.5 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 590.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 8"
+ },
+ {
+  "code": "empty carton 4x5 liter",
+  "name": "empty carton 4x5 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 700.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 9"
+ },
+ {
+  "code": "empty carton 35x500 ml / 6x2 kg/ 24x500 gm",
+  "name": "empty carton 35x500 ml / 6x2 kg/ 24x500 gm",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 640.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 10"
+ },
+ {
+  "code": "empty carton 12x1 kg",
+  "name": "empty carton 12x1 kg",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 630.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 11"
+ },
+ {
+  "code": "empty carton 4x3 kg",
+  "name": "empty carton 4x3 kg",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 740.0,
+  "aliases": [
+   "empty caton 4x3 kg"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 12"
+ },
+ {
+  "code": "empty carton 4x5 kg",
+  "name": "empty carton 4x5 kg",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 910.0,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 13"
+ },
+ {
+  "code": "empty carton for starter oil 20x800ml/900ml",
+  "name": "empty carton for starter oil 20x800ml/900ml",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 380.0,
+  "aliases": [],
+  "flags": [
+   "weight written as \"380..........\" — read as 380.0"
+  ],
+  "source": "Sheet1 row 14"
+ },
+ {
+  "code": "empty carton for starter oil 20x1 liter",
+  "name": "empty carton for starter oil 20x1 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": 330.0,
+  "aliases": [],
+  "flags": [
+   "weight written as \"330........\" — read as 330.0"
+  ],
+  "source": "Sheet1 row 15"
+ },
+ {
+  "code": "empty carton for starter oil 4x3.5 liter",
+  "name": "empty carton for starter oil 4x3.5 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": null,
+  "aliases": [],
+  "flags": [
+   "weight written as \"______\" — read as unknown"
+  ],
+  "source": "Sheet1 row 16"
+ },
+ {
+  "code": "empty carton for starter oil 4x4 liter",
+  "name": "empty carton for starter oil 4x4 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": null,
+  "aliases": [],
+  "flags": [
+   "weight written as \"______\" — read as unknown"
+  ],
+  "source": "Sheet1 row 17"
+ },
+ {
+  "code": "empty carton for starter oil 4x4.5 liter",
+  "name": "empty carton for starter oil 4x4.5 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": null,
+  "aliases": [],
+  "flags": [
+   "weight written as \"______\" — read as unknown"
+  ],
+  "source": "Sheet1 row 18"
+ },
+ {
+  "code": "empty carton for starter oil 4x5 liter",
+  "name": "empty carton for starter oil 4x5 liter",
+  "kind": "consumable",
+  "baseUnit": "piece",
+  "emptyWeightGrams": null,
+  "aliases": [],
+  "flags": [
+   "weight written as \"______\" — read as unknown"
+  ],
+  "source": "Sheet1 row 19"
+ }
+]

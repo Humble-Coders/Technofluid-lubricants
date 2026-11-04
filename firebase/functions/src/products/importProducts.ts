@@ -1,10 +1,18 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 
 import {
   buildPublicCatalogDoc,
   type PublicCatalogProduct,
 } from "./buildPublicCatalogDoc";
+import {
+  currentPrices,
+  isPriceField,
+  legacyPriceDeletes,
+  pricesRef,
+  PRICES_COLLECTION,
+} from "./prices";
 import { validateProductRow, type ProductRowInput } from "./validateProductRow";
 
 type ImportRow = ProductRowInput & { rowNumber: number };
@@ -67,10 +75,13 @@ export const importProducts = onCall(
     const existingBySku = new Map(
       existingSnap.docs.map((d) => [d.id, d.data()]),
     );
+    const existingPricesBySku = new Map(
+      (await db.collection(PRICES_COLLECTION).get()).docs.map((d) => [d.id, d.data()]),
+    );
 
     let created = 0;
     let updated = 0;
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = FieldValue.serverTimestamp();
 
     const productOps: ((batch: admin.firestore.WriteBatch) => void)[] = [];
     const affectedProductKeys = new Set<string>();
@@ -97,12 +108,17 @@ export const importProducts = onCall(
       }),
     );
 
+    // Fields an Admin changed in Technofluid Office (`appEdited`, set by
+    // editProduct) belong to the office app now — the import keeps those
+    // values and reports them, instead of overwriting them with the sheet's.
+    const keptAppEdits: { sku: string; fields: string[] }[] = [];
+
     for (const { product: row } of validated) {
       const existing = existingBySku.get(row.sku);
       const isNew = !existing;
       const ref = db.collection("products").doc(row.sku);
 
-      const catalogFields = {
+      const sheetFields: Record<string, unknown> = {
         product: row.product,
         productKey: row.productKey,
         category: row.category,
@@ -114,8 +130,33 @@ export const importProducts = onCall(
         distributorPrice: row.distributorPrice,
         gstPct: row.gstPct,
         segment: row.segment,
-        updatedAt: now,
       };
+
+      const appEdited = new Set<string>(
+        Array.isArray(existing?.appEdited) ? existing!.appEdited : [],
+      );
+      const existingPrices: Record<string, unknown> = { ...currentPrices(existingPricesBySku.get(row.sku), existing) };
+      const existingValue = (field: string) =>
+        isPriceField(field) ? existingPrices[field] : existing?.[field];
+      // Only report fields where the sheet actually disagrees with the office value.
+      const kept = Object.keys(sheetFields).filter(
+        (f) => appEdited.has(f) && sheetFields[f] !== existingValue(f),
+      );
+      if (!isNew && kept.length > 0) keptAppEdits.push({ sku: row.sku, fields: kept });
+
+      // Prices go to product_prices (admin/accounts only); everything else to products.
+      const catalogFields: Record<string, unknown> = { updatedAt: now };
+      const priceFields: Record<string, unknown> = isNew ? {} : { ...existingPrices };
+      for (const [field, value] of Object.entries(sheetFields)) {
+        if (!isNew && appEdited.has(field)) continue;
+        if (isPriceField(field)) priceFields[field] = value;
+        else catalogFields[field] = value;
+      }
+      const priceRef = pricesRef(db, row.sku);
+      productOps.push((batch) => batch.set(priceRef, { ...priceFields, updatedAt: now }));
+      // What the product looks like after this write (kept office values win).
+      const effective = (field: string) =>
+        field in catalogFields ? catalogFields[field] : existing?.[field];
 
       if (isNew) {
         created += 1;
@@ -130,17 +171,19 @@ export const importProducts = onCall(
         );
       } else {
         updated += 1;
-        productOps.push((batch) => batch.set(ref, catalogFields, { merge: true }));
+        productOps.push((batch) =>
+          batch.set(ref, { ...catalogFields, ...legacyPriceDeletes() }, { merge: true }),
+        );
       }
 
       const active = isNew ? true : (existing!.active ?? true);
       const deleted = isNew ? false : (existing!.deleted ?? false);
       mergedBySku.set(row.sku, {
         productKey: row.productKey,
-        product: row.product,
+        product: effective("product") as string,
         category: row.category,
-        segment: row.segment,
-        orderableUnit: row.orderableUnit,
+        segment: effective("segment") as string,
+        orderableUnit: effective("orderableUnit") as string,
         active,
         deleted,
       });
@@ -185,6 +228,7 @@ export const importProducts = onCall(
       skipped: invalid.length,
       invalid,
       families: affectedProductKeys.size,
+      keptAppEdits,
     };
   },
 );

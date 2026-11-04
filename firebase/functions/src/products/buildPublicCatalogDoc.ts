@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export type PublicCatalogProduct = {
   productKey: string;
@@ -16,7 +16,7 @@ export type PublicCatalogDoc = {
   category: string;
   segment: string;
   packSizes: string[];
-  updatedAt: admin.firestore.FieldValue;
+  updatedAt: FieldValue;
 };
 
 /**
@@ -44,6 +44,6 @@ export function buildPublicCatalogDoc(
     category,
     segment,
     packSizes,
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   };
 }

@@ -1,0 +1,481 @@
+import {HttpsError} from "firebase-functions/v2/https";
+
+import {checkGstin, isValidStateCode, WALK_IN_ENTITY_ID} from "../entities/entityModel";
+
+/**
+ * Sales & invoices — the server's copy of the rules in office/core/src/sale.ts (brief:
+ * docs/office/sales-brief.md). Mirrored because the core package isn't built for the
+ * functions; both copies run office/core/src/sale.cases.json (vitest + the emulator
+ * tests), so they can't drift. Keep the two in step — the logic below is the core
+ * file's (and the bits of core's money / gst / pricing / units it uses), line for line.
+ *
+ *  - sales/{saleId}: one per invoice; never edited — a mistake is a cancellation (stock
+ *    comes back, the books reverse, the number stays used) and a new sale.
+ *  - invoiceSeries/{fy}: the number series of one financial year (server-only).
+ *  - officeSettings/company: who the seller is (Admin edits; needed to bill).
+ *  - saleRequests/{requestId}: makes retries harmless. saleSync/{saleId}: what has
+ *    already been posted to the books, so a retry never re-posts (server-only).
+ */
+
+export const SALES = "sales";
+export const SALE_REQUESTS = "saleRequests";
+export const SALE_SYNC = "saleSync";
+export const INVOICE_SERIES = "invoiceSeries";
+export const OFFICE_SETTINGS = "officeSettings";
+export const COMPANY_DOC = "company";
+
+export const SELLER_STATE_CODE = "06";
+export const MAX_SALE_LINES = 60;
+export const MAX_PACKS_PER_LINE = 100_000;
+export const MAX_SALE_PAYMENTS = 2;
+export const MAX_INVOICE_NUMBER_LENGTH = 16;
+export const DEFAULT_INVOICE_PREFIX = "TF";
+
+/** HL accounts a sale posts to (made on first use, then found by name). */
+export const SALE_ACCOUNTS = {
+  revenue: {name: "Sales Revenue", type: "INCOME"},
+  outputCgst: {name: "Output CGST", type: "LIABILITY", isTaxAccount: true},
+  outputSgst: {name: "Output SGST", type: "LIABILITY", isTaxAccount: true},
+  outputIgst: {name: "Output IGST", type: "LIABILITY", isTaxAccount: true},
+} as const;
+
+export function bad(message: string, code?: string): never {
+  throw new HttpsError("invalid-argument", message, code ? {code} : undefined);
+}
+
+// ─── The bits of core money / gst / pricing / units the sale maths uses ──────────
+
+const roundHalfAwayFromZero = (v: number) => (v < 0 ? -Math.round(-v) : Math.round(v));
+const percentOfPaise = (paise: number, bp: number) => roundHalfAwayFromZero((paise * bp) / 10_000);
+const multiplyPaise = (paise: number, quantity: number) => roundHalfAwayFromZero(paise * quantity);
+function toMilli(base: number): number {
+  const scaled = base * 1000;
+  const r = Math.round(Math.abs(scaled));
+  return scaled < 0 ? -r : r;
+}
+function roundOffToRupee(paise: number) {
+  const total = roundHalfAwayFromZero(paise / 100) * 100;
+  return {total, roundOff: total - paise};
+}
+
+type PriceBasis = "PER_BASE_UNIT" | "PER_PACK" | "PER_PIECE";
+function priceBasisFromLabel(label: string): PriceBasis {
+  const key = label.trim().toLowerCase();
+  if (key === "per litre" || key === "per liter" || key === "per kg") return "PER_BASE_UNIT";
+  if (key === "per case" || key === "per bucket" || key === "per barrel") return "PER_PACK";
+  if (key === "per piece") return "PER_PIECE";
+  throw new RangeError(`Unknown "Price per" value: "${label}"`);
+}
+function piecesPerPackFromLabel(packLabel: string): number | null {
+  const match = /(\d+)\s*[x×]\s*\d/i.exec(packLabel);
+  return match ? Number(match[1]) : null;
+}
+function packPricePaise(p: {basis: PriceBasis; pricePaise: number; packQtyMilli: number; piecesPerPack?: number}): number {
+  switch (p.basis) {
+  case "PER_BASE_UNIT":
+    return multiplyPaise(p.pricePaise, p.packQtyMilli / 1000);
+  case "PER_PACK":
+    return p.pricePaise;
+  case "PER_PIECE": {
+    const pieces = p.piecesPerPack;
+    if (!pieces || !Number.isInteger(pieces) || pieces <= 0) throw new RangeError("PER_PIECE pricing needs a whole piecesPerPack");
+    return multiplyPaise(p.pricePaise, pieces);
+  }
+  }
+}
+
+export type SupplyType = "INTRA_STATE" | "INTER_STATE";
+interface LineTax {taxablePaise: number; gstRateBp: number; cgstPaise: number; sgstPaise: number; igstPaise: number; taxPaise: number; totalPaise: number}
+function taxLine(line: {taxablePaise: number; gstRateBp: number}, type: SupplyType): LineTax {
+  let cgstPaise = 0;
+  let sgstPaise = 0;
+  let igstPaise = 0;
+  if (type === "INTRA_STATE") {
+    cgstPaise = percentOfPaise(line.taxablePaise, line.gstRateBp / 2);
+    sgstPaise = cgstPaise;
+  } else {
+    igstPaise = percentOfPaise(line.taxablePaise, line.gstRateBp);
+  }
+  const taxPaise = cgstPaise + sgstPaise + igstPaise;
+  return {taxablePaise: line.taxablePaise, gstRateBp: line.gstRateBp, cgstPaise, sgstPaise, igstPaise, taxPaise, totalPaise: line.taxablePaise + taxPaise};
+}
+export interface RateRow {gstRateBp: number; taxablePaise: number; cgstPaise: number; sgstPaise: number; igstPaise: number}
+function invoiceTotals(lines: {taxablePaise: number; gstRateBp: number}[], seller: string, pos: string) {
+  const type: SupplyType = seller === pos ? "INTRA_STATE" : "INTER_STATE";
+  const taxed = lines.map((l) => taxLine(l, type));
+  const sum = (k: keyof LineTax) => taxed.reduce((s, l) => s + l[k], 0);
+  const taxablePaise = sum("taxablePaise");
+  const cgstPaise = sum("cgstPaise");
+  const sgstPaise = sum("sgstPaise");
+  const igstPaise = sum("igstPaise");
+  const taxPaise = cgstPaise + sgstPaise + igstPaise;
+  const exactTotalPaise = taxablePaise + taxPaise;
+  const {total, roundOff} = roundOffToRupee(exactTotalPaise);
+  const rates = new Map<number, RateRow>();
+  for (const l of taxed) {
+    const row = rates.get(l.gstRateBp) ?? {gstRateBp: l.gstRateBp, taxablePaise: 0, cgstPaise: 0, sgstPaise: 0, igstPaise: 0};
+    row.taxablePaise += l.taxablePaise;
+    row.cgstPaise += l.cgstPaise;
+    row.sgstPaise += l.sgstPaise;
+    row.igstPaise += l.igstPaise;
+    rates.set(l.gstRateBp, row);
+  }
+  return {
+    supplyType: type, lines: taxed, taxablePaise, cgstPaise, sgstPaise, igstPaise, taxPaise, exactTotalPaise,
+    roundOffPaise: roundOff, grandTotalPaise: total, byRate: [...rates.values()].sort((a, b) => a.gstRateBp - b.gstRateBp),
+  };
+}
+
+// ─── Pricing a sale (core sale.ts) ─────────────────────────────────────────────
+
+export type PriceTier = "Dealer" | "Distributor";
+export type BaseUnit = "L" | "kg" | "piece";
+
+export interface SaleProduct {
+  sku: string;
+  name: string;
+  grade: string;
+  packLabel: string;
+  productKey: string;
+  packQty: number;
+  baseUnit: BaseUnit;
+  pricePer: string | null;
+  dealerPricePaise: number | null;
+  distributorPricePaise: number | null;
+  gstPct: number | null;
+  hsnCode: string | null;
+  active: boolean;
+}
+
+export interface SaleLineInput {sku: string; packs: number; discountBp: number}
+
+export interface PricedSaleLine {
+  sku: string;
+  productName: string;
+  packLabel: string;
+  productKey: string;
+  hsnCode: string | null;
+  baseUnit: BaseUnit;
+  packQtyMilli: number;
+  packs: number;
+  qtyMilli: number;
+  pricePer: string;
+  listPricePaise: number;
+  packPricePaise: number;
+  discountBp: number;
+  grossPaise: number;
+  discountPaise: number;
+  taxablePaise: number;
+  gstRateBp: number;
+  cgstPaise: number;
+  sgstPaise: number;
+  igstPaise: number;
+  totalPaise: number;
+}
+
+export interface SaleFreight {taxablePaise: number; gstRateBp: number; cgstPaise: number; sgstPaise: number; igstPaise: number; totalPaise: number}
+
+export interface SaleTotals {
+  supplyType: SupplyType;
+  grossPaise: number;
+  discountPaise: number;
+  taxablePaise: number;
+  cgstPaise: number;
+  sgstPaise: number;
+  igstPaise: number;
+  taxPaise: number;
+  exactTotalPaise: number;
+  roundOffPaise: number;
+  grandTotalPaise: number;
+  byRate: RateRow[];
+}
+
+export type SaleLineErrorCode =
+  | "UNKNOWN_PRODUCT" | "PRODUCT_INACTIVE" | "NO_PRICE" | "NO_PRICE_BASIS" | "BAD_PACK_SIZE" | "BAD_PACKS" | "BAD_DISCOUNT" | "BAD_GST_RATE";
+
+export const SALE_LINE_ERROR_TEXT: Record<SaleLineErrorCode, string> = {
+  UNKNOWN_PRODUCT: "This product doesn't exist any more.",
+  PRODUCT_INACTIVE: "This product is hidden from sales.",
+  NO_PRICE: "This product has no price for the customer's price list yet.",
+  NO_PRICE_BASIS: "This product's price has no \"per\" (per litre / per case …) — an Admin must set it.",
+  BAD_PACK_SIZE: "This product's pack size isn't set properly — an Admin must fix it.",
+  BAD_PACKS: `Packs must be a whole number from 1 to ${MAX_PACKS_PER_LINE.toLocaleString("en-IN")}.`,
+  BAD_DISCOUNT: "Discount must be between 0 and 100 %, at most two decimals.",
+  BAD_GST_RATE: "This product's GST rate isn't usable — an Admin must fix it.",
+};
+
+export function gstRateBp(gstPct: number | null | undefined): number | null {
+  if (typeof gstPct !== "number" || !Number.isFinite(gstPct) || gstPct < 0 || gstPct > 100) return null;
+  const bp = Math.round(gstPct * 100);
+  if (Math.abs(bp - gstPct * 100) > 1e-6 || bp % 2 !== 0) return null;
+  return bp;
+}
+
+export const tierPrice = (p: SaleProduct, tier: PriceTier): number | null =>
+  tier === "Distributor" ? p.distributorPricePaise : p.dealerPricePaise;
+
+type Pre = Omit<PricedSaleLine, "cgstPaise" | "sgstPaise" | "igstPaise" | "totalPaise">;
+
+function preLine(p: SaleProduct | undefined, line: SaleLineInput, tier: PriceTier): {ok: true; line: Pre} | {ok: false; code: SaleLineErrorCode} {
+  if (!p) return {ok: false, code: "UNKNOWN_PRODUCT"};
+  if (!p.active) return {ok: false, code: "PRODUCT_INACTIVE"};
+  if (!Number.isInteger(line.packs) || line.packs < 1 || line.packs > MAX_PACKS_PER_LINE) return {ok: false, code: "BAD_PACKS"};
+  if (!Number.isInteger(line.discountBp) || line.discountBp < 0 || line.discountBp > 10_000) return {ok: false, code: "BAD_DISCOUNT"};
+  const list = tierPrice(p, tier);
+  if (list === null || !Number.isInteger(list) || list < 0) return {ok: false, code: "NO_PRICE"};
+  if (!p.pricePer) return {ok: false, code: "NO_PRICE_BASIS"};
+  const rate = gstRateBp(p.gstPct);
+  if (rate === null) return {ok: false, code: "BAD_GST_RATE"};
+  if (!Number.isFinite(p.packQty) || p.packQty <= 0) return {ok: false, code: "BAD_PACK_SIZE"};
+  let basis: PriceBasis;
+  try {
+    basis = priceBasisFromLabel(p.pricePer);
+  } catch {
+    return {ok: false, code: "NO_PRICE_BASIS"};
+  }
+  const packQtyMilli = toMilli(p.packQty);
+  let packPrice: number;
+  try {
+    packPrice = packPricePaise({basis, pricePaise: list, packQtyMilli, piecesPerPack: piecesPerPackFromLabel(p.packLabel) ?? undefined});
+  } catch {
+    return {ok: false, code: "BAD_PACK_SIZE"};
+  }
+  const grossPaise = packPrice * line.packs;
+  const discountPaise = percentOfPaise(grossPaise, line.discountBp);
+  return {
+    ok: true,
+    line: {
+      sku: p.sku,
+      productName: [p.name, p.grade].filter((x) => x && x.trim()).join(" "),
+      packLabel: p.packLabel,
+      productKey: p.productKey,
+      hsnCode: p.hsnCode && p.hsnCode.trim() ? p.hsnCode.trim() : null,
+      baseUnit: p.baseUnit,
+      packQtyMilli,
+      packs: line.packs,
+      qtyMilli: packQtyMilli * line.packs,
+      pricePer: p.pricePer,
+      listPricePaise: list,
+      packPricePaise: packPrice,
+      discountBp: line.discountBp,
+      grossPaise,
+      discountPaise,
+      taxablePaise: grossPaise - discountPaise,
+      gstRateBp: rate,
+    },
+  };
+}
+
+export interface PriceSaleInput {
+  products: Readonly<Record<string, SaleProduct>>;
+  lines: readonly SaleLineInput[];
+  tier: PriceTier;
+  sellerStateCode: string;
+  placeOfSupplyStateCode: string;
+  freightPaise: number;
+}
+
+export type PricedSale =
+  | {ok: true; lines: PricedSaleLine[]; freight: SaleFreight | null; totals: SaleTotals; missingHsn: string[]}
+  | {ok: false; errors: {line: number; code: SaleLineErrorCode}[]};
+
+export function priceSale(input: PriceSaleInput): PricedSale {
+  const pre: Pre[] = [];
+  const errors: {line: number; code: SaleLineErrorCode}[] = [];
+  input.lines.forEach((l, i) => {
+    const r = preLine(input.products[l.sku], l, input.tier);
+    if (r.ok) pre.push(r.line);
+    else errors.push({line: i, code: r.code});
+  });
+  if (errors.length > 0) return {ok: false, errors};
+
+  const freightRate = pre.reduce((max, l) => Math.max(max, l.gstRateBp), 0);
+  const taxable = pre.map((l) => ({taxablePaise: l.taxablePaise, gstRateBp: l.gstRateBp}));
+  if (input.freightPaise > 0) taxable.push({taxablePaise: input.freightPaise, gstRateBp: freightRate});
+  const t = invoiceTotals(taxable, input.sellerStateCode, input.placeOfSupplyStateCode);
+
+  const lines: PricedSaleLine[] = pre.map((l, i) => {
+    const x = t.lines[i];
+    return {...l, cgstPaise: x.cgstPaise, sgstPaise: x.sgstPaise, igstPaise: x.igstPaise, totalPaise: x.totalPaise};
+  });
+  const f = input.freightPaise > 0 ? t.lines[pre.length] : null;
+  return {
+    ok: true,
+    lines,
+    freight: f ? {taxablePaise: f.taxablePaise, gstRateBp: f.gstRateBp, cgstPaise: f.cgstPaise, sgstPaise: f.sgstPaise, igstPaise: f.igstPaise, totalPaise: f.totalPaise} : null,
+    totals: {
+      supplyType: t.supplyType,
+      grossPaise: pre.reduce((s, l) => s + l.grossPaise, 0),
+      discountPaise: pre.reduce((s, l) => s + l.discountPaise, 0),
+      taxablePaise: t.taxablePaise,
+      cgstPaise: t.cgstPaise,
+      sgstPaise: t.sgstPaise,
+      igstPaise: t.igstPaise,
+      taxPaise: t.taxPaise,
+      exactTotalPaise: t.exactTotalPaise,
+      roundOffPaise: t.roundOffPaise,
+      grandTotalPaise: t.grandTotalPaise,
+      byRate: t.byRate,
+    },
+    missingHsn: [...new Set(lines.filter((l) => !l.hsnCode).map((l) => l.sku))],
+  };
+}
+
+// ─── The sale as a whole ────────────────────────────────────────────────────────
+
+export interface SalePaymentInput {registerId: string; amountPaise: number}
+
+export interface SaleHeaderInput {
+  customerEntityId: string;
+  priceTier: PriceTier | null;
+  placeOfSupplyStateCode: string | null;
+  invoiceDate: string;
+  lineCount: number;
+  freightPaise: number;
+  payments: readonly SalePaymentInput[];
+  note: string | null;
+}
+
+export type SaleErrorCode =
+  | "NO_LINES" | "TOO_MANY_LINES" | "NO_PRICE_TIER" | "NO_STATE" | "BAD_FREIGHT" | "BAD_DATE" | "FUTURE_DATE"
+  | "TOO_MANY_PAYMENTS" | "BAD_PAYMENT" | "SAME_REGISTER_TWICE" | "NOTE_TOO_LONG";
+
+export const SALE_ERROR_TEXT: Record<SaleErrorCode, string> = {
+  NO_LINES: "Add at least one product.",
+  TOO_MANY_LINES: `At most ${MAX_SALE_LINES} lines on one invoice.`,
+  NO_PRICE_TIER: "Choose the customer's price list (Dealer or Distributor) on their record first.",
+  NO_STATE: "The customer has no state on record — needed for GST. Add it on their record first.",
+  BAD_FREIGHT: "Freight must be ₹0 or more.",
+  BAD_DATE: "Invoice date must look like 2026-10-27.",
+  FUTURE_DATE: "An invoice can't be dated in the future.",
+  TOO_MANY_PAYMENTS: `At most ${MAX_SALE_PAYMENTS} payments at billing.`,
+  BAD_PAYMENT: "Each payment must be more than ₹0, into a cash or bank account.",
+  SAME_REGISTER_TWICE: "Two payments into the same account — put them together.",
+  NOTE_TOO_LONG: "Keep the note under 300 characters.",
+};
+
+const realDay = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d;
+
+export function saleError(s: SaleHeaderInput, today: string): SaleErrorCode | null {
+  if (s.lineCount < 1) return "NO_LINES";
+  if (s.lineCount > MAX_SALE_LINES) return "TOO_MANY_LINES";
+  if (s.priceTier !== "Dealer" && s.priceTier !== "Distributor") return "NO_PRICE_TIER";
+  if (!s.placeOfSupplyStateCode || !isValidStateCode(s.placeOfSupplyStateCode)) return "NO_STATE";
+  if (!Number.isInteger(s.freightPaise) || s.freightPaise < 0) return "BAD_FREIGHT";
+  if (typeof s.invoiceDate !== "string" || !realDay(s.invoiceDate)) return "BAD_DATE";
+  if (s.invoiceDate > today) return "FUTURE_DATE";
+  if (s.payments.length > MAX_SALE_PAYMENTS) return "TOO_MANY_PAYMENTS";
+  for (const p of s.payments) {
+    if (!p.registerId || !Number.isInteger(p.amountPaise) || p.amountPaise <= 0) return "BAD_PAYMENT";
+  }
+  if (new Set(s.payments.map((p) => p.registerId)).size !== s.payments.length) return "SAME_REGISTER_TWICE";
+  if (s.note && s.note.length > 300) return "NOTE_TOO_LONG";
+  return null;
+}
+
+export type SalePaymentErrorCode = "PAYMENT_TOO_MUCH" | "WALK_IN_MUST_PAY_FULL";
+
+export const SALE_PAYMENT_ERROR_TEXT: Record<SalePaymentErrorCode, string> = {
+  PAYMENT_TOO_MUCH: "Paid now is more than the invoice total — record the extra separately as money received.",
+  WALK_IN_MUST_PAY_FULL: "A walk-in customer must pay the full amount now.",
+};
+
+export function salePaymentError(customerEntityId: string, grandTotalPaise: number, payments: readonly SalePaymentInput[]): SalePaymentErrorCode | null {
+  const paid = payments.reduce((s, p) => s + p.amountPaise, 0);
+  if (paid > grandTotalPaise) return "PAYMENT_TOO_MUCH";
+  if (customerEntityId === WALK_IN_ENTITY_ID && paid !== grandTotalPaise) return "WALK_IN_MUST_PAY_FULL";
+  return null;
+}
+
+// ─── Invoice numbers ───────────────────────────────────────────────────────────
+
+export function financialYear(date: string): string {
+  const y = Number(date.slice(0, 4));
+  const m = Number(date.slice(5, 7));
+  const start = m >= 4 ? y : y - 1;
+  return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
+}
+
+export const validInvoicePrefix = (p: string) => /^[A-Z0-9]{1,3}$/.test(p);
+
+export function invoiceNumber(prefix: string, fy: string, seq: number): string {
+  if (!validInvoicePrefix(prefix)) throw new RangeError(`Bad invoice prefix "${prefix}"`);
+  if (!Number.isInteger(seq) || seq < 1) throw new RangeError(`Bad invoice sequence ${seq}`);
+  const n = `${prefix}/${fy}/${String(seq).padStart(4, "0")}`;
+  if (n.length > MAX_INVOICE_NUMBER_LENGTH) throw new RangeError(`Invoice number ${n} is longer than ${MAX_INVOICE_NUMBER_LENGTH} characters`);
+  return n;
+}
+
+export type PaidState = "UNPAID" | "PART_PAID" | "PAID";
+
+export function paidState(grandTotalPaise: number, paidPaise: number): PaidState {
+  if (paidPaise <= 0) return grandTotalPaise === 0 ? "PAID" : "UNPAID";
+  return paidPaise >= grandTotalPaise ? "PAID" : "PART_PAID";
+}
+
+// ─── The seller ────────────────────────────────────────────────────────────────
+
+export interface CompanyProfile {
+  legalName: string;
+  tradeName: string | null;
+  gstin: string;
+  stateCode: string;
+  address: {line1: string; line2: string; city: string; pincode: string};
+  phone: string | null;
+  email: string | null;
+  invoicePrefix: string;
+}
+
+export type CompanyErrorCode = "NO_NAME" | "BAD_GSTIN" | "NO_ADDRESS" | "BAD_PINCODE" | "BAD_PREFIX";
+
+export const COMPANY_ERROR_TEXT: Record<CompanyErrorCode, string> = {
+  NO_NAME: "Give the company's legal name.",
+  BAD_GSTIN: "The company's GSTIN isn't valid.",
+  NO_ADDRESS: "Give the address (line 1 and city).",
+  BAD_PINCODE: "PIN code must be 6 digits.",
+  BAD_PREFIX: "Invoice prefix must be 1–3 capital letters or digits (e.g. TF).",
+};
+
+export function companyError(c: Omit<CompanyProfile, "stateCode">): CompanyErrorCode | null {
+  if (!c.legalName || !c.legalName.trim()) return "NO_NAME";
+  if (!c.gstin || !checkGstin(c.gstin).valid) return "BAD_GSTIN";
+  if (!c.address?.line1?.trim() || !c.address?.city?.trim()) return "NO_ADDRESS";
+  if (c.address.pincode && !/^\d{6}$/.test(c.address.pincode)) return "BAD_PINCODE";
+  if (!validInvoicePrefix(c.invoicePrefix)) return "BAD_PREFIX";
+  return null;
+}
+
+// ─── Amount in words ───────────────────────────────────────────────────────────
+
+const ONES = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+const below100 = (n: number): string => (n < 20 ? ONES[n] : [TENS[Math.floor(n / 10)], ONES[n % 10]].filter(Boolean).join(" "));
+function below1000(n: number): string {
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  return [h ? `${ONES[h]} Hundred` : "", rest ? below100(rest) : ""].filter(Boolean).join(" ");
+}
+function indianWords(n: number): string {
+  if (n === 0) return "Zero";
+  const crore = Math.floor(n / 1_00_00_000);
+  const lakh = Math.floor((n % 1_00_00_000) / 1_00_000);
+  const thousand = Math.floor((n % 1_00_000) / 1000);
+  const rest = n % 1000;
+  return [crore ? `${indianWords(crore)} Crore` : "", lakh ? `${below100(lakh)} Lakh` : "", thousand ? `${below100(thousand)} Thousand` : "", rest ? below1000(rest) : ""]
+    .filter(Boolean)
+    .join(" ");
+}
+export function amountInWords(paise: number): string {
+  if (!Number.isInteger(paise) || paise < 0) throw new RangeError(`Bad amount ${paise}`);
+  const rupees = Math.floor(paise / 100);
+  const p = paise % 100;
+  return `Rupees ${indianWords(rupees)}${p ? ` and ${below100(p)} Paise` : ""} Only`;
+}
+
+// ─── Books ─────────────────────────────────────────────────────────────────────
+
+/** Deterministic HL sourceIds for a sale: "sale_<id>:sale", "sale_<id>:payment_0". */
+export const saleSourceIds = {
+  sale: (saleId: string) => `sale_${saleId}:sale`,
+  payment: (saleId: string, i: number) => `sale_${saleId}:payment_${i}`,
+};

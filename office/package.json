@@ -1,0 +1,30 @@
+{
+  "name": "technofluid-office",
+  "private": true,
+  "description": "Technofluid Office \u2014 desktop accounting, stock and billing app (Electron) + shared core",
+  "workspaces": [
+    "core",
+    "desktop"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev": "npm run dev -w desktop",
+    "build": "npm run build -w desktop",
+    "emulators": "node emulator/start.mjs",
+    "emulators:real-books": "node emulator/start-real-books.mjs",
+    "seed": "node emulator/seed.mjs",
+    "seed:stock": "node emulator/seed-stock.mjs",
+    "seed:entities": "node emulator/seed-entities.mjs",
+    "seed:money": "node emulator/seed-money.mjs",
+    "seed:sales": "node emulator/seed-sales.mjs",
+    "fake-hl": "node emulator/fake-hl.mjs",
+    "test:emulator": "node emulator/run-tests.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "firebase-admin": "^13.6.0"
+  }
+}

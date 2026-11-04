@@ -179,6 +179,8 @@ export type ImportProductsResponse = {
   skipped: number;
   invalid: { rowNumber: number; reason: string }[];
   families: number;
+  /** Products where an Admin's edit in Technofluid Office was kept instead of the sheet's value. */
+  keptAppEdits?: { sku: string; fields: string[] }[];
 };
 
 export async function importProducts(

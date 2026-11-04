@@ -1,0 +1,746 @@
+[
+ {
+  "code": "meg",
+  "name": "meg",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 1.05,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 20"
+ },
+ {
+  "code": "dw",
+  "name": "dw",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 1.0,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 21"
+ },
+ {
+  "code": "go",
+  "name": "go",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.87,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 22"
+ },
+ {
+  "code": "n4",
+  "name": "n4 (lubricating oil distilled)",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.84,
+  "tradeName": "lubricating oil distilled",
+  "aliases": [
+   "lubricating oil distilled"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 23"
+ },
+ {
+  "code": "va",
+  "name": "va (lubricating oil)",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.85,
+  "tradeName": "lubricating oil",
+  "aliases": [
+   "lubricating oil"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 24"
+ },
+ {
+  "code": "w150",
+  "name": "w150/ white oil 32",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.84,
+  "tradeName": null,
+  "aliases": [
+   "whie oil 32",
+   "white oil 32"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 25"
+ },
+ {
+  "code": "w70",
+  "name": "w70/ white oil 12",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.82,
+  "tradeName": null,
+  "aliases": [
+   "white oil 12"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 26"
+ },
+ {
+  "code": "w500",
+  "name": "w500/ w600/ hlp/ n100",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.86,
+  "tradeName": null,
+  "aliases": [
+   "hlp",
+   "n100",
+   "w600"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 27"
+ },
+ {
+  "code": "sn500",
+  "name": "SN500",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.88,
+  "tradeName": null,
+  "aliases": [
+   "sn500(kg)"
+  ],
+  "flags": [
+   "alias \"sn500(kg)\" assumed: grease recipes write sn500(kg) — read as SN500 measured by weight (kg basis)"
+  ],
+  "source": "Sheet1 row 28"
+ },
+ {
+  "code": "sae40",
+  "name": "SAE40",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": 0.89,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet"
+  ],
+  "source": "Sheet1 row 29"
+ },
+ {
+  "code": "sn150",
+  "name": "SN150",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.87,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [],
+  "source": "Sheet1 row 30"
+ },
+ {
+  "code": "bs",
+  "name": "BS/ Bright stock",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.9,
+  "tradeName": null,
+  "aliases": [
+   "bright stock"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 31"
+ },
+ {
+  "code": "turbine",
+  "name": "Turbine/ TB",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.86,
+  "tradeName": null,
+  "aliases": [
+   "tb"
+  ],
+  "flags": [],
+  "source": "Sheet1 row 32"
+ },
+ {
+  "code": "eo additive",
+  "name": "EO additive",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": 1.16,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "also measured in L"
+  ],
+  "source": "Sheet1 row 33"
+ },
+ {
+  "code": "ppd",
+  "name": "PPD",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 34"
+ },
+ {
+  "code": "mp3",
+  "name": "grease MP3",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease mp3"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 35"
+ },
+ {
+  "code": "c red gel",
+  "name": "grease C RED GEL",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease c red gel"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 36"
+ },
+ {
+  "code": "g red gel",
+  "name": "grease G RED GEL",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease g red gel"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 37"
+ },
+ {
+  "code": "slr",
+  "name": "grease SLR",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease slr"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 38"
+ },
+ {
+  "code": "wb",
+  "name": "grease WB",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease wb"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 39"
+ },
+ {
+  "code": "aplr",
+  "name": "grease APLR",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease aplr"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 40"
+ },
+ {
+  "code": "ap3",
+  "name": "grease AP3",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease ap3"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 41"
+ },
+ {
+  "code": "red gel",
+  "name": "grease RED GEL",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease red gel"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 42"
+ },
+ {
+  "code": "blue gel",
+  "name": "grease BLUE GEL",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease blue gel"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 43"
+ },
+ {
+  "code": "ep2",
+  "name": "grease EP2",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "grease ep2"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 44"
+ },
+ {
+  "code": "nc additive",
+  "name": "nc additive",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "neat cutting oil additive",
+   "neatcuttingoiladditive"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 45"
+ },
+ {
+  "code": "4cst",
+  "name": "4cst",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "unit taken from 'another unit' column (L)",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 46"
+ },
+ {
+  "code": "6cst",
+  "name": "6cst",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "unit taken from 'another unit' column (L)",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 47"
+ },
+ {
+  "code": "8cst",
+  "name": "8cst",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "unit taken from 'another unit' column (L)",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 48"
+ },
+ {
+  "code": "pao4",
+  "name": "pao4",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "pao 4"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 49"
+ },
+ {
+  "code": "antifoam",
+  "name": "antifoam",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 50"
+ },
+ {
+  "code": "mto",
+  "name": "mto",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": 0.76,
+  "tradeName": null,
+  "aliases": [
+   "mineral oil",
+   "mineraloil"
+  ],
+  "flags": [
+   "unit taken from 'another unit' column (L)"
+  ],
+  "source": "Sheet1 row 51"
+ },
+ {
+  "code": "rp additive",
+  "name": "rp additive",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "rust preventive additive",
+   "rustpreventiveadditive"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 52"
+ },
+ {
+  "code": "tackifier",
+  "name": "tackifier",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 53"
+ },
+ {
+  "code": "ac additive",
+  "name": "ac additive",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "air compressor additive",
+   "aircompressoradditive"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 54"
+ },
+ {
+  "code": "ssc concenterate",
+  "name": "ssc concentrate",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "semi synthetic concenterate",
+   "semisyntheticconcenterate",
+   "ssc concentrate"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 55"
+ },
+ {
+  "code": "sa additive",
+  "name": "sa additive",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "shock absorber additive",
+   "shockabsorberadditive"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 56"
+ },
+ {
+  "code": "q additive",
+  "name": "q additive",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "quenching oil additive",
+   "quenchingoiladditive"
+  ],
+  "flags": [
+   "also measured in L",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 57"
+ },
+ {
+  "code": "rpo 710",
+  "name": "RPO 710",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": 0.935,
+  "tradeName": null,
+  "aliases": [
+   "rpo710",
+   "rubber process oil 710",
+   "rubberprocessoil710"
+  ],
+  "flags": [
+   "also measured in L"
+  ],
+  "source": "Sheet1 row 58"
+ },
+ {
+  "code": "polymer",
+  "name": "polymer",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": "L",
+  "densityKgPerL": 0.86,
+  "tradeName": null,
+  "aliases": [
+   "lubimax 141",
+   "lubimax141"
+  ],
+  "flags": [
+   "also measured in L"
+  ],
+  "source": "Sheet1 row 59"
+ },
+ {
+  "code": "anti oxidant",
+  "name": "anti oxidant",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 60"
+ },
+ {
+  "code": "anti rust",
+  "name": "anti rust",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 61"
+ },
+ {
+  "code": "anti wear",
+  "name": "anti wear",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 62"
+ },
+ {
+  "code": "friction modifier",
+  "name": "friction modifier",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 63"
+ },
+ {
+  "code": "v2",
+  "name": "v2",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 64"
+ },
+ {
+  "code": "s2",
+  "name": "s2",
+  "kind": "raw_material",
+  "baseUnit": null,
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "no unit in the sheet",
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 65"
+ },
+ {
+  "code": "ep2h1",
+  "name": "ep2h1",
+  "kind": "raw_material",
+  "baseUnit": "kg",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [
+   "ep2 (h1) food grade grease",
+   "ep2(h1)foodgradegrease"
+  ],
+  "flags": [
+   "no density — kg↔L conversion not possible yet"
+  ],
+  "source": "Sheet1 row 66"
+ },
+ {
+  "code": "roll perfect 46",
+  "name": "roll perfect 46",
+  "kind": "raw_material",
+  "baseUnit": "L",
+  "altUnit": null,
+  "densityKgPerL": null,
+  "tradeName": null,
+  "aliases": [],
+  "flags": [
+   "unit taken from 'another unit' column (L)",
+   "no density — kg↔L conversion not possible yet",
+   "also a finished product (ROLL PERFECT 46 (SOLUBLE)) — likely bought in and resold"
+  ],
+  "source": "Sheet1 row 67"
+ }
+]

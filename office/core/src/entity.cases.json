@@ -1,0 +1,101 @@
+{
+  "_about": "ONE table of entity rules, run by BOTH office/core (vitest) and the Cloud Functions mirror (emulator tests). If one copy changes without the other, a test fails. Codes are EntityErrorCode values.",
+  "validate": [
+    {
+      "case": "a normal customer: trims, normalises phone, blank email becomes null",
+      "input": {
+        "name": "  Karnal  Auto Spares ",
+        "kinds": ["customer"],
+        "phones": ["98765 43210"],
+        "email": "  ",
+        "gstin": "06aabct1234f1zu",
+        "address": { "line1": "Shop 4, GT Road", "line2": "", "city": "Karnal", "district": "Karnal", "pincode": "132001", "stateCode": "06" },
+        "priceTier": "Dealer",
+        "creditLimitPaise": 5000000,
+        "notes": null
+      },
+      "expect": { "ok": true, "value": { "name": "Karnal Auto Spares", "phones": ["+919876543210"], "email": null, "gstin": "06AABCT1234F1ZU", "priceTier": "Dealer" } }
+    },
+    {
+      "case": "supplier and customer at once, no GSTIN, opening receivable",
+      "input": {
+        "name": "Delhi Base Oils",
+        "kinds": ["supplier", "customer"],
+        "phones": [],
+        "email": "Accounts@DelhiBase.in",
+        "gstin": "",
+        "address": { "line1": "", "line2": "", "city": "Delhi", "district": "", "pincode": "", "stateCode": "07" },
+        "priceTier": null,
+        "creditLimitPaise": null,
+        "notes": "Pays by RTGS",
+        "opening": { "amountPaise": 1250050, "direction": "receivable", "asOf": "2026-04-01" }
+      },
+      "expect": { "ok": true, "value": { "email": "accounts@delhibase.in", "gstin": null, "kinds": ["supplier", "customer"] } }
+    },
+    {
+      "case": "GSTIN from Haryana but state Delhi chosen",
+      "input": { "name": "X", "kinds": ["customer"], "phones": [], "email": null, "gstin": "06AABCT1234F1ZU", "address": { "stateCode": "07" }, "priceTier": null, "creditLimitPaise": null, "notes": null },
+      "expect": { "ok": false, "codes": ["gstin_state_mismatch"] }
+    },
+    {
+      "case": "bad GSTIN check digit",
+      "input": { "name": "X", "kinds": ["customer"], "phones": [], "email": null, "gstin": "06AABCT1234F1ZA", "address": { "stateCode": "06" }, "priceTier": null, "creditLimitPaise": null, "notes": null },
+      "expect": { "ok": false, "codes": ["gstin_invalid"] }
+    },
+    {
+      "case": "no kind ticked",
+      "input": { "name": "X", "kinds": [], "phones": [], "email": null, "gstin": null, "address": { "stateCode": "06" }, "priceTier": null, "creditLimitPaise": null, "notes": null },
+      "expect": { "ok": false, "codes": ["kinds_empty"] }
+    },
+    {
+      "case": "no state",
+      "input": { "name": "X", "kinds": ["customer"], "phones": [], "email": null, "gstin": null, "address": { "stateCode": "" }, "priceTier": null, "creditLimitPaise": null, "notes": null },
+      "expect": { "ok": false, "codes": ["state_required"] }
+    },
+    {
+      "case": "several problems at once: no name, bad phone, bad email, bad price list",
+      "input": { "name": " ", "kinds": ["customer"], "phones": ["12345"], "email": "not-an-email", "gstin": null, "address": { "stateCode": "06" }, "priceTier": "Retail", "creditLimitPaise": null, "notes": null },
+      "expect": { "ok": false, "codes": ["name_required", "phone_invalid", "email_invalid", "price_tier_invalid"] }
+    },
+    {
+      "case": "opening balance with a zero amount and an impossible date",
+      "input": { "name": "X", "kinds": ["customer"], "phones": [], "email": null, "gstin": null, "address": { "stateCode": "06" }, "priceTier": null, "creditLimitPaise": null, "notes": null, "opening": { "amountPaise": 0, "direction": "receivable", "asOf": "2026-02-30" } },
+      "expect": { "ok": false, "codes": ["opening_amount_invalid", "opening_date_invalid"] }
+    },
+    {
+      "case": "negative or fractional credit limit",
+      "input": { "name": "X", "kinds": ["customer"], "phones": [], "email": null, "gstin": null, "address": { "stateCode": "06" }, "priceTier": null, "creditLimitPaise": 10.5, "notes": null },
+      "expect": { "ok": false, "codes": ["credit_limit_invalid"] }
+    }
+  ],
+  "phone": [
+    { "input": "98765 43210", "expect": "+919876543210" },
+    { "input": "+91-98765-43210", "expect": "+919876543210" },
+    { "input": "098765 43210", "expect": "+919876543210" },
+    { "input": "919876543210", "expect": "+919876543210" },
+    { "input": "12345", "expect": null },
+    { "input": "0123456789", "expect": null }
+  ],
+  "hlAmount": [
+    { "input": "1234.5", "expect": 123450 },
+    { "input": "-0.01", "expect": -1 },
+    { "input": "0", "expect": 0 },
+    { "input": "12.00", "expect": 1200 },
+    { "input": "1.234", "expect": "error" },
+    { "input": "1e3", "expect": "error" },
+    { "input": "", "expect": "error" }
+  ],
+  "profileChanged": [
+    {
+      "case": "notes, address, price list and sync fields don't count",
+      "before": { "name": "A", "phones": ["+919876543210"], "email": null, "gstin": null, "notes": "x", "address": { "city": "Karnal" }, "priceTier": "Dealer", "syncStatus": "SYNCED" },
+      "after": { "name": "A", "phones": ["+919876543210"], "email": null, "gstin": null, "notes": "y", "address": { "city": "Panipat" }, "priceTier": "Distributor", "syncStatus": "PENDING" },
+      "expect": false
+    },
+    { "case": "a second phone doesn't count", "before": { "name": "A", "phones": ["+919876543210"], "email": null, "gstin": null }, "after": { "name": "A", "phones": ["+919876543210", "+919812345678"], "email": null, "gstin": null }, "expect": false },
+    { "case": "name", "before": { "name": "A", "phones": [], "email": null, "gstin": null }, "after": { "name": "B", "phones": [], "email": null, "gstin": null }, "expect": true },
+    { "case": "first phone", "before": { "name": "A", "phones": ["+919876543210"], "email": null, "gstin": null }, "after": { "name": "A", "phones": ["+919812345678"], "email": null, "gstin": null }, "expect": true },
+    { "case": "email", "before": { "name": "A", "phones": [], "email": null, "gstin": null }, "after": { "name": "A", "phones": [], "email": "a@b.in", "gstin": null }, "expect": true },
+    { "case": "GSTIN", "before": { "name": "A", "phones": [], "email": null, "gstin": null }, "after": { "name": "A", "phones": [], "email": null, "gstin": "06AABCT1234F1ZU" }, "expect": true }
+  ]
+}

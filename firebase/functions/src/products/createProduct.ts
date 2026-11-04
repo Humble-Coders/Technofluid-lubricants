@@ -1,6 +1,8 @@
 import * as admin from "firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 
+import { pricesRef, splitPrices } from "./prices";
 import { rebuildFamilyProjection } from "./rebuildFamilyProjection";
 import { validateProductRow, type ProductRowInput } from "./validateProductRow";
 
@@ -69,14 +71,19 @@ export const createProduct = onCall(
       );
     }
 
-    const now = admin.firestore.FieldValue.serverTimestamp();
-    await ref.set({
-      ...result.product,
+    // Prices go to product_prices (admin/accounts only), the rest to products.
+    const { prices, rest } = splitPrices(result.product);
+    const now = FieldValue.serverTimestamp();
+    const batch = db.batch();
+    batch.set(ref, {
+      ...rest,
       active: true,
       deleted: false,
       createdAt: now,
       updatedAt: now,
     });
+    batch.set(pricesRef(db, result.product.sku), { ...prices, updatedAt: now });
+    await batch.commit();
 
     await rebuildFamilyProjection(db, result.product.productKey);
 

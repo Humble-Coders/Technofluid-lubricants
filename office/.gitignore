@@ -1,0 +1,15 @@
+node_modules
+dist
+out
+release
+.env.local
+*.log
+.firebase-emulator-data
+.firebase/
+emulator/data/
+emulator/data-real-books/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*.tsbuildinfo
+emulator/real-books.local.json
