@@ -9,6 +9,7 @@ import { usingEmulators } from "@/lib/firebase";
 import { useOnline } from "@/hooks/useConnection";
 import { useProductionRequests } from "@/hooks/useProductionRequests";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
+import { useRealBooks } from "@/hooks/useSales";
 import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
 
@@ -310,6 +311,7 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
 function TopBar({ items }: { items: NavItem[] }) {
   const { pathname } = useLocation();
   const online = useOnline();
+  const realBooks = useRealBooks();
   const current = items.find((i) => (i.path === "/" ? pathname === "/" : pathname.startsWith(i.path)));
 
   return (
@@ -324,7 +326,11 @@ function TopBar({ items }: { items: NavItem[] }) {
         {current?.label ?? "Technofluid Office"}
       </h1>
       <div className="flex-1" />
-      {usingEmulators ? (
+      {usingEmulators && realBooks ? (
+        <span className="inline-flex h-5 items-center rounded bg-danger px-1.5 text-2xs font-semibold tracking-wide text-white" title="These test emulators post to Technofluid's real Humble Ledger company">
+          REAL BOOKS
+        </span>
+      ) : usingEmulators ? (
         <span className="inline-flex h-5 items-center rounded bg-white/20 px-1.5 text-2xs font-medium text-white">Test data</span>
       ) : null}
       <ApprovalsBell />

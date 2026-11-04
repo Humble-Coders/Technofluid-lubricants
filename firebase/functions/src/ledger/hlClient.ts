@@ -45,7 +45,13 @@ export interface HlLedgerRow {
   txnId: string;
   date: string;
   description: string;
+  /**
+   * Live HL's /ledger rows carry NO sourceId (Ansh HL, 27 Oct 2026) — so a row is matched
+   * to our records by its txnId (the hlTxnId / hlSaleTxnId / payment txn ids we store).
+   */
   sourceId: string | null;
+  /** SALE, PAYMENT, PAYOUT, JOURNAL, EXPENSE, REVERSAL… — the fallback label. */
+  postingType: string | null;
   debit: string;
   credit: string;
   /** HL's running balance, as given — never recomputed. */
@@ -82,6 +88,42 @@ export interface HlMoneyMove {
   actorRef: string;
   /** Our wording — sent as `description` (and metadata.description) to /payments and /customer-payouts. */
   description: string;
+  /** /payments only: apply it to this invoice (HL then tracks the invoice's amountPaid). */
+  invoiceId?: string | null;
+}
+
+/** One GST leg of a sale (CGST 9 %, SGST 9 % or IGST 18 %), credited to an output-tax account. */
+export interface HlSaleTaxLine {
+  label: string;
+  rateBp: number;
+  accountId: string;
+  amountPaise: number;
+}
+
+/** A sale as HL books it: DR the customer's receivable (amount + tax), CR revenue and the tax lines. */
+export interface HlSale {
+  customerId: string;
+  /** Before tax; includes freight and the round-off, so HL's invoice total = our grand total. */
+  amountPaise: number;
+  taxLines: HlSaleTaxLine[];
+  revenueAccountId: string;
+  description: string;
+  date: string;
+  sourceId: string;
+  actorRef: string;
+  /** Our own financial-year number ("TF/2026-27/0001") — HL doesn't consume its own series. */
+  invoiceNumber: string;
+}
+
+export type HlInvoiceStatus = "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED" | string;
+
+export interface HlInvoice {
+  id: string;
+  invoiceNumber: string | null;
+  status: HlInvoiceStatus;
+  /** Decimal rupees, as HL sends them. */
+  total: string;
+  amountPaid: string;
 }
 
 export interface HlClient {
@@ -121,6 +163,14 @@ export interface HlClient {
   postPayout(p: HlMoneyMove): Promise<{txnId: string; idempotent: boolean}>;
   /** Balance of every account on `date`, by account id (decimal strings). */
   getBalanceSheet(date: string): Promise<Record<string, string>>;
+  /** Books a sale and creates its invoice; idempotent on (appId, sourceId). */
+  postSale(p: HlSale): Promise<{txnId: string; invoiceId: string; idempotent: boolean}>;
+  getInvoice(id: string): Promise<HlInvoice>;
+  /**
+   * Cancels an invoice: HL posts the mirror of the sale and marks it CANCELLED. NOT
+   * idempotent (no sourceId) — read the invoice first and skip one already cancelled.
+   */
+  cancelInvoice(id: string, p: {reason: string; date: string}): Promise<void>;
 }
 
 /** An HL failure. `transient` = worth retrying (network, 5xx, 429); else the data is wrong. */
@@ -162,6 +212,9 @@ export class NotConnectedHlClient implements HlClient {
   postPayment = () => this.fail();
   postPayout = () => this.fail();
   getBalanceSheet = () => this.fail();
+  postSale = () => this.fail();
+  getInvoice = () => this.fail();
+  cancelInvoice = () => this.fail();
 }
 
 /**

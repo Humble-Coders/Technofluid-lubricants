@@ -51,7 +51,10 @@ export type MovementType =
   | "REVERSAL"
   /** A product made in the factory (+), and the raw materials it used (−). */
   | "PRODUCTION_IN"
-  | "PRODUCTION_CONSUME";
+  | "PRODUCTION_CONSUME"
+  /** Sold on an invoice (−) and given back when the invoice is cancelled (+). Only sales write these. */
+  | "SALE"
+  | "SALE_CANCEL";
 
 /** A product's stock pool id, derived from its productKey (product + grade). */
 export function poolId(productKey: string): string {

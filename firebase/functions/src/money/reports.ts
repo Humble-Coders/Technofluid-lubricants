@@ -1,13 +1,13 @@
 import * as admin from "firebase-admin";
-import {FieldPath} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
 import {hlAmountToPaise} from "../entities/entityModel";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {HL_MAX_PAGE, plainHlMessage} from "../ledger/hlClient";
+import {txnSources} from "../ledger/txnSources";
 import {indiaToday, realDay, text} from "./common";
-import {MONEY_ENTRIES, REGISTERS, moneyDirection, type MoneyAccountRef} from "./moneyModel";
+import {REGISTERS, moneyDirection, type MoneyAccountRef} from "./moneyModel";
 
 /**
  * Register balances and statements — from the books (Humble Ledger), never stored.
@@ -33,6 +33,9 @@ export const getRegisterBalances = onCall({region: "us-central1", secrets: HL_SE
 });
 
 export type RowKind = "received" | "paid" | "transfer" | "expense" | "correction" | "reversal" | "opening" | "other";
+
+/** A txn HL made itself (no record of ours) — labelled from its posting type. */
+const FALLBACK_KIND: Record<string, RowKind> = {PAYMENT: "received", PAYOUT: "paid", EXPENSE: "expense", REVERSAL: "reversal"};
 
 export function kindOf(e: {from: MoneyAccountRef; to: MoneyAccountRef; isCorrection?: boolean; reversesEntryId?: string | null}): RowKind {
   if (e.reversesEntryId) return "reversal";
@@ -63,14 +66,8 @@ export const getRegisterStatement = onCall({region: "us-central1", secrets: HL_S
   } catch (e) {
     throw new HttpsError("unavailable", plainHlMessage(e));
   }
-  // Join each row to its entry by sourceId (money_<entryId>).
-  const ids = [...new Set(res.rows.map((row) => /^money_(.+)$/.exec(row.sourceId ?? "")?.[1]).filter((x): x is string => Boolean(x)))];
-  const entries = new Map<string, FirebaseFirestore.DocumentData>();
-  for (let i = 0; i < ids.length; i += 30) {
-    const chunk = ids.slice(i, i + 30);
-    const snap = await db.collection(MONEY_ENTRIES).where(FieldPath.documentId(), "in", chunk).get();
-    snap.docs.forEach((d) => entries.set(d.id, d.data()));
-  }
+  // Each row is matched to OUR record of it by txn id (live HL's rows carry no sourceId).
+  const sources = await txnSources(db, res.rows.map((row) => row.txnId));
   let inPaise = 0;
   let outPaise = 0;
   const rows = res.rows.map((row) => {
@@ -78,18 +75,20 @@ export const getRegisterStatement = onCall({region: "us-central1", secrets: HL_S
     const credit = hlAmountToPaise(String(row.credit ?? "0"));
     inPaise += debit;
     outPaise += credit;
-    const entryId = /^money_(.+)$/.exec(row.sourceId ?? "")?.[1] ?? null;
-    const e = entryId ? entries.get(entryId) : undefined;
-    const kind: RowKind = row.sourceId?.startsWith("register_") ? "opening" : e ? kindOf(e as never) : "other";
+    const src = sources.get(row.txnId);
+    const e = src?.kind === "money" ? src.entry : undefined;
+    const kind: RowKind =
+      src?.kind === "registerOpening" ? "opening" : e ? kindOf(e as never) : src?.kind === "salePayment" ? "received" : FALLBACK_KIND[row.postingType ?? ""] ?? "other";
     const other = e ? (e.from.kind !== "ADJUSTMENT" && e.from.registerId === registerId ? e.to : e.from) : null;
     return {
       date: row.date,
       kind,
-      what: row.description,
-      counterpart: other && other.kind !== "ADJUSTMENT" ? String(other.name) : kind === "correction" ? "Adjustment" : null,
+      what: src?.kind === "salePayment" ? `Payment received for ${src.sale.invoiceNo}` : row.description,
+      counterpart:
+        other && other.kind !== "ADJUSTMENT" ? String(other.name) : src?.kind === "salePayment" ? String(src.sale.customer?.name ?? "") : kind === "correction" ? "Adjustment" : null,
       note: e?.note ?? null,
-      entryId,
-      direction: e ? moneyDirection(e as never) : null,
+      entryId: src?.kind === "money" ? src.entryId : null,
+      direction: e ? moneyDirection(e as never) : src?.kind === "salePayment" ? "IN" : null,
       inPaise: debit,
       outPaise: credit,
       balancePaise: hlAmountToPaise(String(row.balance)),

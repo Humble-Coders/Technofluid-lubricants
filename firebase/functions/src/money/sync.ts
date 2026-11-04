@@ -6,6 +6,8 @@ import {ENTITIES} from "../entities/entityModel";
 import {backoffMinutes, reconcileOnce as reconcileEntities, TRIGGER_RETRIES, type SyncOutcome} from "../entities/sync";
 import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, plainHlMessage, type HlClient, type HlLeg, type HlPostingType} from "../ledger/hlClient";
+import {SALES} from "../sales/saleModel";
+import {cancelSaleInBooks, syncSale} from "../sales/sync";
 import {accountCache, categoryAccountName, registerAccountName} from "./hlAccounts";
 import {EXPENSE_CATEGORIES, MONEY_ENTRIES, REGISTERS, SYSTEM_ACCOUNTS, moneySourceIds, type MoneyAccountRef} from "./moneyModel";
 
@@ -223,8 +225,18 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
         l.push({accountId: from.accountId, type: "CREDIT", amountPaise: e.amountPaise});
         await journal("EXPENSE", `${name(to.ref)}${note ? `: ${note}` : ""}${g ? ` (bill ${g.billNo}, ${g.supplier.name})` : ""}`, l);
       } else if (from.ref.kind === "PARTY" && isReg(to.ref)) {
-        // 3. Money received.
+        // 3. Money received — against an invoice when it's linked to one (and the
+        // invoice is in the books and not cancelled; otherwise on account).
+        let invoiceId: string | null = null;
+        if (e.saleId) {
+          const sale = (await db.collection(SALES).doc(String(e.saleId)).get()).data();
+          if (sale && sale.deleted !== true && sale.status !== "CANCELLED") {
+            if (sale.syncStatus !== "SYNCED" || !sale.hlInvoiceId) throw new Waiting(`${sale.invoiceNo} isn't in the books yet`);
+            invoiceId = String(sale.hlInvoiceId);
+          }
+        }
         const r = await hl.postPayment({
+          invoiceId,
           customerId: from.customerId!,
           amountPaise: e.amountPaise,
           method: to.ref.kind as "CASH" | "BANK",
@@ -232,7 +244,7 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
           date: e.businessDay,
           sourceId,
           actorRef,
-          description: note ? `Payment received: ${note}` : "Payment received",
+          description: `Payment received${e.invoiceNo ? ` for ${e.invoiceNo}` : ""}${note ? `: ${note}` : ""}`,
         });
         legs = [
           {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
@@ -298,16 +310,17 @@ async function sweep(
   collection: string,
   sync: (id: string) => Promise<SyncOutcome>,
   now: number,
+  f: {status: string; attempts: string; last: string} = {status: "syncStatus", attempts: "syncAttempts", last: "lastSyncAttemptAt"},
 ) {
-  const snap = await db.collection(collection).where("syncStatus", "in", ["PENDING", "FAILED"]).limit(400).get();
+  const snap = await db.collection(collection).where(f.status, "in", ["PENDING", "FAILED"]).limit(400).get();
   const due = snap.docs
     .filter((doc) => {
       const d = doc.data();
       if (d.deleted === true) return false;
       if (now - ms(d.updatedAt ?? d.createdAt) < STALE_MS) return false;
-      const attempts = Number(d.syncAttempts ?? 0);
+      const attempts = Number(d[f.attempts] ?? 0);
       if (attempts >= MAX_AUTO_ATTEMPTS) return false;
-      return attempts === 0 || now - ms(d.lastSyncAttemptAt) >= backoffMinutes(attempts) * 60_000;
+      return attempts === 0 || now - ms(d[f.last]) >= backoffMinutes(attempts) * 60_000;
     })
     .slice(0, 200);
   const r = {tried: 0, synced: 0, failed: 0};
@@ -320,14 +333,16 @@ async function sweep(
   return r;
 }
 
-/** One pass, in dependency order: entities → registers → categories → money entries. */
+/** One pass, in dependency order: entities → registers → categories → sales (and their cancellations) → money entries. */
 export async function reconcileLedgerOnce(db: admin.firestore.Firestore, hl: HlClient, now = Date.now()) {
   if (hl.mode === "off") return {notConnected: true};
   const entities = await reconcileEntities(db, hl, now);
   const registers = await sweep(db, REGISTERS, (id) => syncRegister(db, hl, id), now);
   const categories = await sweep(db, EXPENSE_CATEGORIES, (id) => syncCategory(db, hl, id), now);
+  const sales = await sweep(db, SALES, (id) => syncSale(db, hl, id), now);
+  const saleCancels = await sweep(db, SALES, (id) => cancelSaleInBooks(db, hl, id), now, {status: "cancelSyncStatus", attempts: "cancelSyncAttempts", last: "lastCancelAttemptAt"});
   const entries = await sweep(db, MONEY_ENTRIES, (id) => syncMoneyEntry(db, hl, id), now);
-  return {notConnected: false, entities, registers, categories, entries};
+  return {notConnected: false, entities, registers, categories, sales, saleCancels, entries};
 }
 
 /**
@@ -337,6 +352,11 @@ export async function reconcileLedgerOnce(db: admin.firestore.Firestore, hl: HlC
  */
 export async function postWaitingFor(db: admin.firestore.Firestore, hl: HlClient, sideId: string) {
   if (hl.mode === "off") return;
+  // Sales first: a money entry may be waiting on a sale's invoice.
+  const sales = await db.collection(SALES).where("waitIds", "array-contains", sideId).where("syncStatus", "==", "PENDING").limit(50).get();
+  for (const d of sales.docs) {
+    if ((await syncSale(db, hl, d.id)) === "synced") await postWaitingFor(db, hl, d.id);
+  }
   const waiting = await db.collection(MONEY_ENTRIES).where("sideIds", "array-contains", sideId).where("syncStatus", "==", "PENDING").limit(50).get();
   for (const d of waiting.docs) await syncMoneyEntry(db, hl, d.id);
 }

@@ -8,7 +8,8 @@ import { ensureEmulatorSecrets } from "./emulatorSecrets.mjs";
 
 // Uses the real project config (firebase/firebase.json): the live security rules and
 // the real Cloud Functions — so what passes here is what ships.
-const dataDir = "emulator/data";
+// The real-books test run (start-real-books.mjs) keeps its own data, apart from the practice data.
+const dataDir = process.env.OFFICE_EMULATOR_DATA ?? "emulator/data";
 const config = "../firebase/firebase.json";
 const functionsDir = "../firebase/functions";
 const isWindows = process.platform === "win32";

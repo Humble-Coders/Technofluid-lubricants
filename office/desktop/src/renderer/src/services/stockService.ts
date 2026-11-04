@@ -61,7 +61,10 @@ export type MovementType =
   | "COUNT_ADJUSTMENT"
   | "REVERSAL"
   | "PRODUCTION_IN"
-  | "PRODUCTION_CONSUME";
+  | "PRODUCTION_CONSUME"
+  /** Sold on an invoice / given back when it's cancelled — changed only through the invoice. */
+  | "SALE"
+  | "SALE_CANCEL";
 
 export interface StockMovement {
   id: string;

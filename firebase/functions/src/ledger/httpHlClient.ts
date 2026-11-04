@@ -8,11 +8,13 @@ import {
   type HlAccountType,
   type HlClient,
   type HlCustomer,
+  type HlInvoice,
   type HlLedgerRow,
   type HlLeg,
   type HlMoneyMove,
   type HlPostingType,
   type HlProfilePayload,
+  type HlSale,
 } from "./hlClient";
 
 /**
@@ -27,20 +29,28 @@ import {
  *
  *  - Paths are under /api/v1 (HL_BASE_URL is the server root, e.g.
  *    https://hl.humblesolutions.in; a base that already ends in /api/v1 also works).
- *  - Token: POST <GATEWAY_BASE_URL>/internal/hl-token, header X-Admin-Token, body
- *    {projectId}. The admin token is a Functions secret (GATEWAY_ADMIN_TOKEN) — never in
- *    the repo; Ansh supplies one scoped to Technofluid (Aromex lesson 8).
+ *  - Sign-in: POST /auth/login {email, password} as Technofluid's own app user — no
+ *    gateway (Ansh, 27 Oct 2026). The access token lasts ~15 minutes; it is kept per
+ *    function instance and renewed on expiry or a 401. The password is a Functions
+ *    secret (HL_LOGIN_PASSWORD) — never in the repo.
  *  - 30 s timeout; one retry on network errors / 5xx; on 401 refresh the token once.
  *  - Errors never carry the token or raw transport text to the app (see plainHlMessage);
  *    details go to the function log.
  */
 
 export interface HttpHlConfig {
-  gatewayBaseUrl: string;
   hlBaseUrl: string;
-  projectId: string;
-  adminToken: string;
+  /** The app's HL user (ACCOUNTANT in Technofluid's company). */
+  email: string;
+  password: string;
 }
+
+/** Access tokens, shared by the clients of one function instance (a new client per run). */
+const TOKENS = new Map<string, {token: string; until: number}>();
+/** Renew a little before HL's 15 minutes run out. */
+const TOKEN_LIFE_MS = 13 * 60_000;
+/** For tests: forget every cached token. */
+export const clearHlTokens = () => TOKENS.clear();
 
 const TIMEOUT_MS = 30_000;
 type Body = Record<string, unknown>;
@@ -54,6 +64,15 @@ export function toHlAmount(paise: number): number {
 const unexpected = (what: string) => new HlError(`Humble Ledger sent an unexpected ${what} response`, 502, false, "UNEXPECTED_SHAPE");
 const obj = (x: unknown): Body | null => (x && typeof x === "object" && !Array.isArray(x) ? (x as Body) : null);
 const strOrNull = (x: unknown) => (typeof x === "string" ? x : typeof x === "number" ? String(x) : null);
+
+/** HL's decimal rupees ("1234.5", "-0.01") → paise, read from the text (never × 100 on a float). */
+function decimalPaise(v: string): number {
+  const m = /^(-)?(\d+)(?:\.(\d{1,2}))?$/.exec(v.trim());
+  if (!m) throw unexpected(`amount "${v}"`);
+  const paise = Number(m[2]) * 100 + Number((m[3] ?? "").padEnd(2, "0"));
+  return m[1] ? -paise : paise;
+}
+const paiseDecimal = (p: number) => `${p < 0 ? "-" : ""}${Math.floor(Math.abs(p) / 100)}.${String(Math.abs(p) % 100).padStart(2, "0")}`;
 
 /** HL's Customer → ours; refuses anything without an id and an account. */
 function toCustomer(x: unknown, what: string): HlCustomer {
@@ -80,7 +99,7 @@ function toAccount(x: unknown, what: string): HlAccount {
 function txnIdOf(res: Body, what: string): string {
   const data = obj(res.data) ?? {};
   const txn = obj(data.transaction) ?? {};
-  const id = [data.transactionId, txn.id, data.txnId, data.id, res.transactionId, res.txnId].map(strOrNull).find(Boolean);
+  const id = [txn.id, data.transactionId, data.txnId, data.id, data.existingTransactionId, res.existingTransactionId, res.transactionId, res.txnId].map(strOrNull).find(Boolean);
   if (!id) throw unexpected(what);
   return id;
 }
@@ -91,25 +110,41 @@ export class HttpHlClient implements HlClient {
   private readonly api: string;
 
   constructor(private readonly cfg: HttpHlConfig) {
-    if (!cfg.gatewayBaseUrl || !cfg.hlBaseUrl || !cfg.projectId || !cfg.adminToken) {
-      throw new HlError("Humble Ledger isn't configured (gateway, base URL, project or token missing).", 500, false, "NOT_CONNECTED");
+    if (!cfg.hlBaseUrl || !cfg.email || !cfg.password) {
+      throw new HlError("Humble Ledger isn't configured (base URL, app login email or password missing).", 500, false, "NOT_CONNECTED");
     }
     const root = cfg.hlBaseUrl.replace(/\/+$/, "");
     this.api = root.endsWith("/api/v1") ? root : `${root}/api/v1`;
+    this.key = `${this.api}|${cfg.email.toLowerCase()}`;
   }
 
+  private readonly key: string;
+
+  /**
+   * POST /auth/login → 200 {data: {accessToken (15 min), refreshToken, token, user}}
+   * (confirmed by Ansh HL, 27 Oct 2026). Each login stores a refresh token in HL, so we
+   * sign in once per ~13 minutes per instance, never per request. A refused login (wrong
+   * password, user disabled) is permanent — retrying can't fix it.
+   */
   private async fetchToken(): Promise<string> {
-    const res = await this.raw(`${this.cfg.gatewayBaseUrl.replace(/\/+$/, "")}/internal/hl-token`, {
+    const cached = TOKENS.get(this.key);
+    if (cached && cached.until > Date.now()) return cached.token;
+    const res = await this.raw(`${this.api}/auth/login`, {
       method: "POST",
-      headers: {"Content-Type": "application/json", "X-Admin-Token": this.cfg.adminToken},
-      body: JSON.stringify({projectId: this.cfg.projectId}),
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email: this.cfg.email, password: this.cfg.password}),
     });
     const body = obj(await res.json().catch(() => null)) ?? {};
     const data = obj(body.data) ?? {};
-    const token = [body.token, body.accessToken, data.token, data.accessToken].find((t): t is string => typeof t === "string" && t.length > 0);
-    if (!res.ok || !token) {
-      throw new HlError(`Couldn't get a Humble Ledger token (${res.status})`, res.status >= 500 ? res.status : 502, res.status >= 500);
+    const tokens = obj(data.tokens) ?? {};
+    const token = [data.accessToken, tokens.accessToken, body.accessToken, data.token].find((t): t is string => typeof t === "string" && t.length > 0);
+    if (res.status === 401 || res.status === 403) {
+      throw new HlError("Humble Ledger refused the app's sign-in — check HL_LOGIN_EMAIL / HL_LOGIN_PASSWORD.", res.status, false, "LOGIN_FAILED");
     }
+    if (!res.ok || !token) {
+      throw new HlError(`Couldn't sign in to Humble Ledger (${res.status})`, res.status >= 500 ? res.status : 502, res.status >= 500 || res.status === 429);
+    }
+    TOKENS.set(this.key, {token, until: Date.now() + TOKEN_LIFE_MS});
     return token;
   }
 
@@ -141,6 +176,7 @@ export class HttpHlClient implements HlClient {
       throw e;
     }
     if (res.status === 401 && !refreshed) {
+      TOKENS.delete(this.key);
       this.token = await this.fetchToken();
       return this.call(method, path, body, attempt, true);
     }
@@ -199,10 +235,8 @@ export class HttpHlClient implements HlClient {
       sourceId: p.sourceId,
       actorRef: p.actorRef,
     });
-    const data = obj(res.data) ?? {};
-    const txnId = [data.transactionId, data.txnId, data.id, res.transactionId, res.txnId].map(strOrNull).find(Boolean);
-    if (!txnId) throw unexpected("opening-balance");
-    return {txnId, idempotent: res.idempotent === true || data.idempotent === true};
+    const txnId = txnIdOf(res, "opening-balance"); // data.transaction.id (Ansh HL, 27 Oct 2026)
+    return {txnId, idempotent: res.idempotent === true || obj(res.data)?.idempotent === true};
   }
 
   async listCustomers(p: {page: number; limit: number}) {
@@ -220,10 +254,11 @@ export class HttpHlClient implements HlClient {
   }
 
   /**
-   * VERIFY ON FIRST LIVE CALL: the OpenAPI only says "Ledger with running balance and
-   * pagination meta". We accept rows at data (array) or data.rows / data.entries, the
-   * opening balance at data.openingBalance / meta.openingBalance / openingBalance, and
-   * hasMore at meta.hasMore — and fail loud on anything else.
+   * GET /ledger (shape from Ansh HL, 27 Oct 2026): data.rows[{date, description,
+   * postingType, debit|null, credit|null, balance, transactionId}] ascending, data.meta
+   * {hasMore…}, data.closingBalance, data.account. There is NO openingBalance and NO
+   * sourceId: the opening is the first row's running balance less that row's own movement
+   * (signed by the account's normal side), or the closing balance when the range is empty.
    */
   async getLedger(p: {accountId: string; from: string; to: string; page: number; limit: number}) {
     const q = new URLSearchParams({accountId: p.accountId, from: p.from, to: p.to, page: String(p.page), limit: String(Math.min(p.limit, HL_MAX_PAGE))});
@@ -232,12 +267,10 @@ export class HttpHlClient implements HlClient {
     const holder = obj(data);
     const rawRows = Array.isArray(data) ? data : holder?.rows ?? holder?.entries;
     if (!Array.isArray(rawRows)) throw unexpected("ledger");
-    const meta = obj(res.meta) ?? obj(holder?.meta) ?? {};
-    const opening = strOrNull(holder?.openingBalance ?? meta.openingBalance ?? res.openingBalance);
-    if (opening === null) throw unexpected("ledger (openingBalance)");
+    const meta = obj(holder?.meta) ?? obj(res.meta) ?? {};
     const rows: HlLedgerRow[] = rawRows.map((r) => {
       const x = obj(r);
-      const txnId = strOrNull(x?.txnId ?? x?.transactionId ?? x?.id);
+      const txnId = strOrNull(x?.transactionId ?? x?.txnId ?? x?.id);
       const balance = strOrNull(x?.balance ?? x?.runningBalance);
       if (!x || !txnId || balance === null || typeof x.date !== "string") throw unexpected("ledger row");
       return {
@@ -245,11 +278,25 @@ export class HttpHlClient implements HlClient {
         date: x.date.slice(0, 10),
         description: String(x.description ?? x.narration ?? ""),
         sourceId: strOrNull(x.sourceId),
+        postingType: strOrNull(x.postingType),
         debit: strOrNull(x.debit) ?? "0",
         credit: strOrNull(x.credit) ?? "0",
         balance,
       };
     });
+    let opening = strOrNull(holder?.openingBalance ?? meta.openingBalance ?? res.openingBalance);
+    if (opening === null) {
+      if (rows.length > 0) {
+        const first = rows[0];
+        const type = String(obj(holder?.account)?.type ?? "ASSET").toUpperCase();
+        const creditNormal = type === "LIABILITY" || type === "EQUITY" || type === "INCOME";
+        const move = creditNormal ? decimalPaise(first.credit) - decimalPaise(first.debit) : decimalPaise(first.debit) - decimalPaise(first.credit);
+        opening = paiseDecimal(decimalPaise(first.balance) - move);
+      } else {
+        opening = strOrNull(holder?.closingBalance);
+        if (opening === null) throw unexpected("ledger (no rows and no closingBalance)");
+      }
+    }
     return {openingBalance: opening, rows, hasMore: meta.hasMore === true};
   }
 
@@ -306,6 +353,7 @@ export class HttpHlClient implements HlClient {
       actorRef: p.actorRef,
       description: p.description,
       metadata: {description: p.description},
+      ...(p.invoiceId ? {invoiceId: p.invoiceId} : {}),
     });
     return {txnId: txnIdOf(res, path.slice(1)), idempotent: res.idempotent === true};
   }
@@ -338,5 +386,49 @@ export class HttpHlClient implements HlClient {
     };
     walk(res.data);
     return out;
+  }
+
+  /**
+   * POST /sales with our own invoice number (≤ 50 chars, unique per company — a clash is
+   * 409 and nothing is posted) and at most 4 tax lines (HL's limit; we send one per GST
+   * leg). With taxLines HL takes tax = their sum, verbatim; `rate` is a fraction (0.09).
+   * Confirmed by Ansh HL, 27 Oct 2026.
+   */
+  async postSale(p: HlSale) {
+    const tax = p.taxLines.reduce((s, l) => s + l.amountPaise, 0);
+    const res = await this.call("POST", "/sales", {
+      customerId: p.customerId,
+      amount: toHlAmount(p.amountPaise),
+      taxAmount: toHlAmount(tax),
+      taxLines: p.taxLines.map((l) => ({amount: toHlAmount(l.amountPaise), accountId: l.accountId, ...(l.rateBp ? {rate: l.rateBp / 10_000} : {}), label: l.label.slice(0, 40)})),
+      revenueAccountId: p.revenueAccountId,
+      description: p.description,
+      date: p.date,
+      appId: HL_APP_ID,
+      sourceId: p.sourceId,
+      actorRef: p.actorRef,
+      invoiceNumber: p.invoiceNumber,
+    });
+    // 201 {data: {invoice, transaction}}; a replay adds idempotent + existingInvoiceId /
+    // existingTransactionId (Ansh HL, 27 Oct 2026) — read wherever they are.
+    const data = obj(res.data) ?? {};
+    const invoice = obj(data.invoice) ?? {};
+    const invoiceId = [invoice.id, data.invoiceId, data.existingInvoiceId, res.existingInvoiceId].map(strOrNull).find(Boolean);
+    if (!invoiceId) throw unexpected("sale (invoice id)");
+    return {txnId: txnIdOf(res, "sale"), invoiceId, idempotent: res.idempotent === true};
+  }
+
+  async getInvoice(id: string): Promise<HlInvoice> {
+    const res = await this.call("GET", `/invoices/${encodeURIComponent(id)}`);
+    const d = obj(res.data);
+    const total = strOrNull(d?.total);
+    const amountPaid = strOrNull(d?.amountPaid);
+    if (!d || typeof d.id !== "string" || typeof d.status !== "string" || total === null || amountPaid === null) throw unexpected("invoice");
+    return {id: d.id, invoiceNumber: strOrNull(d.invoiceNumber), status: d.status, total, amountPaid};
+  }
+
+  /** Not idempotent (HL takes no sourceId here) — the caller reads the invoice first. */
+  async cancelInvoice(id: string, p: {reason: string; date: string}) {
+    await this.call("POST", `/invoices/${encodeURIComponent(id)}/cancel`, {reason: p.reason, date: p.date});
   }
 }

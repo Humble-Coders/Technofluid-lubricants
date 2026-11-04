@@ -15,9 +15,11 @@
  */
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { refuseOnRealBooks } from "./realBooks.mjs";
 
 process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
 const db = getFirestore(initializeApp({ projectId: "demo-technofluid" }));
+await refuseOnRealBooks(db, "seed:money");
 const by = { uid: "seed", name: "Test data import" };
 const now = FieldValue.serverTimestamp();
 const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());

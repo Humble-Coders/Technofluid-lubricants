@@ -10,6 +10,10 @@ import { ComingNext, NoAccess } from "@/features/placeholder/ComingNext";
 import { ProductsScreen } from "@/features/products/ProductsScreen";
 import { StockScreen } from "@/features/stock/StockScreen";
 import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
+import { NewSaleScreen } from "@/features/sales/NewSaleScreen";
+import { SaleDetail } from "@/features/sales/SaleDetail";
+import { SalesScreen } from "@/features/sales/SalesScreen";
+import { SettingsScreen } from "@/features/settings/SettingsScreen";
 import { EntitiesScreen } from "@/features/entities/EntitiesScreen";
 import { ExpensesScreen } from "@/features/money/ExpensesScreen";
 import { MoneyScreen } from "@/features/money/MoneyScreen";
@@ -32,7 +36,9 @@ const router = createHashRouter([
         children: [
           { index: true, element: <DashboardScreen /> },
           { path: "products", element: <ProductsScreen /> },
-          { path: "sales", element: <ComingNext title="Sales & invoices" description="Pick a customer and products, GST is worked out, stock goes down and the sale is posted to the books." /> },
+          { path: "sales", element: <SalesScreen /> },
+          { path: "sales/new", element: <NewSaleScreen /> },
+          { path: "sales/:saleId", element: <SaleDetail /> },
           { path: "customers", element: <EntitiesScreen /> },
           { path: "payments", element: <MoneyScreen /> },
           { path: "payments/registers/:registerId", element: <RegisterHistory /> },
@@ -42,7 +48,7 @@ const router = createHashRouter([
           { path: "expenses", element: <ExpensesScreen /> },
           { path: "reports", element: <ComingNext title="Reports" description="Profit & loss, balance sheet, sales and stock reports." /> },
           { path: "approvals", element: <ApprovalsScreen /> },
-          { path: "settings", element: <ComingNext title="Settings" description="Staff logins and roles, company details, invoice settings." /> },
+          { path: "settings", element: <SettingsScreen /> },
           { path: "*", element: <NoAccess /> },
         ],
       },

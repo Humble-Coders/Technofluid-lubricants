@@ -8,11 +8,13 @@ import {
   type HlAccountType,
   type HlClient,
   type HlCustomer,
+  type HlInvoice,
   type HlLedgerRow,
   type HlLeg,
   type HlMoneyMove,
   type HlPostingType,
   type HlProfilePayload,
+  type HlSale,
 } from "./hlClient";
 
 /**
@@ -27,7 +29,11 @@ import {
  *  - each customer has its own receivable account: + they owe us, − we owe them;
  *  - 404 for unknown ids; archive refuses a non-zero balance (422 CUSTOMER_HAS_BALANCE);
  *    pages > 100 are a 400;
- *  - customers look like HL's ({…, isActive, outstanding}); amounts are decimal strings.
+ *  - customers look like HL's ({…, isActive, outstanding}); amounts are decimal strings;
+ *  - a sale creates an invoice (DR receivable, CR revenue + each tax line); a payment
+ *    with an invoiceId raises its amountPaid and is refused past the total (422
+ *    OVERPAYMENT) or on a cancelled invoice (422 INVOICE_CANCELLED); cancelling posts the
+ *    mirror of the sale (never before the invoice date) and refuses a second cancel.
  * Test hook: _fakeHl/control {failNext: n} fails the next n calls with a 503;
  * {down: true} fails every call (to try the "books unreachable" screens);
  * {omitBalance: true} returns only `outstanding` (as HL does), not `balance` as well.
@@ -58,6 +64,15 @@ interface StoredAccount {
   isTaxAccount: boolean;
   isActive: boolean;
 }
+interface StoredInvoice {
+  invoiceNumber: string;
+  customerId: string;
+  saleTxnId: string;
+  issueDate: string;
+  totalPaise: number;
+  amountPaidPaise: number;
+  status: "PENDING" | "PARTIAL" | "PAID" | "CANCELLED";
+}
 interface StoredTxn {
   appId: string;
   sourceId: string;
@@ -83,6 +98,12 @@ export class FakeHlClient implements HlClient {
   }
   private txns() {
     return this.db.collection(`${ROOT}/books/txns`);
+  }
+  private invoices() {
+    return this.db.collection(`${ROOT}/books/invoices`);
+  }
+  private txnRef(sourceId: string) {
+    return this.txns().doc(`${HL_APP_ID}~${sourceId}`.replace(/\//g, "_"));
   }
 
   /** Every call goes through here first: the test hooks and the call log. */
@@ -165,7 +186,7 @@ export class FakeHlClient implements HlClient {
       if (!a) throw new HlError(`Account ${id} not found`, 400, false, "ACCOUNT_NOT_FOUND");
       if (!a.isActive) throw new HlError(`Account ${a.name} is archived`, 422, false, "ACCOUNT_ARCHIVED");
     }
-    const ref = this.txns().doc(`${HL_APP_ID}~${t.sourceId}`.replace(/\//g, "_"));
+    const ref = this.txnRef(t.sourceId);
     try {
       await ref.create({...t, appId: HL_APP_ID, accountIds: ids, seq: Date.now()} satisfies StoredTxn);
       return {txnId: ref.id, idempotent: false};
@@ -277,7 +298,8 @@ export class FakeHlClient implements HlClient {
           txnId: t.id,
           date: t.date,
           description: t.description,
-          sourceId: t.sourceId,
+          sourceId: null, // like live HL: ledger rows don't say which sourceId they came from
+          postingType: t.postingType,
           debit: toAmount(Math.max(amount, 0)),
           credit: toAmount(Math.max(-amount, 0)),
           balance: toAmount(running),
@@ -333,6 +355,30 @@ export class FakeHlClient implements HlClient {
     await this.gate(kind === "PAYMENT" ? "postPayment" : "postPayout", p.sourceId);
     const c = await this.load(p.customerId);
     const into = kind === "PAYMENT";
+    if (into && p.invoiceId) {
+      // A replay is answered before the invoice is touched again.
+      if ((await this.txnRef(p.sourceId).get()).exists) return {txnId: this.txnRef(p.sourceId).id, idempotent: true};
+      const invRef = this.invoices().doc(p.invoiceId);
+      const inv = (await invRef.get()).data() as StoredInvoice | undefined;
+      if (!inv) throw new HlError(`Invoice ${p.invoiceId} not found`, 404, false);
+      if (inv.customerId !== p.customerId) throw new HlError("That invoice belongs to another customer", 422, false, "INVOICE_CUSTOMER_MISMATCH");
+      if (inv.status === "CANCELLED") throw new HlError("That invoice is cancelled", 422, false, "INVOICE_CANCELLED");
+      const paid = inv.amountPaidPaise + p.amountPaise;
+      if (paid > inv.totalPaise) throw new HlError(`Over-payment: ${toAmount(p.amountPaise)} > outstanding ${toAmount(inv.totalPaise - inv.amountPaidPaise)}`, 422, false, "OVERPAYMENT");
+      const r = await this.post({
+        postingType: "PAYMENT",
+        sourceId: p.sourceId,
+        date: p.date,
+        description: p.description || "Payment received",
+        actorRef: p.actorRef,
+        legs: [
+          {accountId: p.paymentAccountId, type: "DEBIT", amountPaise: p.amountPaise},
+          {accountId: c.accountId, type: "CREDIT", amountPaise: p.amountPaise},
+        ],
+      });
+      if (!r.idempotent) await invRef.set({amountPaidPaise: paid, status: paid >= inv.totalPaise ? "PAID" : "PARTIAL"}, {merge: true});
+      return r;
+    }
     return this.post({
       postingType: kind,
       sourceId: p.sourceId,
@@ -352,5 +398,61 @@ export class FakeHlClient implements HlClient {
 
   postPayout(p: HlMoneyMove) {
     return this.move("PAYOUT", p);
+  }
+
+  // ─── Sales & invoices ─────────────────────────────────────────────────────────
+
+  async postSale(p: HlSale) {
+    await this.gate("postSale", p.sourceId);
+    const c = await this.load(p.customerId);
+    if (!p.invoiceNumber) throw new HlError("invoiceNumber is required here", 400, false);
+    const tax = p.taxLines.reduce((s, l) => s + l.amountPaise, 0);
+    const total = p.amountPaise + tax;
+    const legs: HlLeg[] = [
+      {accountId: c.accountId, type: "DEBIT", amountPaise: total},
+      {accountId: p.revenueAccountId, type: "CREDIT", amountPaise: p.amountPaise},
+      ...p.taxLines.filter((l) => l.amountPaise > 0).map((l): HlLeg => ({accountId: l.accountId, type: "CREDIT", amountPaise: l.amountPaise})),
+    ];
+    const r = await this.post({postingType: "SALE", sourceId: p.sourceId, date: p.date, description: p.description, actorRef: p.actorRef, legs});
+    const invRef = this.invoices().doc(`inv_${r.txnId}`);
+    if (!r.idempotent || !(await invRef.get()).exists) {
+      await invRef.set({
+        invoiceNumber: p.invoiceNumber,
+        customerId: p.customerId,
+        saleTxnId: r.txnId,
+        issueDate: p.date,
+        totalPaise: total,
+        amountPaidPaise: 0,
+        status: "PENDING",
+      } satisfies StoredInvoice);
+    }
+    return {txnId: r.txnId, invoiceId: invRef.id, idempotent: r.idempotent};
+  }
+
+  async getInvoice(id: string): Promise<HlInvoice> {
+    await this.gate("getInvoice", id);
+    const inv = (await this.invoices().doc(id).get()).data() as StoredInvoice | undefined;
+    if (!inv) throw new HlError(`Invoice ${id} not found`, 404, false);
+    return {id, invoiceNumber: inv.invoiceNumber, status: inv.status, total: toAmount(inv.totalPaise), amountPaid: toAmount(inv.amountPaidPaise)};
+  }
+
+  async cancelInvoice(id: string, p: {reason: string; date: string}) {
+    await this.gate("cancelInvoice", id);
+    if (!p.reason?.trim()) throw new HlError("reason is required", 400, false);
+    const invRef = this.invoices().doc(id);
+    const inv = (await invRef.get()).data() as StoredInvoice | undefined;
+    if (!inv) throw new HlError(`Invoice ${id} not found`, 404, false);
+    if (inv.status === "CANCELLED") throw new HlError("Invoice is already cancelled", 422, false, "INVOICE_ALREADY_CANCELLED");
+    if (p.date < inv.issueDate) throw new HlError("The cancellation can't be dated before the invoice", 400, false, "DATE_BEFORE_ORIGINAL");
+    const sale = (await this.txns().doc(inv.saleTxnId).get()).data() as StoredTxn;
+    await this.post({
+      postingType: "REVERSAL",
+      sourceId: `reversal_${inv.saleTxnId}`,
+      date: p.date,
+      description: `Cancelled ${inv.invoiceNumber}: ${p.reason}`,
+      actorRef: "hl",
+      legs: sale.legs.map((l) => ({...l, type: l.type === "DEBIT" ? "CREDIT" : "DEBIT"})),
+    });
+    await invRef.set({status: "CANCELLED"}, {merge: true});
   }
 }

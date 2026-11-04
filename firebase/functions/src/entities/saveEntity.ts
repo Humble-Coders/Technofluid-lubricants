@@ -3,6 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
+import {refuseOpeningOnRealBooks} from "../ledger/getHlClient";
 import {requestId as parseRequestId} from "../stock/stockModel";
 import {actorOf, historyRef, onceInTx} from "./common";
 import {EDITABLE_FIELDS, ENTITIES, bad, diff, hlProfileChanged, parseEntityInput, type EntityInput} from "./entityModel";
@@ -67,6 +68,7 @@ export const saveEntity = onCall({region: "us-central1"}, async (request) => {
 
     const now = FieldValue.serverTimestamp();
     const {opening, ...profile} = input;
+    if (!existing && opening) refuseOpeningOnRealBooks();
     if (!existing) {
       tx.create(ref, {
         ...profile,

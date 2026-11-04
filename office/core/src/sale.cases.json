@@ -1,0 +1,191 @@
+{
+  "_about": "Sales & invoices rules — run by core vitest (sale.test.ts) AND by the Cloud Functions mirror (office/emulator/tests/sales.test.mjs). Amounts in paise, quantities in milli base units. Hand-checked: see the notes on each price case.",
+  "today": "2026-10-27",
+  "products": {
+    "HYD-68-26L": { "sku": "HYD-68-26L", "name": "Hydraulic Oil AW", "grade": "68", "packLabel": "26 Ltr Can", "productKey": "hydraulic-aw-68", "packQty": 26, "baseUnit": "L", "pricePer": "per litre", "dealerPricePaise": 14550, "distributorPricePaise": 13800, "gstPct": 18, "hsnCode": null, "active": true },
+    "4T-20W40-CASE": { "sku": "4T-20W40-CASE", "name": "4T Engine Oil", "grade": "20W-40", "packLabel": "20x1 liter case", "productKey": "4t-20w40", "packQty": 20, "baseUnit": "L", "pricePer": "per piece", "dealerPricePaise": 32000, "distributorPricePaise": null, "gstPct": 18, "hsnCode": "27101980", "active": true },
+    "GREASE-MP3-18KG": { "sku": "GREASE-MP3-18KG", "name": "MP3 Grease", "grade": "", "packLabel": "18 kg bucket", "productKey": "grease-mp3", "packQty": 18, "baseUnit": "kg", "pricePer": "per bucket", "dealerPricePaise": 360000, "distributorPricePaise": 340000, "gstPct": 18, "hsnCode": "34031900", "active": true },
+    "NOPRICE": { "sku": "NOPRICE", "name": "Gear Oil", "grade": "90", "packLabel": "26 Ltr Can", "productKey": "gear-90", "packQty": 26, "baseUnit": "L", "pricePer": "per litre", "dealerPricePaise": null, "distributorPricePaise": null, "gstPct": 18, "hsnCode": null, "active": true },
+    "INACTIVE": { "sku": "INACTIVE", "name": "Old Oil", "grade": "", "packLabel": "26 Ltr Can", "productKey": "old", "packQty": 26, "baseUnit": "L", "pricePer": "per litre", "dealerPricePaise": 10000, "distributorPricePaise": 9000, "gstPct": 18, "hsnCode": null, "active": false },
+    "BADRATE": { "sku": "BADRATE", "name": "Odd Rate", "grade": "", "packLabel": "26 Ltr Can", "productKey": "odd", "packQty": 26, "baseUnit": "L", "pricePer": "per litre", "dealerPricePaise": 10000, "distributorPricePaise": 9000, "gstPct": 12.25, "hsnCode": null, "active": true },
+    "NOBASIS": { "sku": "NOBASIS", "name": "No Basis", "grade": "", "packLabel": "26 Ltr Can", "productKey": "nobasis", "packQty": 26, "baseUnit": "L", "pricePer": null, "dealerPricePaise": 10000, "distributorPricePaise": 9000, "gstPct": 18, "hsnCode": null, "active": true },
+    "LOOSE-PIECE": { "sku": "LOOSE-PIECE", "name": "Loose Piece", "grade": "", "packLabel": "1 Ltr bottle", "productKey": "loose", "packQty": 1, "baseUnit": "L", "pricePer": "per piece", "dealerPricePaise": 10000, "distributorPricePaise": 9000, "gstPct": 18, "hsnCode": null, "active": true }
+  },
+  "price": [
+    {
+      "case": "Haryana, Dealer: per-litre can + per-piece case with 5% off + ₹500 freight",
+      "_note": "can 145.50×26 = 3783.00; ×2 = 7566.00; case 320×20 = 6400 − 5% = 6080; freight 500 @18%. CGST/SGST 9% each per line. 16692.28 rounds to 16692.",
+      "input": { "lines": [{ "sku": "HYD-68-26L", "packs": 2, "discountBp": 0 }, { "sku": "4T-20W40-CASE", "packs": 1, "discountBp": 500 }], "tier": "Dealer", "placeOfSupply": "06", "freightPaise": 50000 },
+      "expect": {
+        "lines": [
+          { "sku": "HYD-68-26L", "qtyMilli": 52000, "packPricePaise": 378300, "grossPaise": 756600, "discountPaise": 0, "taxablePaise": 756600, "gstRateBp": 1800, "cgstPaise": 68094, "sgstPaise": 68094, "igstPaise": 0, "totalPaise": 892788 },
+          { "sku": "4T-20W40-CASE", "qtyMilli": 20000, "packPricePaise": 640000, "grossPaise": 640000, "discountPaise": 32000, "taxablePaise": 608000, "gstRateBp": 1800, "cgstPaise": 54720, "sgstPaise": 54720, "igstPaise": 0, "totalPaise": 717440 }
+        ],
+        "freight": { "taxablePaise": 50000, "gstRateBp": 1800, "cgstPaise": 4500, "sgstPaise": 4500, "igstPaise": 0, "totalPaise": 59000 },
+        "totals": { "supplyType": "INTRA_STATE", "grossPaise": 1396600, "discountPaise": 32000, "taxablePaise": 1414600, "cgstPaise": 127314, "sgstPaise": 127314, "igstPaise": 0, "taxPaise": 254628, "roundOffPaise": -28, "grandTotalPaise": 1669200 },
+        "missingHsn": ["HYD-68-26L"]
+      }
+    },
+    {
+      "case": "Punjab, Distributor: per-bucket grease, 2.5% off, IGST",
+      "_note": "3400×3 = 10200 − 2.5% (255) = 9945; IGST 18% = 1790.10; 11735.10 rounds to 11735.",
+      "input": { "lines": [{ "sku": "GREASE-MP3-18KG", "packs": 3, "discountBp": 250 }], "tier": "Distributor", "placeOfSupply": "03", "freightPaise": 0 },
+      "expect": {
+        "lines": [
+          { "sku": "GREASE-MP3-18KG", "qtyMilli": 54000, "packPricePaise": 340000, "grossPaise": 1020000, "discountPaise": 25500, "taxablePaise": 994500, "gstRateBp": 1800, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 179010, "totalPaise": 1173510 }
+        ],
+        "freight": null,
+        "totals": { "supplyType": "INTER_STATE", "grossPaise": 1020000, "discountPaise": 25500, "taxablePaise": 994500, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 179010, "taxPaise": 179010, "roundOffPaise": -10, "grandTotalPaise": 1173500 },
+        "missingHsn": []
+      }
+    },
+    {
+      "case": "rounding inside Haryana: 3.33% off, CGST and SGST rounded separately",
+      "_note": "3783 × 3.33% = 125.9739 → 125.97; taxable 3657.03; 9% = 329.1327 → 329.13 each; 4315.29 rounds to 4315.",
+      "input": { "lines": [{ "sku": "HYD-68-26L", "packs": 1, "discountBp": 333 }], "tier": "Dealer", "placeOfSupply": "06", "freightPaise": 0 },
+      "expect": {
+        "lines": [
+          { "sku": "HYD-68-26L", "qtyMilli": 26000, "packPricePaise": 378300, "grossPaise": 378300, "discountPaise": 12597, "taxablePaise": 365703, "gstRateBp": 1800, "cgstPaise": 32913, "sgstPaise": 32913, "igstPaise": 0, "totalPaise": 431529 }
+        ],
+        "freight": null,
+        "totals": { "supplyType": "INTRA_STATE", "grossPaise": 378300, "discountPaise": 12597, "taxablePaise": 365703, "cgstPaise": 32913, "sgstPaise": 32913, "igstPaise": 0, "taxPaise": 65826, "roundOffPaise": -29, "grandTotalPaise": 431500 },
+        "missingHsn": ["HYD-68-26L"]
+      }
+    },
+    {
+      "case": "the same line to Delhi: one IGST at 18% (658.2654 → 658.27, a paisa more than CGST+SGST)",
+      "input": { "lines": [{ "sku": "HYD-68-26L", "packs": 1, "discountBp": 333 }], "tier": "Dealer", "placeOfSupply": "07", "freightPaise": 0 },
+      "expect": {
+        "lines": [
+          { "sku": "HYD-68-26L", "qtyMilli": 26000, "packPricePaise": 378300, "grossPaise": 378300, "discountPaise": 12597, "taxablePaise": 365703, "gstRateBp": 1800, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 65827, "totalPaise": 431530 }
+        ],
+        "freight": null,
+        "totals": { "supplyType": "INTER_STATE", "grossPaise": 378300, "discountPaise": 12597, "taxablePaise": 365703, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 65827, "taxPaise": 65827, "roundOffPaise": -30, "grandTotalPaise": 431500 },
+        "missingHsn": ["HYD-68-26L"]
+      }
+    },
+    {
+      "case": "every line problem is reported with its line number",
+      "input": {
+        "lines": [
+          { "sku": "NOPRICE", "packs": 1, "discountBp": 0 },
+          { "sku": "INACTIVE", "packs": 1, "discountBp": 0 },
+          { "sku": "HYD-68-26L", "packs": 0, "discountBp": 0 },
+          { "sku": "HYD-68-26L", "packs": 1, "discountBp": 10001 },
+          { "sku": "BADRATE", "packs": 1, "discountBp": 0 },
+          { "sku": "GHOST", "packs": 1, "discountBp": 0 },
+          { "sku": "NOBASIS", "packs": 1, "discountBp": 0 },
+          { "sku": "LOOSE-PIECE", "packs": 1, "discountBp": 0 },
+          { "sku": "HYD-68-26L", "packs": 1.5, "discountBp": 0 },
+          { "sku": "HYD-68-26L", "packs": 1, "discountBp": 12.5 }
+        ],
+        "tier": "Dealer",
+        "placeOfSupply": "06",
+        "freightPaise": 0
+      },
+      "expect": {
+        "errors": [
+          { "line": 0, "code": "NO_PRICE" },
+          { "line": 1, "code": "PRODUCT_INACTIVE" },
+          { "line": 2, "code": "BAD_PACKS" },
+          { "line": 3, "code": "BAD_DISCOUNT" },
+          { "line": 4, "code": "BAD_GST_RATE" },
+          { "line": 5, "code": "UNKNOWN_PRODUCT" },
+          { "line": 6, "code": "NO_PRICE_BASIS" },
+          { "line": 7, "code": "BAD_PACK_SIZE" },
+          { "line": 8, "code": "BAD_PACKS" },
+          { "line": 9, "code": "BAD_DISCOUNT" }
+        ]
+      }
+    },
+    {
+      "case": "a price list the product has no price for",
+      "input": { "lines": [{ "sku": "4T-20W40-CASE", "packs": 1, "discountBp": 0 }], "tier": "Distributor", "placeOfSupply": "06", "freightPaise": 0 },
+      "expect": { "errors": [{ "line": 0, "code": "NO_PRICE" }] }
+    }
+  ],
+  "header": [
+    { "case": "a good sale", "input": {}, "expect": null },
+    { "case": "no lines", "input": { "lineCount": 0 }, "expect": "NO_LINES" },
+    { "case": "61 lines", "input": { "lineCount": 61 }, "expect": "TOO_MANY_LINES" },
+    { "case": "no price list chosen", "input": { "priceTier": null }, "expect": "NO_PRICE_TIER" },
+    { "case": "a made-up price list", "input": { "priceTier": "Retail" }, "expect": "NO_PRICE_TIER" },
+    { "case": "no state", "input": { "placeOfSupplyStateCode": null }, "expect": "NO_STATE" },
+    { "case": "unknown state code", "input": { "placeOfSupplyStateCode": "99" }, "expect": "NO_STATE" },
+    { "case": "negative freight", "input": { "freightPaise": -1 }, "expect": "BAD_FREIGHT" },
+    { "case": "fractional freight", "input": { "freightPaise": 1.5 }, "expect": "BAD_FREIGHT" },
+    { "case": "not a real date", "input": { "invoiceDate": "2026-02-30" }, "expect": "BAD_DATE" },
+    { "case": "date the wrong way round", "input": { "invoiceDate": "27-10-2026" }, "expect": "BAD_DATE" },
+    { "case": "tomorrow", "input": { "invoiceDate": "2026-10-28" }, "expect": "FUTURE_DATE" },
+    { "case": "backdated is fine here (the series checks order)", "input": { "invoiceDate": "2026-04-01" }, "expect": null },
+    { "case": "three payments", "input": { "payments": [{ "registerId": "a", "amountPaise": 1 }, { "registerId": "b", "amountPaise": 1 }, { "registerId": "c", "amountPaise": 1 }] }, "expect": "TOO_MANY_PAYMENTS" },
+    { "case": "a zero payment", "input": { "payments": [{ "registerId": "a", "amountPaise": 0 }] }, "expect": "BAD_PAYMENT" },
+    { "case": "a payment with no account", "input": { "payments": [{ "registerId": "", "amountPaise": 100 }] }, "expect": "BAD_PAYMENT" },
+    { "case": "two payments into one account", "input": { "payments": [{ "registerId": "a", "amountPaise": 100 }, { "registerId": "a", "amountPaise": 200 }] }, "expect": "SAME_REGISTER_TWICE" },
+    { "case": "part cash, part bank", "input": { "payments": [{ "registerId": "a", "amountPaise": 100 }, { "registerId": "b", "amountPaise": 200 }] }, "expect": null }
+  ],
+  "headerBase": { "customerEntityId": "c1", "priceTier": "Dealer", "placeOfSupplyStateCode": "06", "invoiceDate": "2026-10-27", "lineCount": 2, "freightPaise": 0, "payments": [], "note": null },
+  "payment": [
+    { "case": "nothing paid now (on credit)", "customer": "c1", "grand": 100000, "payments": [], "expect": null },
+    { "case": "paid in full", "customer": "c1", "grand": 100000, "payments": [{ "registerId": "a", "amountPaise": 100000 }], "expect": null },
+    { "case": "part paid", "customer": "c1", "grand": 100000, "payments": [{ "registerId": "a", "amountPaise": 40000 }], "expect": null },
+    { "case": "more than the total", "customer": "c1", "grand": 100000, "payments": [{ "registerId": "a", "amountPaise": 60000 }, { "registerId": "b", "amountPaise": 50000 }], "expect": "PAYMENT_TOO_MUCH" },
+    { "case": "walk-in on credit", "customer": "walk-in-customer", "grand": 100000, "payments": [], "expect": "WALK_IN_MUST_PAY_FULL" },
+    { "case": "walk-in part paid", "customer": "walk-in-customer", "grand": 100000, "payments": [{ "registerId": "a", "amountPaise": 99900 }], "expect": "WALK_IN_MUST_PAY_FULL" },
+    { "case": "walk-in pays in full, split", "customer": "walk-in-customer", "grand": 100000, "payments": [{ "registerId": "a", "amountPaise": 40000 }, { "registerId": "b", "amountPaise": 60000 }], "expect": null }
+  ],
+  "financialYear": [
+    { "date": "2026-10-27", "expect": "2026-27" },
+    { "date": "2026-04-01", "expect": "2026-27" },
+    { "date": "2027-03-31", "expect": "2026-27" },
+    { "date": "2027-04-01", "expect": "2027-28" },
+    { "date": "2099-12-31", "expect": "2099-00" }
+  ],
+  "invoiceNumber": [
+    { "prefix": "TF", "fy": "2026-27", "seq": 1, "expect": "TF/2026-27/0001" },
+    { "prefix": "ABC", "fy": "2026-27", "seq": 9999, "expect": "ABC/2026-27/9999" },
+    { "prefix": "TF", "fy": "2026-27", "seq": 10000, "expect": "TF/2026-27/10000" },
+    { "prefix": "ABC", "fy": "2026-27", "seq": 10000, "expect": "THROWS" },
+    { "prefix": "tf", "fy": "2026-27", "seq": 1, "expect": "THROWS" },
+    { "prefix": "TFLC", "fy": "2026-27", "seq": 1, "expect": "THROWS" },
+    { "prefix": "TF", "fy": "2026-27", "seq": 0, "expect": "THROWS" }
+  ],
+  "paid": [
+    { "grand": 100000, "paid": 0, "expect": "UNPAID" },
+    { "grand": 100000, "paid": 1, "expect": "PART_PAID" },
+    { "grand": 100000, "paid": 100000, "expect": "PAID" },
+    { "grand": 100000, "paid": 150000, "expect": "PAID" },
+    { "grand": 0, "paid": 0, "expect": "PAID" }
+  ],
+  "gstRate": [
+    { "pct": 18, "expect": 1800 },
+    { "pct": 12, "expect": 1200 },
+    { "pct": 28, "expect": 2800 },
+    { "pct": 0, "expect": 0 },
+    { "pct": 12.25, "expect": null },
+    { "pct": 0.25, "expect": null },
+    { "pct": -1, "expect": null },
+    { "pct": null, "expect": null }
+  ],
+  "company": [
+    { "case": "complete", "input": {}, "expect": null },
+    { "case": "no name", "input": { "legalName": " " }, "expect": "NO_NAME" },
+    { "case": "GSTIN typo (check digit)", "input": { "gstin": "06AAACL1234M1ZA" }, "expect": "BAD_GSTIN" },
+    { "case": "no address", "input": { "address": { "line1": "", "line2": "", "city": "Karnal", "pincode": "132001" } }, "expect": "NO_ADDRESS" },
+    { "case": "no city", "input": { "address": { "line1": "Matak Majri", "line2": "", "city": "", "pincode": "132001" } }, "expect": "NO_ADDRESS" },
+    { "case": "five-digit PIN", "input": { "address": { "line1": "Matak Majri", "line2": "", "city": "Karnal", "pincode": "13200" } }, "expect": "BAD_PINCODE" },
+    { "case": "PIN left blank is fine", "input": { "address": { "line1": "Matak Majri", "line2": "", "city": "Karnal", "pincode": "" } }, "expect": null },
+    { "case": "prefix too long", "input": { "invoicePrefix": "TFLC" }, "expect": "BAD_PREFIX" },
+    { "case": "lower-case prefix", "input": { "invoicePrefix": "tf" }, "expect": "BAD_PREFIX" }
+  ],
+  "companyBase": { "legalName": "Lube Chem Industries", "tradeName": "Technofluid Lubricants", "gstin": "06AAACL1234M1ZO", "address": { "line1": "Adjoining Central Warehouse, Near Gaushala Road", "line2": "Matak Majri", "city": "Karnal", "pincode": "132001" }, "phone": null, "email": null, "invoicePrefix": "TF" },
+  "words": [
+    { "paise": 0, "expect": "Rupees Zero Only" },
+    { "paise": 5, "expect": "Rupees Zero and Five Paise Only" },
+    { "paise": 10000, "expect": "Rupees One Hundred Only" },
+    { "paise": 1669200, "expect": "Rupees Sixteen Thousand Six Hundred Ninety Two Only" },
+    { "paise": 12345678, "expect": "Rupees One Lakh Twenty Three Thousand Four Hundred Fifty Six and Seventy Eight Paise Only" },
+    { "paise": 1000000000, "expect": "Rupees One Crore Only" },
+    { "paise": 12345678900, "expect": "Rupees Twelve Crore Thirty Four Lakh Fifty Six Thousand Seven Hundred Eighty Nine Only" }
+  ]
+}

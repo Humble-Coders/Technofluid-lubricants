@@ -3,7 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
+import {getHlClient, HL_SECRETS, refuseOpeningOnRealBooks} from "../ledger/getHlClient";
 import {plainHlMessage} from "../ledger/hlClient";
 import {hlAmountToPaise, formatRupees} from "../entities/entityModel";
 import {requestId as parseRequestId} from "../stock/stockModel";
@@ -91,6 +91,7 @@ export const setRegisterOpening = onCall({region: "us-central1"}, async (request
   if (typeof amount !== "number" || !Number.isInteger(amount) || Math.abs(amount) > 1e13) bad("The opening balance must be a whole amount in paise.");
   const asOf = realDay(data.asOf, "The as-of date");
   if (asOf > indiaToday()) bad("The as-of date can't be in the future.");
+  refuseOpeningOnRealBooks();
   const db = admin.firestore();
   const ref = db.collection(REGISTERS).doc(registerId);
 
