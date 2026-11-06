@@ -129,3 +129,14 @@ Guards in a real-books test run, so the test leaves nothing behind that the live
 - **Opening balances (customers, suppliers, registers) are refused.** HL can't undo them.
 
 Undo every test sale and payment when you're done (cancel the invoice, reverse the payment). The real ledger then nets back to zero.
+
+## Go-live record (6 Nov 2026)
+
+On `techno-fluid`:
+- **Security rules** and **`firestore.indexes.json`** (`entities`: deleted + nameLower).
+- **38 office Cloud Functions**: everything in `functions/src/index.ts` except the website's 8 (`approveDistributorCallable`, `checkTerritoryConflict`, `createProduct`, `createUserByAdminCallable`, `deleteUser`, `importProducts`, `updateProduct`, `verifyGST`) and the 3 product editors.
+- **The 3 product editors are held back on purpose:** `editProduct`, `addProduct` and `setProductDeleted`. They move prices into `product_prices`, which only Admin and Accounts can read, so a website distributor would stop seeing that price. Deploy them together with the price migration (`scripts/migrate-product-prices.mjs`, not run yet), once the website's ordering side is ready.
+- **Humble Ledger is on.** `firebase/functions/.env.techno-fluid` sets `HL_MODE=live`, `HL_BASE_URL` and `HL_LOGIN_EMAIL`; the password is the secret `HL_LOGIN_PASSWORD`. For now it signs in with the Technofluid **owner** login (Ansh's choice); switch to an ACCOUNTANT app user later. Keep this file: without it a deploy turns the books **off**.
+- The 5 Firestore triggers (asia-south1) needed a retry on the first deploy while Google set up Eventarc permissions.
+
+**Deploying again:** always use `--only` with the office function names, never a bare `firebase deploy`, until the product editors and the price migration go together.
