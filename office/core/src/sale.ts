@@ -20,6 +20,8 @@ import { WALK_IN_ENTITY_ID, type PriceTier } from "./entity";
 
 export const MAX_SALE_LINES = 60;
 export const MAX_PACKS_PER_LINE = 100_000;
+/** Highest pack price an Admin may type for one sale: ₹10,00,000. */
+export const MAX_MANUAL_PACK_PRICE_PAISE = 100_000_000;
 /** At most two payment legs at billing (e.g. part cash, part bank). */
 export const MAX_SALE_PAYMENTS = 2;
 /** GST: an invoice number has at most 16 characters. */
@@ -51,6 +53,11 @@ export interface SaleLineInput {
   packs: number;
   /** 0–10000 (5 % = 500). */
   discountBp: number;
+  /**
+   * A price for one pack typed by an Admin for THIS sale only — allowed only when the
+   * product has no price for the customer's price list. Never saved on the product.
+   */
+  manualPackPricePaise?: number | null;
 }
 
 /** One billed line, everything worked out and frozen at the time of sale. */
@@ -70,6 +77,8 @@ export interface PricedSaleLine {
   listPricePaise: number;
   /** Price of one pack. */
   packPricePaise: number;
+  /** True when an Admin typed the pack price for this sale (the product had no price). */
+  manualPrice: boolean;
   discountBp: number;
   grossPaise: number;
   discountPaise: number;
@@ -115,7 +124,9 @@ export type SaleLineErrorCode =
   | "BAD_PACK_SIZE"
   | "BAD_PACKS"
   | "BAD_DISCOUNT"
-  | "BAD_GST_RATE";
+  | "BAD_GST_RATE"
+  | "MANUAL_PRICE_NOT_ALLOWED"
+  | "BAD_MANUAL_PRICE";
 
 export const SALE_LINE_ERROR_TEXT: Record<SaleLineErrorCode, string> = {
   UNKNOWN_PRODUCT: "This product doesn't exist any more.",
@@ -126,6 +137,8 @@ export const SALE_LINE_ERROR_TEXT: Record<SaleLineErrorCode, string> = {
   BAD_PACKS: `Packs must be a whole number from 1 to ${MAX_PACKS_PER_LINE.toLocaleString("en-IN")}.`,
   BAD_DISCOUNT: "Discount must be between 0 and 100 %, at most two decimals.",
   BAD_GST_RATE: "This product's GST rate isn't usable — an Admin must fix it.",
+  MANUAL_PRICE_NOT_ALLOWED: "This product already has a price for this price list — use a discount instead.",
+  BAD_MANUAL_PRICE: `The price for one pack must be from ₹0.01 to ₹${(MAX_MANUAL_PACK_PRICE_PAISE / 100).toLocaleString("en-IN")}.`,
 };
 
 /** 18 → 1800 basis points; null if it isn't a rate GST can split in half (CGST + SGST). */
@@ -149,23 +162,41 @@ function preLine(p: SaleProduct | undefined, line: SaleLineInput, tier: PriceTie
   if (!Number.isInteger(line.packs) || line.packs < 1 || line.packs > MAX_PACKS_PER_LINE) return { ok: false, code: "BAD_PACKS" };
   if (!Number.isInteger(line.discountBp) || line.discountBp < 0 || line.discountBp > 10_000) return { ok: false, code: "BAD_DISCOUNT" };
   const list = tierPrice(p, tier);
-  if (list === null || !Number.isInteger(list) || list < 0) return { ok: false, code: "NO_PRICE" };
-  if (!p.pricePer) return { ok: false, code: "NO_PRICE_BASIS" };
+  const hasList = list !== null && Number.isInteger(list) && list >= 0;
+  // An Admin may type a pack price for this one sale, only when there is no list price.
+  const manual = line.manualPackPricePaise ?? null;
+  if (manual !== null) {
+    if (hasList) return { ok: false, code: "MANUAL_PRICE_NOT_ALLOWED" };
+    if (!Number.isInteger(manual) || manual < 1 || manual > MAX_MANUAL_PACK_PRICE_PAISE) return { ok: false, code: "BAD_MANUAL_PRICE" };
+  } else {
+    if (!hasList) return { ok: false, code: "NO_PRICE" };
+    if (!p.pricePer) return { ok: false, code: "NO_PRICE_BASIS" };
+  }
   const rate = gstRateBp(p.gstPct);
   if (rate === null) return { ok: false, code: "BAD_GST_RATE" };
   if (!Number.isFinite(p.packQty) || p.packQty <= 0) return { ok: false, code: "BAD_PACK_SIZE" };
-  let basis;
-  try {
-    basis = priceBasisFromLabel(p.pricePer);
-  } catch {
-    return { ok: false, code: "NO_PRICE_BASIS" };
-  }
   const packQtyMilli = toMilli(p.packQty);
   let packPrice: number;
-  try {
-    packPrice = packPricePaise({ basis, pricePaise: list, packQtyMilli, piecesPerPack: piecesPerPackFromLabel(p.packLabel) ?? undefined });
-  } catch {
-    return { ok: false, code: "BAD_PACK_SIZE" };
+  let pricePer: string;
+  let listPrice: number;
+  if (manual !== null) {
+    packPrice = manual;
+    pricePer = "per pack";
+    listPrice = manual;
+  } else {
+    let basis;
+    try {
+      basis = priceBasisFromLabel(p.pricePer as string);
+    } catch {
+      return { ok: false, code: "NO_PRICE_BASIS" };
+    }
+    try {
+      packPrice = packPricePaise({ basis, pricePaise: list as number, packQtyMilli, piecesPerPack: piecesPerPackFromLabel(p.packLabel) ?? undefined });
+    } catch {
+      return { ok: false, code: "BAD_PACK_SIZE" };
+    }
+    pricePer = p.pricePer as string;
+    listPrice = list as number;
   }
   const grossPaise = packPrice * line.packs;
   const discountPaise = percentOfPaise(grossPaise, line.discountBp);
@@ -181,9 +212,10 @@ function preLine(p: SaleProduct | undefined, line: SaleLineInput, tier: PriceTie
       packQtyMilli,
       packs: line.packs,
       qtyMilli: packQtyMilli * line.packs,
-      pricePer: p.pricePer,
-      listPricePaise: list,
+      pricePer,
+      listPricePaise: listPrice,
       packPricePaise: packPrice,
+      manualPrice: manual !== null,
       discountBp: line.discountBp,
       grossPaise,
       discountPaise,
@@ -346,6 +378,135 @@ export function salePaymentError(customerEntityId: string, grandTotalPaise: numb
   return null;
 }
 
+// ─── Dispatch details ──────────────────────────────────────────────────────────
+
+/** How the goods leave — printed on the invoice. All optional. */
+export interface SaleDispatch {
+  transport: string | null;
+  vehicleNo: string | null;
+  station: string | null;
+  ewayBillNo: string | null;
+}
+
+/**
+ * Where the goods go when it isn't the billing address. GST is unchanged: for a registered
+ * "bill to one, ship to another" sale the place of supply is the billed-to state (IGST Act
+ * s.10(1)(b)). Not allowed on a walk-in sale: there the place of supply is where the goods
+ * go (s.10(1)(a)), which we don't price yet (pending CA sign-off).
+ */
+export interface SaleShipTo {
+  name: string;
+  address: string | null;
+  city: string | null;
+  pincode: string | null;
+  stateCode: string;
+  gstin: string | null;
+}
+
+export type DispatchErrorCode = "TRANSPORT_TOO_LONG" | "BAD_VEHICLE_NO" | "STATION_TOO_LONG" | "BAD_EWAY_BILL" | "SHIP_TO_NO_NAME" | "SHIP_TO_TOO_LONG" | "SHIP_TO_NO_STATE" | "SHIP_TO_BAD_PIN" | "SHIP_TO_BAD_GSTIN" | "SHIP_TO_GSTIN_STATE" | "SHIP_TO_WALK_IN";
+
+export const DISPATCH_ERROR_TEXT: Record<DispatchErrorCode, string> = {
+  TRANSPORT_TOO_LONG: "Keep the transport name under 60 characters.",
+  BAD_VEHICLE_NO: "The vehicle number should be letters and digits, like HR99X0001.",
+  STATION_TOO_LONG: "Keep the station under 40 characters.",
+  BAD_EWAY_BILL: "An e-way bill number is 12 digits.",
+  SHIP_TO_NO_NAME: "Give the name of who the goods are shipped to.",
+  SHIP_TO_TOO_LONG: "Keep the ship-to name under 120 and the address under 200 characters.",
+  SHIP_TO_NO_STATE: "Choose the state the goods are shipped to.",
+  SHIP_TO_BAD_PIN: "The ship-to PIN code should be 6 digits.",
+  SHIP_TO_BAD_GSTIN: "The ship-to GSTIN isn't valid.",
+  SHIP_TO_GSTIN_STATE: "The ship-to GSTIN is from a different state than the ship-to state.",
+  SHIP_TO_WALK_IN: "A walk-in sale can't be shipped to another address. Bill it to a saved customer instead.",
+};
+
+const tidy = (v: unknown, upper = false): string | null => {
+  if (typeof v !== "string") return null;
+  const t = v.trim().replace(/\s+/g, " ");
+  return t ? (upper ? t.toUpperCase() : t) : null;
+};
+
+/** Empty parts become null; null when nothing was given. Vehicle and e-way numbers lose their spaces. */
+export function cleanDispatch(d: Partial<Record<keyof SaleDispatch, unknown>> | null | undefined): SaleDispatch | null {
+  if (!d) return null;
+  const out: SaleDispatch = {
+    transport: tidy(d.transport),
+    vehicleNo: tidy(d.vehicleNo, true)?.replace(/[\s-]/g, "") || null,
+    station: tidy(d.station),
+    ewayBillNo: tidy(d.ewayBillNo)?.replace(/\s/g, "") || null,
+  };
+  return Object.values(out).some(Boolean) ? out : null;
+}
+
+/** null when no ship-to name, address or state was given (= ship to the billing address). */
+export function cleanShipTo(t: Partial<Record<keyof SaleShipTo, unknown>> | null | undefined): SaleShipTo | null {
+  if (!t) return null;
+  const out = { name: tidy(t.name) ?? "", address: tidy(t.address), city: tidy(t.city), pincode: tidy(t.pincode), stateCode: tidy(t.stateCode) ?? "", gstin: tidy(t.gstin, true)?.replace(/\s/g, "") || null };
+  return out.name || out.address || out.city || out.gstin ? out : null;
+}
+
+/** The first problem with the dispatch details (already cleaned), or null. */
+export function dispatchError(d: SaleDispatch | null, t: SaleShipTo | null, isWalkIn = false): DispatchErrorCode | null {
+  if (d?.transport && d.transport.length > 60) return "TRANSPORT_TOO_LONG";
+  if (d?.vehicleNo && !/^[A-Z0-9]{4,15}$/.test(d.vehicleNo)) return "BAD_VEHICLE_NO";
+  if (d?.station && d.station.length > 40) return "STATION_TOO_LONG";
+  if (d?.ewayBillNo && !/^\d{12}$/.test(d.ewayBillNo)) return "BAD_EWAY_BILL";
+  if (t) {
+    if (isWalkIn) return "SHIP_TO_WALK_IN";
+    if (!t.name) return "SHIP_TO_NO_NAME";
+    if (t.name.length > 120 || (t.address && t.address.length > 200) || (t.city && t.city.length > 60)) return "SHIP_TO_TOO_LONG";
+    if (!t.stateCode || !isValidStateCode(t.stateCode)) return "SHIP_TO_NO_STATE";
+    if (t.pincode && !/^\d{6}$/.test(t.pincode)) return "SHIP_TO_BAD_PIN";
+    if (t.gstin && !checkGstin(t.gstin).valid) return "SHIP_TO_BAD_GSTIN";
+    if (t.gstin && t.gstin.slice(0, 2) !== t.stateCode) return "SHIP_TO_GSTIN_STATE";
+  }
+  return null;
+}
+
+// ─── Walk-in buyer ─────────────────────────────────────────────────────────────
+
+/** Who bought, for a walk-in / cash sale — printed on that invoice only. */
+export interface WalkInBuyer {
+  name: string | null;
+  phone: string | null;
+  address: string | null;
+}
+
+/**
+ * From this taxable value up, a walk-in invoice must name the buyer and their address
+ * (GST rule 46: a supply of ₹50,000 or more to an unregistered buyer).
+ */
+export const WALK_IN_BUYER_NEEDED_FROM_PAISE = 5_000_000;
+
+export type WalkInBuyerErrorCode = "BUYER_NOT_WALK_IN" | "BUYER_NAME_TOO_LONG" | "BUYER_BAD_PHONE" | "BUYER_ADDRESS_TOO_LONG" | "BUYER_NEEDED";
+
+export const WALK_IN_BUYER_ERROR_TEXT: Record<WalkInBuyerErrorCode, string> = {
+  BUYER_NOT_WALK_IN: "Buyer details are only for a walk-in customer.",
+  BUYER_NAME_TOO_LONG: "Keep the buyer's name under 100 characters.",
+  BUYER_BAD_PHONE: "The buyer's phone should be 6–15 digits.",
+  BUYER_ADDRESS_TOO_LONG: "Keep the buyer's address under 200 characters.",
+  BUYER_NEEDED: "For a bill of ₹50,000 or more (before GST), give the buyer's name and address.",
+};
+
+const blank = (v: string | null | undefined) => !v || !v.trim();
+
+/** Empty fields become null; null when nothing was given. */
+export function cleanWalkInBuyer(b: Partial<WalkInBuyer> | null | undefined): WalkInBuyer | null {
+  if (!b) return null;
+  const t = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().replace(/\s+/g, " ") : null);
+  const out = { name: t(b.name), phone: t(b.phone), address: t(b.address) };
+  return out.name || out.phone || out.address ? out : null;
+}
+
+/** The first problem with a walk-in's buyer details (already cleaned), or null. */
+export function walkInBuyerError(isWalkIn: boolean, buyer: WalkInBuyer | null, taxablePaise: number): WalkInBuyerErrorCode | null {
+  if (!isWalkIn) return buyer ? "BUYER_NOT_WALK_IN" : null;
+  if (buyer?.name && buyer.name.length > 100) return "BUYER_NAME_TOO_LONG";
+  if (buyer?.phone && !/^\+?\d{6,15}$/.test(buyer.phone.replace(/[\s-]/g, ""))) return "BUYER_BAD_PHONE";
+  if (buyer?.address && buyer.address.length > 200) return "BUYER_ADDRESS_TOO_LONG";
+  if (taxablePaise >= WALK_IN_BUYER_NEEDED_FROM_PAISE && (blank(buyer?.name) || blank(buyer?.address))) return "BUYER_NEEDED";
+  return null;
+}
+
 // ─── Invoice numbers ───────────────────────────────────────────────────────────
 
 /** Indian financial year of a date: 2026-10-27 → "2026-27"; 2027-03-31 → "2026-27". */
@@ -389,6 +550,18 @@ export interface CompanyProfile {
   phone: string | null;
   email: string | null;
   invoicePrefix: string;
+  /** Printed in "Bank Details" on the invoice (optional). */
+  bank?: CompanyBank | null;
+  /** Terms & conditions printed on the invoice, one per line (optional). */
+  invoiceTerms?: string[] | null;
+}
+
+export interface CompanyBank {
+  name: string;
+  branch: string;
+  accountType: string;
+  accountNo: string;
+  ifsc: string;
 }
 
 export type CompanyErrorCode = "NO_NAME" | "BAD_GSTIN" | "NO_ADDRESS" | "BAD_PINCODE" | "BAD_PREFIX";

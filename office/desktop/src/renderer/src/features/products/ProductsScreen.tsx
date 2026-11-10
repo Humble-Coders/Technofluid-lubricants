@@ -16,6 +16,7 @@ import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
 import { setProductDeleted } from "@/services/productEditService";
+import { BulkTaxDialog } from "./BulkTaxDialog";
 import { ProductEditor } from "./ProductEditor";
 import { RecipeSection } from "./RecipeSection";
 import { ProductHistory } from "./ProductHistory";
@@ -45,6 +46,7 @@ export function ProductsScreen() {
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
   // Adding a product (from scratch, or as a copy of `from`) replaces the detail panel.
   const [adding, setAdding] = useState<{ from?: Product } | null>(null);
+  const [bulkTax, setBulkTax] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   // True while the side panel has unsaved edits — switching product asks first.
   const editDirtyRef = useRef(false);
@@ -197,6 +199,11 @@ export function ProductsScreen() {
             {filtered.length.toLocaleString("en-IN")} {filtered.length === 1 ? "item" : "items"} · {pools}{" "}
             {pools === 1 ? "stock pool" : "stock pools"}
           </span>
+          {canEdit && filtered.length > 0 ? (
+            <Button size="sm" onClick={() => setBulkTax(true)} title="Set the GST % or HSN code on every product shown">
+              Change GST / HSN
+            </Button>
+          ) : null}
           {canEdit ? (
             <Button size="sm" variant="primary" onClick={() => startAdding()} icon={<Plus className="size-3.5" />}>
               Add product
@@ -292,6 +299,7 @@ export function ProductsScreen() {
           onClose={() => select(null)}
         />
       ) : null}
+      {bulkTax ? <BulkTaxDialog products={filtered} onClose={() => setBulkTax(false)} /> : null}
     </div>
   );
 }

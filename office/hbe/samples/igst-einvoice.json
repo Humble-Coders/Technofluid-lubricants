@@ -1,0 +1,155 @@
+{
+  "creationDate": {
+    "year": 2026,
+    "month": 6,
+    "day": 11,
+    "hour": 11,
+    "minute": 42,
+    "second": 0,
+    "utcOffsetMinutes": 330
+  },
+  "fields": {
+    "copyLabel": "Original Copy",
+    "seller.name": "Lube Chem Industries",
+    "seller.gstin": "06GSJPK2399F1ZD",
+    "seller.address": "Near Gaushala Road Adjoining Central, Ware House Matak Majri, Karnal",
+    "seller.panLine": "PAN : GSJPK2399F",
+    "seller.contactLine": "Tel. : 9034675151, 7876058000  ·  email : accounts@example.com",
+    "invoiceNo": "TF/2026-27/0704",
+    "invoiceDate": "11-06-2026",
+    "placeOfSupply": "Chhattisgarh (22)",
+    "reverseCharge": "N",
+    "transport": "SAMPLE CARGO",
+    "vehicleNo": "",
+    "station": "Raipur",
+    "ewayBillNo": "300000000003",
+    "buyer.name": "Sample Trading Company",
+    "buyer.address": "Plot 9, Sample Industrial Area, Raipur",
+    "buyer.statePin": "CHHATTISGARH-492099",
+    "buyer.pan": "AAACL1234M",
+    "buyer.mobile": "98000 00001",
+    "buyer.aadhaar": "",
+    "buyer.gstin": "22AAACL1234M1ZU",
+    "shipTo.name": "Sample Trading Company Godown",
+    "shipTo.address": "Plot 7, Transport Nagar, Raipur",
+    "shipTo.statePin": "CHHATTISGARH-492001",
+    "shipTo.pan": "",
+    "shipTo.mobile": "",
+    "shipTo.aadhaar": "",
+    "shipTo.gstin": "",
+    "irnLine": "IRN : fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+    "ackLine": "Ack.No. : 100000000000002  ·  Ack. Date : 11-06-2026",
+    "notes": "2 EMPTY DRUMS RETURNABLE",
+    "taxableValue": "61,199.76",
+    "tax1.label": "Add : IGST",
+    "tax1.rate": "@ 18.00 %",
+    "tax1.amount": "11,015.96",
+    "tax2.label": "",
+    "tax2.rate": "",
+    "tax2.amount": "",
+    "roundOff.label": "Add : Rounded Off (+)",
+    "roundOff.amount": "0.28",
+    "totalQty": "24.00 Units",
+    "grandTotal": "₹ 72,216.00",
+    "taxSummary.rate": "18%",
+    "taxSummary.taxable": "61,199.76",
+    "taxSummary.cgst": "0.00",
+    "taxSummary.sgst": "0.00",
+    "taxSummary.igst": "11,015.96",
+    "taxSummary.total": "11,015.96",
+    "amountInWords": "Rupees Seventy Two Thousand Two Hundred Sixteen Only",
+    "bank.line1": "Bank Name: HDFC BANK, Branch: INDRI  ·  Account Type: CA",
+    "bank.line2": "Account No: 00000000000000, IFSC Code: HDFC0000000",
+    "terms": "E.& O.E.\n1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged if the payment is not made within the stipulated time.\n3. Subject to 'Haryana' Jurisdiction only.",
+    "signatoryFor": "For Lube Chem Industries"
+  },
+  "flags": {
+    "isInterState": true,
+    "hasIrn": true,
+    "hasNotes": true,
+    "hasBank": true
+  },
+  "rows": [
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "1.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "5,760.04"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "2.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can · Less 5% discount (2,739.88)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "20.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "52,057.72"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "3.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "2.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "2,182.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "4.",
+        "description": "Freight charges",
+        "hsn": "",
+        "qty": "",
+        "unit": "",
+        "rate": "",
+        "amount": "1,200.00"
+      }
+    }
+  ]
+}

@@ -15,8 +15,10 @@ import {
   MONEY_ERROR_TEXT,
   REGISTERS,
   bad,
+  OTHER_EXPENSE_NOTE_TEXT,
   canReverse,
   correctionFor,
+  expenseNeedsNote,
   moneyEntryError,
   type ExpenseGst,
   type MoneyAccountRef,
@@ -161,6 +163,7 @@ export const recordExpense = onCall({region: "us-central1"}, async (request) => 
   const db = admin.firestore();
   const from = await resolveRef(db, {kind: data.registerKind, registerId: data.registerId}, "Paid from");
   const to = await resolveRef(db, {kind: "EXPENSE", categoryId: data.categoryId}, "Category");
+  if (to.kind === "EXPENSE" && expenseNeedsNote(to.name) && !noteOf(data.note)) bad(OTHER_EXPENSE_NOTE_TEXT);
 
   let gst: ExpenseGst | null = null;
   if (data.gst) {

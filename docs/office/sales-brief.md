@@ -23,7 +23,7 @@ The sale is then posted to Humble Ledger. Money received later can be recorded a
 |---|---|
 | 1 | **Invoice numbers are our own financial-year series**: `TF/2026-27/0001`. It restarts every 1 April. Numbers are at most 16 characters (the GST limit), so the prefix is 1–3 characters. The number is allocated in the createSale transaction and sent to HL as `invoiceNumber`. A cancelled invoice keeps its number. Invoice dates may not go backwards within a series (`DATE_BEFORE_LAST_INVOICE`). The prefix is configurable in Settings; once a year has invoices, its prefix is fixed. |
 | 2 | **Per-line % discount** (Accounts + Admin), 0–100 % with at most 2 decimals. It is stored in basis points, and GST is charged on the discounted value. The list price never changes. |
-| 3 | **No PDF until the billing engine is connected.** The invoice is shown on screen, laid out as a tax invoice. Ansh connects HL and the billing engine. |
+| 3 | ~~No PDF until the billing engine is connected.~~ Replaced by #10: invoice PDFs come from the Humble Bill Engine. |
 | 4 | **Cancel, don't edit** (Admin + Accounts, reason required). Stock comes back as "Sale cancelled" lines dated today. HL `POST /invoices/{id}/cancel` posts the mirror; anything already paid stays as the customer's credit. Credit notes and partial returns come later. |
 | 5 | **A missing HSN code is allowed, with a warning** (codes are awaited from the CA). GST is each product's `gstPct`, a placeholder 18 %. |
 
@@ -35,6 +35,23 @@ Defaults this build chose (not separately confirmed):
 - **Revenue in HL** = taxable value + round-off, so HL's invoice total equals our grand total. There is no separate round-off account.
 - **No COGS posting** (no costs yet).
 - **Seller details** come from `officeSettings/company` (Admin, Settings screen). Billing is refused until the profile is complete. The seller's state comes from its GSTIN.
+
+## Changes (Sharnya, 10 Nov 2026)
+
+| # | Change |
+|---|---|
+| 6 | **Admin one-off price.** When a product has no price for the customer's price list, an Admin (never Accounts) may type a pack price for that line, for that sale only (`manualPackPricePaise`; `MANUAL_PRICE_NOT_ALLOWED` if the product has a list price). The line is stored with `manualPrice: true`; the product's price stays empty. |
+| 7 | **Walk-in buyer.** A walk-in sale may carry `customer.buyer {name, phone, address}`, printed on the invoice. Name and address are required when the taxable value is ₹50,000 or more (GST rule 46, unregistered buyer); optional below. Refused on a regular customer. Place of supply stays our own state. |
+| 8 | **Next invoice number preview** at the top of New sale (`watchNextInvoiceNo`). Only a preview — the number is still given by createSale on save. |
+| 9 | **Stock below zero: warn only** (Ansh, 9 Nov 2026). Revisit as "block for Accounts, Admin can override" once stock counts are trusted. |
+| 10 | **Invoice PDFs with the Humble Bill Engine (HBE 0.3.0)**, in Gaurav's layout: template `technofluid-tax-invoice` contract 1 (`office/hbe/`). The bill data comes from the saved sale (`saleToHbeBill`), and the app ships the template so the first invoice prints offline. Not published in the HBE Console until Ansh OKs the samples. Print / Save PDF are shown only when the PDF maker is installed. The PDF maker starts on first use, not at launch. |
+| 11 | **Bank details and terms** are set in Settings → Company details and **frozen on each sale** (`seller.bank`, `seller.invoiceTerms`), so a reprint shows what applied on the billing day. Sales from before this use the current Settings. |
+| 12 | **Dispatch details and ship-to** (transport, vehicle, station, e-way bill no.; a ship-to name/address/state/GSTIN) are stored on the sale and printed. For a **registered** bill-to / ship-to sale the place of supply stays the billed-to state (IGST Act s.10(1)(b)). A ship-to GSTIN must belong to the ship-to state. **A walk-in sale can't ship elsewhere** (`SHIP_TO_WALK_IN`): for an unregistered buyer the place of supply is where the goods go (s.10(1)(a)), which we don't price yet. **Pending CA sign-off.** |
+| 13 | **Payments at billing** (Ansh, 12 Nov 2026, confirmed): up to 2 payments when billing (e.g. part cash, part bank), the rest on credit; a walk-in pays in full. |
+
+Related office changes on the same branch: Products → "Change GST / HSN" for the products shown (new Admin function `setProductsTax`, same checks and change log as `editProduct`); "similar name" warning when adding a customer/supplier; "Link to website distributor" only for customers (also refused in `linkEntityToDistributor`); an expense in category "Other" must say what it was (`expenseNeedsNote`); Expenses side panel.
+
+Website prices after the price migration: not decided (Ansh, 12 Nov 2026). It goes with the website ordering system; until then the migration stays unrun.
 
 ## Data
 
@@ -77,9 +94,12 @@ A sale cancelled before it reached the books is still posted, then cancelled. Mo
 ## Known gaps / next
 
 - Reversing a payment linked to an invoice nets the ledger, but HL's invoice `amountPaid` isn't reduced. Our paid status comes from our own records, which are right.
-- No credit notes or partial returns, no e-way bill, no PDF.
+- **E-invoicing (top tech debt; Ansh, 12 Nov 2026):** invoices print without the IRN / QR until an e-invoicing provider is connected. Provider and owner to be decided later.
+- No credit notes or partial returns. The e-way bill isn't generated; its number is typed in by hand (Dispatch).
 - Invoice paid state comes from our records (at billing + linked payments); HL's `/receivables` isn't used yet.
 - Freight rate and round-off handling: confirm with the CA.
+- Dispatch details can only be given at billing; adding an e-way bill number after saving needs a small function (follow-up).
+- HBE: no record of which template version printed which invoice yet (`recordInvoicePrint`, later).
 
 ## Tests
 

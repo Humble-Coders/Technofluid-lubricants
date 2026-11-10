@@ -229,7 +229,8 @@ function RegisterCard({ register: r, balance, onOpen }: { register: RegisterRow;
   );
 }
 
-export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin: boolean }) {
+/** onSelect: rows open a details panel when given (Expenses). */
+export function EntriesTable({ rows, isAdmin, onSelect, selectedId }: { rows: MoneyEntryRow[]; isAdmin: boolean; onSelect?: (e: MoneyEntryRow) => void; selectedId?: string | null }) {
   const [reversing, setReversing] = useState<MoneyEntryRow | null>(null);
   return (
     <>
@@ -250,7 +251,19 @@ export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin
             const dir = moneyDirection(e);
             const cancelled = isCancelled(e, e.mirrorStatus);
             return (
-              <tr key={e.id} className={clsx("border-b border-line/70 align-top", cancelled && "text-ink-faint")}>
+              <tr
+                key={e.id}
+                tabIndex={onSelect ? 0 : undefined}
+                aria-selected={onSelect ? e.id === selectedId : undefined}
+                onClick={onSelect ? () => onSelect(e) : undefined}
+                onKeyDown={onSelect ? (ev) => ev.key === "Enter" && ev.target === ev.currentTarget && onSelect(e) : undefined}
+                className={clsx(
+                  "border-b border-line/70 align-top",
+                  cancelled && "text-ink-faint",
+                  onSelect && "cursor-pointer hover:bg-hover focus:bg-hover focus:outline-none",
+                  onSelect && e.id === selectedId && "bg-hover",
+                )}
+              >
                 <td className="py-2 pr-3 whitespace-nowrap">{e.businessDay}</td>
                 <td className="py-2 pr-3">
                   <span className={clsx(cancelled && "line-through")}>
@@ -264,10 +277,10 @@ export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin
                 <td className={clsx("py-2 pr-3 text-right", cancelled ? "num text-ink-faint" : amountClass(dir))}>{formatINR(e.amountPaise)}</td>
                 <td className="max-w-60 py-2 pr-3 text-ink-muted">{e.note ?? ""}</td>
                 <td className="py-2 pr-3 text-ink-muted">{e.createdBy}</td>
-                <td className="py-2 pr-3">
+                <td className="py-2 pr-3" onClick={(ev) => ev.stopPropagation()}>
                   <StatusCell entry={e} />
                 </td>
-                <td className="py-2 text-right">
+                <td className="py-2 text-right" onClick={(ev) => ev.stopPropagation()}>
                   {canReverse(e) && (!e.isCorrection || isAdmin) ? (
                     <Button size="sm" variant="ghost" icon={<Undo2 className="size-3.5" />} onClick={() => setReversing(e)}>
                       Reverse
@@ -285,7 +298,7 @@ export function EntriesTable({ rows, isAdmin }: { rows: MoneyEntryRow[]; isAdmin
 }
 
 /** An original's reversal: it only counts as undone once the reversal is in the books. */
-function ReversedBadge({ entry: e }: { entry: MoneyEntryRow }) {
+export function ReversedBadge({ entry: e }: { entry: MoneyEntryRow }) {
   const [busy, setBusy] = useState(false);
   const state = reversalState(e, e.mirrorStatus);
   if (state === "done") return <Badge className="ml-1.5">Reversed</Badge>;
@@ -308,7 +321,7 @@ function ReversedBadge({ entry: e }: { entry: MoneyEntryRow }) {
   );
 }
 
-function StatusCell({ entry: e }: { entry: MoneyEntryRow }) {
+export function StatusCell({ entry: e }: { entry: MoneyEntryRow }) {
   const [busy, setBusy] = useState(false);
   if (e.syncStatus === "SYNCED") return <span className="text-[12px] text-success">In the books</span>;
   if (e.syncStatus === "PENDING") return <span className="text-[12px] text-ink-muted">Saving to books…</span>;
@@ -330,7 +343,7 @@ function StatusCell({ entry: e }: { entry: MoneyEntryRow }) {
   );
 }
 
-function ReverseDialog({ entry: e, onClose }: { entry: MoneyEntryRow; onClose: () => void }) {
+export function ReverseDialog({ entry: e, onClose }: { entry: MoneyEntryRow; onClose: () => void }) {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

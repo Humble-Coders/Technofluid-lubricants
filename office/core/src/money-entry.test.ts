@@ -5,6 +5,7 @@ import {
   correctionFor,
   DEFAULT_CASH_REGISTER_ID,
   expenseGstSplit,
+  expenseNeedsNote,
   isCancelled,
   isSameAccountAs,
   moneyDirection,
@@ -36,6 +37,11 @@ describe("money-entry rules (money-entry.cases.json)", () => {
   for (const c of cases.correction) {
     it(`correction: ${c.case}`, () => {
       expect(correctionFor(c.target as never, c.current, c.wanted)).toEqual(c.expect);
+    });
+  }
+  for (const c of cases.expenseNeedsNote) {
+    it(`"${c.category}" needs a note: ${c.expect}`, () => {
+      expect(expenseNeedsNote(c.category)).toBe(c.expect);
     });
   }
   for (const c of cases.reversal) {

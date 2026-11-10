@@ -1,0 +1,309 @@
+{
+  "comment": [
+    "Technofluid (Lube Chem Industries) GST tax invoice, laid out like Gaurav's current invoices (June 2026 samples).",
+    "Every value arrives formatted from the office app (office/core/src/invoice-bill.ts): money in Indian grouping, dates DD-MM-YYYY,",
+    "the tax lines and round-off already labelled. The template only places them. Field list: office/hbe/DATA-CONTRACT.md.",
+    "The note row under the IRN is always there (blank when the sale has no note). The header (seller, invoice details, billed/shipped to, IRN) and the footer (bank, terms, QR, signature) repeat on every page,",
+    "as on the paper invoices. The items table fills the page, so the totals sit at the bottom of the last page."
+  ],
+  "page": {
+    "widthPt": 595.276, "heightPt": 841.89,
+    "marginLeftPt": 28.0, "marginRightPt": 28.0,
+    "marginTopPt": 24.0, "marginBottomPt": 24.0
+  },
+  "defaults": { "font": "regular", "sizePt": 8.0, "lineHeightPt": 10.5 },
+  "flags": ["isInterState", "hasIrn", "hasNotes", "hasBank"],
+  "rowStyles": {
+    "item": { "ruleBelow": false }
+  },
+  "pageHeader": [
+    {
+      "type": "columns",
+      "divider": false,
+      "columns": [
+        { "width": "*", "bands": [
+          { "type": "partyBlock", "paddingPt": 0, "alignLabels": false, "lines": [
+            { "label": "GSTIN : ", "value": { "field": "seller.gstin", "required": true }, "style": { "font": "bold", "sizePt": 8.5 } }
+          ]}
+        ]},
+        { "width": 160.0, "bands": [
+          { "type": "textBand", "paddingPt": 0, "lines": [
+            { "segments": [ { "value": { "field": "copyLabel" }, "align": "right", "style": { "font": "italic", "sizePt": 8.5 } } ] }
+          ]}
+        ]}
+      ]
+    },
+    {
+      "type": "textBand",
+      "paddingPt": 0,
+      "gapAbovePt": 1.0,
+      "lines": [
+        { "segments": [ { "value": { "text": "TAX INVOICE" }, "align": "center", "style": { "font": "bold", "sizePt": 9.0, "letterSpacingPt": 0.4 } } ] },
+        { "segments": [ { "value": { "field": "seller.name", "required": true }, "align": "center", "style": { "font": "bold", "sizePt": 17.0, "lineHeightPt": 20.0 } } ] },
+        { "segments": [ { "value": { "field": "seller.address" }, "align": "center", "style": { "sizePt": 8.5 } } ] },
+        { "segments": [ { "value": { "field": "seller.panLine" }, "align": "center", "style": { "sizePt": 8.5 } } ] },
+        { "segments": [ { "value": { "field": "seller.contactLine" }, "align": "center", "style": { "font": "boldItalic", "sizePt": 7.5 } } ] }
+      ]
+    },
+    {
+      "type": "columns",
+      "gapAbovePt": 3.0,
+      "border": true,
+      "divider": true,
+      "columns": [
+        { "width": "*", "bands": [
+          { "type": "partyBlock", "paddingPt": 4.0, "lines": [
+            { "label": "Invoice No.", "value": { "field": "invoiceNo", "required": true }, "style": { "font": "bold" } },
+            { "label": "Dated", "value": { "field": "invoiceDate", "required": true } },
+            { "label": "Place of Supply", "value": { "field": "placeOfSupply", "required": true } },
+            { "label": "Reverse Charge", "value": { "field": "reverseCharge" } },
+            { "label": "Transport", "value": { "field": "transport" } }
+          ]}
+        ]},
+        { "width": "*", "bands": [
+          { "type": "partyBlock", "paddingPt": 4.0, "lines": [
+            { "label": "Vehicle No.", "value": { "field": "vehicleNo" } },
+            { "label": "Station", "value": { "field": "station" } },
+            { "label": "E-Way Bill No.", "value": { "field": "ewayBillNo" } }
+          ]}
+        ]}
+      ]
+    },
+    {
+      "type": "columns",
+      "border": true,
+      "divider": true,
+      "columns": [
+        { "width": "*", "bands": [
+          { "type": "partyBlock", "paddingPt": 4.0, "lines": [
+            { "value": { "text": "Billed to :" }, "style": { "font": "boldItalic" } },
+            { "value": { "field": "buyer.name", "required": true }, "style": { "font": "bold" } },
+            { "value": { "field": "buyer.address" } },
+            { "value": { "field": "buyer.statePin" } }
+          ]},
+          { "type": "partyBlock", "paddingPt": 4.0, "gapAbovePt": 2.0, "lines": [
+            { "label": "Party PAN", "value": { "field": "buyer.pan" } },
+            { "label": "Party Mobile No", "value": { "field": "buyer.mobile" } },
+            { "label": "Party AadhaarNo", "value": { "field": "buyer.aadhaar" } },
+            { "label": "GSTIN / UIN", "value": { "field": "buyer.gstin" } }
+          ]}
+        ]},
+        { "width": "*", "bands": [
+          { "type": "partyBlock", "paddingPt": 4.0, "lines": [
+            { "value": { "text": "Shipped to :" }, "style": { "font": "boldItalic" } },
+            { "value": { "field": "shipTo.name" }, "style": { "font": "bold" } },
+            { "value": { "field": "shipTo.address" } },
+            { "value": { "field": "shipTo.statePin" } }
+          ]},
+          { "type": "partyBlock", "paddingPt": 4.0, "gapAbovePt": 2.0, "lines": [
+            { "label": "Party PAN", "value": { "field": "shipTo.pan" } },
+            { "label": "Party Mobile No", "value": { "field": "shipTo.mobile" } },
+            { "label": "Party AadhaarNo", "value": { "field": "shipTo.aadhaar" } },
+            { "label": "GSTIN / UIN", "value": { "field": "shipTo.gstin" } }
+          ]}
+        ]}
+      ]
+    },
+    {
+      "type": "textBand",
+      "showWhen": "hasIrn",
+      "border": true,
+      "paddingPt": 4.0,
+      "text": { "sizePt": 7.0, "lineHeightPt": 9.5 },
+      "lines": [
+        { "segments": [
+          { "value": { "field": "irnLine" }, "wrap": "anywhere" },
+          { "value": { "field": "ackLine" }, "align": "right" }
+        ] }
+      ]
+    }
+  ],
+  "pageFooter": [
+    {
+      "type": "textBand",
+      "showWhen": "hasBank",
+      "border": true,
+      "paddingPt": 4.0,
+      "lines": [
+        { "segments": [ { "value": { "text": "Bank Details" }, "align": "center", "style": { "font": "bold", "sizePt": 9.5, "lineHeightPt": 12.0 } } ] },
+        { "segments": [ { "value": { "field": "bank.line1" }, "align": "center", "style": { "sizePt": 7.5 } } ] },
+        { "segments": [ { "value": { "field": "bank.line2" }, "align": "center", "style": { "sizePt": 7.5 } } ] }
+      ]
+    },
+    {
+      "type": "columns",
+      "showWhen": "hasIrn",
+      "border": true,
+      "divider": true,
+      "columns": [
+        { "width": 165.0, "bands": [
+          { "type": "textBand", "paddingPt": 4.0, "text": { "sizePt": 7.5, "lineHeightPt": 10.0 }, "lines": [
+            { "segments": [ { "value": { "text": "Terms & Conditions" }, "style": { "font": "bold" } } ] },
+            { "segments": [ { "value": { "field": "terms" } } ] }
+          ]}
+        ]},
+        { "width": 125.0, "bands": [
+          { "type": "textBand", "paddingPt": 3.0, "lines": [
+            { "segments": [ { "value": { "text": "E-Invoice QR Code" }, "align": "center", "style": { "font": "bold", "sizePt": 7.0 } } ] }
+          ]},
+          { "type": "image", "key": "irnQr", "maxWidthPt": 100.0, "maxHeightPt": 100.0, "align": "center" }
+        ]},
+        { "width": "*", "bands": [
+          { "type": "textBand", "paddingPt": 4.0, "lines": [
+            { "segments": [ { "value": { "text": "Receiver's Signature  :" }, "style": { "font": "bold", "sizePt": 7.0 } } ] }
+          ]},
+          { "type": "spacer", "heightPt": 0.5, "gapAbovePt": 18.0, "background": "#000000" },
+          { "type": "signatoryBox", "heightPt": 86.0, "border": false,
+            "topLines": [ { "segments": [ { "value": { "field": "signatoryFor" }, "align": "right", "style": { "font": "bold", "sizePt": 8.5 } } ] } ],
+            "bottomLines": [ { "segments": [ { "value": { "text": "Authorised Signatory" }, "align": "right", "style": { "font": "bold", "sizePt": 8.0 } } ] } ] }
+        ]}
+      ]
+    },
+    {
+      "type": "columns",
+      "hideWhen": "hasIrn",
+      "border": true,
+      "divider": true,
+      "columns": [
+        { "width": 220.0, "bands": [
+          { "type": "textBand", "paddingPt": 4.0, "text": { "sizePt": 7.5, "lineHeightPt": 10.0 }, "lines": [
+            { "segments": [ { "value": { "text": "Terms & Conditions" }, "style": { "font": "bold" } } ] },
+            { "segments": [ { "value": { "field": "terms" } } ] }
+          ]}
+        ]},
+        { "width": "*", "bands": [
+          { "type": "textBand", "paddingPt": 4.0, "lines": [
+            { "segments": [ { "value": { "text": "Receiver's Signature  :" }, "style": { "font": "bold", "sizePt": 7.0 } } ] }
+          ]},
+          { "type": "spacer", "heightPt": 0.5, "gapAbovePt": 18.0, "background": "#000000" },
+          { "type": "signatoryBox", "heightPt": 52.0, "border": false,
+            "topLines": [ { "segments": [ { "value": { "field": "signatoryFor" }, "align": "right", "style": { "font": "bold", "sizePt": 8.5 } } ] } ],
+            "bottomLines": [ { "segments": [ { "value": { "text": "Authorised Signatory" }, "align": "right", "style": { "font": "bold", "sizePt": 8.0 } } ] } ] }
+        ]}
+      ]
+    },
+    {
+      "type": "textBand",
+      "paddingPt": 0,
+      "gapAbovePt": 2.0,
+      "text": { "sizePt": 6.5, "lineHeightPt": 8.5 },
+      "lines": [
+        { "segments": [
+          { "value": { "field": "invoiceNo" } },
+          { "value": { "text": "This is a computer-generated invoice." }, "align": "center" },
+          { "value": { "text": "Page {page} of {pages}" }, "align": "right" }
+        ] }
+      ]
+    }
+  ],
+  "bands": [
+    {
+      "type": "textBand",
+      "border": true,
+      "paddingPt": 4.0,
+      "lines": [
+        { "segments": [ { "value": { "field": "notes" }, "style": { "sizePt": 8.5 } } ] }
+      ]
+    },
+    {
+      "type": "itemsTable",
+      "fill": true,
+      "repeatHeader": true,
+      "border": true,
+      "columnRules": true,
+      "cellPaddingPt": 3.0,
+      "headerStyle": { "font": "bold", "sizePt": 8.5, "lineHeightPt": 10.5 },
+      "columns": [
+        { "key": "slNo", "header": "S.N.", "width": 28.0, "align": "right", "headerAlign": "center" },
+        { "key": "description", "header": "Description of Goods", "width": "*", "headerAlign": "left" },
+        { "key": "hsn", "header": "HSN/SAC Code", "width": 58.0, "headerAlign": "left" },
+        { "key": "qty", "header": "Qty.", "width": 44.0, "align": "right", "headerAlign": "right" },
+        { "key": "unit", "header": "Unit", "width": 36.0, "headerAlign": "left" },
+        { "key": "rate", "header": "Price", "width": 64.0, "align": "right", "headerAlign": "right" },
+        { "key": "amount", "header": "Amount(₹)", "width": 72.0, "align": "right", "headerAlign": "right" }
+      ]
+    },
+    {
+      "type": "columns",
+      "border": true,
+      "divider": true,
+      "columns": [
+        { "width": "*", "bands": [
+          { "type": "textBand", "paddingPt": 3.0, "collapseEmptyLines": true, "lines": [
+            { "segments": [ { "value": { "text": "Sub Total" }, "align": "center" } ] },
+            { "segments": [ { "value": { "field": "tax1.label" }, "align": "center", "style": { "font": "italic" } }, { "value": { "field": "tax1.rate" }, "align": "right", "style": { "font": "italic" } } ] },
+            { "segments": [ { "value": { "field": "tax2.label" }, "align": "center", "style": { "font": "italic" } }, { "value": { "field": "tax2.rate" }, "align": "right", "style": { "font": "italic" } } ] },
+            { "segments": [ { "value": { "field": "roundOff.label" }, "align": "center", "style": { "font": "italic" } } ] }
+          ]}
+        ]},
+        { "width": 72.0, "bands": [
+          { "type": "textBand", "paddingPt": 3.0, "collapseEmptyLines": true, "lines": [
+            { "segments": [ { "value": { "field": "taxableValue", "required": true }, "align": "right", "style": { "font": "bold" } } ] },
+            { "segments": [ { "value": { "field": "tax1.amount" }, "align": "right" } ] },
+            { "segments": [ { "value": { "field": "tax2.amount" }, "align": "right" } ] },
+            { "segments": [ { "value": { "field": "roundOff.amount" }, "align": "right" } ] }
+          ]}
+        ]}
+      ]
+    },
+    {
+      "type": "columns",
+      "border": true,
+      "divider": true,
+      "text": { "font": "bold", "sizePt": 9.5, "lineHeightPt": 12.5 },
+      "columns": [
+        { "width": "*", "bands": [
+          { "type": "textBand", "paddingPt": 3.0, "lines": [
+            { "segments": [ { "value": { "text": "Grand Total" }, "align": "center" }, { "value": { "field": "totalQty" }, "align": "right" } ] }
+          ]}
+        ]},
+        { "width": 72.0, "bands": [
+          { "type": "textBand", "paddingPt": 3.0, "lines": [
+            { "segments": [ { "value": { "field": "grandTotal", "required": true }, "align": "right" } ] }
+          ]}
+        ]}
+      ]
+    },
+    {
+      "type": "columns",
+      "border": true,
+      "divider": false,
+      "columns": [
+        { "width": "*", "bands": [
+          { "type": "fieldGrid",
+            "hideWhen": "isInterState",
+            "border": false,
+            "cellPaddingPt": 3.0,
+            "labelStyle": { "font": "bold", "sizePt": 7.5 },
+            "valueStyle": { "sizePt": 7.5 },
+            "rows": [ { "cells": [
+              { "label": "Tax Rate", "value": { "field": "taxSummary.rate" }, "width": 50.0, "ruleLeft": false },
+              { "label": "Taxable Amt.", "value": { "field": "taxSummary.taxable" }, "width": 75.0, "align": "right", "ruleLeft": false },
+              { "label": "CGST Amt.", "value": { "field": "taxSummary.cgst" }, "width": 65.0, "align": "right", "ruleLeft": false },
+              { "label": "SGST Amt.", "value": { "field": "taxSummary.sgst" }, "width": 65.0, "align": "right", "ruleLeft": false },
+              { "label": "Total Tax", "value": { "field": "taxSummary.total" }, "width": 65.0, "align": "right", "ruleLeft": false },
+              { "label": "", "value": { "text": "" }, "width": "*", "ruleLeft": false }
+            ] } ]
+          },
+          { "type": "fieldGrid",
+            "showWhen": "isInterState",
+            "border": false,
+            "cellPaddingPt": 3.0,
+            "labelStyle": { "font": "bold", "sizePt": 7.5 },
+            "valueStyle": { "sizePt": 7.5 },
+            "rows": [ { "cells": [
+              { "label": "Tax Rate", "value": { "field": "taxSummary.rate" }, "width": 50.0, "ruleLeft": false },
+              { "label": "Taxable Amt.", "value": { "field": "taxSummary.taxable" }, "width": 75.0, "align": "right", "ruleLeft": false },
+              { "label": "IGST Amt.", "value": { "field": "taxSummary.igst" }, "width": 65.0, "align": "right", "ruleLeft": false },
+              { "label": "Total Tax", "value": { "field": "taxSummary.total" }, "width": 65.0, "align": "right", "ruleLeft": false },
+              { "label": "", "value": { "text": "" }, "width": "*", "ruleLeft": false }
+            ] } ]
+          },
+          { "type": "textBand", "paddingPt": 4.0, "gapAbovePt": 2.0, "lines": [
+            { "segments": [ { "value": { "field": "amountInWords", "required": true }, "style": { "font": "bold", "sizePt": 9.0, "lineHeightPt": 11.5 } } ] }
+          ]}
+        ]}
+      ]
+    }
+  ]
+}

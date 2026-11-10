@@ -8,6 +8,8 @@ import type { OfficeBridge } from "../shared/ipc";
 const office: OfficeBridge = {
   platform: process.platform,
   getAppInfo: () => ipcRenderer.invoke("app:info"),
+  invoicePdf: (req) => ipcRenderer.invoke("invoice:pdf", req),
+  invoicePdfReady: () => ipcRenderer.invoke("invoice:pdfReady"),
 };
 
 contextBridge.exposeInMainWorld("office", office);

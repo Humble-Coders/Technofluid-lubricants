@@ -1,0 +1,97 @@
+{
+  "creationDate": {
+    "year": 2026,
+    "month": 6,
+    "day": 11,
+    "hour": 11,
+    "minute": 42,
+    "second": 0,
+    "utcOffsetMinutes": 330
+  },
+  "fields": {
+    "copyLabel": "Triplicate Copy",
+    "seller.name": "Lube Chem Industries",
+    "seller.gstin": "06GSJPK2399F1ZD",
+    "seller.address": "Near Gaushala Road Adjoining Central, Ware House Matak Majri, Karnal",
+    "seller.panLine": "PAN : GSJPK2399F",
+    "seller.contactLine": "Tel. : 9034675151, 7876058000  ·  email : accounts@example.com",
+    "invoiceNo": "TF/2026-27/0863",
+    "invoiceDate": "11-06-2026",
+    "placeOfSupply": "Haryana (06)",
+    "reverseCharge": "N",
+    "transport": "SAMPLE TRANSPORT",
+    "vehicleNo": "",
+    "station": "",
+    "ewayBillNo": "",
+    "buyer.name": "Ravi Kumar",
+    "buyer.address": "Shop 4, Sample Bazaar, Charki Dadri",
+    "buyer.statePin": "HARYANA",
+    "buyer.pan": "",
+    "buyer.mobile": "98765 43210",
+    "buyer.aadhaar": "",
+    "buyer.gstin": "",
+    "shipTo.name": "Ravi Kumar",
+    "shipTo.address": "Shop 4, Sample Bazaar, Charki Dadri",
+    "shipTo.statePin": "HARYANA",
+    "shipTo.pan": "",
+    "shipTo.mobile": "98765 43210",
+    "shipTo.aadhaar": "",
+    "shipTo.gstin": "",
+    "irnLine": "",
+    "ackLine": "",
+    "notes": "",
+    "taxableValue": "5,455.00",
+    "tax1.label": "Add : CGST",
+    "tax1.rate": "@ 9.00 %",
+    "tax1.amount": "490.95",
+    "tax2.label": "Add : SGST",
+    "tax2.rate": "@ 9.00 %",
+    "tax2.amount": "490.95",
+    "roundOff.label": "Add : Rounded Off (+)",
+    "roundOff.amount": "0.10",
+    "totalQty": "5.00 Case",
+    "grandTotal": "₹ 6,437.00",
+    "taxSummary.rate": "18%",
+    "taxSummary.taxable": "5,455.00",
+    "taxSummary.cgst": "490.95",
+    "taxSummary.sgst": "490.95",
+    "taxSummary.igst": "0.00",
+    "taxSummary.total": "981.90",
+    "amountInWords": "Rupees Six Thousand Four Hundred Thirty Seven Only",
+    "bank.line1": "Bank Name: HDFC BANK, Branch: INDRI  ·  Account Type: CA",
+    "bank.line2": "Account No: 00000000000000, IFSC Code: HDFC0000000",
+    "terms": "E.& O.E.\n1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged if the payment is not made within the stipulated time.\n3. Subject to 'Haryana' Jurisdiction only.",
+    "signatoryFor": "For Lube Chem Industries"
+  },
+  "flags": {
+    "isInterState": false,
+    "hasIrn": false,
+    "hasNotes": false,
+    "hasBank": true
+  },
+  "rows": [
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "1.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "5.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "5,455.00"
+      }
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "creationDate": {
+    "year": 2026,
+    "month": 6,
+    "day": 11,
+    "hour": 11,
+    "minute": 42,
+    "second": 0,
+    "utcOffsetMinutes": 330
+  },
+  "fields": {
+    "copyLabel": "Triplicate Copy",
+    "seller.name": "Lube Chem Industries",
+    "seller.gstin": "06GSJPK2399F1ZD",
+    "seller.address": "Near Gaushala Road Adjoining Central, Ware House Matak Majri, Karnal",
+    "seller.panLine": "PAN : GSJPK2399F",
+    "seller.contactLine": "Tel. : 9034675151, 7876058000  ·  email : accounts@example.com",
+    "invoiceNo": "TF/2026-27/0869",
+    "invoiceDate": "11-06-2026",
+    "placeOfSupply": "Haryana (06)",
+    "reverseCharge": "N",
+    "transport": "NONE",
+    "vehicleNo": "HR45X0000",
+    "station": "JAGADHRI",
+    "ewayBillNo": "",
+    "buyer.name": "Sample Agencies",
+    "buyer.address": "12 Sample Market, Jagadhri",
+    "buyer.statePin": "HARYANA-135003",
+    "buyer.pan": "AAACL1234M",
+    "buyer.mobile": "98000 00001",
+    "buyer.aadhaar": "",
+    "buyer.gstin": "06AAACL1234M1ZO",
+    "shipTo.name": "Sample Agencies",
+    "shipTo.address": "12 Sample Market, Jagadhri",
+    "shipTo.statePin": "HARYANA-135003",
+    "shipTo.pan": "AAACL1234M",
+    "shipTo.mobile": "98000 00001",
+    "shipTo.aadhaar": "",
+    "shipTo.gstin": "06AAACL1234M1ZO",
+    "irnLine": "IRN : 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "ackLine": "Ack.No. : 100000000000001  ·  Ack. Date : 11-06-2026",
+    "notes": "",
+    "taxableValue": "2,05,820.00",
+    "tax1.label": "Add : CGST",
+    "tax1.rate": "@ 9.00 %",
+    "tax1.amount": "18,523.80",
+    "tax2.label": "Add : SGST",
+    "tax2.rate": "@ 9.00 %",
+    "tax2.amount": "18,523.80",
+    "roundOff.label": "Add : Rounded Off (+)",
+    "roundOff.amount": "0.40",
+    "totalQty": "19.00 Units",
+    "grandTotal": "₹ 2,42,868.00",
+    "taxSummary.rate": "18%",
+    "taxSummary.taxable": "2,05,820.00",
+    "taxSummary.cgst": "18,523.80",
+    "taxSummary.sgst": "18,523.80",
+    "taxSummary.igst": "0.00",
+    "taxSummary.total": "37,047.60",
+    "amountInWords": "Rupees Two Lakh Forty Two Thousand Eight Hundred Sixty Eight Only",
+    "bank.line1": "Bank Name: HDFC BANK, Branch: INDRI  ·  Account Type: CA",
+    "bank.line2": "Account No: 00000000000000, IFSC Code: HDFC0000000",
+    "terms": "E.& O.E.\n1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged if the payment is not made within the stipulated time.\n3. Subject to 'Haryana' Jurisdiction only.",
+    "signatoryFor": "For Lube Chem Industries"
+  },
+  "flags": {
+    "isInterState": false,
+    "hasIrn": true,
+    "hasNotes": false,
+    "hasBank": true
+  },
+  "rows": [
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "1.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "79,960.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "2.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "4.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "79,240.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "3.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Cutting Oil"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "34039900",
+        "qty": "1.00",
+        "unit": "Drum",
+        "rate": "29,320.00",
+        "amount": "29,320.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "4.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "10.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "17,300.00"
+      }
+    }
+  ]
+}

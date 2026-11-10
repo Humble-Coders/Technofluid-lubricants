@@ -144,7 +144,7 @@ describe("the shared rules table (sale.cases.json) against the server's copy", (
       !r.ok
         ? { errors: r.errors }
         : {
-            lines: r.lines.map((l) => pick(l, ["sku", "qtyMilli", "packPricePaise", "grossPaise", "discountPaise", "taxablePaise", "gstRateBp", "cgstPaise", "sgstPaise", "igstPaise", "totalPaise"])),
+            lines: r.lines.map((l) => pick(l, ["sku", "qtyMilli", "packPricePaise", "manualPrice", "grossPaise", "discountPaise", "taxablePaise", "gstRateBp", "cgstPaise", "sgstPaise", "igstPaise", "totalPaise"])),
             freight: r.freight,
             totals: pick(r.totals, ["supplyType", "grossPaise", "discountPaise", "taxablePaise", "cgstPaise", "sgstPaise", "igstPaise", "taxPaise", "roundOffPaise", "grandTotalPaise"]),
             missingHsn: r.missingHsn,
@@ -155,6 +155,13 @@ describe("the shared rules table (sale.cases.json) against the server's copy", (
     }
     for (const c of CASES.header) assert.equal(model.saleError({ ...CASES.headerBase, ...c.input }, CASES.today), c.expect, c.case);
     for (const c of CASES.payment) assert.equal(model.salePaymentError(c.customer, c.grand, c.payments), c.expect, c.case);
+    for (const c of CASES.dispatch) {
+      const d = model.cleanDispatch(c.dispatch);
+      const t = model.cleanShipTo(c.shipTo);
+      assert.equal(model.dispatchError(d, t, c.isWalkIn === true), c.expect, c.case);
+      if (c.cleaned) assert.deepEqual({ dispatch: d, shipTo: t }, c.cleaned, c.case);
+    }
+    for (const c of CASES.walkInBuyer) assert.equal(model.walkInBuyerError(c.walkIn, model.cleanWalkInBuyer(c.buyer), c.taxable), c.expect, c.case);
     for (const c of CASES.financialYear) assert.equal(model.financialYear(c.date), c.expect, c.date);
     for (const c of CASES.invoiceNumber) {
       if (c.expect === "THROWS") assert.throws(() => model.invoiceNumber(c.prefix, c.fy, c.seq));
@@ -360,5 +367,83 @@ describe("books not connected, reconcile, rules", () => {
     await denied(setDoc(doc(admin.db, "officeSettings", "company"), COMPANY));
     await denied(getDoc(doc(admin.db, "invoiceSeries", fy)));
     await denied(getDoc(doc(admin.db, "saleSync", one)));
+  });
+});
+
+describe("an Admin's one-off price; the walk-in buyer", () => {
+  test("only an Admin may price a product with no price, for that sale only; a priced product can't be re-priced", async () => {
+    const line = { sku: PRODUCTS[2].sku, packs: 2, discountBp: 1000, manualPackPricePaise: 400_000 };
+    await rejectsWith(sell(accounts, haryana, [line]), "permission-denied", /Only an Admin/);
+    await assert.rejects(sell(admin, haryana, [{ sku: PRODUCTS[0].sku, packs: 1, discountBp: 0, manualPackPricePaise: 100 }]), (e) => e.details?.code === "MANUAL_PRICE_NOT_ALLOWED");
+    // The same figures as the one-off price case in sale.cases.json.
+    const r = await sell(admin, haryana, [line]);
+    assert.equal(r.grandTotalPaise, 849_600);
+    const s = await get("sales", r.saleId);
+    assert.equal(s.lines[0].manualPrice, true);
+    assert.equal(s.lines[0].packPricePaise, 400_000);
+    // The product itself still has no price.
+    assert.equal((await get("product_prices", PRODUCTS[2].sku)).dealerPrice, null);
+  });
+
+  test("a walk-in bill of ₹50,000 or more needs the buyer's name and address; they're printed on the sale", async () => {
+    // 8 cases × 6,400 = 51,200 taxable + 18% = 60,416.00
+    const lines = [{ sku: PRODUCTS[1].sku, packs: 8, discountBp: 0 }];
+    const payments = [{ registerId: "default-cash", amountPaise: 6_041_600 }];
+    await assert.rejects(sell(accounts, "walk-in-customer", lines, { payments }), (e) => e.details?.code === "BUYER_NEEDED");
+    await assert.rejects(sell(accounts, "walk-in-customer", lines, { payments, walkInBuyer: { name: "Ravi Kumar", phone: "", address: "" } }), (e) => e.details?.code === "BUYER_NEEDED");
+    const r = await sell(accounts, "walk-in-customer", lines, { payments, walkInBuyer: { name: "  Ravi   Kumar ", phone: "98765 43210", address: "Sector 12, Panipat" } });
+    const s = await get("sales", r.saleId);
+    assert.deepEqual(s.customer.buyer, { name: "Ravi Kumar", phone: "98765 43210", address: "Sector 12, Panipat" });
+    assert.equal(s.customer.name, "Walk-in / cash customer");
+    // Buyer details belong to a walk-in only.
+    await assert.rejects(sell(accounts, haryana, [{ sku: PRODUCTS[0].sku, packs: 1, discountBp: 0 }], { walkInBuyer: { name: "Ravi" } }), (e) => e.details?.code === "BUYER_NOT_WALK_IN");
+  });
+});
+
+describe("dispatch details and ship-to", () => {
+  test("stored on the sale as typed (tidied); bad ones refused; GST unchanged", async () => {
+    const lines = [{ sku: PRODUCTS[0].sku, packs: 1, discountBp: 0 }];
+    await assert.rejects(sell(accounts, haryana, lines, { dispatch: { ewayBillNo: "123" } }), (e) => e.details?.code === "BAD_EWAY_BILL");
+    await assert.rejects(sell(accounts, haryana, lines, { shipTo: { address: "Godown road" } }), (e) => e.details?.code === "SHIP_TO_NO_NAME");
+    const r = await sell(accounts, haryana, lines, {
+      dispatch: { transport: " Sample Transport ", vehicleNo: "hr 99 x 0001", station: "Jagadhri", ewayBillNo: "3000 0000 0001" },
+      shipTo: { name: "TEST SAL Godown", address: "Plot 7", city: "Ludhiana", pincode: "141001", stateCode: "03" },
+    });
+    const s = await get("sales", r.saleId);
+    assert.deepEqual(s.dispatch, { transport: "Sample Transport", vehicleNo: "HR99X0001", station: "Jagadhri", ewayBillNo: "300000000001" });
+    assert.deepEqual(s.shipTo, { name: "TEST SAL Godown", address: "Plot 7", city: "Ludhiana", pincode: "141001", stateCode: "03", gstin: null });
+    // Shipped to Punjab, billed to Haryana: still CGST + SGST (the billed-to state).
+    assert.equal(s.placeOfSupply, "06");
+    assert.equal(s.totals.supplyType, "INTRA_STATE");
+    const plain = await get("sales", (await sell(accounts, haryana, lines)).saleId);
+    assert.equal(plain.dispatch, null);
+    assert.equal(plain.shipTo, null);
+  });
+
+  test("a walk-in can't ship elsewhere; a ship-to GSTIN must match the ship-to state", async () => {
+    const lines = [{ sku: PRODUCTS[0].sku, packs: 1, discountBp: 0 }];
+    await assert.rejects(
+      sell(accounts, "walk-in-customer", lines, { shipTo: { name: "Godown", stateCode: "03" }, payments: [{ registerId: "default-cash", amountPaise: 1 }] }),
+      (e) => e.details?.code === "SHIP_TO_WALK_IN",
+    );
+    await assert.rejects(sell(accounts, haryana, lines, { shipTo: { name: "Godown", stateCode: "03", gstin: "22AAACL1234M1ZU" } }), (e) => e.details?.code === "SHIP_TO_GSTIN_STATE");
+  });
+});
+
+describe("bank details and terms are frozen on the sale", () => {
+  test("a later Settings change doesn't change an earlier invoice", async () => {
+    const lines = [{ sku: PRODUCTS[0].sku, packs: 1, discountBp: 0 }];
+    const bank = { name: "Sample Bank", branch: "Karnal", accountType: "CA", accountNo: "000000001234", ifsc: "SBIN0001234" };
+    await admin.call("saveCompanyProfile", { ...COMPANY, bank: { ...bank, ifsc: " sbin0001234 " }, invoiceTerms: ["E.& O.E.", "1. Sample term."] });
+    const firstId = (await sell(accounts, haryana, lines)).saleId;
+    const first = await get("sales", firstId);
+    assert.deepEqual(first.seller.bank, bank);
+    assert.deepEqual(first.seller.invoiceTerms, ["E.& O.E.", "1. Sample term."]);
+    await rejectsWith(admin.call("saveCompanyProfile", { ...COMPANY, bank: { ...bank, ifsc: "SBIN00012345" } }), "invalid-argument", /IFSC/);
+    await admin.call("saveCompanyProfile", COMPANY);
+    assert.deepEqual((await get("sales", firstId)).seller.bank, bank);
+    const later = await get("sales", (await sell(accounts, haryana, lines)).saleId);
+    assert.equal(later.seller.bank, null);
+    assert.deepEqual(later.seller.invoiceTerms, []);
   });
 });

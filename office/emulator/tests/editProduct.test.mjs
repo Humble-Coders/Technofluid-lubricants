@@ -1,5 +1,5 @@
 /**
- * Tests the editProduct and addProduct Cloud Functions, the productChanges rules and the
+ * Tests the editProduct, addProduct and setProductsTax Cloud Functions, the productChanges rules and the
  * importer's "keep office edits" rule — real rules and functions, in throw-away emulators.
  *
  *   npm run test:emulator
@@ -271,4 +271,34 @@ test("a deleted product can be restored (selling stays off)", async () => {
   assert.equal(p.active, false);
   await admin.call("editProduct", { sku: COPY_SKU, changes: { active: true } });
   assert.equal((await adminDb.doc(`public_catalog/${BASE.productKey}`).get()).exists, true, "back on the website once selling");
+});
+
+test("GST / HSN for many products at once: Admin only, checked, logged, unchanged ones skipped", async () => {
+  const skus = [SKU, COPY_SKU, "TEST-EDIT-GHOST"];
+  await rejectsWith(accounts.call("setProductsTax", { skus, gstPct: 5 }), "permission-denied");
+  await rejectsWith(admin.call("setProductsTax", { skus, gstPct: 12 }), "invalid-argument", /GST must be/);
+  await rejectsWith(admin.call("setProductsTax", { skus, hsnCode: "2710" + "1" }), "invalid-argument", /HSN/);
+  await rejectsWith(admin.call("setProductsTax", { skus }), "invalid-argument", /Say what to change/);
+  await rejectsWith(admin.call("setProductsTax", { skus: [], gstPct: 5 }), "invalid-argument", /at least one/);
+
+  const r = await admin.call("setProductsTax", { skus, gstPct: 40, hsnCode: "27101990", reason: "Rates from the CA" });
+  assert.deepEqual(r, { changed: 2, unchanged: 0, missing: ["TEST-EDIT-GHOST"] });
+  for (const sku of [SKU, COPY_SKU]) {
+    const p = await product(sku);
+    assert.equal(p.gstPct, 40);
+    assert.equal(p.hsnCode, "27101990");
+    assert.ok(p.appEdited.includes("gstPct") && p.appEdited.includes("hsnCode"), "kept by a later sheet import");
+    const log = (await changeLog(sku)).filter((c) => c.bulk === true);
+    assert.deepEqual(log.map((c) => c.field).sort(), ["gstPct", "hsnCode"]);
+    assert.notEqual(log.find((c) => c.field === "gstPct").old, 40);
+    assert.equal(log[0].reason, "Rates from the CA");
+  }
+
+  // (Earlier tests set other values, so both fields change on both products.)
+  // Same again: nothing changes, nothing more is logged. Then only the HSN is cleared.
+  assert.deepEqual(await admin.call("setProductsTax", { skus: [SKU, COPY_SKU], gstPct: 40, hsnCode: "27101990" }), { changed: 0, unchanged: 2, missing: [] });
+  assert.equal((await changeLog(SKU)).filter((c) => c.bulk === true).length, 2);
+  assert.deepEqual(await admin.call("setProductsTax", { skus: [SKU], hsnCode: "" }), { changed: 1, unchanged: 0, missing: [] });
+  assert.equal((await product(SKU)).hsnCode, null);
+  assert.equal((await product(SKU)).gstPct, 40, "GST left as it was");
 });

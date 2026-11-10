@@ -1,11 +1,13 @@
 import { Building2, Check } from "lucide-react";
 import { useEffect, useState } from "react";
-import { checkGstin, COMPANY_ERROR_TEXT, companyError, DEFAULT_INVOICE_PREFIX, financialYear, GST_STATES, indiaDate, invoiceNumber, type CompanyProfile } from "@technofluid/core";
+import { checkGstin, COMPANY_ERROR_TEXT, companyError, DEFAULT_INVOICE_PREFIX, financialYear, GST_STATES, indiaDate, invoiceNumber, type CompanyBank, type CompanyProfile } from "@technofluid/core";
 import { Button, Card, Field, Input, Spinner } from "@/components/ui";
 import { useCompany } from "@/hooks/useSales";
 import { saveCompanyProfile } from "@/services/saleService";
 
-type Form = Omit<CompanyProfile, "stateCode" | "tradeName" | "phone" | "email"> & { tradeName: string; phone: string; email: string };
+type Form = Omit<CompanyProfile, "stateCode" | "tradeName" | "phone" | "email" | "bank" | "invoiceTerms"> & { tradeName: string; phone: string; email: string; bank: CompanyBank; terms: string };
+
+const NO_BANK: CompanyBank = { name: "", branch: "", accountType: "", accountNo: "", ifsc: "" };
 
 const EMPTY: Form = {
   legalName: "",
@@ -15,11 +17,13 @@ const EMPTY: Form = {
   phone: "",
   email: "",
   invoicePrefix: DEFAULT_INVOICE_PREFIX,
+  bank: NO_BANK,
+  terms: "",
 };
 
 /**
- * Settings (Admin). For now: who the seller is — printed on every invoice — and the
- * invoice-number prefix. Sales are refused until this is complete. Staff logins and roles
+ * Settings (Admin). For now: who the seller is — printed on every invoice — the
+ * invoice-number prefix, and the bank details and terms printed on the invoice. Sales are refused until this is complete. Staff logins and roles
  * come next.
  */
 export function SettingsScreen() {
@@ -33,7 +37,7 @@ export function SettingsScreen() {
   useEffect(() => {
     if (company.status !== "ready" || loaded) return;
     const c = company.data;
-    if (c) setForm({ ...c, tradeName: c.tradeName ?? "", phone: c.phone ?? "", email: c.email ?? "", address: { ...EMPTY.address, ...c.address } });
+    if (c) setForm({ ...c, tradeName: c.tradeName ?? "", phone: c.phone ?? "", email: c.email ?? "", address: { ...EMPTY.address, ...c.address }, bank: { ...NO_BANK, ...c.bank }, terms: (c.invoiceTerms ?? []).join("\n") });
     setLoaded(true);
   }, [company, loaded]);
 
@@ -42,6 +46,7 @@ export function SettingsScreen() {
     setSaved(false);
   };
   const setAddress = (patch: Partial<Form["address"]>) => set({ address: { ...form.address, ...patch } });
+  const setBank = (patch: Partial<CompanyBank>) => set({ bank: { ...form.bank, ...patch } });
 
   const gstin = form.gstin.replace(/\s+/g, "").toUpperCase();
   const check = gstin ? checkGstin(gstin) : null;
@@ -101,6 +106,37 @@ export function SettingsScreen() {
               <Input id="co-email" value={form.email} onChange={(e) => set({ email: e.target.value })} maxLength={120} />
             </Field>
           </div>
+          <div className="space-y-3 border-t border-line pt-4">
+            <p className="text-[13px] font-medium text-ink">
+              Bank details <span className="font-normal text-ink-muted">— printed under "Bank Details" on the invoice; leave empty to leave it off</span>
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Bank name" htmlFor="co-bank">
+                <Input id="co-bank" value={form.bank.name} onChange={(e) => setBank({ name: e.target.value })} placeholder="HDFC BANK" maxLength={60} />
+              </Field>
+              <Field label="Branch" htmlFor="co-branch">
+                <Input id="co-branch" value={form.bank.branch} onChange={(e) => setBank({ branch: e.target.value })} placeholder="INDRI" maxLength={60} />
+              </Field>
+              <Field label="Account number" htmlFor="co-acno">
+                <Input id="co-acno" value={form.bank.accountNo} onChange={(e) => setBank({ accountNo: e.target.value })} inputMode="numeric" className="font-mono" maxLength={30} />
+              </Field>
+              <Field label="Account type" htmlFor="co-actype">
+                <Input id="co-actype" value={form.bank.accountType} onChange={(e) => setBank({ accountType: e.target.value })} placeholder="CA" maxLength={20} />
+              </Field>
+              <Field label="IFSC code" htmlFor="co-ifsc">
+                <Input id="co-ifsc" value={form.bank.ifsc} onChange={(e) => setBank({ ifsc: e.target.value.toUpperCase() })} placeholder="HDFC0002185" className="font-mono uppercase" maxLength={11} />
+              </Field>
+            </div>
+            <Field label="Terms & conditions on the invoice" htmlFor="co-terms" help="One per line, up to 8 lines — e.g. E.& O.E. / 1. Goods once sold will not be taken back.">
+              <textarea
+                id="co-terms"
+                value={form.terms}
+                onChange={(e) => set({ terms: e.target.value })}
+                rows={5}
+                className="w-full rounded-md border border-line bg-surface px-3 py-2 text-[13px] text-ink focus:border-brand-orange focus:outline-none"
+              />
+            </Field>
+          </div>
           <p className="text-2xs text-ink-faint">A new prefix starts with the next financial year once this year already has invoices — numbers in one year never change their prefix.</p>
           {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
           <div className="flex items-center justify-end gap-2">
@@ -118,7 +154,16 @@ export function SettingsScreen() {
                 setBusy(true);
                 setError(null);
                 try {
-                  await saveCompanyProfile({ ...form, gstin, tradeName: form.tradeName.trim() || null, phone: form.phone.trim() || null, email: form.email.trim() || null });
+                  const { terms, ...rest } = form;
+                  await saveCompanyProfile({
+                    ...rest,
+                    gstin,
+                    tradeName: form.tradeName.trim() || null,
+                    phone: form.phone.trim() || null,
+                    email: form.email.trim() || null,
+                    bank: Object.values(form.bank).some((v) => v.trim()) ? form.bank : null,
+                    invoiceTerms: terms.split("\n").map((l) => l.trim()).filter(Boolean),
+                  });
                   setSaved(true);
                 } catch (e) {
                   setError(e instanceof Error ? e.message : String(e));
