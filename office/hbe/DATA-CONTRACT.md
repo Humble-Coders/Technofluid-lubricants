@@ -12,10 +12,10 @@ Every value is a **string, formatted as it prints**. Money: Indian grouping, 2 d
 |---|---|---|---|
 | `copyLabel` | | `Triplicate Copy` | one render per copy: Original / Duplicate / Triplicate Copy |
 | `seller.name` | ✓ | `Lube Chem Industries` | Settings → legal name |
-| `seller.gstin` | ✓ | `06GSJPK2399F1ZD` | Settings |
+| `seller.gstin` | ✓ | `06AAAFS1234K1ZF` | Settings |
 | `seller.address` | | `Near Gaushala Road …, Karnal` | Settings, one line |
-| `seller.panLine` | | `PAN : GSJPK2399F` | PAN = GSTIN characters 3–12 |
-| `seller.contactLine` | | `Tel. : 9034675151, 7876058000  ·  email : …` | Settings phone, email |
+| `seller.panLine` | | `PAN : AAAFS1234K` | PAN = GSTIN characters 3–12 |
+| `seller.contactLine` | | `Tel. : 90000 00000, 90000 00001  ·  email : …` | Settings phone, email |
 | `invoiceNo` | ✓ | `TF/2026-27/0869` | the sale (createSale numbers it) |
 | `invoiceDate` | ✓ | `11-06-2026` | the sale's invoice date |
 | `placeOfSupply` | ✓ | `Haryana (06)` | state name (code) |

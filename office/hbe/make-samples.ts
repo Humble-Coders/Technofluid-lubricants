@@ -33,10 +33,10 @@ const P: Record<string, SaleProduct> = {
 
 const seller: InvoiceSale["seller"] = {
   legalName: "Lube Chem Industries",
-  gstin: "06GSJPK2399F1ZD",
+  gstin: "06AAAFS1234K1ZF",
   stateCode: "06",
   address: { line1: "Near Gaushala Road Adjoining Central", line2: "Ware House Matak Majri", city: "Karnal", pincode: "132001" },
-  phone: "9034675151, 7876058000",
+  phone: "90000 00000, 90000 00001",
   email: "accounts@example.com",
 };
 const extras: InvoiceExtras = {

@@ -11,10 +11,10 @@
   "fields": {
     "copyLabel": "Triplicate Copy",
     "seller.name": "Lube Chem Industries",
-    "seller.gstin": "06GSJPK2399F1ZD",
+    "seller.gstin": "06AAAFS1234K1ZF",
     "seller.address": "Near Gaushala Road Adjoining Central, Ware House Matak Majri, Karnal",
-    "seller.panLine": "PAN : GSJPK2399F",
-    "seller.contactLine": "Tel. : 9034675151, 7876058000  ·  email : accounts@example.com",
+    "seller.panLine": "PAN : AAAFS1234K",
+    "seller.contactLine": "Tel. : 90000 00000, 90000 00001  ·  email : accounts@example.com",
     "invoiceNo": "TF/2026-27/0900",
     "invoiceDate": "11-06-2026",
     "placeOfSupply": "Haryana (06)",
