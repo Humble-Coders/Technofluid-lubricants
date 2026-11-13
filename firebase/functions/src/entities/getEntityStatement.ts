@@ -26,6 +26,9 @@ function rowLabel(src: TxnSource | undefined, r: HlLedgerRow, entityId: string):
   if (src?.kind === "money") return moneyLabel(src.entry, entityId);
   if (src?.kind === "sale") return `Sale ${src.sale.invoiceNo}`;
   if (src?.kind === "salePayment") return `Payment received for ${src.sale.invoiceNo}`;
+  if (src?.kind === "purchase") return `Purchase ${src.purchase.ref} (bill ${src.purchase.billNo})`;
+  if (src?.kind === "purchasePayment") return `Payment made for ${src.purchase.ref} (bill ${src.purchase.billNo})`;
+  if (src?.kind === "purchaseCancel") return `Purchase ${src.purchase.ref} cancelled`;
   if (src?.kind === "entityOpening") return "Opening balance";
   switch (r.postingType) {
   case "SALE":
@@ -34,6 +37,8 @@ function rowLabel(src: TxnSource | undefined, r: HlLedgerRow, entityId: string):
     return "Payment received";
   case "PAYOUT":
     return "Payment made";
+  case "PURCHASE":
+    return "Purchase";
   case "REVERSAL":
     return r.description || "Reversal";
   default:
@@ -48,7 +53,7 @@ export function moneyLabel(m: FirebaseFirestore.DocumentData, entityId: string):
   const fromMe = m.from?.kind === "PARTY" && m.from.entityId === entityId;
   if (m.from?.kind === "PARTY" && m.to?.kind === "PARTY") return fromMe ? `Balance moved to ${m.to.name}` : `Balance moved from ${m.from.name}`;
   if (fromMe) return "Payment received";
-  if (m.to?.kind === "PARTY") return "Payment made";
+  if (m.to?.kind === "PARTY") return m.purchaseRef ? `Payment made for ${String(m.purchaseRef)}` : "Payment made";
   return "Money";
 }
 

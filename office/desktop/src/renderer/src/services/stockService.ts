@@ -64,7 +64,10 @@ export type MovementType =
   | "PRODUCTION_CONSUME"
   /** Sold on an invoice / given back when it's cancelled — changed only through the invoice. */
   | "SALE"
-  | "SALE_CANCEL";
+  | "SALE_CANCEL"
+  /** Bought on a supplier's bill / taken back out when it's cancelled — changed only through the purchase. */
+  | "PURCHASE"
+  | "PURCHASE_CANCEL";
 
 export interface StockMovement {
   id: string;

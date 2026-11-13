@@ -20,10 +20,12 @@ export const TYPE_LABEL: Record<MovementType, string> = {
   PRODUCTION_CONSUME: "Used in production",
   SALE: "Sold",
   SALE_CANCEL: "Sale cancelled",
+  PURCHASE: "Bought",
+  PURCHASE_CANCEL: "Purchase cancelled",
 };
 
-/** Lines that only change through their invoice (cancel the invoice instead). */
-export const isSaleLine = (type: MovementType) => type === "SALE" || type === "SALE_CANCEL";
+/** Lines that only change through their document — an invoice or a supplier's bill (cancel that instead). */
+export const isDocumentLine = (type: MovementType) => type === "SALE" || type === "SALE_CANCEL" || type === "PURCHASE" || type === "PURCHASE_CANCEL";
 
 /** Lines that can be edited (undo + corrected line); counts and undos can't. */
 export const EDITABLE_TYPES: readonly MovementType[] = ["OPENING", "IN", "OUT", "PRODUCTION_IN", "PRODUCTION_CONSUME"];

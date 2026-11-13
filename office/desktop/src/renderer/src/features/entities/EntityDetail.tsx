@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Archive, ArchiveRestore, History, IndianRupee, Link2, Pencil, ReceiptIndianRupee, RefreshCw, Scale, X } from "lucide-react";
+import { Archive, ArchiveRestore, History, IndianRupee, Link2, Pencil, ReceiptIndianRupee, RefreshCw, Scale, Truck, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { formatINR, GST_STATES, indiaDate } from "@technofluid/core";
@@ -184,6 +184,11 @@ export function EntityDetail({
           {e.isActive ? (
             <Button size="sm" variant="primary" icon={<ReceiptIndianRupee className="size-3.5" />} onClick={() => navigate(`/sales/new?customer=${encodeURIComponent(e.id)}`)}>
               New sale
+            </Button>
+          ) : null}
+          {e.isActive && !e.isWalkIn ? (
+            <Button size="sm" icon={<Truck className="size-3.5" />} onClick={() => navigate(`/purchases/new?supplier=${encodeURIComponent(e.id)}`)}>
+              New purchase
             </Button>
           ) : null}
           {e.isActive ? (

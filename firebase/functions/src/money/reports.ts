@@ -77,18 +77,19 @@ export const getRegisterStatement = onCall({region: "us-central1", secrets: HL_S
     outPaise += credit;
     const src = sources.get(row.txnId);
     const e = src?.kind === "money" ? src.entry : undefined;
+    const bill = src?.kind === "purchasePayment" ? src.purchase : null;
     const kind: RowKind =
-      src?.kind === "registerOpening" ? "opening" : e ? kindOf(e as never) : src?.kind === "salePayment" ? "received" : FALLBACK_KIND[row.postingType ?? ""] ?? "other";
+      src?.kind === "registerOpening" ? "opening" : e ? kindOf(e as never) : src?.kind === "salePayment" ? "received" : bill ? "paid" : FALLBACK_KIND[row.postingType ?? ""] ?? "other";
     const other = e ? (e.from.kind !== "ADJUSTMENT" && e.from.registerId === registerId ? e.to : e.from) : null;
     return {
       date: row.date,
       kind,
-      what: src?.kind === "salePayment" ? `Payment received for ${src.sale.invoiceNo}` : row.description,
+      what: src?.kind === "salePayment" ? `Payment received for ${src.sale.invoiceNo}` : bill ? `Payment made for ${bill.ref} (bill ${bill.billNo})` : row.description,
       counterpart:
-        other && other.kind !== "ADJUSTMENT" ? String(other.name) : src?.kind === "salePayment" ? String(src.sale.customer?.name ?? "") : kind === "correction" ? "Adjustment" : null,
+        other && other.kind !== "ADJUSTMENT" ? String(other.name) : src?.kind === "salePayment" ? String(src.sale.customer?.name ?? "") : bill ? String(bill.supplier?.name ?? "") : kind === "correction" ? "Adjustment" : null,
       note: e?.note ?? null,
       entryId: src?.kind === "money" ? src.entryId : null,
-      direction: e ? moneyDirection(e as never) : src?.kind === "salePayment" ? "IN" : null,
+      direction: e ? moneyDirection(e as never) : src?.kind === "salePayment" ? "IN" : bill ? "OUT" : null,
       inPaise: debit,
       outPaise: credit,
       balancePaise: hlAmountToPaise(String(row.balance)),

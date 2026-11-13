@@ -18,6 +18,7 @@
     "seed:entities": "node emulator/seed-entities.mjs",
     "seed:money": "node emulator/seed-money.mjs",
     "seed:sales": "node emulator/seed-sales.mjs",
+    "seed:purchases": "node emulator/seed-purchases.mjs",
     "fake-hl": "node emulator/fake-hl.mjs",
     "test:emulator": "node emulator/run-tests.mjs"
   },
