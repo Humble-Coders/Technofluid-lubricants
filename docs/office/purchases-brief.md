@@ -144,3 +144,19 @@ Deploy later with --only (the new functions + recordMoneyEntry/onMoneyEntryWritt
 
 # 9. Not in this phase (Known gaps)
 Purchase returns/debit notes, POs/GRN, TDS/TCS, RCM, landed-cost allocation, costing/COGS, GSTR-2B reconciliation.
+
+# 10. Build notes (Sharnya's session, 13 Nov 2026)
+
+How to try (local emulators only): `npm run emulators`, then `npm run seed`, `seed:stock`, `seed:entities`, `seed:money`, `seed:purchases`; sign in as the Accounts test login (docs/TECHNOFLUID-HANDOVER.md §7.3) → Suppliers & purchases.
+
+Different from the brief, and why:
+1. **Cost is on the purchase, not the stock line.** `unitCostPaise` / `lineCostPaise` live on `purchases.lines[]`. Stock & Production reads `stockMovements`, which must carry no money; each PURCHASE line keeps `purchaseId` + `purchaseLine` to find its cost.
+2. **Only an active bill blocks a duplicate.** A cancelled bill's number can be entered again (the usual fix for a mistake).
+3. **Two extra codes:** `BILL_NO_TOO_LONG` (over 40 characters) and `ZERO_BILL` (a total or subtotal of ₹0 or less — HL's minimum amount is ₹0.01).
+4. **The reversal's txn id is kept** (`cancelHlTxnId`), so a supplier statement says "Purchase PB/… cancelled".
+5. **The walk-in record can't be a supplier.**
+6. **Server checks:** the supplier's GST state comes from OUR record's GSTIN (an invalid one counts as none); the mismatch error names both totals.
+
+Tests: core vitest (purchase.cases.json, both copies); emulator `purchases.test.mjs` (PB numbers, duplicates, stock in / already counted, HL legs balance, payouts, paying later ≤ due, cancel → stock out + exact reversal, cancel before the books, off mode + reconcile, rules); `httpHlClient` test for `/customer-purchases`.
+
+Deploy later, only with Sharnya's OK and Ansh's word, never bare: `firebase deploy --only firestore:rules,functions:createPurchase,functions:cancelPurchase,functions:retryPurchaseSync,functions:onPurchaseWritten,functions:recordMoneyEntry,functions:onMoneyEntryWritten,functions:reconcileLedgerSync,functions:getEntityStatement,functions:getRegisterStatement,functions:reverseStockMovement --project techno-fluid`. (`onMoneyEntryWritten` now labels a bill payment; the two statements label purchase rows; `reverseStockMovement` refuses purchase lines.)

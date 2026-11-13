@@ -218,6 +218,48 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
     await assert.rejects(c.postSale(sale), (e) => e.code === "UNEXPECTED_SHAPE"); // no invoice id
   });
 
+  test("a supplier's bill: /customer-purchases with input-tax lines (rate as a fraction); no tax → none sent; txn id at data.transaction.id", async () => {
+    const s = stub([
+      () => json(201, { success: true, data: { transaction: { id: "pt-1" }, idempotent: false, customer: { id: "c1", name: "Supplier", balance: "-53100.00" } } }),
+      () => json(201, { success: true, data: { transaction: { id: "pt-2" } } }),
+    ]);
+    const c = new HttpHlClient(CFG);
+    const bill = {
+      customerId: "c1",
+      amountPaise: 4_500_000,
+      taxLines: [
+        { label: "Input CGST 9%", rateBp: 900, accountId: "icgst", amountPaise: 405_000 },
+        { label: "Input SGST 9%", rateBp: 900, accountId: "isgst", amountPaise: 405_000 },
+      ],
+      expenseAccountId: "inv",
+      description: "Purchase PB/2026-27/0001 · bill TP-001",
+      date: "2026-11-12",
+      sourceId: "purchase_p1:bill",
+      actorRef: "u1",
+    };
+    assert.deepEqual(await c.postCustomerPurchase(bill), { txnId: "pt-1", idempotent: false });
+    assert.equal(s.hl()[0].url, "https://hl.example/api/v1/customer-purchases");
+    assert.deepEqual(s.hl()[0].body, {
+      customerId: "c1",
+      amount: 45000,
+      expenseAccountId: "inv",
+      taxAmount: 8100,
+      taxLines: [
+        { amount: 4050, accountId: "icgst", rate: 0.09, label: "Input CGST 9%" },
+        { amount: 4050, accountId: "isgst", rate: 0.09, label: "Input SGST 9%" },
+      ],
+      description: "Purchase PB/2026-27/0001 · bill TP-001",
+      date: "2026-11-12",
+      appId: "technofluid-office",
+      sourceId: "purchase_p1:bill",
+      actorRef: "u1",
+      metadata: { description: "Purchase PB/2026-27/0001 · bill TP-001" },
+    });
+    await c.postCustomerPurchase({ ...bill, sourceId: "purchase_p2:bill", taxLines: [] });
+    assert.equal("taxLines" in s.hl()[1].body, false);
+    assert.equal("taxAmount" in s.hl()[1].body, false);
+  });
+
   test("invoices: read one; cancel sends reason + date; a payment against an invoice sends invoiceId", async () => {
     const s = stub([
       () => json(200, { success: true, data: { id: "inv-1", invoiceNumber: "TF/2026-27/0001", status: "PARTIAL", total: "16692.00", amountPaid: "5000.00" } }),
