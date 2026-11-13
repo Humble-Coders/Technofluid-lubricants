@@ -4,7 +4,7 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
 import {ITEMS, MOVEMENTS, requestId as parseRequestId} from "../stock/stockModel";
-import {SALES, SALE_REQUESTS, bad} from "./saleModel";
+import {SALES, SALE_REQUESTS, SALE_SYNC, bad} from "./saleModel";
 
 /**
  * Cancel an invoice (Admin or Accounts), with a reason. GST doesn't allow editing an
@@ -38,6 +38,9 @@ export const cancelSale = onCall({region: "us-central1"}, async (request) => {
     const sale = (await tx.get(saleRef)).data();
     if (!sale || sale.deleted === true) throw new HttpsError("not-found", "That sale doesn't exist.");
     if (sale.status === "CANCELLED") throw new HttpsError("failed-precondition", `${sale.invoiceNo} is already cancelled.`);
+    // The invoice's own posting may be in the books even when a later payment failed.
+    const progress = (await tx.get(db.collection(SALE_SYNC).doc(saleId))).data();
+    const invoiceInBooks = sale.syncStatus === "SYNCED" || !!sale.hlInvoiceId || !!(progress?.hlSaleTxnId && progress?.hlInvoiceId);
     const movements = (await Promise.all((sale.stockMovementIds as string[]).map((id) => tx.get(db.collection(MOVEMENTS).doc(id))))).map((s) => s.data());
     const itemIds = [...new Set(movements.map((m) => String(m?.itemId ?? "")).filter(Boolean))];
     const itemSnaps = await Promise.all(itemIds.map((id) => tx.get(db.collection(ITEMS).doc(id))));
@@ -61,8 +64,8 @@ export const cancelSale = onCall({region: "us-central1"}, async (request) => {
     tx.update(saleRef, {
       status: "CANCELLED",
       cancel: {reason, by, day, at: now},
-      // In the books already → cancel it there; not yet → the sale's own posting does it after.
-      cancelSyncStatus: sale.syncStatus === "SYNCED" ? "PENDING" : null,
+      // The invoice in the books already → cancel it there; not yet → the sale's own posting does it after.
+      cancelSyncStatus: invoiceInBooks ? "PENDING" : null,
       cancelSyncError: null,
       cancelSyncAttempts: 0,
       updatedAt: now,

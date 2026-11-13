@@ -23,7 +23,7 @@ const model = fnRequire("./lib/sales/saleModel.js");
 const { syncSale } = fnRequire("./lib/sales/sync.js");
 const { reconcileLedgerOnce } = fnRequire("./lib/money/sync.js");
 const { FakeHlClient } = fnRequire("./lib/ledger/fakeHlClient.js");
-const { NotConnectedHlClient } = fnRequire("./lib/ledger/hlClient.js");
+const { NotConnectedHlClient, HlError } = fnRequire("./lib/ledger/hlClient.js");
 const fnAdminApp = fnRequire("firebase-admin/app").initializeApp({ projectId: PROJECT }, `fn-sales-${process.pid}`);
 const libDb = fnRequire("firebase-admin/firestore").getFirestore(fnAdminApp);
 
@@ -337,6 +337,41 @@ describe("cancelling", () => {
     // The cash taken stays in the books — as the walk-in's credit, to be paid back.
     const pay = (await adminDb.doc(`_fakeHl/books/txns/technofluid-office~sale_${r.saleId}:payment_0`).get()).data();
     assert.equal(pay.legs[0].amountPaise, 755_200);
+  });
+
+  test("the invoice went in but its payment failed for good: the view knows, cancelling still cancels it, and a retry records the cash", async () => {
+    const brokenPayment = () => Object.assign(new FakeHlClient(libDb), { postPayment: async () => { throw new HlError("Payment account closed (test).", 400, false); } });
+    const line = [{ sku: PRODUCTS[1].sku, packs: 1, discountBp: 0 }];
+    const cash = { payments: [{ registerId: "default-cash", amountPaise: 755_200 }] };
+    const payTxn = async (id) => (await adminDb.doc(`_fakeHl/books/txns/technofluid-office~sale_${id}:payment_0`).get()).data();
+
+    // a) Cancelled after the failure.
+    await control({ down: true });
+    const a = await sell(accounts, "walk-in-customer", line, cash);
+    await status("sales", a.saleId, "FAILED");
+    await control({});
+    assert.equal(await syncSale(libDb, brokenPayment(), a.saleId), "failed");
+    const failed = await get("sales", a.saleId);
+    assert.equal(failed.syncStatus, "FAILED");
+    assert.ok(failed.hlInvoiceId && failed.hlSaleTxnId);
+    await accounts.call("cancelSale", { requestId: rid(), saleId: a.saleId, reason: "Wrong customer" });
+    const cancelled = await status("sales", a.saleId, "SYNCED", "cancelSyncStatus");
+    assert.equal((await invoiceOf(cancelled)).status, "CANCELLED");
+    // Retry: the cash taken is recorded for the walk-in, without the (cancelled) invoice.
+    await accounts.call("retrySaleSync", { saleId: a.saleId });
+    await status("sales", a.saleId, "SYNCED");
+    assert.equal((await payTxn(a.saleId)).legs[0].amountPaise, 755_200);
+
+    // b) Cancelled before the invoice went in; then it posts and its payment fails.
+    await control({ down: true });
+    const b = await sell(accounts, "walk-in-customer", line, cash);
+    await status("sales", b.saleId, "FAILED");
+    await accounts.call("cancelSale", { requestId: rid(), saleId: b.saleId, reason: "Entered twice" });
+    assert.equal((await get("sales", b.saleId)).cancelSyncStatus, null);
+    await control({});
+    assert.equal(await syncSale(libDb, brokenPayment(), b.saleId), "failed");
+    const done = await status("sales", b.saleId, "SYNCED", "cancelSyncStatus");
+    assert.equal((await invoiceOf(done)).status, "CANCELLED");
   });
 });
 
