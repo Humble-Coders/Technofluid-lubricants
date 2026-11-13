@@ -14,6 +14,7 @@ import {
   type HlMoneyMove,
   type HlPostingType,
   type HlProfilePayload,
+  type HlPurchase,
   type HlSale,
 } from "./hlClient";
 
@@ -427,6 +428,23 @@ export class FakeHlClient implements HlClient {
       } satisfies StoredInvoice);
     }
     return {txnId: r.txnId, invoiceId: invRef.id, idempotent: r.idempotent};
+  }
+
+  // ─── Purchases (a supplier's bill against the same customer — netting) ─────────
+
+  async postCustomerPurchase(p: HlPurchase) {
+    await this.gate("postCustomerPurchase", p.sourceId);
+    const c = await this.load(p.customerId);
+    if (!p.description?.trim()) throw new HlError("description is required", 400, false);
+    if (!p.expenseAccountId) throw new HlError("expenseAccountId is required", 400, false);
+    if (p.taxLines.length > 4) throw new HlError("At most 4 tax lines", 400, false);
+    const tax = p.taxLines.reduce((s, l) => s + l.amountPaise, 0);
+    const legs: HlLeg[] = [
+      {accountId: p.expenseAccountId, type: "DEBIT", amountPaise: p.amountPaise},
+      ...p.taxLines.filter((l) => l.amountPaise > 0).map((l): HlLeg => ({accountId: l.accountId, type: "DEBIT", amountPaise: l.amountPaise})),
+      {accountId: c.accountId, type: "CREDIT", amountPaise: p.amountPaise + tax},
+    ];
+    return this.post({postingType: "PURCHASE", sourceId: p.sourceId, date: p.date, description: p.description, actorRef: p.actorRef, legs});
   }
 
   async getInvoice(id: string): Promise<HlInvoice> {

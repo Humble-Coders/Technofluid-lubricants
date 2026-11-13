@@ -13,6 +13,9 @@ import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
 import { NewSaleScreen } from "@/features/sales/NewSaleScreen";
 import { SaleDetail } from "@/features/sales/SaleDetail";
 import { SalesScreen } from "@/features/sales/SalesScreen";
+import { NewPurchaseScreen } from "@/features/purchases/NewPurchaseScreen";
+import { PurchaseDetail } from "@/features/purchases/PurchaseDetail";
+import { PurchasesScreen } from "@/features/purchases/PurchasesScreen";
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
 import { EntitiesScreen } from "@/features/entities/EntitiesScreen";
 import { ExpensesScreen } from "@/features/money/ExpensesScreen";
@@ -44,7 +47,9 @@ const router = createHashRouter([
           { path: "payments/registers/:registerId", element: <RegisterHistory /> },
           { path: "stock", element: <StockScreen /> },
           { path: "production", element: <ComingNext title="Production" description="Log a batch: stock of the finished product goes up, raw materials go down by the recipe." /> },
-          { path: "purchases", element: <ComingNext title="Suppliers & purchases" description="Raw-material bills, payments to suppliers and what we owe." /> },
+          { path: "purchases", element: <PurchasesScreen /> },
+          { path: "purchases/new", element: <NewPurchaseScreen /> },
+          { path: "purchases/:purchaseId", element: <PurchaseDetail /> },
           { path: "expenses", element: <ExpensesScreen /> },
           { path: "reports", element: <ComingNext title="Reports" description="Profit & loss, balance sheet, sales and stock reports." /> },
           { path: "approvals", element: <ApprovalsScreen /> },

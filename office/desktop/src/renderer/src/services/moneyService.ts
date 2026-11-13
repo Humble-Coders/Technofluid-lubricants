@@ -49,6 +49,9 @@ export interface MoneyEntryRow {
   /** Money received against one invoice. */
   saleId: string | null;
   invoiceNo: string | null;
+  /** Money paid against one supplier's bill. */
+  purchaseId: string | null;
+  purchaseRef: string | null;
   /** For a reversed original: its mirror's sync status (filled by useMoneyEntries; null = not loaded yet). */
   mirrorStatus?: SyncStatus | null;
   syncStatus: SyncStatus;
@@ -116,6 +119,8 @@ const toEntry = (id: string, d: DocumentData): MoneyEntryRow => ({
   reversedByEntryId: d.reversedByEntryId ?? null,
   saleId: typeof d.saleId === "string" ? d.saleId : null,
   invoiceNo: typeof d.invoiceNo === "string" ? d.invoiceNo : null,
+  purchaseId: typeof d.purchaseId === "string" ? d.purchaseId : null,
+  purchaseRef: typeof d.purchaseRef === "string" ? d.purchaseRef : null,
   syncStatus: status(d.syncStatus),
   hlSyncError: typeof d.hlSyncError === "string" ? d.hlSyncError : null,
   createdBy: String(d.createdBy?.name ?? "Someone"),
@@ -153,15 +158,24 @@ export function watchMoneyEntryStatuses(ids: string[], onChange: (statuses: Reco
 
 /** Money received against these invoices (any date), live. */
 export function watchSalePayments(saleIds: string[], onChange: (rows: MoneyEntryRow[]) => void): Unsubscribe {
+  return watchLinkedPayments("saleId", saleIds, onChange);
+}
+
+/** Money paid against these supplier bills (any date), live. */
+export function watchPurchasePayments(purchaseIds: string[], onChange: (rows: MoneyEntryRow[]) => void): Unsubscribe {
+  return watchLinkedPayments("purchaseId", purchaseIds, onChange);
+}
+
+function watchLinkedPayments(field: "saleId" | "purchaseId", ids: string[], onChange: (rows: MoneyEntryRow[]) => void): Unsubscribe {
   const found = new Map<string, MoneyEntryRow[]>();
   const chunks: string[][] = [];
-  for (let i = 0; i < saleIds.length; i += 30) chunks.push(saleIds.slice(i, i + 30));
+  for (let i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
   if (chunks.length === 0) {
     onChange([]);
     return () => {};
   }
   const stops = chunks.map((chunk, i) =>
-    onSnapshot(query(collection(db, "moneyEntries"), where("saleId", "in", chunk)), (snap) => {
+    onSnapshot(query(collection(db, "moneyEntries"), where(field, "in", chunk)), (snap) => {
       found.set(String(i), snap.docs.filter((d) => d.data().deleted !== true).map((d) => toEntry(d.id, d.data({ serverTimestamps: "estimate" }))));
       onChange([...found.values()].flat());
     }),
@@ -188,7 +202,7 @@ async function call<Req, Res>(name: string, data: Req): Promise<Res> {
 type Ref = MoneyAccountRef;
 const strip = (r: Ref) => (r.kind === "ADJUSTMENT" ? r : { ...r });
 
-export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean; saleId?: string | null }) {
+export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean; saleId?: string | null; purchaseId?: string | null }) {
   return call<unknown, { entryId: string }>("recordMoneyEntry", { requestId: newRequestId(), ...e, from: strip(e.from), to: strip(e.to) });
 }
 

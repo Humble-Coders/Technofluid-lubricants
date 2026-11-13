@@ -5,7 +5,7 @@ import { formatQuantity, indiaDate, parseQuantityToMilli } from "@technofluid/co
 import { Badge, Button, Input, Spinner } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import { reverseStockMovement, type StockMovement } from "@/services/stockService";
-import { EDITABLE_TYPES, isSaleLine, signedQuantity, TYPE_LABEL, unitWord } from "./stockFormat";
+import { EDITABLE_TYPES, isDocumentLine, signedQuantity, TYPE_LABEL, unitWord } from "./stockFormat";
 
 const when = (m: StockMovement) =>
   m.createdAt
@@ -52,7 +52,7 @@ export function MovementList({
 function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: boolean; showItem: boolean }) {
   const [mode, setMode] = useState<"undo" | "edit" | null>(null);
   const undone = Boolean(m.reversedById);
-  const editable = canEdit && !undone && m.type !== "REVERSAL" && !isSaleLine(m.type);
+  const editable = canEdit && !undone && m.type !== "REVERSAL" && !isDocumentLine(m.type);
 
   return (
     <li className="rounded-md bg-canvas px-3 py-2 text-[12px]">

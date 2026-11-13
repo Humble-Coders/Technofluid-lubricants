@@ -7,6 +7,7 @@ import {ENTITIES, formatRupees, hlAmountToPaise} from "../entities/entityModel";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {plainHlMessage} from "../ledger/hlClient";
 import {SALES} from "../sales/saleModel";
+import {PURCHASES} from "../purchases/purchaseModel";
 import {requestId as parseRequestId} from "../stock/stockModel";
 import {indiaToday, onceInTx, text} from "./common";
 import {
@@ -118,11 +119,15 @@ export const recordMoneyEntry = onCall({region: "us-central1"}, async (request) 
   const input: MoneyEntryInput = {from, to, amountPaise: data.amountPaise, businessDay: String(data.businessDay ?? ""), note: noteOf(data.note), isCorrection};
   check(input);
   const saleId = typeof data.saleId === "string" && data.saleId.trim() ? data.saleId.trim() : null;
+  const purchaseId = typeof data.purchaseId === "string" && data.purchaseId.trim() ? data.purchaseId.trim() : null;
+  if (saleId && purchaseId) bad("A payment is for an invoice or a purchase, not both.");
   const link = saleId ? await saleLink(db, saleId, input) : null;
+  const bill = purchaseId ? await purchaseLink(db, purchaseId, input) : null;
   return onceInTx(db, reqId, "recordMoneyEntry", async (tx) => {
     const ref = db.collection(MONEY_ENTRIES).doc();
-    const doc = entryDoc(input, caller, link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : {});
+    const doc = entryDoc(input, caller, link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : bill ? {purchaseId: bill.purchaseId, purchaseRef: bill.purchaseRef} : {});
     if (link) doc.sideIds = [...doc.sideIds, link.saleId];
+    if (bill) doc.sideIds = [...doc.sideIds, bill.purchaseId];
     tx.create(ref, doc);
     return {entryId: ref.id};
   });
@@ -140,19 +145,43 @@ async function saleLink(db: admin.firestore.Firestore, saleId: string, input: Mo
   if (!sale || sale.deleted === true) throw new HttpsError("not-found", "That invoice doesn't exist.");
   if (sale.customer?.entityId !== input.from.entityId) bad(`${sale.invoiceNo} is ${sale.customer?.name}'s invoice, not ${input.from.name}'s.`);
   if (sale.status === "CANCELLED") bad(`${sale.invoiceNo} is cancelled — record it as money received without an invoice.`);
-  const linked = await db.collection(MONEY_ENTRIES).where("saleId", "==", saleId).get();
-  const mirrors = linked.docs.map((d) => d.data().reversedByEntryId).filter((x): x is string => typeof x === "string");
-  const mirrorStatus = new Map<string, string>();
-  if (mirrors.length) for (const m of await db.getAll(...mirrors.map((id) => db.collection(MONEY_ENTRIES).doc(id)))) mirrorStatus.set(m.id, String(m.data()?.syncStatus ?? ""));
-  const paidLater = linked.docs
-    .map((d) => d.data())
-    .filter((e) => e.deleted !== true && !e.reversesEntryId && !(e.reversedByEntryId && mirrorStatus.get(e.reversedByEntryId) === "SYNCED"))
-    .reduce((sum, e) => sum + Number(e.amountPaise ?? 0), 0);
+  const paidLater = await paidLaterOn(db, "saleId", saleId);
   const due = Number(sale.totals?.grandTotalPaise ?? 0) - Number(sale.paidAtBillingPaise ?? 0) - paidLater;
   if (input.amountPaise > due) {
     bad(due <= 0 ? `${sale.invoiceNo} is already paid in full.` : `That's more than what's still due on ${sale.invoiceNo} (${formatRupees(due)}) — record the extra separately.`, "MORE_THAN_DUE");
   }
   return {saleId, invoiceNo: String(sale.invoiceNo)};
+}
+
+/**
+ * Money paid against one supplier's bill: the supplier must be the bill's, the bill not
+ * cancelled, and the amount no more than what's still due on it — paid with the bill
+ * plus the payments already linked (a reversed one only stops counting once its
+ * reversal is in the books). HL has no bill link for payouts: paid status is ours.
+ */
+async function purchaseLink(db: admin.firestore.Firestore, purchaseId: string, input: MoneyEntryInput) {
+  if ((input.from.kind !== "CASH" && input.from.kind !== "BANK") || input.to.kind !== "PARTY") bad("Only money paid to the supplier can be linked to a purchase.");
+  const p = (await db.collection(PURCHASES).doc(purchaseId).get()).data();
+  if (!p || p.deleted === true) throw new HttpsError("not-found", "That purchase doesn't exist.");
+  if (p.supplier?.entityId !== input.to.entityId) bad(`${p.ref} is ${p.supplier?.name}'s bill, not ${input.to.name}'s.`);
+  if (p.status === "CANCELLED") bad(`${p.ref} is cancelled — record it as money paid without a purchase.`);
+  const due = Number(p.billTotalPaise ?? 0) - Number(p.paidAtPurchasePaise ?? 0) - (await paidLaterOn(db, "purchaseId", purchaseId));
+  if (input.amountPaise > due) {
+    bad(due <= 0 ? `${p.ref} is already paid in full.` : `That's more than what's still due on ${p.ref} (${formatRupees(due)}) — record the extra separately.`, "MORE_THAN_DUE");
+  }
+  return {purchaseId, purchaseRef: String(p.ref)};
+}
+
+/** Money linked to one invoice / bill after it was saved — a reversed entry stops counting once its reversal is in the books. */
+async function paidLaterOn(db: admin.firestore.Firestore, field: "saleId" | "purchaseId", id: string): Promise<number> {
+  const linked = await db.collection(MONEY_ENTRIES).where(field, "==", id).get();
+  const mirrors = linked.docs.map((d) => d.data().reversedByEntryId).filter((x): x is string => typeof x === "string");
+  const mirrorStatus = new Map<string, string>();
+  if (mirrors.length) for (const m of await db.getAll(...mirrors.map((x) => db.collection(MONEY_ENTRIES).doc(x)))) mirrorStatus.set(m.id, String(m.data()?.syncStatus ?? ""));
+  return linked.docs
+    .map((d) => d.data())
+    .filter((e) => e.deleted !== true && !e.reversesEntryId && !(e.reversedByEntryId && mirrorStatus.get(e.reversedByEntryId) === "SYNCED"))
+    .reduce((sum, e) => sum + Number(e.amountPaise ?? 0), 0);
 }
 
 /** An expense paid from cash or a bank, with its GST bill when there is one. */

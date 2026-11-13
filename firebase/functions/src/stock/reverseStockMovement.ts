@@ -3,7 +3,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
-import {ITEMS, MOVEMENTS, note, positiveMilli, nonNegativeMilli} from "./stockModel";
+import {DOCUMENT_TYPES, ITEMS, MOVEMENTS, note, positiveMilli, nonNegativeMilli} from "./stockModel";
 
 /**
  * Undo one stock line — or "edit" it, which is undo + a corrected line, in one
@@ -49,6 +49,9 @@ export const reverseStockMovement = onCall({region: "us-central1"}, async (reque
     }
     if (original.type === "SALE" || original.type === "SALE_CANCEL") {
       throw new HttpsError("failed-precondition", `This line belongs to invoice ${String(original.invoiceNo ?? "")} — cancel the invoice instead.`);
+    }
+    if (DOCUMENT_TYPES.includes(original.type)) {
+      throw new HttpsError("failed-precondition", `This line belongs to purchase ${String(original.purchaseRef ?? "")} — cancel the purchase instead.`);
     }
 
     let newQty = 0;

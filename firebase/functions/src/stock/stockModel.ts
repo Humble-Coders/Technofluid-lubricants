@@ -54,7 +54,13 @@ export type MovementType =
   | "PRODUCTION_CONSUME"
   /** Sold on an invoice (−) and given back when the invoice is cancelled (+). Only sales write these. */
   | "SALE"
-  | "SALE_CANCEL";
+  | "SALE_CANCEL"
+  /** Bought on a supplier's bill (+) and taken back out when the bill is cancelled (−). Only purchases write these. */
+  | "PURCHASE"
+  | "PURCHASE_CANCEL";
+
+/** Lines that change only through their document (an invoice or a supplier's bill) — never undone on the stock screen. */
+export const DOCUMENT_TYPES: readonly string[] = ["SALE", "SALE_CANCEL", "PURCHASE", "PURCHASE_CANCEL"];
 
 /** A product's stock pool id, derived from its productKey (product + grade). */
 export function poolId(productKey: string): string {

@@ -115,6 +115,24 @@ export interface HlSale {
   invoiceNumber: string;
 }
 
+/**
+ * A supplier's bill booked against the same HL customer (netting — no HL vendors):
+ * DR the inventory account (subtotal) + DR each input-tax line, CR the customer (total).
+ * Crediting the customer takes their balance down — below zero = we owe them.
+ */
+export interface HlPurchase {
+  customerId: string;
+  /** Before tax: goods + freight + round-off (so HL's total = the supplier's bill total). */
+  amountPaise: number;
+  /** One per GST leg (Input CGST / SGST / IGST), posted as DEBIT; empty for no GST. */
+  taxLines: HlSaleTaxLine[];
+  expenseAccountId: string;
+  description: string;
+  date: string;
+  sourceId: string;
+  actorRef: string;
+}
+
 export type HlInvoiceStatus = "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED" | string;
 
 export interface HlInvoice {
@@ -171,6 +189,8 @@ export interface HlClient {
    * idempotent (no sourceId) — read the invoice first and skip one already cancelled.
    */
   cancelInvoice(id: string, p: {reason: string; date: string}): Promise<void>;
+  /** Books a supplier's bill (POST /customer-purchases); idempotent on (appId, sourceId). */
+  postCustomerPurchase(p: HlPurchase): Promise<{txnId: string; idempotent: boolean}>;
 }
 
 /** An HL failure. `transient` = worth retrying (network, 5xx, 429); else the data is wrong. */
@@ -215,6 +235,7 @@ export class NotConnectedHlClient implements HlClient {
   postSale = () => this.fail();
   getInvoice = () => this.fail();
   cancelInvoice = () => this.fail();
+  postCustomerPurchase = () => this.fail();
 }
 
 /**

@@ -1,0 +1,168 @@
+{
+  "about": "Purchase rules — run by office/core (vitest) AND the Cloud Functions mirror (office/emulator/tests/purchases.test.mjs). Change both copies together. Made-up items and GSTINs only.",
+  "seller": "06",
+  "today": "2026-11-13",
+  "items": {
+    "rm_base": { "id": "rm_base", "name": "TEST Base Oil SN150", "kind": "raw_material", "baseUnit": "L" },
+    "cons_can": { "id": "cons_can", "name": "TEST 26 L Can", "kind": "consumable", "baseUnit": "piece" },
+    "pool_hyd": { "id": "pool_hyd", "name": "TEST Hydraulic 68", "kind": "product_pool", "baseUnit": "L" },
+    "mix_pre": { "id": "mix_pre", "name": "TEST Premix A", "kind": "premix", "baseUnit": "L" },
+    "mix_blend": { "id": "mix_blend", "name": "TEST Blend B", "kind": "blend", "baseUnit": "kg" },
+    "rm_nounit": { "id": "rm_nounit", "name": "TEST Additive", "kind": "raw_material", "baseUnit": null }
+  },
+  "price": [
+    {
+      "case": "Haryana supplier: CGST + SGST, unit cost per litre",
+      "input": { "supplierState": "06", "freightPaise": 0, "roundOffPaise": 0, "lines": [{ "itemId": "rm_base", "qtyMilli": 500000, "taxablePaise": 4500000, "gstRateBp": 1800 }] },
+      "expect": {
+        "lines": [{ "itemId": "rm_base", "qtyMilli": 500000, "taxablePaise": 4500000, "gstRateBp": 1800, "cgstPaise": 405000, "sgstPaise": 405000, "igstPaise": 0, "totalPaise": 5310000, "unitCostPaise": 9000 }],
+        "freight": null,
+        "totals": { "supplyType": "INTRA", "taxablePaise": 4500000, "cgstPaise": 405000, "sgstPaise": 405000, "igstPaise": 0, "taxPaise": 810000, "exactTotalPaise": 5310000, "roundOffPaise": 0, "billTotalPaise": 5310000, "subtotalPaise": 4500000 }
+      }
+    },
+    {
+      "case": "Delhi supplier: IGST, round-off up",
+      "input": { "supplierState": "07", "freightPaise": 0, "roundOffPaise": 11, "lines": [{ "itemId": "cons_can", "qtyMilli": 200000, "taxablePaise": 1234567, "gstRateBp": 1800 }] },
+      "expect": {
+        "lines": [{ "itemId": "cons_can", "qtyMilli": 200000, "taxablePaise": 1234567, "gstRateBp": 1800, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 222222, "totalPaise": 1456789, "unitCostPaise": 6173 }],
+        "freight": null,
+        "totals": { "supplyType": "INTER", "taxablePaise": 1234567, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 222222, "taxPaise": 222222, "exactTotalPaise": 1456789, "roundOffPaise": 11, "billTotalPaise": 1456800, "subtotalPaise": 1234578 }
+      }
+    },
+    {
+      "case": "Unregistered supplier: no GST at all",
+      "input": { "supplierState": null, "freightPaise": 0, "roundOffPaise": 0, "lines": [{ "itemId": "pool_hyd", "qtyMilli": 100000, "taxablePaise": 800000, "gstRateBp": 0 }] },
+      "expect": {
+        "lines": [{ "itemId": "pool_hyd", "qtyMilli": 100000, "taxablePaise": 800000, "gstRateBp": 0, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 0, "totalPaise": 800000, "unitCostPaise": 8000 }],
+        "freight": null,
+        "totals": { "supplyType": "NONE", "taxablePaise": 800000, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 0, "taxPaise": 0, "exactTotalPaise": 800000, "roundOffPaise": 0, "billTotalPaise": 800000, "subtotalPaise": 800000 }
+      }
+    },
+    {
+      "case": "Freight is taxed at the highest line rate; two rates",
+      "input": {
+        "supplierState": "06",
+        "freightPaise": 10000,
+        "roundOffPaise": 0,
+        "lines": [
+          { "itemId": "cons_can", "qtyMilli": 100000, "taxablePaise": 500000, "gstRateBp": 1200 },
+          { "itemId": "rm_base", "qtyMilli": 50000, "taxablePaise": 300000, "gstRateBp": 1800 }
+        ]
+      },
+      "expect": {
+        "lines": [
+          { "itemId": "cons_can", "qtyMilli": 100000, "taxablePaise": 500000, "gstRateBp": 1200, "cgstPaise": 30000, "sgstPaise": 30000, "igstPaise": 0, "totalPaise": 560000, "unitCostPaise": 5000 },
+          { "itemId": "rm_base", "qtyMilli": 50000, "taxablePaise": 300000, "gstRateBp": 1800, "cgstPaise": 27000, "sgstPaise": 27000, "igstPaise": 0, "totalPaise": 354000, "unitCostPaise": 6000 }
+        ],
+        "freight": { "taxablePaise": 10000, "gstRateBp": 1800, "cgstPaise": 900, "sgstPaise": 900, "igstPaise": 0, "totalPaise": 11800 },
+        "totals": { "supplyType": "INTRA", "taxablePaise": 810000, "cgstPaise": 57900, "sgstPaise": 57900, "igstPaise": 0, "taxPaise": 115800, "exactTotalPaise": 925800, "roundOffPaise": 0, "billTotalPaise": 925800, "subtotalPaise": 810000 },
+        "byRate": [
+          { "gstRateBp": 1200, "taxablePaise": 500000, "cgstPaise": 30000, "sgstPaise": 30000, "igstPaise": 0 },
+          { "gstRateBp": 1800, "taxablePaise": 310000, "cgstPaise": 27900, "sgstPaise": 27900, "igstPaise": 0 }
+        ]
+      }
+    },
+    {
+      "case": "Round-off down; fractional litres",
+      "input": { "supplierState": "06", "freightPaise": 0, "roundOffPaise": -67, "lines": [{ "itemId": "rm_base", "qtyMilli": 1500, "taxablePaise": 12345, "gstRateBp": 1800 }] },
+      "expect": {
+        "lines": [{ "itemId": "rm_base", "qtyMilli": 1500, "taxablePaise": 12345, "gstRateBp": 1800, "cgstPaise": 1111, "sgstPaise": 1111, "igstPaise": 0, "totalPaise": 14567, "unitCostPaise": 8230 }],
+        "freight": null,
+        "totals": { "supplyType": "INTRA", "taxablePaise": 12345, "cgstPaise": 1111, "sgstPaise": 1111, "igstPaise": 0, "taxPaise": 2222, "exactTotalPaise": 14567, "roundOffPaise": -67, "billTotalPaise": 14500, "subtotalPaise": 12278 }
+      }
+    },
+    {
+      "case": "Every line problem is reported, by line",
+      "input": {
+        "supplierState": "06",
+        "freightPaise": 0,
+        "roundOffPaise": 0,
+        "lines": [
+          { "itemId": "gone", "qtyMilli": 1000, "taxablePaise": 100, "gstRateBp": 1800 },
+          { "itemId": "mix_pre", "qtyMilli": 1000, "taxablePaise": 100, "gstRateBp": 1800 },
+          { "itemId": "mix_blend", "qtyMilli": 1000, "taxablePaise": 100, "gstRateBp": 1800 },
+          { "itemId": "rm_nounit", "qtyMilli": 1000, "taxablePaise": 100, "gstRateBp": 1800 },
+          { "itemId": "rm_base", "qtyMilli": 0, "taxablePaise": 100, "gstRateBp": 1800 },
+          { "itemId": "rm_base", "qtyMilli": 1.5, "taxablePaise": 100, "gstRateBp": 1800 },
+          { "itemId": "rm_base", "qtyMilli": 1000, "taxablePaise": -1, "gstRateBp": 1800 },
+          { "itemId": "rm_base", "qtyMilli": 1000, "taxablePaise": 100, "gstRateBp": 1801 },
+          { "itemId": "rm_base", "qtyMilli": 1000, "taxablePaise": 100, "gstRateBp": 1800 }
+        ]
+      },
+      "expect": {
+        "errors": [
+          { "line": 0, "code": "UNKNOWN_ITEM" },
+          { "line": 1, "code": "NOT_BUYABLE" },
+          { "line": 2, "code": "NOT_BUYABLE" },
+          { "line": 3, "code": "NO_UNIT" },
+          { "line": 4, "code": "BAD_QTY" },
+          { "line": 5, "code": "BAD_QTY" },
+          { "line": 6, "code": "BAD_TAXABLE" },
+          { "line": 7, "code": "BAD_GST_RATE" }
+        ]
+      }
+    }
+  ],
+  "headerBase": {
+    "supplierEntityId": "sup1",
+    "billNo": "INV-12",
+    "billDate": "2026-11-10",
+    "lineCount": 1,
+    "lineRatesBp": [1800],
+    "supplierGstin": "06AAACL1234M1ZO",
+    "freightPaise": 0,
+    "roundOffPaise": 0,
+    "payments": [],
+    "note": null
+  },
+  "header": [
+    { "case": "a good bill", "input": {}, "expect": null },
+    { "case": "dated today", "input": { "billDate": "2026-11-13" }, "expect": null },
+    { "case": "no lines", "input": { "lineCount": 0 }, "expect": "NO_LINES" },
+    { "case": "61 lines", "input": { "lineCount": 61 }, "expect": "TOO_MANY_LINES" },
+    { "case": "no supplier", "input": { "supplierEntityId": "" }, "expect": "NO_SUPPLIER" },
+    { "case": "blank bill number", "input": { "billNo": "   " }, "expect": "NO_BILL_NO" },
+    { "case": "bill number of 41 characters", "input": { "billNo": "ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJA" }, "expect": "BILL_NO_TOO_LONG" },
+    { "case": "not a real date", "input": { "billDate": "2026-02-30" }, "expect": "BAD_DATE" },
+    { "case": "tomorrow", "input": { "billDate": "2026-11-14" }, "expect": "FUTURE_DATE" },
+    { "case": "negative freight", "input": { "freightPaise": -1 }, "expect": "BAD_FREIGHT" },
+    { "case": "round-off −₹1.00 is fine", "input": { "roundOffPaise": -100 }, "expect": null },
+    { "case": "round-off ₹1.01", "input": { "roundOffPaise": 101 }, "expect": "BAD_ROUND_OFF" },
+    { "case": "round-off −₹1.01", "input": { "roundOffPaise": -101 }, "expect": "BAD_ROUND_OFF" },
+    { "case": "GST from a supplier with no GSTIN", "input": { "supplierGstin": null }, "expect": "GST_WITHOUT_GSTIN" },
+    { "case": "a GSTIN with a typo counts as none", "input": { "supplierGstin": "06AAACL1234M1ZX" }, "expect": "GST_WITHOUT_GSTIN" },
+    { "case": "no GSTIN, 0 % GST", "input": { "supplierGstin": null, "lineRatesBp": [0, 0] }, "expect": null },
+    { "case": "three payments", "input": { "payments": [{ "registerId": "a", "amountPaise": 1 }, { "registerId": "b", "amountPaise": 1 }, { "registerId": "c", "amountPaise": 1 }] }, "expect": "TOO_MANY_PAYMENTS" },
+    { "case": "a ₹0 payment", "input": { "payments": [{ "registerId": "a", "amountPaise": 0 }] }, "expect": "BAD_PAYMENT" },
+    { "case": "a payment with no account", "input": { "payments": [{ "registerId": "", "amountPaise": 100 }] }, "expect": "BAD_PAYMENT" },
+    { "case": "the same account twice", "input": { "payments": [{ "registerId": "a", "amountPaise": 1 }, { "registerId": "a", "amountPaise": 2 }] }, "expect": "SAME_REGISTER_TWICE" },
+    { "case": "two payments", "input": { "payments": [{ "registerId": "a", "amountPaise": 1 }, { "registerId": "b", "amountPaise": 2 }] }, "expect": null },
+    { "case": "a long note", "input": { "note": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }, "expect": "NOTE_TOO_LONG" }
+  ],
+  "totals": [
+    { "case": "matches the supplier's total", "totals": { "billTotalPaise": 1456800, "subtotalPaise": 1234578 }, "supplierTotal": 1456800, "payments": [], "expect": null },
+    { "case": "one paisa off", "totals": { "billTotalPaise": 1456800, "subtotalPaise": 1234578 }, "supplierTotal": 1456799, "payments": [], "expect": "TOTAL_MISMATCH" },
+    { "case": "a ₹0 bill", "totals": { "billTotalPaise": 0, "subtotalPaise": 0 }, "supplierTotal": 0, "payments": [], "expect": "ZERO_BILL" },
+    { "case": "paid in full now", "totals": { "billTotalPaise": 1000, "subtotalPaise": 1000 }, "supplierTotal": 1000, "payments": [{ "registerId": "a", "amountPaise": 600 }, { "registerId": "b", "amountPaise": 400 }], "expect": null },
+    { "case": "paid more than the bill", "totals": { "billTotalPaise": 1000, "subtotalPaise": 1000 }, "supplierTotal": 1000, "payments": [{ "registerId": "a", "amountPaise": 1001 }], "expect": "PAYMENT_TOO_MUCH" }
+  ],
+  "refs": [
+    { "fy": "2026-27", "seq": 1, "expect": "PB/2026-27/0001" },
+    { "fy": "2027-28", "seq": 12345, "expect": "PB/2027-28/12345" }
+  ],
+  "billNoKeys": [
+    { "in": " inv 12 ", "expect": "INV12" },
+    { "in": "Inv-12/A", "expect": "INV-12/A" }
+  ],
+  "roundOff": [
+    { "exact": 1456789, "expect": 11 },
+    { "exact": 14567, "expect": 33 },
+    { "exact": 14550, "expect": 50 },
+    { "exact": 5310000, "expect": 0 }
+  ],
+  "fy": [
+    { "date": "2026-11-13", "expect": "2026-27" },
+    { "date": "2027-03-31", "expect": "2026-27" },
+    { "date": "2027-04-01", "expect": "2027-28" }
+  ]
+}

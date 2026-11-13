@@ -14,6 +14,7 @@ import {
   type HlMoneyMove,
   type HlPostingType,
   type HlProfilePayload,
+  type HlPurchase,
   type HlSale,
 } from "./hlClient";
 
@@ -425,6 +426,36 @@ export class HttpHlClient implements HlClient {
     const amountPaid = strOrNull(d?.amountPaid);
     if (!d || typeof d.id !== "string" || typeof d.status !== "string" || total === null || amountPaid === null) throw unexpected("invoice");
     return {id: d.id, invoiceNumber: strOrNull(d.invoiceNumber), status: d.status, total, amountPaid};
+  }
+
+  /**
+   * POST /customer-purchases: DR expenseAccountId (amount) + DR each tax line, CR the
+   * customer (total). With taxLines HL takes tax = their sum (≤ 4 lines; rate a fraction);
+   * no tax → both left out ("omit for none").
+   * VERIFY ON FIRST LIVE CALL: the 201 body ({transaction, idempotent, customer} per the
+   * docs — txn id read at data.transaction.id like the other customer-scoped posts) and
+   * that taxLines post as input-tax DEBITs here as they post as CREDITs on /sales.
+   */
+  async postCustomerPurchase(p: HlPurchase) {
+    const tax = p.taxLines.reduce((s, l) => s + l.amountPaise, 0);
+    const res = await this.call("POST", "/customer-purchases", {
+      customerId: p.customerId,
+      amount: toHlAmount(p.amountPaise),
+      expenseAccountId: p.expenseAccountId,
+      ...(p.taxLines.length ?
+        {
+          taxAmount: toHlAmount(tax),
+          taxLines: p.taxLines.map((l) => ({amount: toHlAmount(l.amountPaise), accountId: l.accountId, ...(l.rateBp ? {rate: l.rateBp / 10_000} : {}), label: l.label.slice(0, 40)})),
+        } :
+        {}),
+      description: p.description,
+      date: p.date,
+      appId: HL_APP_ID,
+      sourceId: p.sourceId,
+      actorRef: p.actorRef,
+      metadata: {description: p.description},
+    });
+    return {txnId: txnIdOf(res, "customer-purchase"), idempotent: res.idempotent === true};
   }
 
   /** Not idempotent (HL takes no sourceId here) — the caller reads the invoice first. */
