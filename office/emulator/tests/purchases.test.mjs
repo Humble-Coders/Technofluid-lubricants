@@ -333,6 +333,13 @@ describe("cancelling", () => {
     assert.equal(p.syncStatus, "SYNCED");
     assert.ok(await txn(`purchase_${r.purchaseId}:payout_0`)); // the cash paid stays in the books
     assert.equal(net([...(await txn(`purchase_${r.purchaseId}:bill`)).legs, ...(await txn(`purchase_${r.purchaseId}:cancel`)).legs]), 0);
+
+    // The supplier's statement labels all three from our own records (txnSources).
+    const st = await accounts.call("getEntityStatement", { entityId: haryana, from: "2026-04-01", to: today });
+    const whats = st.rows.map((x) => x.what);
+    assert.ok(whats.includes(`Purchase ${p.ref} (bill TP-C2)`), whats.join(" | "));
+    assert.ok(whats.includes(`Payment made for ${p.ref} (bill TP-C2)`), whats.join(" | "));
+    assert.ok(whats.includes(`Purchase ${p.ref} cancelled`), whats.join(" | "));
   });
 });
 
