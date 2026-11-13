@@ -202,8 +202,9 @@ async function call<Req, Res>(name: string, data: Req): Promise<Res> {
 type Ref = MoneyAccountRef;
 const strip = (r: Ref) => (r.kind === "ADJUSTMENT" ? r : { ...r });
 
-export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean; saleId?: string | null; purchaseId?: string | null }) {
-  return call<unknown, { entryId: string }>("recordMoneyEntry", { requestId: newRequestId(), ...e, from: strip(e.from), to: strip(e.to) });
+/** `requestId`: pass one kept for the open form, so a retry after a timeout can't record it twice. */
+export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean; saleId?: string | null; purchaseId?: string | null; requestId?: string }) {
+  return call<unknown, { entryId: string }>("recordMoneyEntry", { ...e, requestId: e.requestId ?? newRequestId(), from: strip(e.from), to: strip(e.to) });
 }
 
 export function recordExpense(e: { categoryId: string; registerId: string; registerKind: RegisterKind; amountPaise: number; businessDay: string; note: string | null; gst: ExpenseGst | null }) {

@@ -4,7 +4,7 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
 import {ITEMS, MOVEMENTS, indiaToday, requestId as parseRequestId} from "../stock/stockModel";
-import {PURCHASES, PURCHASE_REQUESTS, bad} from "./purchaseModel";
+import {PURCHASES, PURCHASE_REQUESTS, PURCHASE_SYNC, bad} from "./purchaseModel";
 
 /**
  * Cancel a purchase (Admin or Accounts), with a reason — a bill is never edited. In ONE
@@ -34,6 +34,9 @@ export const cancelPurchase = onCall({region: "us-central1"}, async (request) =>
     if (prev.exists) return {...(prev.data()?.result as Record<string, unknown>), alreadyDone: true};
     const p = (await tx.get(ref)).data();
     if (!p || p.deleted === true) throw new HttpsError("not-found", "That purchase doesn't exist.");
+    // The bill's own posting may be in the books even when a later payment failed.
+    const progress = (await tx.get(db.collection(PURCHASE_SYNC).doc(purchaseId))).data();
+    const billInBooks = p.syncStatus === "SYNCED" || !!p.hlTxnId || !!progress?.hlTxnId;
     if (p.status === "CANCELLED") throw new HttpsError("failed-precondition", `${p.ref} is already cancelled.`);
     const movements = (await Promise.all(((p.stockMovementIds ?? []) as string[]).map((id) => tx.get(db.collection(MOVEMENTS).doc(id))))).map((m) => m.data());
     const itemIds = [...new Set(movements.map((m) => String(m?.itemId ?? "")).filter(Boolean))];
@@ -64,8 +67,8 @@ export const cancelPurchase = onCall({region: "us-central1"}, async (request) =>
     tx.update(ref, {
       status: "CANCELLED",
       cancel: {reason, by, day, at: now},
-      // In the books already → reverse it there; not yet → the bill's own posting does it after.
-      cancelSyncStatus: p.syncStatus === "SYNCED" ? "PENDING" : null,
+      // The bill in the books already → reverse it there; not yet → the bill's own posting does it after.
+      cancelSyncStatus: billInBooks ? "PENDING" : null,
       cancelSyncError: null,
       cancelSyncAttempts: 0,
       updatedAt: now,

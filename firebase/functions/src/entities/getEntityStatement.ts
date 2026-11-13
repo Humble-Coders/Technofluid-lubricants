@@ -53,7 +53,7 @@ export function moneyLabel(m: FirebaseFirestore.DocumentData, entityId: string):
   const fromMe = m.from?.kind === "PARTY" && m.from.entityId === entityId;
   if (m.from?.kind === "PARTY" && m.to?.kind === "PARTY") return fromMe ? `Balance moved to ${m.to.name}` : `Balance moved from ${m.from.name}`;
   if (fromMe) return "Payment received";
-  if (m.to?.kind === "PARTY") return "Payment made";
+  if (m.to?.kind === "PARTY") return m.purchaseRef ? `Payment made for ${String(m.purchaseRef)}` : "Payment made";
   return "Money";
 }
 

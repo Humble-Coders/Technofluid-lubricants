@@ -9,6 +9,7 @@ import { PaidBadge } from "@/features/sales/saleBadges";
 import { useRegisters } from "@/hooks/useMoney";
 import { usePurchase, usePurchasesPaid } from "@/hooks/usePurchases";
 import { recordMoneyEntry } from "@/services/moneyService";
+import { newRequestId } from "@/services/stockService";
 import { cancelPurchase, type PurchaseRow } from "@/services/purchaseService";
 import { PurchaseBooksStatus } from "./purchaseBadges";
 
@@ -215,6 +216,8 @@ function PayDialog({ purchase: p, duePaise, onClose }: { purchase: PurchaseRow; 
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // One request id for as long as the dialog is open: a retry after a timeout is the same payment.
+  const [requestId] = useState(newRequestId);
   let paise = NaN;
   try {
     paise = rupeesToPaise(amount);
@@ -269,6 +272,7 @@ function PayDialog({ purchase: p, duePaise, onClose }: { purchase: PurchaseRow; 
                 businessDay: day,
                 note: note.trim() || null,
                 purchaseId: p.id,
+                requestId,
               });
               onClose();
             } catch (e) {

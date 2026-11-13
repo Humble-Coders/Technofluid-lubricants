@@ -18,6 +18,15 @@ export function PurchaseBooksStatus({ purchase: p }: { purchase: PurchaseRow }) 
       Retry
     </button>
   );
+  if (p.syncStatus === "FAILED" && p.billInBooks) {
+    // The bill went in; a payment made with it didn't. A cancellation still reverses the bill.
+    const cancelNote = p.status === "CANCELLED" ? (p.cancelSyncStatus === "SYNCED" ? " · bill reversed" : p.cancelSyncStatus === "FAILED" ? " · reversal not posted" : " · reversing bill…") : "";
+    return (
+      <span className="inline-flex items-center gap-1 text-[12px] text-danger" title={p.hlSyncError ?? undefined}>
+        Bill in the books{cancelNote} · a payment wasn't saved: {p.hlSyncError ?? "error"} {retry}
+      </span>
+    );
+  }
   if (p.syncStatus === "FAILED") {
     return (
       <span className="inline-flex items-center gap-1 text-[12px] text-danger" title={p.hlSyncError ?? undefined}>

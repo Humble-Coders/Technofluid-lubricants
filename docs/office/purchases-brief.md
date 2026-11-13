@@ -149,7 +149,7 @@ Purchase returns/debit notes, POs/GRN, TDS/TCS, RCM, landed-cost allocation, cos
 
 How to try (local emulators only): `npm run emulators`, then `npm run seed`, `seed:stock`, `seed:entities`, `seed:money`, `seed:purchases`; sign in as the Accounts test login (docs/TECHNOFLUID-HANDOVER.md §7.3) → Suppliers & purchases.
 
-Different from the brief, and why:
+Different from the brief, and why (all OK'd by Ansh's governing session, 13 Nov):
 1. **Cost is on the purchase, not the stock line.** `unitCostPaise` / `lineCostPaise` live on `purchases.lines[]`. Stock & Production reads `stockMovements`, which must carry no money; each PURCHASE line keeps `purchaseId` + `purchaseLine` to find its cost.
 2. **Only an active bill blocks a duplicate.** A cancelled bill's number can be entered again (the usual fix for a mistake).
 3. **Two extra codes:** `BILL_NO_TOO_LONG` (over 40 characters) and `ZERO_BILL` (a total or subtotal of ₹0 or less — HL's minimum amount is ₹0.01).
@@ -159,4 +159,14 @@ Different from the brief, and why:
 
 Tests: core vitest (purchase.cases.json, both copies); emulator `purchases.test.mjs` (PB numbers, duplicates, stock in / already counted, HL legs balance, payouts, paying later ≤ due, cancel → stock out + exact reversal, cancel before the books, off mode + reconcile, rules); `httpHlClient` test for `/customer-purchases`.
 
-Deploy later, only with Sharnya's OK and Ansh's word, never bare: `firebase deploy --only firestore:rules,functions:createPurchase,functions:cancelPurchase,functions:retryPurchaseSync,functions:onPurchaseWritten,functions:recordMoneyEntry,functions:onMoneyEntryWritten,functions:reconcileLedgerSync,functions:getEntityStatement,functions:getRegisterStatement,functions:reverseStockMovement --project techno-fluid`. (`onMoneyEntryWritten` now labels a bill payment; the two statements label purchase rows; `reverseStockMovement` refuses purchase lines.)
+Review fixes (Ansh's session, 13 Nov):
+- **Deploy list:** `postWaitingFor` (money/sync) now wakes purchases, and `onEntityWritten`, `onRegisterWritten`, `onExpenseCategoryWritten` and `onSaleWritten` all call it, so all four deploy too (otherwise a bill saved right after "Add supplier" waits for the reconcile).
+- **"≤ still due" is race-free:** `recordMoneyEntry` reads the invoice / bill and its linked payments inside the transaction. This applies to sales (`saleLink`) as well as purchases. The bill's Pay dialog keeps one request id while it is open.
+- **Tax-line rate:** set only when the whole bill has one rate (as sales). A 0 % line next to an 18 % one sends no rate.
+- **Cancel after a failed payment:** the cancel keys on the bill's own posting being in HL (`purchaseSync.hlTxnId` + `hlLegs`), which are also copied to the purchase when a later payment fails. The bill view then says "Bill in the books · a payment wasn't saved".
+- Nits: a payment linked later reads "Payment made for PB/…"; createPurchase re-checks that items aren't deleted inside its transaction.
+- **Follow-up (not here):** sales have the same cancel-after-failed-payment shape.
+
+Deploy later, only with Ansh's go-ahead and Sharnya's OK, never bare: `firebase deploy --only firestore:rules,functions:createPurchase,functions:cancelPurchase,functions:retryPurchaseSync,functions:onPurchaseWritten,functions:recordMoneyEntry,functions:onMoneyEntryWritten,functions:reconcileLedgerSync,functions:onEntityWritten,functions:onRegisterWritten,functions:onExpenseCategoryWritten,functions:onSaleWritten,functions:getEntityStatement,functions:getRegisterStatement,functions:reverseStockMovement --project techno-fluid`. (`onMoneyEntryWritten` now labels a bill payment; the two statements label purchase rows; `reverseStockMovement` refuses purchase lines; the four `on…Written` triggers share money/sync.)
+
+- **Go-live gate:** the first live use is a small test bill, then cancelling it. Confirm in HL that the supplier, "Inventory · Purchased stock" and the Input GST accounts net to zero, and check the 201 body shape. If HL has `GET /transactions/{id}` with legs, prefer storing HL's real legs over the computed ones for the reversal.

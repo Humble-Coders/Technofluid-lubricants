@@ -23,7 +23,7 @@ const model = fnRequire("./lib/purchases/purchaseModel.js");
 const { syncPurchase } = fnRequire("./lib/purchases/sync.js");
 const { reconcileLedgerOnce } = fnRequire("./lib/money/sync.js");
 const { FakeHlClient } = fnRequire("./lib/ledger/fakeHlClient.js");
-const { NotConnectedHlClient } = fnRequire("./lib/ledger/hlClient.js");
+const { NotConnectedHlClient, HlError } = fnRequire("./lib/ledger/hlClient.js");
 const fnAdminApp = fnRequire("firebase-admin/app").initializeApp({ projectId: PROJECT }, `fn-purchases-${process.pid}`);
 const libDb = fnRequire("firebase-admin/firestore").getFirestore(fnAdminApp);
 
@@ -340,6 +340,94 @@ describe("cancelling", () => {
     assert.ok(whats.includes(`Purchase ${p.ref} (bill TP-C2)`), whats.join(" | "));
     assert.ok(whats.includes(`Payment made for ${p.ref} (bill TP-C2)`), whats.join(" | "));
     assert.ok(whats.includes(`Purchase ${p.ref} cancelled`), whats.join(" | "));
+  });
+});
+
+describe("review fixes", () => {
+  const payFor = (purchaseId, amountPaise, requestId = rid()) =>
+    accounts.call("recordMoneyEntry", {
+      requestId,
+      from: { kind: "BANK", registerId: "default-bank" },
+      to: { kind: "PARTY", entityId: haryana },
+      amountPaise,
+      businessDay: today,
+      note: null,
+      purchaseId,
+    });
+  /** The fake books, with one call watched or broken. */
+  const fakeWith = (over) => Object.assign(new FakeHlClient(libDb), over);
+
+  test("two full-due payments at once: one is saved, the other refused; a retried request is the same payment", async () => {
+    const r = await buy(accounts, oilBill(haryana, { billNo: "TP-R1" }));
+    const p = await status("purchases", r.purchaseId, "SYNCED");
+    const both = await Promise.allSettled([payFor(r.purchaseId, 5_310_000), payFor(r.purchaseId, 5_310_000)]);
+    const ok = both.filter((x) => x.status === "fulfilled");
+    const no = both.filter((x) => x.status === "rejected");
+    assert.equal(ok.length, 1, JSON.stringify(both.map((x) => x.status)));
+    assert.match(no[0].reason.message, /paid in full|still due/);
+    const linked = await adminDb.collection("moneyEntries").where("purchaseId", "==", r.purchaseId).get();
+    assert.equal(linked.size, 1);
+
+    // The same request id again (a retry after a timeout) returns the first result, no second entry.
+    const r2 = await buy(accounts, oilBill(haryana, { billNo: "TP-R1b" }));
+    await status("purchases", r2.purchaseId, "SYNCED");
+    const once = rid();
+    const first = await payFor(r2.purchaseId, 1_000_000, once);
+    const again = await payFor(r2.purchaseId, 1_000_000, once);
+    assert.equal(again.entryId, first.entryId);
+    assert.equal(again.alreadyDone, true);
+    assert.equal((await adminDb.collection("moneyEntries").where("purchaseId", "==", r2.purchaseId).get()).size, 1);
+
+    // A payment made later reads "Payment made for PB/…" on the supplier's statement.
+    await status("moneyEntries", ok[0].value.entryId, "SYNCED");
+    const st = await accounts.call("getEntityStatement", { entityId: haryana, from: "2026-04-01", to: today });
+    assert.ok(st.rows.some((x) => x.what === `Payment made for ${p.ref}`), st.rows.map((x) => x.what).join(" | "));
+  });
+
+  test("a bill with a 0 % line and an 18 % line sends no single rate on its tax lines", async () => {
+    await control({ down: true });
+    const lines = [
+      { itemId: itemId("oil"), qtyMilli: 100_000, taxablePaise: 1_000_000, gstRateBp: 1800 },
+      { itemId: itemId("can"), qtyMilli: 10_000, taxablePaise: 100_000, gstRateBp: 0 },
+    ];
+    const r = await buy(accounts, oilBill(haryana, { billNo: "TP-MIX", lines, supplierBillTotalPaise: 1_280_000 }));
+    await status("purchases", r.purchaseId, "FAILED");
+    await control({});
+    const seen = [];
+    const fake = new FakeHlClient(libDb);
+    const post = fake.postCustomerPurchase.bind(fake);
+    fake.postCustomerPurchase = (x) => (seen.push(x), post(x));
+    assert.equal(await syncPurchase(libDb, fake, r.purchaseId), "synced");
+    assert.deepEqual(seen[0].taxLines.map((l) => [l.label, l.rateBp, l.amountPaise]), [["Input CGST", 0, 90_000], ["Input SGST", 0, 90_000]]);
+  });
+
+  test("the bill went in but its payment failed for good: the view knows, and cancelling still reverses the bill", async () => {
+    const brokenPayout = () => fakeWith({ postPayout: async () => { throw new HlError("Payment account closed (test).", 400, false); } });
+
+    // a) Cancelled after the failure.
+    await control({ down: true });
+    const a = await buy(accounts, oilBill(haryana, { billNo: "TP-PF1", payments: [{ registerId: "default-cash", amountPaise: 100_000 }] }));
+    await status("purchases", a.purchaseId, "FAILED");
+    await control({});
+    assert.equal(await syncPurchase(libDb, brokenPayout(), a.purchaseId), "failed");
+    const failed = await get("purchases", a.purchaseId);
+    assert.equal(failed.syncStatus, "FAILED");
+    assert.equal(failed.hlTxnId, `technofluid-office~purchase_${a.purchaseId}:bill`);
+    assert.ok(Array.isArray(failed.hlLegs) && failed.hlLegs.length >= 2);
+    await accounts.call("cancelPurchase", { requestId: rid(), purchaseId: a.purchaseId, reason: "Wrong supplier" });
+    await status("purchases", a.purchaseId, "SYNCED", "cancelSyncStatus");
+    assert.equal(net([...(await txn(`purchase_${a.purchaseId}:bill`)).legs, ...(await txn(`purchase_${a.purchaseId}:cancel`)).legs]), 0);
+
+    // b) Cancelled before the bill went in; then the bill posts and its payment fails.
+    await control({ down: true });
+    const b = await buy(accounts, oilBill(haryana, { billNo: "TP-PF2", payments: [{ registerId: "default-cash", amountPaise: 100_000 }] }));
+    await status("purchases", b.purchaseId, "FAILED");
+    await accounts.call("cancelPurchase", { requestId: rid(), purchaseId: b.purchaseId, reason: "Entered twice" });
+    assert.equal((await get("purchases", b.purchaseId)).cancelSyncStatus, null);
+    await control({});
+    assert.equal(await syncPurchase(libDb, brokenPayout(), b.purchaseId), "failed");
+    await status("purchases", b.purchaseId, "SYNCED", "cancelSyncStatus");
+    assert.equal(net([...(await txn(`purchase_${b.purchaseId}:bill`)).legs, ...(await txn(`purchase_${b.purchaseId}:cancel`)).legs]), 0);
   });
 });
 

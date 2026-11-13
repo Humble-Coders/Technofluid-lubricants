@@ -31,6 +31,8 @@ export interface PurchaseRow {
   status: "ACTIVE" | "CANCELLED";
   cancel: { reason: string; by: string; day: string } | null;
   syncStatus: SyncStatus;
+  /** The bill itself is in the books (also true when a later payment couldn't be saved). */
+  billInBooks: boolean;
   hlSyncError: string | null;
   cancelSyncStatus: SyncStatus | null;
   cancelSyncError: string | null;
@@ -61,6 +63,7 @@ function toPurchase(id: string, d: DocumentData): PurchaseRow {
     status: d.status === "CANCELLED" ? "CANCELLED" : "ACTIVE",
     cancel: d.cancel ? { reason: String(d.cancel.reason ?? ""), by: String(d.cancel.by?.name ?? "Someone"), day: String(d.cancel.day ?? "") } : null,
     syncStatus: status(d.syncStatus),
+    billInBooks: d.syncStatus === "SYNCED" || (typeof d.hlTxnId === "string" && d.hlTxnId !== ""),
     hlSyncError: typeof d.hlSyncError === "string" ? d.hlSyncError : null,
     cancelSyncStatus: d.cancelSyncStatus ? status(d.cancelSyncStatus) : null,
     cancelSyncError: typeof d.cancelSyncError === "string" ? d.cancelSyncError : null,

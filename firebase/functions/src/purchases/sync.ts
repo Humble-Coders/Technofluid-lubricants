@@ -35,7 +35,7 @@ type Fields = {status: string; error: string; attempts: string; last: string};
 const MAIN: Fields = {status: "syncStatus", error: "hlSyncError", attempts: "syncAttempts", last: "lastSyncAttemptAt"};
 const CANCEL: Fields = {status: "cancelSyncStatus", error: "cancelSyncError", attempts: "cancelSyncAttempts", last: "lastCancelAttemptAt"};
 
-async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknown, prior: number, fromTrigger: boolean): Promise<SyncOutcome> {
+async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknown, prior: number, fromTrigger: boolean, extra: Record<string, unknown> = {}): Promise<SyncOutcome> {
   if (isNotConnected(e)) {
     logger.warn("Books not connected — left PENDING", {path: ref.path});
     return "skipped";
@@ -43,7 +43,7 @@ async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknow
   const permanent = e instanceof Permanent || (e instanceof HlError && !e.transient);
   logger.error("Posting a purchase to HL failed", {path: ref.path, step: f.status, permanent, error: e instanceof Error ? e.message : String(e)});
   await ref.set(
-    {[f.status]: "FAILED", [f.error]: e instanceof Permanent ? e.message : plainHlMessage(e), [f.attempts]: FieldValue.increment(1), [f.last]: FieldValue.serverTimestamp()},
+    {...extra, [f.status]: "FAILED", [f.error]: e instanceof Permanent ? e.message : plainHlMessage(e), [f.attempts]: FieldValue.increment(1), [f.last]: FieldValue.serverTimestamp()},
     {merge: true},
   );
   if (!permanent && fromTrigger && prior < TRIGGER_RETRIES && platformRedelivers()) throw e;
@@ -52,10 +52,13 @@ async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknow
 
 const pct = (bp: number) => `${(bp / 100).toLocaleString("en-IN", {maximumFractionDigits: 2})}%`;
 
-/** One input-tax line per GST leg, summed over every rate; the rate shown only when the bill has one rate. */
+/**
+ * One input-tax line per GST leg, summed over every rate; the rate shown only when the WHOLE bill
+ * has one rate (as sales). A 0 % line next to an 18 % one → no rate, so HL never sees 9 % against
+ * an amount that includes untaxed goods.
+ */
 async function inputTaxLines(totals: PurchaseTotals, account: ReturnType<typeof accountCache>): Promise<HlSaleTaxLine[]> {
-  const taxed = totals.byRate.filter((r) => r.cgstPaise + r.sgstPaise + r.igstPaise > 0);
-  const one = taxed.length === 1 ? taxed[0].gstRateBp : null;
+  const one = totals.byRate.length === 1 ? totals.byRate[0].gstRateBp : null;
   const legs = [
     {label: "Input CGST", amount: totals.cgstPaise, rateBp: one === null ? 0 : one / 2, acct: SYSTEM_ACCOUNTS.inputCgst},
     {label: "Input SGST", amount: totals.sgstPaise, rateBp: one === null ? 0 : one / 2, acct: SYSTEM_ACCOUNTS.inputSgst},
@@ -164,7 +167,17 @@ export async function syncPurchase(db: admin.firestore.Firestore, hl: HlClient, 
       logger.info("Purchase waiting for a dependency", {purchaseId: id, why: e.message});
       return "skipped"; // left PENDING, untouched
     }
-    return fail(ref, MAIN, e, prior, opts.fromTrigger === true);
+    // The bill itself may already be in the books (a payment failed after it): say so on the doc,
+    // so the bill view and statements know, and a cancellation reverses it.
+    const done = (await progressRef.get().catch(() => null))?.data();
+    let billInBooks: Record<string, unknown> = {};
+    if (done?.hlTxnId && Array.isArray(done.hlLegs)) {
+      billInBooks = {hlTxnId: done.hlTxnId, hlLegs: done.hlLegs};
+      // Cancelled before the bill went in (so the cancel didn't ask for a reversal) → ask now.
+      const latest = (await ref.get().catch(() => null))?.data();
+      if (latest?.status === "CANCELLED" && !latest.cancelSyncStatus) billInBooks = {...billInBooks, cancelSyncStatus: "PENDING", cancelSyncError: null, cancelSyncAttempts: 0};
+    }
+    return fail(ref, MAIN, e, prior, opts.fromTrigger === true, billInBooks);
   }
 }
 
@@ -175,11 +188,19 @@ export async function cancelPurchaseInBooks(db: admin.firestore.Firestore, hl: H
   const p = (await ref.get()).data();
   if (!p || p.deleted === true || p.status !== "CANCELLED") return "skipped";
   if (p.cancelSyncStatus !== "PENDING" && p.cancelSyncStatus !== "FAILED") return "skipped";
-  if (p.syncStatus !== "SYNCED") return "skipped"; // the bill's own posting sets this up afterwards
+  // Keyed on the bill's OWN posting being in the books — not the whole sync (a payment may have
+  // failed after the bill went in). Not posted at all yet → the bill's own posting sets this up after.
+  const progress = (await db.collection(PURCHASE_SYNC).doc(id).get()).data() ?? {};
+  const legs = (Array.isArray(p.hlLegs) && p.hlLegs.length >= 2 ? p.hlLegs : progress.hlTxnId && Array.isArray(progress.hlLegs) ? progress.hlLegs : null) as HlLeg[] | null;
+  if (!legs) {
+    if (p.syncStatus === "SYNCED") {
+      return fail(ref, CANCEL, new Permanent("The bill's posting isn't recorded, so it can't be reversed."), Number(p.cancelSyncAttempts ?? 0), opts.fromTrigger === true);
+    }
+    return "skipped";
+  }
   const prior = Number(p.cancelSyncAttempts ?? 0);
   try {
-    if (!Array.isArray(p.hlLegs) || p.hlLegs.length < 2) throw new Permanent("The bill's posting isn't recorded, so it can't be reversed.");
-    const flipped = (p.hlLegs as HlLeg[]).map((l) => ({...l, type: l.type === "DEBIT" ? ("CREDIT" as const) : ("DEBIT" as const)}));
+    const flipped = legs.map((l) => ({...l, type: l.type === "DEBIT" ? ("CREDIT" as const) : ("DEBIT" as const)}));
     const day = String(p.cancel?.day ?? p.billDate);
     const r = await hl.postTransaction({
       postingType: "REVERSAL",

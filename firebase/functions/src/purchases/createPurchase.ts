@@ -161,6 +161,9 @@ export const createPurchase = onCall({region: "us-central1"}, async (request) =>
     if (active) {
       throw new HttpsError("already-exists", `Bill ${billNo} from ${s?.name} is already recorded as ${active.ref} (${active.billDate}).`, {code: "DUPLICATE_BILL", purchaseRef: active.ref});
     }
+    // An item removed between the price check and now can't take stock in.
+    const gone = itemSnaps.findIndex((snap) => !snap.exists || snap.data()?.deleted === true);
+    if (gone >= 0) throw new HttpsError("not-found", `${items[itemIds[gone]]?.name ?? "An item on this bill"} was just removed — refresh and check the bill.`);
     const seq = Number(series?.lastSeq ?? 0) + 1;
     const ref = purchaseRef(fy, seq);
     const now = FieldValue.serverTimestamp();
