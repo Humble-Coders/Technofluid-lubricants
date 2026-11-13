@@ -119,6 +119,11 @@ export function isSameAccountAs(a: MoneyAccountRef, b: MoneyAccountRef): boolean
 
 export const canReverse = (e: MoneyEntryState) => e.syncStatus === "SYNCED" && !e.reversedByEntryId && !e.reversesEntryId;
 
+/** An expense in a catch-all category ("Other") must say what it was. */
+export const expenseNeedsNote = (categoryName: string) => ["other", "others", "misc", "miscellaneous"].includes(categoryName.trim().toLowerCase());
+
+export const OTHER_EXPENSE_NOTE_TEXT = "Say what the expense was — needed for the category \"Other\".";
+
 export type ReversalState = "none" | "pending" | "failed" | "done";
 /**
  * Where a reversed pair stands. Only a mirror that's IN THE BOOKS cancels the pair; until

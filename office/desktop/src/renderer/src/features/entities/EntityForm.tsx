@@ -7,6 +7,7 @@ import {
   GST_STATES,
   indiaDate,
   normalizePhone,
+  similarNames,
   rupeesToPaise,
   type EntityError,
   type EntityInput,
@@ -81,6 +82,11 @@ export function EntityForm({
     const mine = phones.map((p) => normalizePhone(p)).filter(Boolean) as string[];
     return all.filter((e) => e.id !== entity?.id && e.phones.some((p) => mine.includes(p))).map((e) => e.name);
   }, [phones, all, entity?.id]);
+
+  const sameName = useMemo(
+    () => (walkIn ? [] : similarNames(name, all.filter((e) => e.id !== entity?.id).map((e) => e.name))),
+    [name, all, entity?.id, walkIn],
+  );
 
   const errorFor = (field: string) => errors.find((e) => e.field === field || e.field.startsWith(`${field}.`))?.message;
 
@@ -191,6 +197,12 @@ export function EntityForm({
               </div>
             </div>
             {errorFor("kinds") ? <p className="-mt-2 text-[12px] text-danger">{errorFor("kinds")}</p> : null}
+            {sameName.length > 0 ? (
+              <p className="-mt-2 flex items-center gap-1.5 text-[12px] text-warning">
+                <AlertTriangle className="size-3.5" /> Looks like {sameName.slice(0, 3).join(", ")}
+                {sameName.length > 3 ? ` and ${sameName.length - 3} more` : ""} — check it isn't already here.
+              </p>
+            ) : null}
 
             <div className="grid grid-cols-2 gap-3">
               <Field label="Phone" htmlFor="en-phone-0" error={errorFor("phones")}>

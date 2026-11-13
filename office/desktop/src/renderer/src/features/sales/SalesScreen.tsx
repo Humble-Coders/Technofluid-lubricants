@@ -39,7 +39,7 @@ export function SalesScreen() {
     return rows.filter((s) => {
       const p = paid.get(s.id);
       if (filter !== "all" && p?.state !== filter) return false;
-      const text = `${s.invoiceNo} ${s.customer.name} ${s.customer.gstin ?? ""}`.toLowerCase();
+      const text = `${s.invoiceNo} ${s.customer.name} ${s.customer.buyer?.name ?? ""} ${s.customer.buyer?.phone ?? ""} ${s.customer.gstin ?? ""}`.toLowerCase();
       return words.every((w) => text.includes(w));
     });
   }, [rows, paid, search, filter]);
@@ -134,7 +134,7 @@ export function SalesScreen() {
                   >
                     <td className={clsx("num py-2 pr-3 font-medium whitespace-nowrap", s.status === "CANCELLED" && "line-through")}>{s.invoiceNo}</td>
                     <td className="py-2 pr-3 whitespace-nowrap">{s.invoiceDate}</td>
-                    <td className="py-2 pr-3">{s.customer.name}</td>
+                    <td className="py-2 pr-3">{s.customer.buyer?.name ? `${s.customer.buyer.name} (walk-in)` : s.customer.name}</td>
                     <td className="num py-2 pr-3 text-right">{formatINR(s.totals.grandTotalPaise)}</td>
                     <td className="py-2 pr-3">{p ? <PaidBadge paid={p} /> : null}</td>
                     <td className="py-2">

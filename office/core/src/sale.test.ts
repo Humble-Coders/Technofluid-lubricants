@@ -14,6 +14,11 @@ import {
   type PricedSale,
   type SaleHeaderInput,
   type SaleProduct,
+  cleanWalkInBuyer,
+  cleanDispatch,
+  cleanShipTo,
+  dispatchError,
+  walkInBuyerError,
 } from "./index";
 
 const products = cases.products as unknown as Record<string, SaleProduct>;
@@ -23,7 +28,7 @@ function project(r: PricedSale) {
   if (!r.ok) return { errors: r.errors };
   const pick = <T extends object>(o: T, keys: (keyof T)[]) => Object.fromEntries(keys.map((k) => [k, o[k]]));
   return {
-    lines: r.lines.map((l) => pick(l, ["sku", "qtyMilli", "packPricePaise", "grossPaise", "discountPaise", "taxablePaise", "gstRateBp", "cgstPaise", "sgstPaise", "igstPaise", "totalPaise"])),
+    lines: r.lines.map((l) => pick(l, ["sku", "qtyMilli", "packPricePaise", "manualPrice", "grossPaise", "discountPaise", "taxablePaise", "gstRateBp", "cgstPaise", "sgstPaise", "igstPaise", "totalPaise"])),
     freight: r.freight,
     totals: pick(r.totals, ["supplyType", "grossPaise", "discountPaise", "taxablePaise", "cgstPaise", "sgstPaise", "igstPaise", "taxPaise", "roundOffPaise", "grandTotalPaise"]),
     missingHsn: r.missingHsn,
@@ -53,6 +58,19 @@ describe("sales rules (sale.cases.json)", () => {
   for (const c of cases.payment) {
     it(`paid at billing: ${c.case}`, () => {
       expect(salePaymentError(c.customer, c.grand, c.payments)).toBe(c.expect);
+    });
+  }
+  for (const c of cases.dispatch) {
+    it(`dispatch: ${c.case}`, () => {
+      const d = cleanDispatch(c.dispatch);
+      const t = cleanShipTo(c.shipTo);
+      expect(dispatchError(d, t, c.isWalkIn === true)).toBe(c.expect);
+      if ("cleaned" in c && c.cleaned) expect({ dispatch: d, shipTo: t }).toEqual(c.cleaned);
+    });
+  }
+  for (const c of cases.walkInBuyer) {
+    it(`walk-in buyer: ${c.case}`, () => {
+      expect(walkInBuyerError(c.walkIn, cleanWalkInBuyer(c.buyer), c.taxable)).toBe(c.expect);
     });
   }
   for (const c of cases.financialYear) {

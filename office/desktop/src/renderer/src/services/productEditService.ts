@@ -139,3 +139,20 @@ export async function setProductDeleted(sku: string, deleted: boolean, reason?: 
     throw new Error(await friendlyError(error));
   }
 }
+
+const setProductsTaxCallable = httpsCallable<
+  { skus: string[]; gstPct?: number; hsnCode?: string | null; reason?: string },
+  { changed: number; unchanged: number; missing: string[] }
+>(functions, "setProductsTax");
+
+/**
+ * GST % and/or HSN code on many products at once (Admin; the setProductsTax Cloud
+ * Function checks the role and values and logs every change). Leave a field out to keep it.
+ */
+export async function setProductsTax(skus: string[], change: { gstPct?: number; hsnCode?: string | null }, reason?: string) {
+  try {
+    return (await setProductsTaxCallable({ skus, ...change, ...(reason ? { reason } : {}) })).data;
+  } catch (error) {
+    throw new Error(await friendlyError(error));
+  }
+}

@@ -2,11 +2,12 @@ import { app, BrowserWindow, ipcMain, Menu, screen, session, shell } from "elect
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { AppInfo } from "../shared/ipc";
+import { registerInvoicePdf, stopInvoicePdf } from "./hbe/invoices";
 
 /**
  * Electron main process. Deliberately small: it owns the window and a short list of
- * things the screens are allowed to ask the computer for (app info today; print/PDF
- * and updates later). All business logic lives in the renderer + Cloud Functions.
+ * things the screens are allowed to ask the computer for (app info, invoice PDFs;
+ * updates later). All business logic lives in the renderer + Cloud Functions.
  *
  * Security posture (Electron's own checklist):
  *  - contextIsolation + sandbox on, nodeIntegration off — screen code cannot touch Node.
@@ -192,12 +193,17 @@ app.whenReady().then(() => {
   }
 
   registerIpc();
+  registerInvoicePdf(() => mainWindow);
   buildMenu();
   createWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+});
+
+app.on("will-quit", () => {
+  void stopInvoicePdf();
 });
 
 app.on("window-all-closed", () => {

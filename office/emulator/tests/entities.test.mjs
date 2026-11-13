@@ -387,7 +387,7 @@ describe("website distributors", () => {
     assert.ok(again.skipped.some((s) => s.distributorId === D.a && /Already has a customer/.test(s.reason)));
   });
 
-  test("linking: Admin only, approved distributors only, one entity per distributor", async () => {
+  test("linking: Admin only, approved distributors only, one entity per distributor, customers only", async () => {
     // Added after the import ran, so it has no customer yet.
     await adminDb.doc(`distributors/${D.link}`).set({ name: "TEST ENT Dist Link", status: "approved", isActive: true, deleted: false, contactInfo: "", createdBy: "x" });
     const one = (await save(accounts, base({ name: "TEST ENT Linkable" }))).entityId;
@@ -399,6 +399,9 @@ describe("website distributors", () => {
     await rejectsWith(admin.call("linkEntityToDistributor", { requestId: rid(), entityId: two, distributorId: D.link }), "already-exists", /TEST ENT Linkable/);
     await admin.call("linkEntityToDistributor", { requestId: rid(), entityId: one, distributorId: null });
     assert.equal((await entity(one)).distributorId, null);
+    // A supplier-only party can't be linked: a website distributor buys from us.
+    const sup = (await save(accounts, base({ name: "TEST ENT Supplier Only", kinds: ["supplier"], priceTier: null }))).entityId;
+    await rejectsWith(admin.call("linkEntityToDistributor", { requestId: rid(), entityId: sup, distributorId: D.link }), "invalid-argument", /isn't a customer/);
   });
 });
 

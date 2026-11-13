@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { isCancelled, paidState, type CompanyProfile, type PaidState } from "@technofluid/core";
+import { financialYear, isCancelled, paidState, type CompanyProfile, type PaidState } from "@technofluid/core";
 import { watchMoneyEntryStatuses, watchSalePayments, type MoneyEntryRow, type SyncStatus } from "@/services/moneyService";
 import { usingEmulators } from "@/lib/firebase";
-import { watchCompany, watchRealBooks, watchSale, watchSales, type SaleRow } from "@/services/saleService";
+import { watchCompany, watchNextInvoiceNo, watchRealBooks, watchSale, watchSales, type SaleRow } from "@/services/saleService";
 import type { LoadState } from "./useProducts";
 
 export function useCompany(): LoadState<CompanyProfile | null> {
@@ -23,6 +23,18 @@ export function useRealBooks(): boolean {
   const [on, setOn] = useState(false);
   useEffect(() => (usingEmulators ? watchRealBooks(setOn) : undefined), []);
   return on;
+}
+
+/** Preview of the next invoice number for the financial year of `invoiceDate` (null while unknown). */
+export function useNextInvoiceNo(invoiceDate: string, prefix: string | null): string | null {
+  const fy = financialYear(invoiceDate);
+  const [no, setNo] = useState<string | null>(null);
+  useEffect(() => {
+    setNo(null);
+    if (!prefix) return;
+    return watchNextInvoiceNo(fy, prefix, setNo);
+  }, [fy, prefix]);
+  return no;
 }
 
 export function useSales(from: string, to: string): LoadState<SaleRow[]> {

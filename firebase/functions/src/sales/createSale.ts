@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import {FieldValue} from "firebase-admin/firestore";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 
-import {requireRole} from "../auth/requireRole";
+import {requireRole, type Caller} from "../auth/requireRole";
 import {ENTITIES, WALK_IN_ENTITY_ID} from "../entities/entityModel";
 import {walkInDoc} from "../entities/ensureSystemEntities";
 import {realBooksFromEmulator} from "../ledger/getHlClient";
@@ -20,14 +20,21 @@ import {
   SALE_ERROR_TEXT,
   SALE_LINE_ERROR_TEXT,
   SALE_PAYMENT_ERROR_TEXT,
+  DISPATCH_ERROR_TEXT,
   SALE_REQUESTS,
+  WALK_IN_BUYER_ERROR_TEXT,
   bad,
+  cleanDispatch,
+  cleanShipTo,
+  cleanWalkInBuyer,
+  dispatchError,
   companyError,
   financialYear,
   invoiceNumber,
   priceSale,
   saleError,
   salePaymentError,
+  walkInBuyerError,
   type BaseUnit,
   type CompanyProfile,
   type PriceTier,
@@ -45,11 +52,13 @@ import {
  *    figures are only a preview), with GST by place of supply and the round-off;
  *  - stock out: one "Sold" line per stock pool, in base units (may go below zero —
  *    reported back, as in the stock journal).
+ * Only an Admin may type a pack price for a product with no price (that sale only).
+ * A walk-in sale may carry the buyer's name / phone / address (required from ₹50,000).
+ * Dispatch details (transport, vehicle, station, e-way bill) and a ship-to address, all
+ * optional, are printed on the invoice; they don't change the GST.
  * The sale is written PENDING; onSaleWritten posts it (and any payment taken now) to the
  * books. Retry-safe on requestId (saleRequests).
  */
-
-type Caller = {uid: string; name: string};
 
 const today = () => new Intl.DateTimeFormat("en-CA", {timeZone: "Asia/Kolkata"}).format(new Date());
 const int = (v: unknown) => (typeof v === "number" ? v : NaN);
@@ -58,7 +67,8 @@ function parseLines(raw: unknown): SaleLineInput[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((l) => {
     const x = (l ?? {}) as Record<string, unknown>;
-    return {sku: typeof x.sku === "string" ? x.sku.trim() : "", packs: int(x.packs), discountBp: x.discountBp === undefined ? 0 : int(x.discountBp)};
+    const manual = x.manualPackPricePaise === undefined || x.manualPackPricePaise === null ? null : int(x.manualPackPricePaise);
+    return {sku: typeof x.sku === "string" ? x.sku.trim() : "", packs: int(x.packs), discountBp: x.discountBp === undefined ? 0 : int(x.discountBp), manualPackPricePaise: manual};
   });
 }
 
@@ -131,6 +141,15 @@ export const createSale = onCall({region: "us-central1"}, async (request) => {
   const placeOfSupply = isWalkIn ? company.stateCode : String(customer.address?.stateCode ?? "");
 
   const lines = parseLines(data.lines);
+  if (caller.role !== "admin" && lines.some((l) => l.manualPackPricePaise !== null)) {
+    throw new HttpsError("permission-denied", "Only an Admin can set a price for one sale.");
+  }
+  const obj = (v: unknown) => (v && typeof v === "object" ? v as Record<string, unknown> : null);
+  const dispatch = cleanDispatch(obj(data.dispatch));
+  const shipTo = cleanShipTo(obj(data.shipTo));
+  const dispatchCode = dispatchError(dispatch, shipTo, isWalkIn);
+  if (dispatchCode) bad(DISPATCH_ERROR_TEXT[dispatchCode], dispatchCode);
+  const buyer = cleanWalkInBuyer(data.walkInBuyer && typeof data.walkInBuyer === "object" ? data.walkInBuyer as Record<string, string> : null);
   const payments = parsePayments(data.payments);
   const freightPaise = data.freightPaise === undefined ? 0 : int(data.freightPaise);
   const note = typeof data.note === "string" && data.note.trim() ? data.note.trim() : null;
@@ -146,6 +165,8 @@ export const createSale = onCall({region: "us-central1"}, async (request) => {
     const sku = lines[first.line]?.sku || "?";
     throw new HttpsError("invalid-argument", `Line ${first.line + 1} (${sku}): ${SALE_LINE_ERROR_TEXT[first.code]}`, {code: first.code, errors: priced.errors});
   }
+  const buyerCode = walkInBuyerError(isWalkIn, buyer, priced.totals.taxablePaise);
+  if (buyerCode) bad(WALK_IN_BUYER_ERROR_TEXT[buyerCode], buyerCode);
   const payCode = salePaymentError(customerId, priced.totals.grandTotalPaise, payments);
   if (payCode) bad(SALE_PAYMENT_ERROR_TEXT[payCode], payCode);
 
@@ -240,11 +261,16 @@ export const createSale = onCall({region: "us-central1"}, async (request) => {
         address: customer.address ?? null,
         isWalkIn,
         priceTier,
+        buyer,
       },
       placeOfSupply,
+      dispatch,
+      shipTo,
       seller: {
         legalName: company.legalName, tradeName: company.tradeName ?? null, gstin: company.gstin, stateCode: company.stateCode,
         address: company.address, phone: company.phone ?? null, email: company.email ?? null,
+        // Frozen with the sale, so a reprint shows the bank details and terms of the day it was billed.
+        bank: company.bank ?? null, invoiceTerms: company.invoiceTerms ?? [],
       },
       lines: priced.lines,
       freight: priced.freight,

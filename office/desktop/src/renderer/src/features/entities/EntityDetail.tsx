@@ -163,14 +163,17 @@ export function EntityDetail({
           <Row label="Opening balance">
             {e.opening ? `${formatINR(e.opening.amountPaise)} ${e.opening.direction === "receivable" ? "they owed us" : "we owed them"} on ${e.opening.asOf}` : "—"}
           </Row>
-          <Row label="Website distributor">
-            {e.distributorId ? <span className="font-mono text-[12px]">{e.distributorId}</span> : "—"}
-            {isAdmin && !e.isWalkIn ? (
-              <button type="button" className="ml-2 text-[12px] font-medium text-info hover:underline" onClick={() => setLinking(true)}>
-                {e.distributorId ? "Change" : "Link"}
-              </button>
-            ) : null}
-          </Row>
+          {/* Only a customer can be a website distributor; a supplier-only party just shows an old link (to remove it). */}
+          {e.kinds.includes("customer") || e.distributorId ? (
+            <Row label="Website distributor">
+              {e.distributorId ? <span className="font-mono text-[12px]">{e.distributorId}</span> : "—"}
+              {isAdmin && !e.isWalkIn ? (
+                <button type="button" className="ml-2 text-[12px] font-medium text-info hover:underline" onClick={() => setLinking(true)}>
+                  {e.distributorId ? "Change" : "Link"}
+                </button>
+              ) : null}
+            </Row>
+          ) : null}
           {e.notes ? <Row label="Notes">{e.notes}</Row> : null}
           {e.importNotes.length ? (
             <div className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">{e.importNotes.join(" · ")}</div>
@@ -422,7 +425,7 @@ function LinkDialog({ entity: e, onClose }: { entity: EntityRow; onClose: () => 
   const sorted = useMemo(() => choices ?? [], [choices]);
   return (
     <Modal title={`Link ${e.name} to a website distributor`} onClose={onClose} busy={busy}>
-      <p className="text-[12px] text-ink-muted">Approved distributors only. The books never depend on this link.</p>
+      <p className="text-[12px] text-ink-muted">Ties this customer to their account on the ordering website, so website orders can be matched to their books. Approved distributors only; the books never depend on this link.</p>
       {loadError ? <p className="text-[12px] text-danger">{loadError}</p> : null}
       {choices === null && !loadError ? (
         <Spinner />

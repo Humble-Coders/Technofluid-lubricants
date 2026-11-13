@@ -9,13 +9,14 @@ import { useRegisters } from "@/hooks/useMoney";
 import { useSale, useSalesPaid } from "@/hooks/useSales";
 import { recordMoneyEntry } from "@/services/moneyService";
 import { cancelSale, type CreateSaleResult, type SaleRow } from "@/services/saleService";
+import { InvoicePdfButtons } from "./InvoicePdfButtons";
 import { BooksStatus, PaidBadge } from "./saleBadges";
 
 const PRICE_PER_SHORT: Record<string, string> = { "per litre": "/L", "per liter": "/L", "per kg": "/kg", "per case": "/case", "per bucket": "/bucket", "per barrel": "/barrel", "per piece": "/pc" };
 
 /**
- * One invoice on screen, laid out like the tax invoice (the PDF waits for the billing
- * engine): seller, buyer, lines with HSN, GST, total in words; then what's been paid,
+ * One invoice on screen, laid out like the tax invoice, with its PDF (Print / Save PDF,
+ * from the Humble Bill Engine): seller, buyer, lines with HSN, GST, total in words; then what's been paid,
  * its state in the books, and the two things you can do — receive a payment against it,
  * or cancel it (with a reason; the number stays used).
  */
@@ -60,9 +61,16 @@ export function SaleDetail() {
           ) : null}
         </div>
 
+        {!cancelled ? <InvoicePdfButtons sale={s} /> : null}
+
         {justCreated && justCreated.belowZero.length > 0 && !cancelled ? (
           <p className="flex items-center gap-2 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
             <AlertTriangle className="size-3.5" /> Stock is now below zero for {justCreated.belowZero.map((b) => b.name).join(", ")} — record what came in or was made.
+          </p>
+        ) : null}
+        {s.lines.some((l) => l.manualPrice) ? (
+          <p className="rounded-md bg-info-soft px-3 py-2 text-[12px] text-info">
+            The price of {s.lines.filter((l) => l.manualPrice).map((l) => `${l.productName} · ${l.packLabel}`).join(", ")} was typed by an Admin for this sale (no price on the price list).
           </p>
         ) : null}
         {cancelled && s.cancel ? (
@@ -96,18 +104,49 @@ export function SaleDetail() {
           <section className="grid grid-cols-2 gap-6 border-b border-line py-4">
             <div>
               <p className="text-2xs tracking-wide text-ink-muted uppercase">Billed to</p>
-              <p className="font-medium text-ink">{s.customer.name}</p>
-              {s.customer.address ? (
+              {s.customer.buyer?.name ? (
+                <>
+                  <p className="font-medium text-ink">{s.customer.buyer.name}</p>
+                  <p className="text-ink-muted">Walk-in / cash customer</p>
+                </>
+              ) : (
+                <p className="font-medium text-ink">{s.customer.name}</p>
+              )}
+              {s.customer.buyer?.address ? <p className="text-ink-muted">{s.customer.buyer.address}</p> : null}
+              {s.customer.buyer?.phone ? <p className="text-ink-muted">Phone {s.customer.buyer.phone}</p> : null}
+              {s.customer.address && !s.customer.buyer?.address ? (
                 <p className="text-ink-muted">{[s.customer.address.line1, s.customer.address.line2, s.customer.address.city, s.customer.address.pincode].filter(Boolean).join(", ")}</p>
               ) : null}
               <p className="text-ink-muted">{s.customer.gstin ? `GSTIN ${s.customer.gstin}` : "Unregistered (no GSTIN)"}</p>
             </div>
             <div>
+              {s.shipTo ? (
+                <div className="mb-2">
+                  <p className="text-2xs tracking-wide text-ink-muted uppercase">Shipped to</p>
+                  <p className="font-medium text-ink">{s.shipTo.name}</p>
+                  <p className="text-ink-muted">{[s.shipTo.address, s.shipTo.city, s.shipTo.pincode].filter(Boolean).join(", ")}</p>
+                  <p className="text-ink-muted">
+                    {GST_STATES[s.shipTo.stateCode] ?? s.shipTo.stateCode} ({s.shipTo.stateCode}){s.shipTo.gstin ? ` · GSTIN ${s.shipTo.gstin}` : ""}
+                  </p>
+                </div>
+              ) : null}
               <p className="text-2xs tracking-wide text-ink-muted uppercase">Place of supply</p>
               <p className="text-ink">
                 {GST_STATES[s.placeOfSupply] ?? s.placeOfSupply} ({s.placeOfSupply})
               </p>
               <p className="text-ink-muted">{s.customer.priceTier} price list</p>
+              {s.dispatch ? (
+                <p className="mt-1 text-ink-muted">
+                  {[
+                    s.dispatch.transport ? `Transport: ${s.dispatch.transport}` : "",
+                    s.dispatch.vehicleNo ? `Vehicle: ${s.dispatch.vehicleNo}` : "",
+                    s.dispatch.station ? `Station: ${s.dispatch.station}` : "",
+                    s.dispatch.ewayBillNo ? `E-way bill: ${s.dispatch.ewayBillNo}` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              ) : null}
             </div>
           </section>
 
@@ -257,7 +296,7 @@ export function SaleDetail() {
 
         <p className="text-2xs text-ink-faint">
           Billed by {s.createdBy}
-          {s.createdAt ? ` on ${s.createdAt.toLocaleString("en-IN")}` : ""}. The PDF comes when the billing engine is connected.
+          {s.createdAt ? ` on ${s.createdAt.toLocaleString("en-IN")}` : ""}.
         </p>
       </div>
 

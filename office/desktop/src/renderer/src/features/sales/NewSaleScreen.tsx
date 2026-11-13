@@ -18,14 +18,24 @@ import {
   salePaymentError,
   tierPrice,
   toMilli,
+  cleanDispatch,
+  cleanShipTo,
+  cleanWalkInBuyer,
+  DISPATCH_ERROR_TEXT,
+  dispatchError,
+  WALK_IN_BUYER_ERROR_TEXT,
+  WALK_IN_BUYER_NEEDED_FROM_PAISE,
   WALK_IN_ENTITY_ID,
+  walkInBuyerError,
+  type SaleLineInput,
   type SaleProduct,
 } from "@technofluid/core";
 import { Badge, Button, Card, Field, Input, Select, Spinner } from "@/components/ui";
 import { useEntities, useEntityBalances } from "@/hooks/useEntities";
 import { useRegisters } from "@/hooks/useMoney";
 import { useProducts } from "@/hooks/useProducts";
-import { useCompany } from "@/hooks/useSales";
+import { useStaff } from "@/features/auth/session";
+import { useCompany, useNextInvoiceNo } from "@/hooks/useSales";
 import { useStockItems } from "@/hooks/useStock";
 import type { EntityRow } from "@/services/entityService";
 import type { Product } from "@/services/productService";
@@ -33,7 +43,8 @@ import { createSale } from "@/services/saleService";
 import { newRequestId } from "@/services/stockService";
 import { SearchPicker } from "./SearchPicker";
 
-type Line = { key: number; product: Product | null; packs: string; discount: string };
+/** manualPrice: an Admin's pack price (₹) for this sale, only for a product with no price. */
+type Line = { key: number; product: Product | null; packs: string; discount: string; manualPrice: string };
 type Pay = { registerId: string; amount: string };
 
 const toSaleProduct = (p: Product): SaleProduct => ({
@@ -60,6 +71,10 @@ function percentToBp(text: string): number {
   const [whole, frac = ""] = t.split(".");
   return Number(whole) * 100 + Number(frac.padEnd(2, "0"));
 }
+
+const STATES = Object.entries(GST_STATES).sort((a, b) => a[1].localeCompare(b[1]));
+
+const EMPTY_LINE = { product: null, packs: "1", discount: "", manualPrice: "" } as const;
 
 const packsOf = (t: string) => (/^\d+$/.test(t.trim()) ? Number(t.trim()) : NaN);
 const paiseOf = (t: string) => {
@@ -102,6 +117,8 @@ const WALK_IN_STAND_IN = (stateCode: string): EntityRow => ({
 export function NewSaleScreen() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const { role } = useStaff();
+  const isAdmin = role === "admin";
   const today = indiaDate();
   const company = useCompany();
   const seller = company.status === "ready" ? company.data : null;
@@ -123,11 +140,20 @@ export function NewSaleScreen() {
   const [customerId, setCustomerId] = useState<string | null>(params.get("customer"));
   const customer = customers.find((c) => c.id === customerId) ?? null;
   const [invoiceDate, setInvoiceDate] = useState(today);
-  const [lines, setLines] = useState<Line[]>([{ key: 0, product: null, packs: "1", discount: "" }]);
+  const [lines, setLines] = useState<Line[]>([{ key: 0, ...EMPTY_LINE }]);
   const [nextKey, setNextKey] = useState(1);
   const [freight, setFreight] = useState("");
   const [pays, setPays] = useState<Pay[]>([]);
   const [note, setNote] = useState("");
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
+  const [buyerAddress, setBuyerAddress] = useState("");
+  const [transport, setTransport] = useState("");
+  const [vehicleNo, setVehicleNo] = useState("");
+  const [station, setStation] = useState("");
+  const [ewayBillNo, setEwayBillNo] = useState("");
+  const [shipElsewhere, setShipElsewhere] = useState(false);
+  const [ship, setShip] = useState({ name: "", address: "", city: "", pincode: "", stateCode: "", gstin: "" });
   const [requestId, setRequestId] = useState(newRequestId);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,6 +163,21 @@ export function NewSaleScreen() {
   const filled = lines.filter((l) => l.product);
   const freightPaise = paiseOf(freight);
   const payments = pays.map((p) => ({ registerId: p.registerId, amountPaise: paiseOf(p.amount) }));
+  const nextInvoiceNo = useNextInvoiceNo(invoiceDate, seller?.invoicePrefix ?? null);
+  const dispatch = cleanDispatch({ transport, vehicleNo, station, ewayBillNo });
+  const shipTo = shipElsewhere && !customer?.isWalkIn ? cleanShipTo({ ...ship, stateCode: ship.stateCode || placeOfSupply || "" }) : null;
+  const buyer = customer?.isWalkIn ? cleanWalkInBuyer({ name: buyerName, phone: buyerPhone, address: buyerAddress }) : null;
+
+  /** True when this line's product has no price for the customer's price list. */
+  const noListPrice = (p: Product) => (tier ? tierPrice(toSaleProduct(p), tier) === null : false);
+  /** The lines as the sale sends them; an Admin's typed price only where there is no list price. */
+  const lineInputs = (): SaleLineInput[] =>
+    filled.map((l) => ({
+      sku: l.product!.sku,
+      packs: packsOf(l.packs),
+      discountBp: percentToBp(l.discount),
+      manualPackPricePaise: isAdmin && noListPrice(l.product!) && l.manualPrice.trim() ? paiseOf(l.manualPrice) : null,
+    }));
 
   const priced = useMemo(() => {
     if (!tier || !placeOfSupply || !seller || !GST_STATES[placeOfSupply] || filled.length === 0 || !Number.isInteger(freightPaise) || freightPaise < 0) return null;
@@ -144,18 +185,20 @@ export function NewSaleScreen() {
     for (const l of filled) map[l.product!.sku] = toSaleProduct(l.product!);
     return priceSale({
       products: map,
-      lines: filled.map((l) => ({ sku: l.product!.sku, packs: packsOf(l.packs), discountBp: percentToBp(l.discount) })),
+      lines: lineInputs(),
       tier,
       sellerStateCode: seller.stateCode,
       placeOfSupplyStateCode: placeOfSupply,
       freightPaise,
     });
-  }, [filled, tier, placeOfSupply, seller, freightPaise]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lineInputs reads only what is listed here.
+  }, [filled, tier, placeOfSupply, seller, freightPaise, isAdmin]);
 
   const lineError = (l: Line): string | null => {
     if (!l.product || !priced || priced.ok) return null;
     const i = filled.indexOf(l);
     const e = priced.errors.find((x) => x.line === i);
+    if (e?.code === "NO_PRICE") return isAdmin ? "No price on this price list — type a price for one pack (this sale only)." : "No price on this price list — an Admin can set one for this sale.";
     return e ? SALE_LINE_ERROR_TEXT[e.code] : null;
   };
   const pricedLine = (l: Line) => (priced?.ok ? priced.lines[filled.indexOf(l)] : undefined);
@@ -184,8 +227,13 @@ export function NewSaleScreen() {
     if (!priced) return "Working it out…";
     if (!priced.ok) {
       const e = priced.errors[0]!;
-      return `Line ${lines.indexOf(filled[e.line]!) + 1}: ${SALE_LINE_ERROR_TEXT[e.code]}`;
+      return `Line ${lines.indexOf(filled[e.line]!) + 1}: ${lineError(filled[e.line]!) ?? SALE_LINE_ERROR_TEXT[e.code]}`;
     }
+    const who = walkInBuyerError(customer.isWalkIn, buyer, priced.totals.taxablePaise);
+    if (who) return WALK_IN_BUYER_ERROR_TEXT[who];
+    if (shipElsewhere && !customer.isWalkIn && !shipTo) return DISPATCH_ERROR_TEXT.SHIP_TO_NO_NAME;
+    const dis = dispatchError(dispatch, shipTo, customer.isWalkIn);
+    if (dis) return DISPATCH_ERROR_TEXT[dis];
     const pay = salePaymentError(customer.id, priced.totals.grandTotalPaise, payments);
     return pay ? SALE_PAYMENT_ERROR_TEXT[pay] : null;
   })();
@@ -203,10 +251,13 @@ export function NewSaleScreen() {
       const r = await createSale(requestId, {
         customerEntityId: customer.id,
         invoiceDate,
-        lines: filled.map((l) => ({ sku: l.product!.sku, packs: packsOf(l.packs), discountBp: percentToBp(l.discount) })),
+        lines: lineInputs(),
         freightPaise,
         payments,
         note: note.trim() || null,
+        walkInBuyer: buyer,
+        dispatch,
+        shipTo,
       });
       navigate(`/sales/${r.saleId}`, { state: { justCreated: r } });
     } catch (e) {
@@ -226,6 +277,11 @@ export function NewSaleScreen() {
             <ArrowLeft className="size-3.5" /> Sales
           </Link>
           <h2 className="text-[16px] font-semibold text-ink">New sale</h2>
+          {nextInvoiceNo ? (
+            <span className="text-[12px] text-ink-muted" title="The number is given when the invoice is saved — if someone else saves one first, this one takes the next number.">
+              Invoice no. <span className="num font-medium text-ink">{nextInvoiceNo}</span> (given on save)
+            </span>
+          ) : null}
           {loading ? <Spinner /> : null}
         </div>
 
@@ -319,7 +375,25 @@ export function NewSaleScreen() {
                     <td className="py-2 pr-2">
                       <Input value={l.packs} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, packs: e.target.value } : x)))} inputMode="numeric" className="num" aria-label={`Line ${idx + 1} packs`} />
                     </td>
-                    <td className="num py-2 pr-2 text-right">{pl ? formatINR(pl.packPricePaise) : "—"}</td>
+                    <td className="num py-2 pr-2 text-right">
+                      {isAdmin && l.product && noListPrice(l.product) ? (
+                        <>
+                          <Input
+                            value={l.manualPrice}
+                            onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, manualPrice: e.target.value } : x)))}
+                            inputMode="decimal"
+                            placeholder="₹ / pack"
+                            className="num text-right"
+                            aria-label={`Line ${idx + 1} price for one pack, this sale only`}
+                          />
+                          <span className="mt-1 block text-2xs text-ink-faint">this sale only</span>
+                        </>
+                      ) : pl ? (
+                        formatINR(pl.packPricePaise)
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="py-2 pr-2">
                       <Input value={l.discount} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, discount: e.target.value } : x)))} inputMode="decimal" placeholder="0" className="num" aria-label={`Line ${idx + 1} discount percent`} />
                     </td>
@@ -343,7 +417,7 @@ export function NewSaleScreen() {
               size="sm"
               icon={<Plus className="size-3.5" />}
               onClick={() => {
-                setLines((ls) => [...ls, { key: nextKey, product: null, packs: "1", discount: "" }]);
+                setLines((ls) => [...ls, { key: nextKey, ...EMPTY_LINE }]);
                 setNextKey((k) => k + 1);
               }}
             >
@@ -362,6 +436,85 @@ export function NewSaleScreen() {
                 <Input id="ns-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., order ref." />
               </Field>
             </div>
+            <div className="space-y-2">
+              <p className="text-[12px] font-medium text-ink">
+                Dispatch <span className="font-normal text-ink-muted">— printed on the invoice; all optional</span>
+              </p>
+              <div className="grid grid-cols-4 gap-3">
+                <Field label="Transport" htmlFor="ns-transport">
+                  <Input id="ns-transport" value={transport} onChange={(e) => setTransport(e.target.value)} maxLength={60} placeholder="e.g. Sample Cargo" />
+                </Field>
+                <Field label="Vehicle No." htmlFor="ns-vehicle">
+                  <Input id="ns-vehicle" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value.toUpperCase())} maxLength={15} placeholder="HR99X0001" className="uppercase" />
+                </Field>
+                <Field label="Station" htmlFor="ns-station">
+                  <Input id="ns-station" value={station} onChange={(e) => setStation(e.target.value)} maxLength={40} placeholder="e.g. Jagadhri" />
+                </Field>
+                <Field label="E-Way Bill No." htmlFor="ns-eway">
+                  <Input id="ns-eway" value={ewayBillNo} onChange={(e) => setEwayBillNo(e.target.value)} inputMode="numeric" maxLength={14} placeholder="12 digits" className="num" />
+                </Field>
+              </div>
+              {customer?.isWalkIn ? (
+                <p className="text-[12px] text-ink-muted">A walk-in sale can't be shipped to another address. Bill it to a saved customer to ship elsewhere.</p>
+              ) : (
+                <label className="flex items-center gap-2 text-[12px] text-ink">
+                  <input type="checkbox" checked={shipElsewhere} onChange={(e) => setShipElsewhere(e.target.checked)} className="size-3.5 accent-brand-orange" />
+                  Ship to a different address <span className="text-ink-muted">(GST still follows the billed-to customer's state)</span>
+                </label>
+              )}
+              {shipElsewhere && !customer?.isWalkIn ? (
+                <div className="grid grid-cols-3 gap-3 rounded-lg bg-canvas px-3 py-3">
+                  <Field label="Ship to (name)" htmlFor="ns-ship-name">
+                    <Input id="ns-ship-name" value={ship.name} onChange={(e) => setShip((x) => ({ ...x, name: e.target.value }))} maxLength={120} />
+                  </Field>
+                  <Field label="Address" htmlFor="ns-ship-address">
+                    <Input id="ns-ship-address" value={ship.address} onChange={(e) => setShip((x) => ({ ...x, address: e.target.value }))} maxLength={200} placeholder="Shop / street" />
+                  </Field>
+                  <Field label="City" htmlFor="ns-ship-city">
+                    <Input id="ns-ship-city" value={ship.city} onChange={(e) => setShip((x) => ({ ...x, city: e.target.value }))} maxLength={60} />
+                  </Field>
+                  <Field label="State" htmlFor="ns-ship-state">
+                    <Select id="ns-ship-state" value={ship.stateCode || placeOfSupply || ""} onChange={(e) => setShip((x) => ({ ...x, stateCode: e.target.value }))}>
+                      <option value="">Choose…</option>
+                      {STATES.map(([c, l]) => (
+                        <option key={c} value={c}>
+                          {l} ({c})
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                  <Field label="PIN code" htmlFor="ns-ship-pin">
+                    <Input id="ns-ship-pin" value={ship.pincode} onChange={(e) => setShip((x) => ({ ...x, pincode: e.target.value }))} inputMode="numeric" maxLength={6} />
+                  </Field>
+                  <Field label="GSTIN (optional)" htmlFor="ns-ship-gstin">
+                    <Input id="ns-ship-gstin" value={ship.gstin} onChange={(e) => setShip((x) => ({ ...x, gstin: e.target.value.toUpperCase() }))} maxLength={15} className="font-mono uppercase" />
+                  </Field>
+                </div>
+              ) : null}
+            </div>
+            {customer?.isWalkIn ? (
+              <div className="space-y-2">
+                <p className="text-[12px] font-medium text-ink">
+                  Buyer on the invoice{" "}
+                  <span className="font-normal text-ink-muted">
+                    {t && t.taxablePaise >= WALK_IN_BUYER_NEEDED_FROM_PAISE
+                      ? "— name and address needed for a bill of ₹50,000 or more (before GST)"
+                      : "— optional; name and address needed from ₹50,000 (before GST)"}
+                  </span>
+                </p>
+                <div className="grid grid-cols-[1fr_1fr_2fr] gap-3">
+                  <Field label="Name" htmlFor="ns-buyer-name">
+                    <Input id="ns-buyer-name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} maxLength={100} placeholder="e.g. Ravi Kumar" />
+                  </Field>
+                  <Field label="Phone" htmlFor="ns-buyer-phone">
+                    <Input id="ns-buyer-phone" value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} maxLength={20} inputMode="tel" placeholder="Optional" />
+                  </Field>
+                  <Field label="Address" htmlFor="ns-buyer-address">
+                    <Input id="ns-buyer-address" value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} maxLength={200} placeholder="Shop / street, city" />
+                  </Field>
+                </div>
+              </div>
+            ) : null}
             <div className="space-y-2">
               <p className="text-[12px] font-medium text-ink">
                 Paid now {customer?.isWalkIn ? <span className="font-normal text-ink-muted">— a walk-in pays the full amount</span> : <span className="font-normal text-ink-muted">— leave empty if on credit</span>}

@@ -6,6 +6,7 @@ import {
   hlAmountToPaise,
   hlProfileChanged,
   normalizePhone,
+  similarNames,
   sourceGroup,
   sourceIds,
   stateCodeFromGstin,
@@ -54,5 +55,22 @@ describe("entity helpers", () => {
     expect(sourceIds.opening("ab12")).toBe("entity_ab12:opening");
     expect(sourceGroup(sourceIds.sale("s1", "gst"))).toBe("sale_s1");
     expect(sourceGroup(sourceIds.payment("p1"))).toBe("payment_p1");
+  });
+});
+
+describe("similar names (a warning when adding a party)", () => {
+  const others = ["Haryana Base Oils Pvt Ltd", "Karnal Auto Spares", "Panipat Tractor House", "A & B Traders"];
+  it("the same name give or take Pvt Ltd, M/s, case and punctuation", () => {
+    expect(similarNames("M/s haryana base oils", others)).toEqual(["Haryana Base Oils Pvt Ltd"]);
+    expect(similarNames("A and B Traders", others)).toEqual(["A & B Traders"]);
+  });
+  it("one name inside the other once it has 5+ letters", () => {
+    expect(similarNames("Karnal Auto", others)).toEqual(["Karnal Auto Spares"]);
+    expect(similarNames("Panipat Tractor House & Co", others)).toEqual(["Panipat Tractor House"]);
+  });
+  it("short or different names don't match", () => {
+    expect(similarNames("ha", others)).toEqual([]);
+    expect(similarNames("Pvt Ltd", others)).toEqual([]);
+    expect(similarNames("Rohtak Lubes", others)).toEqual([]);
   });
 });

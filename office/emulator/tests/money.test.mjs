@@ -123,6 +123,7 @@ describe("the shared rules table (money-entry.cases.json) against the server's c
     for (const c of CASES.gstSplit) assert.deepEqual(model.expenseGstSplit(c.input), c.expect, c.case);
     for (const c of CASES.correction) assert.deepEqual(model.correctionFor(c.target, c.current, c.wanted), c.expect, c.case);
     for (const c of CASES.reversal) assert.equal(model.reversalState(c.entry, c.mirrorStatus), c.expect, c.case);
+    for (const c of CASES.expenseNeedsNote) assert.equal(model.expenseNeedsNote(c.category), c.expect, c.category);
   });
 
   test("the callable refuses what the form refuses, with the same code", async () => {
@@ -453,5 +454,16 @@ describe("who can see money", () => {
     await denied(setDoc(doc(admin.db, "moneyEntries", "x"), { amountPaise: 1 }));
     await denied(getDoc(doc(admin.db, "moneyRequests", "x")));
     await rejectsWith(stock.call("recordMoneyEntry", { requestId: rid(), from: ref.cash(), to: ref.bank(), amountPaise: 1, businessDay: today }), "permission-denied");
+  });
+});
+
+describe("the \"Other\" expense category", () => {
+  test("an expense in \"Other\" must say what it was", async () => {
+    const other = (await accounts.call("saveExpenseCategory", { requestId: rid(), name: "Other" })).categoryId;
+    const expense = (note) => accounts.call("recordExpense", { requestId: rid(), categoryId: other, registerKind: "CASH", registerId: "default-cash", amountPaise: 2_500, businessDay: today, note, gst: null });
+    await rejectsWith(expense(null), "invalid-argument", /Say what the expense was/);
+    await rejectsWith(expense("   "), "invalid-argument", /Say what the expense was/);
+    const { entryId } = await expense("Diwali sweets for staff");
+    assert.equal((await get("moneyEntries", entryId)).note, "Diwali sweets for staff");
   });
 });

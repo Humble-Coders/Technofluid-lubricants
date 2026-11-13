@@ -1,0 +1,1040 @@
+{
+  "creationDate": {
+    "year": 2026,
+    "month": 6,
+    "day": 11,
+    "hour": 11,
+    "minute": 42,
+    "second": 0,
+    "utcOffsetMinutes": 330
+  },
+  "fields": {
+    "copyLabel": "Triplicate Copy",
+    "seller.name": "Lube Chem Industries",
+    "seller.gstin": "06AAAFS1234K1ZF",
+    "seller.address": "Near Gaushala Road Adjoining Central, Ware House Matak Majri, Karnal",
+    "seller.panLine": "PAN : AAAFS1234K",
+    "seller.contactLine": "Tel. : 90000 00000, 90000 00001  ·  email : accounts@example.com",
+    "invoiceNo": "TF/2026-27/0900",
+    "invoiceDate": "11-06-2026",
+    "placeOfSupply": "Haryana (06)",
+    "reverseCharge": "N",
+    "transport": "NONE",
+    "vehicleNo": "HR45X0000",
+    "station": "JAGADHRI",
+    "ewayBillNo": "",
+    "buyer.name": "Sample Agencies",
+    "buyer.address": "12 Sample Market, Jagadhri",
+    "buyer.statePin": "HARYANA-135003",
+    "buyer.pan": "AAACL1234M",
+    "buyer.mobile": "98000 00001",
+    "buyer.aadhaar": "",
+    "buyer.gstin": "06AAACL1234M1ZO",
+    "shipTo.name": "Sample Agencies",
+    "shipTo.address": "12 Sample Market, Jagadhri",
+    "shipTo.statePin": "HARYANA-135003",
+    "shipTo.pan": "AAACL1234M",
+    "shipTo.mobile": "98000 00001",
+    "shipTo.aadhaar": "",
+    "shipTo.gstin": "06AAACL1234M1ZO",
+    "irnLine": "",
+    "ackLine": "",
+    "notes": "Long sample: 42 lines",
+    "taxableValue": "7,98,125.07",
+    "tax1.label": "Add : CGST",
+    "tax1.rate": "@ 9.00 %",
+    "tax1.amount": "71,831.25",
+    "tax2.label": "Add : SGST",
+    "tax2.rate": "@ 9.00 %",
+    "tax2.amount": "71,831.25",
+    "roundOff.label": "Add : Rounded Off (+)",
+    "roundOff.amount": "0.43",
+    "totalQty": "103.00 Units",
+    "grandTotal": "₹ 9,41,788.00",
+    "taxSummary.rate": "18%",
+    "taxSummary.taxable": "7,98,125.07",
+    "taxSummary.cgst": "71,831.25",
+    "taxSummary.sgst": "71,831.25",
+    "taxSummary.igst": "0.00",
+    "taxSummary.total": "1,43,662.50",
+    "amountInWords": "Rupees Nine Lakh Forty One Thousand Seven Hundred Eighty Eight Only",
+    "bank.line1": "Bank Name: HDFC BANK, Branch: INDRI  ·  Account Type: CA",
+    "bank.line2": "Account No: 00000000000000, IFSC Code: HDFC0000000",
+    "terms": "E.& O.E.\n1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. will be charged if the payment is not made within the stipulated time.\n3. Subject to 'Haryana' Jurisdiction only.",
+    "signatoryFor": "For Lube Chem Industries"
+  },
+  "flags": {
+    "isInterState": false,
+    "hasIrn": false,
+    "hasNotes": true,
+    "hasBank": true
+  },
+  "rows": [
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "1.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can · Less 2.5% discount (68.50)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "2,671.38"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "2.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "5,760.04"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "3.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "3.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "3,273.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "4.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "6,920.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "5.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "19,990.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "6.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum · Less 2.5% discount (990.50)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "2.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "38,629.50"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "7.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "3.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "8,219.64"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "8.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "11,520.08"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "9.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "1.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "1,091.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "10.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "3,460.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "11.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum · Less 2.5% discount (1,499.25)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "3.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "58,470.75"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "12.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "4.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "79,240.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "13.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "2,739.88"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "14.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "5,760.04"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "15.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "3.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "3,273.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "16.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket · Less 2.5% discount (173.00)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "6,747.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "17.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "19,990.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "18.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "2.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "39,620.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "19.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "3.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "8,219.64"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "20.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "11,520.08"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "21.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case · Less 2.5% discount (27.28)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "1.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "1,063.72"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "22.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "3,460.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "23.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "3.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "59,970.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "24.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "4.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "79,240.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "25.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "2,739.88"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "26.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can · Less 2.5% discount (144.00)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "5,616.04"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "27.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "3.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "3,273.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "28.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "6,920.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "29.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "19,990.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "30.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "2.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "39,620.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "31.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can · Less 2.5% discount (205.49)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "3.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "8,014.15"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "32.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "11,520.08"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "33.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "1.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "1,091.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "34.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "3,460.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "35.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "3.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "59,970.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "36.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum · Less 2.5% discount (1,981.00)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "4.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "77,259.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "37.",
+        "description": {
+          "runs": [
+            {
+              "text": "Hydraulic Oil AW-68"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Can",
+        "rate": "2,739.88",
+        "amount": "2,739.88"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "38.",
+        "description": {
+          "runs": [
+            {
+              "text": "Gear Oil 320"
+            },
+            {
+              "text": "\n26 Ltr Can",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "2.00",
+        "unit": "Can",
+        "rate": "2,880.02",
+        "amount": "5,760.04"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "39.",
+        "description": {
+          "runs": [
+            {
+              "text": "4T Engine Oil 20W-40"
+            },
+            {
+              "text": "\n20x900 ml case",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "3.00",
+        "unit": "Case",
+        "rate": "1,091.00",
+        "amount": "3,273.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "40.",
+        "description": {
+          "runs": [
+            {
+              "text": "Grease GGR Red"
+            },
+            {
+              "text": "\n18 kg bucket",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "4.00",
+        "unit": "Bkt",
+        "rate": "1,730.00",
+        "amount": "6,920.00"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "41.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion Hyd 68"
+            },
+            {
+              "text": "\n205 Liter Drum · Less 2.5% discount (499.75)",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101980",
+        "qty": "1.00",
+        "unit": "Drum",
+        "rate": "19,990.00",
+        "amount": "19,490.25"
+      }
+    },
+    {
+      "style": "item",
+      "cells": {
+        "slNo": "42.",
+        "description": {
+          "runs": [
+            {
+              "text": "Champion 20W-40"
+            },
+            {
+              "text": "\n205 Liter Drum",
+              "font": "italic",
+              "sizePt": 7
+            }
+          ]
+        },
+        "hsn": "27101990",
+        "qty": "2.00",
+        "unit": "Drum",
+        "rate": "19,810.00",
+        "amount": "39,620.00"
+      }
+    }
+  ]
+}

@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import {
   checkGstin,
   expenseGstSplit,
+  expenseNeedsNote,
+  OTHER_EXPENSE_NOTE_TEXT,
   formatINR,
   GST_STATES,
   indiaDate,
@@ -20,6 +22,7 @@ import { useEntities } from "@/hooks/useEntities";
 import { useCategories, useMoneyEntries, useRegisters } from "@/hooks/useMoney";
 import { recordExpense, saveExpenseCategory, type CategoryRow, type RegisterRow } from "@/services/moneyService";
 import type { EntityRow } from "@/services/entityService";
+import { ExpenseDetail } from "./ExpenseDetail";
 import { EntriesTable, rangeFor } from "./MoneyScreen";
 
 const STATES = Object.entries(GST_STATES).sort((a, b) => a[1].localeCompare(b[1]));
@@ -45,6 +48,7 @@ export function ExpensesScreen() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [adding, setAdding] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const rows = useMemo(() => {
     if (entries.status !== "ready") return [];
@@ -69,46 +73,53 @@ export function ExpensesScreen() {
     return [...t.entries()].sort((a, b) => b[1] - a[1]);
   }, [rows]);
 
+  const all = entries.status === "ready" ? entries.data : [];
+  const selected = rows.find((e) => e.id === selectedId) ?? null;
+  const original = selected?.reversesEntryId ? (all.find((e) => e.id === selected.reversesEntryId) ?? null) : null;
+
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="space-y-4 px-5 py-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" leading={<Search className="size-3.5" />} className="w-56" aria-label="Search expenses" />
-          <Select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category" className="w-48">
-            <option value="">All categories</option>
-            {cats.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
-          <Select value={preset} onChange={(e) => setPreset(e.target.value as typeof preset)} aria-label="Dates" className="w-36">
-            <option value="today">Today</option>
-            <option value="week">Last 7 days</option>
-            <option value="month">This month</option>
-          </Select>
-          <span className="flex-1" />
-          <Button variant="primary" icon={<Plus className="size-3.5" />} onClick={() => setAdding(true)}>
-            Add expense
-          </Button>
-        </div>
-        {totals.length ? (
-          <div className="flex flex-wrap gap-2">
-            {totals.map(([name, paise]) => (
-              <span key={name} className="rounded-md bg-canvas px-3 py-1.5 text-[12px]">
-                {name} <span className="num font-semibold text-danger">{formatINR(paise)}</span>
-              </span>
-            ))}
+    <div className="flex h-full min-h-0">
+      <div className="min-w-0 flex-1 overflow-y-auto">
+        <div className="space-y-4 px-5 py-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" leading={<Search className="size-3.5" />} className="w-56" aria-label="Search expenses" />
+            <Select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category" className="w-48">
+              <option value="">All categories</option>
+              {cats.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+            <Select value={preset} onChange={(e) => setPreset(e.target.value as typeof preset)} aria-label="Dates" className="w-36">
+              <option value="today">Today</option>
+              <option value="week">Last 7 days</option>
+              <option value="month">This month</option>
+            </Select>
+            <span className="flex-1" />
+            <Button variant="primary" icon={<Plus className="size-3.5" />} onClick={() => setAdding(true)}>
+              Add expense
+            </Button>
           </div>
-        ) : null}
-        {entries.status === "loading" ? (
-          <Spinner />
-        ) : rows.length === 0 ? (
-          <EmptyState icon={<Receipt className="size-6" />} title="No expenses in these dates" />
-        ) : (
-          <EntriesTable rows={rows} isAdmin={role === "admin"} />
-        )}
+          {totals.length ? (
+            <div className="flex flex-wrap gap-2">
+              {totals.map(([name, paise]) => (
+                <span key={name} className="rounded-md bg-canvas px-3 py-1.5 text-[12px]">
+                  {name} <span className="num font-semibold text-danger">{formatINR(paise)}</span>
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {entries.status === "loading" ? (
+            <Spinner />
+          ) : rows.length === 0 ? (
+            <EmptyState icon={<Receipt className="size-6" />} title="No expenses in these dates" />
+          ) : (
+            <EntriesTable rows={rows} isAdmin={role === "admin"} onSelect={(e) => setSelectedId((id) => (id === e.id ? null : e.id))} selectedId={selectedId} />
+          )}
+        </div>
       </div>
+      {selected ? <ExpenseDetail entry={selected} isAdmin={role === "admin"} original={original} onClose={() => setSelectedId(null)} /> : null}
       {adding ? <ExpenseForm categories={cats} registers={regs} suppliers={suppliers} onClose={() => setAdding(false)} /> : null}
     </div>
   );
@@ -152,18 +163,21 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
     ? { supplier: { entityId: supplier?.id ?? null, name: supplier?.name ?? supName.trim(), gstin, stateCode }, billNo: billNo.trim(), billDate, rateBp, taxablePaise: split.taxablePaise, cgstPaise: split.cgstPaise, sgstPaise: split.sgstPaise, igstPaise: split.igstPaise }
     : null;
 
+  const noteNeeded = category ? expenseNeedsNote(category.name) : false;
   const fromRef: MoneyAccountRef | null = register ? { kind: register.kind, registerId: register.id, name: register.name } : null;
   const toRef: MoneyAccountRef | null = category ? { kind: "EXPENSE", categoryId: category.id, name: category.name } : null;
   const problem = !toRef
     ? "Choose a category."
     : !fromRef
       ? "Choose where it was paid from."
-      : gstOn && (!gst?.supplier.name || !gst.billNo)
-        ? "Give the supplier and bill number."
-        : (() => {
-            const code = moneyEntryError({ from: fromRef, to: toRef, amountPaise: gross, businessDay: day, note: note || null, isCorrection: false, gst }, indiaDate());
-            return code ? MONEY_ERROR_TEXT[code] : null;
-          })();
+      : noteNeeded && !note.trim()
+        ? OTHER_EXPENSE_NOTE_TEXT
+        : gstOn && (!gst?.supplier.name || !gst.billNo)
+          ? "Give the supplier and bill number."
+          : (() => {
+              const code = moneyEntryError({ from: fromRef, to: toRef, amountPaise: gross, businessDay: day, note: note || null, isCorrection: false, gst }, indiaDate());
+              return code ? MONEY_ERROR_TEXT[code] : null;
+            })();
 
   const addCategory = async () => {
     if (!newCategory.trim()) return;
@@ -232,8 +246,8 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
           <Input id="ex-day" type="date" value={day} max={indiaDate()} onChange={(e) => setDay(e.target.value)} />
         </Field>
       </div>
-      <Field label="Note" htmlFor="ex-note">
-        <Input id="ex-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional" maxLength={500} />
+      <Field label={noteNeeded ? "What was it?" : "Note"} htmlFor="ex-note" help={noteNeeded ? 'Needed for "Other" — e.g. "Diwali sweets for staff".' : undefined}>
+        <Input id="ex-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder={noteNeeded ? "Name of the item or service" : "Optional"} maxLength={500} />
       </Field>
 
       <label className="flex items-center gap-2 text-[13px] font-medium text-ink">

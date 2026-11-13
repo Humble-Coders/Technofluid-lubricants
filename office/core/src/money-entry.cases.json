@@ -1141,5 +1141,35 @@
    "mirrorStatus": null,
    "expect": "done"
   }
+ ],
+ "expenseNeedsNote": [
+  {
+   "category": "Other",
+   "expect": true
+  },
+  {
+   "category": " others ",
+   "expect": true
+  },
+  {
+   "category": "Misc",
+   "expect": true
+  },
+  {
+   "category": "MISCELLANEOUS",
+   "expect": true
+  },
+  {
+   "category": "Freight",
+   "expect": false
+  },
+  {
+   "category": "Other expenses",
+   "expect": false
+  },
+  {
+   "category": "",
+   "expect": false
+  }
  ]
 }

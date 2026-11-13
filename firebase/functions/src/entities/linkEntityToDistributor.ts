@@ -34,6 +34,9 @@ export const linkEntityToDistributor = onCall({region: "us-central1"}, async (re
     if ((d.distributorId ?? null) === distributorId) return {entityId, distributorId};
 
     if (distributorId) {
+      // A website distributor buys from us, so only a customer can be linked (unlinking is always fine).
+      const kinds = Array.isArray(d.kinds) ? d.kinds : [];
+      if (!kinds.includes("customer")) bad(`${d.name} isn't a customer — only a customer can be linked to a website distributor.`);
       const dist = (await tx.get(db.collection("distributors").doc(distributorId))).data();
       if (!dist) throw new HttpsError("not-found", "That distributor doesn't exist.");
       if (dist.status !== "approved" || dist.isActive !== true || dist.deleted === true) {

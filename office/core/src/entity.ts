@@ -112,6 +112,35 @@ export function normalizePhone(input: string): string | null {
   return `+91${ten}`;
 }
 
+/** Words that don't tell two businesses apart ("Pvt Ltd", "M/s", "& Co" …). */
+const NAME_FILLER = new Set(["m", "s", "ms", "the", "and", "pvt", "private", "ltd", "limited", "llp", "co", "company", "firm"]);
+
+/** "M/s Haryana Base Oils Pvt. Ltd." → "haryanabaseoils" — for spotting the same party typed twice. */
+export function nameKey(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w && !NAME_FILLER.has(w))
+    .join("");
+}
+
+/**
+ * Names in `others` that look like `name` (same name, give or take "Pvt Ltd" / spacing /
+ * punctuation; or one contains the other once it has 5+ letters). A warning only.
+ */
+export function similarNames(name: string, others: readonly string[]): string[] {
+  const k = nameKey(name);
+  if (!k) return [];
+  return others.filter((o) => {
+    const ok = nameKey(o);
+    if (!ok) return false;
+    if (ok === k) return true;
+    const [short, long] = ok.length < k.length ? [ok, k] : [k, ok];
+    return short.length >= 5 && long.includes(short);
+  });
+}
+
 /** The GST state code a GSTIN belongs to (its first 2 digits), or null. */
 export function stateCodeFromGstin(gstin: string | null | undefined): string | null {
   if (!gstin) return null;
