@@ -29,6 +29,15 @@ export function BooksStatus({ sale: s }: { sale: SaleRow }) {
       Retry
     </button>
   );
+  if (s.syncStatus === "FAILED" && s.invoiceInBooks) {
+    // The invoice went in; a payment received with it didn't. A cancellation still cancels the invoice.
+    const cancelNote = s.status === "CANCELLED" ? (s.cancelSyncStatus === "SYNCED" ? " · invoice cancelled" : s.cancelSyncStatus === "FAILED" ? " · cancellation not posted" : " · cancelling invoice…") : "";
+    return (
+      <span className="inline-flex items-center gap-1 text-[12px] text-danger" title={s.hlSyncError ?? undefined}>
+        Invoice in the books{cancelNote} · a payment wasn't saved: {s.hlSyncError ?? "error"} {retry}
+      </span>
+    );
+  }
   if (s.syncStatus === "FAILED") {
     return (
       <span className="inline-flex items-center gap-1 text-[12px] text-danger" title={s.hlSyncError ?? undefined}>

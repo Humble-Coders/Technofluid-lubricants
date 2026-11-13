@@ -35,6 +35,8 @@ export interface SaleRow {
   status: "ACTIVE" | "CANCELLED";
   cancel: { reason: string; by: string; day: string } | null;
   syncStatus: SyncStatus;
+  /** The invoice itself is in the books (also true when a later payment couldn't be saved). */
+  invoiceInBooks: boolean;
   hlSyncError: string | null;
   cancelSyncStatus: SyncStatus | null;
   cancelSyncError: string | null;
@@ -66,6 +68,7 @@ function toSale(id: string, d: DocumentData): SaleRow {
     status: d.status === "CANCELLED" ? "CANCELLED" : "ACTIVE",
     cancel: d.cancel ? { reason: String(d.cancel.reason ?? ""), by: String(d.cancel.by?.name ?? "Someone"), day: String(d.cancel.day ?? "") } : null,
     syncStatus: status(d.syncStatus),
+    invoiceInBooks: d.syncStatus === "SYNCED" || (typeof d.hlInvoiceId === "string" && d.hlInvoiceId !== ""),
     hlSyncError: typeof d.hlSyncError === "string" ? d.hlSyncError : null,
     cancelSyncStatus: d.cancelSyncStatus ? status(d.cancelSyncStatus) : null,
     cancelSyncError: typeof d.cancelSyncError === "string" ? d.cancelSyncError : null,

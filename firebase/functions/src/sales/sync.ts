@@ -33,7 +33,7 @@ type Fields = {status: string; error: string; attempts: string; last: string};
 const MAIN: Fields = {status: "syncStatus", error: "hlSyncError", attempts: "syncAttempts", last: "lastSyncAttemptAt"};
 const CANCEL: Fields = {status: "cancelSyncStatus", error: "cancelSyncError", attempts: "cancelSyncAttempts", last: "lastCancelAttemptAt"};
 
-async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknown, prior: number, fromTrigger: boolean): Promise<SyncOutcome> {
+async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknown, prior: number, fromTrigger: boolean, extra: Record<string, unknown> = {}): Promise<SyncOutcome> {
   if (isNotConnected(e)) {
     logger.warn("Books not connected — left PENDING", {path: ref.path});
     return "skipped";
@@ -41,7 +41,7 @@ async function fail(ref: admin.firestore.DocumentReference, f: Fields, e: unknow
   const permanent = e instanceof Permanent || (e instanceof HlError && !e.transient);
   logger.error("Posting a sale to HL failed", {path: ref.path, step: f.status, permanent, error: e instanceof Error ? e.message : String(e)});
   await ref.set(
-    {[f.status]: "FAILED", [f.error]: e instanceof Permanent ? e.message : plainHlMessage(e), [f.attempts]: FieldValue.increment(1), [f.last]: FieldValue.serverTimestamp()},
+    {...extra, [f.status]: "FAILED", [f.error]: e instanceof Permanent ? e.message : plainHlMessage(e), [f.attempts]: FieldValue.increment(1), [f.last]: FieldValue.serverTimestamp()},
     {merge: true},
   );
   if (!permanent && fromTrigger && prior < TRIGGER_RETRIES && platformRedelivers()) throw e;
@@ -129,7 +129,9 @@ export async function syncSale(db: admin.firestore.Firestore, hl: HlClient, sale
         sourceId: saleSourceIds.payment(saleId, i),
         actorRef,
         description: `Payment received with ${s.invoiceNo}`,
-        invoiceId: hlInvoiceId,
+        // Invoice already cancelled in the books (a payment retried after the cancel) → HL refuses a
+        // payment against it, so the money received is recorded for the customer without the link.
+        invoiceId: s.status === "CANCELLED" && s.cancelSyncStatus === "SYNCED" ? null : hlInvoiceId,
       });
       paymentTxns[i] = r.txnId;
       await progressRef.set({paymentTxns}, {merge: true});
@@ -162,7 +164,17 @@ export async function syncSale(db: admin.firestore.Firestore, hl: HlClient, sale
       logger.info("Sale waiting for a dependency", {saleId, why: e.message});
       return "skipped"; // left PENDING, untouched
     }
-    return fail(ref, MAIN, e, prior, opts.fromTrigger === true);
+    // The invoice itself may already be in the books (a payment failed after it): say so on the doc,
+    // so the sale view and statements know, and a cancellation cancels it there.
+    const done = (await progressRef.get().catch(() => null))?.data();
+    let invoiceInBooks: Record<string, unknown> = {};
+    if (done?.hlSaleTxnId && done.hlInvoiceId) {
+      invoiceInBooks = {hlSaleTxnId: done.hlSaleTxnId, hlInvoiceId: done.hlInvoiceId};
+      // Cancelled before the invoice went in (so the cancel didn't ask for one in the books) → ask now.
+      const latest = (await ref.get().catch(() => null))?.data();
+      if (latest?.status === "CANCELLED" && !latest.cancelSyncStatus) invoiceInBooks = {...invoiceInBooks, cancelSyncStatus: "PENDING", cancelSyncError: null, cancelSyncAttempts: 0};
+    }
+    return fail(ref, MAIN, e, prior, opts.fromTrigger === true, invoiceInBooks);
   }
 }
 
@@ -173,13 +185,17 @@ export async function cancelSaleInBooks(db: admin.firestore.Firestore, hl: HlCli
   const s = (await ref.get()).data();
   if (!s || s.deleted === true || s.status !== "CANCELLED") return "skipped";
   if (s.cancelSyncStatus !== "PENDING" && s.cancelSyncStatus !== "FAILED") return "skipped";
-  if (s.syncStatus !== "SYNCED" || !s.hlInvoiceId) return "skipped"; // the sale's own posting sets this up afterwards
+  // Keyed on the invoice's OWN posting being in the books — not the whole sync (a payment may have
+  // failed after the invoice went in). Not posted at all yet → the sale's own posting sets this up after.
+  const progress = (await db.collection(SALE_SYNC).doc(saleId).get()).data() ?? {};
+  const invoiceId = s.hlInvoiceId ? String(s.hlInvoiceId) : progress.hlSaleTxnId && progress.hlInvoiceId ? String(progress.hlInvoiceId) : null;
+  if (!invoiceId) return "skipped";
   const prior = Number(s.cancelSyncAttempts ?? 0);
   try {
-    const inv = await hl.getInvoice(String(s.hlInvoiceId));
+    const inv = await hl.getInvoice(invoiceId);
     if (inv.status !== "CANCELLED") {
       const day = String(s.cancel?.day ?? s.invoiceDate);
-      await hl.cancelInvoice(String(s.hlInvoiceId), {reason: String(s.cancel?.reason ?? "Cancelled"), date: day < s.invoiceDate ? s.invoiceDate : day});
+      await hl.cancelInvoice(invoiceId, {reason: String(s.cancel?.reason ?? "Cancelled"), date: day < s.invoiceDate ? s.invoiceDate : day});
     }
     await ref.set({cancelSyncStatus: "SYNCED", cancelSyncError: null, cancelSyncAttempts: 0, lastCancelAttemptAt: FieldValue.serverTimestamp()}, {merge: true});
     return "synced";
