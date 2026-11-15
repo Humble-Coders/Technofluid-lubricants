@@ -17,6 +17,7 @@ import { adminDb, as, closeClients, denied, PROJECT, rejectsWith, seedStaff } fr
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const CASES = JSON.parse(readFileSync(path.resolve(here, "../../core/src/money-entry.cases.json"), "utf8"));
+const REPORT_CASES = JSON.parse(readFileSync(path.resolve(here, "../../core/src/reports.cases.json"), "utf8"));
 const fnRequire = createRequire(path.join(path.resolve(here, "../../../firebase/functions"), "package.json"));
 const model = fnRequire("./lib/money/moneyModel.js");
 const { syncMoneyEntry, reconcileLedgerOnce } = fnRequire("./lib/money/sync.js");
@@ -124,6 +125,16 @@ describe("the shared rules table (money-entry.cases.json) against the server's c
     for (const c of CASES.correction) assert.deepEqual(model.correctionFor(c.target, c.current, c.wanted), c.expect, c.case);
     for (const c of CASES.reversal) assert.equal(model.reversalState(c.entry, c.mirrorStatus), c.expect, c.case);
     for (const c of CASES.expenseNeedsNote) assert.equal(model.expenseNeedsNote(c.category), c.expect, c.category);
+  });
+
+  test("the paid rule: the server's \"still due\" filter gives the same paid-later figure as the app (reports.cases.json → due)", () => {
+    for (const c of REPORT_CASES.due) {
+      const mirrors = new Map(c.input.linked.filter((e) => e.reversedByEntryId).map((e) => [e.reversedByEntryId, e.mirrorStatus]));
+      const linked = c.input.linked.map(({ mirrorStatus, ...e }) => e);
+      const later = model.paidLaterSum(linked, (id) => mirrors.get(id));
+      assert.equal(later, c.expect.paidLaterPaise, c.case);
+      assert.equal(Math.max(c.input.totalPaise - c.input.paidAtCreationPaise - later, 0), c.expect.duePaise, c.case);
+    }
   });
 
   test("the callable refuses what the form refuses, with the same code", async () => {

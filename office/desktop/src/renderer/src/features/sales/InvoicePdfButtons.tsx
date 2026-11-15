@@ -1,31 +1,22 @@
 import { Download, Printer } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { INVOICE_COPIES } from "@technofluid/core";
 import { Button, Select } from "@/components/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { useCompany } from "@/hooks/useSales";
-import { invoicePdf, needsLiveCompany, pdfAvailable, pdfProblemText, pdfReady } from "@/services/invoicePdfService";
+import { invoicePdf, needsLiveCompany, pdfAvailable, pdfProblemText } from "@/services/invoicePdfService";
 import type { SaleRow } from "@/services/saleService";
 
 /**
  * The invoice as a PDF (Humble Bill Engine, Gaurav's layout): choose the copy (Original /
- * Duplicate / Triplicate), then save it, or open it in the computer's PDF app to print.
+ * Duplicate / Triplicate — the preview below follows it), then save it, or open it in the
+ * computer's PDF app to print.
  */
-export function InvoicePdfButtons({ sale }: { sale: SaleRow }) {
+export function InvoicePdfButtons({ sale, copy, onCopy, ready }: { sale: SaleRow; copy: string; onCopy: (copy: string) => void; ready: { ready: boolean; reason: string | null } | null }) {
   const company = useCompany();
   const entities = useEntities();
-  const [copy, setCopy] = useState<string>(INVOICE_COPIES[0]);
   const [busy, setBusy] = useState<"save" | "open" | null>(null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
-  const [ready, setReady] = useState<{ ready: boolean; reason: string | null } | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    void pdfReady().then((r) => live && setReady(r));
-    return () => {
-      live = false;
-    };
-  }, []);
 
   if (!pdfAvailable()) return null;
   if (ready && !ready.ready) return <span className="text-[12px] text-ink-muted">Print / Save PDF: {ready.reason}</span>;
@@ -55,7 +46,7 @@ export function InvoicePdfButtons({ sale }: { sale: SaleRow }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select value={copy} onChange={(e) => setCopy(e.target.value)} aria-label="Which copy" className="w-40">
+      <Select value={copy} onChange={(e) => onCopy(e.target.value)} aria-label="Which copy" className="w-40">
         {INVOICE_COPIES.map((c) => (
           <option key={c} value={c}>
             {c}

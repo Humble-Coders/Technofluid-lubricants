@@ -110,6 +110,10 @@ async function makePdf(win: BrowserWindow | null, req: InvoicePdfRequest): Promi
     const images = req.irnQrPng ? { irnQr: req.irnQrPng } : undefined;
     const r = await (await hbe()).render({ ...TEMPLATE, bill: req.bill, images, returnTemplate: false });
     if (!r.pdf) throw new HbeError("Internal", "The PDF maker returned no PDF");
+    if (req.action === "preview") {
+      // Shown on the invoice screen — exactly the PDF that prints, nothing written to disk.
+      return { ok: true, cancelled: false, path: "", pages: r.pages, sha256: r.sha256, templateSource: r.template.source, hbeVersion: HBE_VERSION, pdf: new Uint8Array(r.pdf) };
+    }
     const fileName = safeFileName(req.fileName);
 
     let path: string;

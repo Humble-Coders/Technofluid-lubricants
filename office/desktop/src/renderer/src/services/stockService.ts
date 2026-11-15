@@ -97,7 +97,7 @@ const date = (x: unknown): Date | null =>
   x && typeof (x as { toDate?: () => Date }).toDate === "function" ? (x as { toDate: () => Date }).toDate() : null;
 const str = (x: unknown): string | null => (typeof x === "string" && x ? x : null);
 
-function toItem(id: string, d: DocumentData): StockItem {
+export function toStockItem(id: string, d: DocumentData): StockItem {
   return {
     id,
     kind: kindOf(d.kind),
@@ -145,7 +145,7 @@ function toMovement(id: string, d: DocumentData): StockMovement {
 export function watchStockItems(onChange: (items: StockItem[]) => void, onError: (e: Error) => void): Unsubscribe {
   return onSnapshot(
     query(collection(db, "stockItems"), where("deleted", "==", false)),
-    (snap) => onChange(snap.docs.map((d) => toItem(d.id, d.data())).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))),
+    (snap) => onChange(snap.docs.map((d) => toStockItem(d.id, d.data())).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))),
     onError,
   );
 }

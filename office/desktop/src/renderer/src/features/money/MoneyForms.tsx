@@ -4,24 +4,17 @@ import {
   correctionFor,
   formatINR,
   indiaDate,
+  moneyCategory,
+  MONEY_CATEGORY_LABEL,
   moneyEntryError,
   MONEY_ERROR_TEXT,
   rupeesToPaise,
   type MoneyAccountRef,
 } from "@technofluid/core";
-import { Button, Field, Input, Select } from "@/components/ui";
+import { Badge, Button, Field, Input, Select } from "@/components/ui";
 import { Modal } from "@/features/entities/EntityDetail";
 import type { EntityRow } from "@/services/entityService";
 import { correctBalance, recordMoneyEntry, type RegisterRow } from "@/services/moneyService";
-
-export type QuickAction = "received" | "paid" | "transfer" | "move";
-
-const TITLE: Record<QuickAction, string> = {
-  received: "Money received",
-  paid: "Money paid",
-  transfer: "Deposit, withdraw or transfer",
-  move: "Move balance",
-};
 
 type Option = { value: string; label: string; ref: MoneyAccountRef };
 
@@ -89,35 +82,27 @@ export function plainWords(from: MoneyAccountRef | undefined, to: MoneyAccountRe
   return `${a} moves from ${name(from)} to ${name(to)}.`;
 }
 
-const DEFAULTS: Record<QuickAction, { from: "P" | "R"; to: "P" | "R" }> = {
-  received: { from: "P", to: "R" },
-  paid: { from: "R", to: "P" },
-  transfer: { from: "R", to: "R" },
-  move: { from: "P", to: "P" },
-};
-
 /**
- * One form for every quick action (pre-filled). Plain words, never debit/credit; the Save
- * button shows exactly what's wrong (the same rules the Cloud Function uses).
+ * ONE form for every money movement: pick any From and any To (a customer / supplier, or
+ * our cash / bank) and the entry's kind follows from the pair — money received, money
+ * paid, a cash & bank transfer or a balance move — shown live before saving. Plain words,
+ * never debit/credit; the Save button shows exactly what's wrong (the same rules the Cloud
+ * Function uses).
  */
 export function MoneyEntryForm({
-  action,
   parties,
   registers,
   initial,
   onClose,
 }: {
-  action: QuickAction;
   parties: EntityRow[];
   registers: RegisterRow[];
   initial?: { from?: string; to?: string };
   onClose: (savedEntryId: string | null) => void;
 }) {
   const opts = useMemo(() => accountOptions(parties, registers), [parties, registers]);
-  const firstReg = opts.regOpts[0]?.value ?? "";
-  const d = DEFAULTS[action];
-  const [from, setFrom] = useState(initial?.from ?? (d.from === "R" ? firstReg : ""));
-  const [to, setTo] = useState(initial?.to ?? (d.to === "R" ? (action === "transfer" ? (opts.regOpts[1]?.value ?? "") : firstReg) : ""));
+  const [from, setFrom] = useState(initial?.from ?? "");
+  const [to, setTo] = useState(initial?.to ?? "");
   const [amount, setAmount] = useState("");
   const [day, setDay] = useState(indiaDate());
   const [note, setNote] = useState("");
@@ -154,7 +139,7 @@ export function MoneyEntryForm({
   };
 
   return (
-    <Modal title={TITLE[action]} onClose={() => onClose(null)} busy={busy}>
+    <Modal title="Record money in or out" onClose={() => onClose(null)} busy={busy}>
       <div className="grid grid-cols-2 gap-3">
         <Field label="From" htmlFor="me-from">
           <AccountPicker id="me-from" value={from} onChange={setFrom} parties={opts.partyOpts} registers={opts.regOpts} />
@@ -172,7 +157,16 @@ export function MoneyEntryForm({
       <Field label="Note" htmlFor="me-note">
         <Input id="me-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional — e.g. cheque no." maxLength={500} />
       </Field>
-      {fromRef && toRef ? <p className="rounded-md bg-canvas px-3 py-2 text-[13px] text-ink">{plainWords(fromRef, toRef, amount)}</p> : null}
+      {fromRef && toRef ? (
+        <p className="rounded-md bg-canvas px-3 py-2 text-[13px] text-ink">
+          <Badge tone="brand" className="mr-2">
+            {MONEY_CATEGORY_LABEL[moneyCategory({ from: fromRef, to: toRef })]}
+          </Badge>
+          {plainWords(fromRef, toRef, amount)}
+        </p>
+      ) : (
+        <p className="text-[12px] text-ink-muted">From and To can each be a customer / supplier or our cash / bank — money received, money paid, a transfer between our accounts, or a balance moved between two parties.</p>
+      )}
       {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
       <div className="flex items-center justify-end gap-2">
         {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}

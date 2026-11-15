@@ -2,9 +2,10 @@ import clsx from "clsx";
 import { AlertTriangle, ArrowLeft, Ban, IndianRupee } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
-import { amountInWords, formatINR, formatQuantity, formatRate, GST_STATES, indiaDate, rupeesToPaise } from "@technofluid/core";
+import { amountInWords, formatINR, formatQuantity, formatRate, GST_STATES, indiaDate, INVOICE_COPIES, rupeesToPaise } from "@technofluid/core";
 import { Badge, Button, EmptyState, Field, Input, Select, Spinner } from "@/components/ui";
 import { Modal } from "@/features/entities/EntityDetail";
+import { useInvoicePreview, usePdfReady } from "@/hooks/useInvoicePreview";
 import { useRegisters } from "@/hooks/useMoney";
 import { useSale, useSalesPaid } from "@/hooks/useSales";
 import { recordMoneyEntry } from "@/services/moneyService";
@@ -15,8 +16,9 @@ import { BooksStatus, PaidBadge } from "./saleBadges";
 const PRICE_PER_SHORT: Record<string, string> = { "per litre": "/L", "per liter": "/L", "per kg": "/kg", "per case": "/case", "per bucket": "/bucket", "per barrel": "/barrel", "per piece": "/pc" };
 
 /**
- * One invoice on screen, laid out like the tax invoice, with its PDF (Print / Save PDF,
- * from the Humble Bill Engine): seller, buyer, lines with HSN, GST, total in words; then what's been paid,
+ * One invoice on screen — the real PDF that prints (Humble Bill Engine, the chosen copy),
+ * or, where this copy of the app can't make PDFs (or for a cancelled invoice), our own
+ * layout of the tax invoice: seller, buyer, lines with HSN, GST, total in words; then what's been paid,
  * its state in the books, and the two things you can do — receive a payment against it,
  * or cancel it (with a reason; the number stays used).
  */
@@ -30,6 +32,9 @@ export function SaleDetail() {
   const paid = useSalesPaid(list).get(saleId ?? "");
   const [receiving, setReceiving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [copy, setCopy] = useState<string>(INVOICE_COPIES[0]);
+  const pdfReady = usePdfReady();
+  const preview = useInvoicePreview(s, copy, pdfReady);
 
   if (sale.status === "loading") return <Spinner className="m-6" />;
   if (sale.status === "error") return <p className="m-6 text-[12px] text-danger">{sale.message}</p>;
@@ -61,7 +66,7 @@ export function SaleDetail() {
           ) : null}
         </div>
 
-        {!cancelled ? <InvoicePdfButtons sale={s} /> : null}
+        {!cancelled ? <InvoicePdfButtons sale={s} copy={copy} onCopy={setCopy} ready={pdfReady} /> : null}
 
         {justCreated && justCreated.belowZero.length > 0 && !cancelled ? (
           <p className="flex items-center gap-2 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
@@ -79,6 +84,21 @@ export function SaleDetail() {
           </p>
         ) : null}
 
+        {preview.status === "loading" ? (
+          <div className="flex aspect-[210/297] w-full items-center justify-center gap-2 rounded-lg border border-line bg-surface text-[12px] text-ink-muted">
+            <Spinner /> Preparing the invoice…
+          </div>
+        ) : preview.status === "ready" ? (
+          <iframe
+            key={preview.url}
+            src={`${preview.url}#toolbar=0&navpanes=0&view=FitH`}
+            title={`${s.invoiceNo} ${copy} — as it prints`}
+            className="aspect-[210/297] w-full rounded-lg border border-line bg-white"
+          />
+        ) : null}
+        {preview.status === "error" ? <p className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{preview.message} Showing the invoice details instead.</p> : null}
+
+        {preview.status === "off" || preview.status === "error" ? (
         <article className={clsx("rounded-lg border border-line bg-surface p-6 text-[12px]", cancelled && "opacity-70")} aria-label="Tax invoice">
           <header className="flex items-start justify-between gap-6 border-b border-line pb-4">
             <div>
@@ -258,6 +278,7 @@ export function SaleDetail() {
             </div>
           </section>
         </article>
+        ) : null}
 
         {s.missingHsn.length > 0 ? (
           <p className="text-[12px] text-warning">Billed without an HSN code for {s.missingHsn.length} product(s) — codes are awaited from the CA.</p>

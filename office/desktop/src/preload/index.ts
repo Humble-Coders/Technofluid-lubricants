@@ -10,6 +10,7 @@ const office: OfficeBridge = {
   getAppInfo: () => ipcRenderer.invoke("app:info"),
   invoicePdf: (req) => ipcRenderer.invoke("invoice:pdf", req),
   invoicePdfReady: () => ipcRenderer.invoke("invoice:pdfReady"),
+  saveCsv: (req) => ipcRenderer.invoke("report:saveCsv", req),
 };
 
 contextBridge.exposeInMainWorld("office", office);

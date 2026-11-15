@@ -108,6 +108,36 @@ export function moneyDirection(e: { from: MoneyAccountRef; to: MoneyAccountRef }
   return "INTERNAL";
 }
 
+/** What kind of money movement an entry is — for the label on each row and the filter. */
+export type MoneyCategory = "RECEIVED" | "PAID" | "TRANSFER" | "MOVE" | "EXPENSE" | "CORRECTION";
+
+export const MONEY_CATEGORIES: readonly MoneyCategory[] = ["RECEIVED", "PAID", "TRANSFER", "MOVE", "EXPENSE", "CORRECTION"];
+
+export const MONEY_CATEGORY_LABEL: Record<MoneyCategory, string> = {
+  RECEIVED: "Money received",
+  PAID: "Money paid",
+  TRANSFER: "Cash & bank transfer",
+  MOVE: "Balance move",
+  EXPENSE: "Expense",
+  CORRECTION: "Correction",
+};
+
+/**
+ * Worked out from From and To (one form records every kind): a party paying into cash/bank
+ * is money received; cash/bank to a party is money paid; cash/bank to cash/bank is a
+ * transfer; party to party is a balance move. A reversal's mirror keeps its original's
+ * category (its sides are swapped back first).
+ */
+export function moneyCategory(e: { from: MoneyAccountRef; to: MoneyAccountRef; isCorrection?: boolean; reversesEntryId?: string | null }): MoneyCategory {
+  const [from, to] = e.reversesEntryId ? [e.to, e.from] : [e.from, e.to];
+  if (e.isCorrection || from.kind === "ADJUSTMENT" || to.kind === "ADJUSTMENT") return "CORRECTION";
+  if (from.kind === "EXPENSE" || to.kind === "EXPENSE") return "EXPENSE";
+  if (from.kind === "PARTY" && to.kind === "PARTY") return "MOVE";
+  if (from.kind === "PARTY") return "RECEIVED";
+  if (to.kind === "PARTY") return "PAID";
+  return "TRANSFER";
+}
+
 /** Same account on both sides? Compared by id, per kind. */
 export function isSameAccountAs(a: MoneyAccountRef, b: MoneyAccountRef): boolean {
   if (a.kind === "ADJUSTMENT" || b.kind === "ADJUSTMENT") return a.kind === b.kind;

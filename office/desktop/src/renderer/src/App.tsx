@@ -21,6 +21,7 @@ import { EntitiesScreen } from "@/features/entities/EntitiesScreen";
 import { ExpensesScreen } from "@/features/money/ExpensesScreen";
 import { MoneyScreen } from "@/features/money/MoneyScreen";
 import { RegisterHistory } from "@/features/money/RegisterHistory";
+import { ReportsScreen } from "@/features/reports/ReportsScreen";
 
 /** Shows a screen only to roles allowed to open it (UX only — rules + Functions are the real gate). */
 function Guarded() {
@@ -51,7 +52,7 @@ const router = createHashRouter([
           { path: "purchases/new", element: <NewPurchaseScreen /> },
           { path: "purchases/:purchaseId", element: <PurchaseDetail /> },
           { path: "expenses", element: <ExpensesScreen /> },
-          { path: "reports", element: <ComingNext title="Reports" description="Profit & loss, balance sheet, sales and stock reports." /> },
+          { path: "reports", element: <ReportsScreen /> },
           { path: "approvals", element: <ApprovalsScreen /> },
           { path: "settings", element: <SettingsScreen /> },
           { path: "*", element: <NoAccess /> },

@@ -8,6 +8,7 @@ import {
   expenseNeedsNote,
   isCancelled,
   isSameAccountAs,
+  moneyCategory,
   moneyDirection,
   moneyEntryError,
   moneySourceIds,
@@ -23,6 +24,9 @@ describe("money-entry rules (money-entry.cases.json)", () => {
     it(`validate: ${c.case}`, () => {
       expect(moneyEntryError(c.input as unknown as MoneyEntryInput, cases.today)).toBe(c.expect);
     });
+  }
+  for (const c of cases.category) {
+    it(`category: ${c.case}`, () => expect(moneyCategory(c.entry as Parameters<typeof moneyCategory>[0])).toBe(c.expect));
   }
   for (const c of cases.direction) {
     it(`direction: ${c.case}`, () => {
