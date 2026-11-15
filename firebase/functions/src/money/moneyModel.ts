@@ -265,3 +265,18 @@ export const moneySourceIds = {
   entry: (entryId: string) => `money_${entryId}`,
   registerOpening: (registerId: string) => `register_${registerId}:opening`,
 };
+
+/**
+ * Money paid against an invoice / bill after it was saved (the "still due" check) — the
+ * mirror of countsAsPaid / paidLaterPaise in office/core/src/reports.ts; both run the
+ * `due` table in office/core/src/reports.cases.json. A deleted entry and a reversal's
+ * mirror never count; a reversed entry stops counting only once its mirror is SYNCED.
+ */
+export function paidLaterSum(
+  linked: ReadonlyArray<Record<string, unknown>>,
+  mirrorStatus: (mirrorId: string) => string | null | undefined,
+): number {
+  return linked
+    .filter((e) => e.deleted !== true && !e.reversesEntryId && !(e.reversedByEntryId && mirrorStatus(String(e.reversedByEntryId)) === "SYNCED"))
+    .reduce((sum, e) => sum + Number(e.amountPaise ?? 0), 0);
+}

@@ -44,7 +44,7 @@ const date = (x: unknown): Date | null =>
   x && typeof (x as { toDate?: () => Date }).toDate === "function" ? (x as { toDate: () => Date }).toDate() : null;
 const status = (x: unknown): SyncStatus => (x === "SYNCED" || x === "FAILED" ? x : "PENDING");
 
-function toPurchase(id: string, d: DocumentData): PurchaseRow {
+export function toPurchase(id: string, d: DocumentData): PurchaseRow {
   return {
     id,
     ref: String(d.ref ?? ""),

@@ -21,6 +21,7 @@ import {
   correctionFor,
   expenseNeedsNote,
   moneyEntryError,
+  paidLaterSum,
   type ExpenseGst,
   type MoneyAccountRef,
   type MoneyEntryInput,
@@ -180,10 +181,7 @@ async function paidLaterOn(tx: admin.firestore.Transaction, db: admin.firestore.
   const mirrors = linked.docs.map((d) => d.data().reversedByEntryId).filter((x): x is string => typeof x === "string");
   const mirrorStatus = new Map<string, string>();
   if (mirrors.length) for (const m of await tx.getAll(...mirrors.map((x) => db.collection(MONEY_ENTRIES).doc(x)))) mirrorStatus.set(m.id, String(m.data()?.syncStatus ?? ""));
-  return linked.docs
-    .map((d) => d.data())
-    .filter((e) => e.deleted !== true && !e.reversesEntryId && !(e.reversedByEntryId && mirrorStatus.get(e.reversedByEntryId) === "SYNCED"))
-    .reduce((sum, e) => sum + Number(e.amountPaise ?? 0), 0);
+  return paidLaterSum(linked.docs.map((d) => d.data()), (id) => mirrorStatus.get(id));
 }
 
 /** An expense paid from cash or a bank, with its GST bill when there is one. */

@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, Menu, screen, session, shell } from "elect
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { AppInfo } from "../shared/ipc";
+import { registerCsv } from "./csv";
 import { registerInvoicePdf, stopInvoicePdf } from "./hbe/invoices";
 
 /**
@@ -194,6 +195,7 @@ app.whenReady().then(() => {
 
   registerIpc();
   registerInvoicePdf(() => mainWindow);
+  registerCsv(() => mainWindow);
   buildMenu();
   createWindow();
 

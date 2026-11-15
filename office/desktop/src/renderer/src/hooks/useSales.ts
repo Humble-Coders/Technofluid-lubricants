@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { financialYear, isCancelled, paidState, type CompanyProfile, type PaidState } from "@technofluid/core";
+import { financialYear, documentDue, paidState, type CompanyProfile, type PaidState } from "@technofluid/core";
 import { watchMoneyEntryStatuses, watchSalePayments, type MoneyEntryRow, type SyncStatus } from "@/services/moneyService";
 import { usingEmulators } from "@/lib/firebase";
 import { watchCompany, watchNextInvoiceNo, watchRealBooks, watchSale, watchSales, type SaleRow } from "@/services/saleService";
@@ -101,15 +101,9 @@ export function useSalesPaid(sales: SaleRow[]): Map<string, SalePaid> {
       const later = entries
         .filter((e) => e.saleId === s.id && !e.reversesEntryId)
         .map((e) => (e.reversedByEntryId ? { ...e, mirrorStatus: mirrors[e.reversedByEntryId] ?? null } : e));
-      const laterPaise = later.filter((e) => !isCancelled(e, e.mirrorStatus)).reduce((sum, e) => sum + e.amountPaise, 0);
-      const paidPaise = s.paidAtBillingPaise + laterPaise;
       const total = s.totals.grandTotalPaise;
-      out.set(s.id, {
-        paidPaise,
-        duePaise: Math.max(total - paidPaise, 0),
-        state: s.status === "CANCELLED" ? "CANCELLED" : paidState(total, paidPaise),
-        later,
-      });
+      const { paidPaise, duePaise } = documentDue({ totalPaise: total, paidAtCreationPaise: s.paidAtBillingPaise, linked: later });
+      out.set(s.id, { paidPaise, duePaise, state: s.status === "CANCELLED" ? "CANCELLED" : paidState(total, paidPaise), later });
     }
     return out;
   }, [sales, entries, mirrors]);
