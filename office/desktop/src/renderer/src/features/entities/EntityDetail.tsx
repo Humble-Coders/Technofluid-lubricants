@@ -233,7 +233,6 @@ export function EntityDetail({
       {linking ? <LinkDialog entity={e} onClose={() => setLinking(false)} /> : null}
       {paying ? (
         <MoneyEntryForm
-          action={balance && balance.balancePaise < 0 ? "paid" : "received"}
           parties={parties}
           registers={regs}
           initial={balance && balance.balancePaise < 0 ? { to: `P:${e.id}` } : { from: `P:${e.id}` }}

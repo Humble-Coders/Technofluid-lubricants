@@ -1171,5 +1171,15 @@
    "category": "",
    "expect": false
   }
+ ],
+ "category": [
+  { "case": "party pays into cash", "entry": { "from": { "kind": "PARTY", "entityId": "e1", "name": "TEST Party" }, "to": { "kind": "CASH", "registerId": "r1", "name": "Cash" } }, "expect": "RECEIVED" },
+  { "case": "bank pays a party", "entry": { "from": { "kind": "BANK", "registerId": "r2", "name": "TEST Bank" }, "to": { "kind": "PARTY", "entityId": "e1", "name": "TEST Party" } }, "expect": "PAID" },
+  { "case": "cash into the bank", "entry": { "from": { "kind": "CASH", "registerId": "r1", "name": "Cash" }, "to": { "kind": "BANK", "registerId": "r2", "name": "TEST Bank" } }, "expect": "TRANSFER" },
+  { "case": "party to party", "entry": { "from": { "kind": "PARTY", "entityId": "e1", "name": "TEST Party" }, "to": { "kind": "PARTY", "entityId": "e2", "name": "TEST Other Party" } }, "expect": "MOVE" },
+  { "case": "expense from cash", "entry": { "from": { "kind": "CASH", "registerId": "r1", "name": "Cash" }, "to": { "kind": "EXPENSE", "categoryId": "x1", "name": "Freight" } }, "expect": "EXPENSE" },
+  { "case": "correction on a party", "entry": { "from": { "kind": "ADJUSTMENT" }, "to": { "kind": "PARTY", "entityId": "e1", "name": "TEST Party" }, "isCorrection": true }, "expect": "CORRECTION" },
+  { "case": "the mirror of money received is still money received", "entry": { "from": { "kind": "CASH", "registerId": "r1", "name": "Cash" }, "to": { "kind": "PARTY", "entityId": "e1", "name": "TEST Party" }, "reversesEntryId": "m1" }, "expect": "RECEIVED" },
+  { "case": "the mirror of an expense is still an expense", "entry": { "from": { "kind": "EXPENSE", "categoryId": "x1", "name": "Freight" }, "to": { "kind": "CASH", "registerId": "r1", "name": "Cash" }, "reversesEntryId": "m2" }, "expect": "EXPENSE" }
  ]
 }

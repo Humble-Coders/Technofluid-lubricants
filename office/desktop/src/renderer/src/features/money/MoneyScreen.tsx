@@ -1,15 +1,15 @@
 import clsx from "clsx";
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, CloudOff, Landmark, RefreshCw, Scale, Settings2, Shuffle, Undo2, Wallet } from "lucide-react";
+import { CloudOff, Landmark, Plus, RefreshCw, Scale, Settings2, Undo2, Wallet } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { canReverse, formatINR, indiaDate, isCancelled, moneyDirection, reversalState, type MoneyAccountRef } from "@technofluid/core";
+import { canReverse, formatINR, indiaDate, isCancelled, MONEY_CATEGORIES, MONEY_CATEGORY_LABEL, moneyCategory, moneyDirection, reversalState, type MoneyAccountRef, type MoneyCategory } from "@technofluid/core";
 import { Badge, Button, EmptyState, Input, Select, Spinner } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { Modal } from "@/features/entities/EntityDetail";
 import { useEntities, useEntityBalances } from "@/hooks/useEntities";
 import { useMoneyEntries, useMoneyEntry, useRegisterBalances, useRegisters } from "@/hooks/useMoney";
 import { retryMoneyEntrySync, reverseMoneyEntry, type MoneyEntryRow, type RegisterRow } from "@/services/moneyService";
-import { amountClass, CorrectionDialog, MoneyEntryForm, type QuickAction } from "./MoneyForms";
+import { amountClass, CorrectionDialog, MoneyEntryForm } from "./MoneyForms";
 import { RegistersPanel } from "./RegistersPanel";
 
 type Preset = "today" | "week" | "month" | "custom";
@@ -49,11 +49,11 @@ export function MoneyScreen() {
   const [custom, setCustom] = useState<[string, string]>(rangeFor("month", today));
   const [from, to] = preset === "custom" ? custom : rangeFor(preset, today);
   const entries = useMoneyEntries(from, to);
-  const [direction, setDirection] = useState<"all" | "IN" | "OUT" | "INTERNAL">("all");
+  const [category, setCategory] = useState<MoneyCategory | "">("");
   const [registerFilter, setRegisterFilter] = useState("");
   const [partyFilter, setPartyFilter] = useState("");
   const [showReversed, setShowReversed] = useState(false);
-  const [action, setAction] = useState<QuickAction | null>(null);
+  const [recording, setRecording] = useState(false);
   const [correcting, setCorrecting] = useState(false);
   const [managing, setManaging] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
@@ -72,20 +72,13 @@ export function MoneyScreen() {
     if (entries.status !== "ready") return [];
     return entries.data.filter((e) => {
       if (!showReversed && isCancelled(e, e.mirrorStatus)) return false;
-      if (direction !== "all" && moneyDirection(e) !== direction) return false;
+      if (category && moneyCategory(e) !== category) return false;
       const ids = [e.from, e.to].map((r) => (r.kind === "PARTY" ? r.entityId : r.kind === "CASH" || r.kind === "BANK" ? r.registerId : ""));
       if (registerFilter && !ids.includes(registerFilter)) return false;
       if (partyFilter && !ids.includes(partyFilter)) return false;
       return true;
     });
-  }, [entries, showReversed, direction, registerFilter, partyFilter]);
-
-  const QUICK: { key: QuickAction; label: string; icon: typeof Wallet }[] = [
-    { key: "received", label: "Money received", icon: ArrowDownLeft },
-    { key: "paid", label: "Money paid", icon: ArrowUpRight },
-    { key: "transfer", label: "Deposit / withdraw / transfer", icon: ArrowLeftRight },
-    { key: "move", label: "Move balance", icon: Shuffle },
-  ];
+  }, [entries, showReversed, category, registerFilter, partyFilter]);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -109,11 +102,9 @@ export function MoneyScreen() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {QUICK.map((q) => (
-            <Button key={q.key} icon={<q.icon className="size-3.5" />} onClick={() => setAction(q.key)}>
-              {q.label}
-            </Button>
-          ))}
+          <Button variant="primary" icon={<Plus className="size-3.5" />} onClick={() => setRecording(true)}>
+            Record money
+          </Button>
           {isAdmin ? (
             <Button icon={<Scale className="size-3.5" />} onClick={() => setCorrecting(true)}>
               Correction
@@ -147,11 +138,13 @@ export function MoneyScreen() {
               <Input type="date" value={custom[1]} min={custom[0]} max={today} onChange={(e) => e.target.value && setCustom([custom[0], e.target.value])} aria-label="To" className="w-36" />
             </>
           ) : null}
-          <Select value={direction} onChange={(e) => setDirection(e.target.value as typeof direction)} aria-label="Direction" className="w-36">
-            <option value="all">In and out</option>
-            <option value="IN">Money in</option>
-            <option value="OUT">Money out</option>
-            <option value="INTERNAL">Transfers / moves</option>
+          <Select value={category} onChange={(e) => setCategory(e.target.value as MoneyCategory | "")} aria-label="Kind" className="w-48">
+            <option value="">All kinds</option>
+            {MONEY_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {MONEY_CATEGORY_LABEL[c]}
+              </option>
+            ))}
           </Select>
           <Select value={registerFilter} onChange={(e) => setRegisterFilter(e.target.value)} aria-label="Cash or bank" className="w-44">
             <option value="">All cash & bank</option>
@@ -181,20 +174,19 @@ export function MoneyScreen() {
           <p className="text-[12px] text-danger">{entries.message}</p>
         ) : rows.length === 0 ? (
           <EmptyState icon={<Wallet className="size-6" />} title="Nothing in these dates">
-            Record money received or paid with the buttons above.
+            Record money in or out with Record money above.
           </EmptyState>
         ) : (
           <EntriesTable rows={rows} isAdmin={isAdmin} />
         )}
       </div>
 
-      {action ? (
+      {recording ? (
         <MoneyEntryForm
-          action={action}
           parties={parties}
           registers={regs.filter((r) => !r.placeholder)}
           onClose={(id) => {
-            setAction(null);
+            setRecording(false);
             if (id) setLastSaved(id);
           }}
         />
@@ -228,6 +220,15 @@ function RegisterCard({ register: r, balance, onOpen }: { register: RegisterRow;
     </button>
   );
 }
+
+const CATEGORY_TONE: Record<MoneyCategory, "success" | "info" | "neutral" | "brand" | "danger" | "warning"> = {
+  RECEIVED: "success",
+  PAID: "info",
+  TRANSFER: "neutral",
+  MOVE: "brand",
+  EXPENSE: "danger",
+  CORRECTION: "warning",
+};
 
 /** onSelect: rows open a details panel when given (Expenses). */
 export function EntriesTable({ rows, isAdmin, onSelect, selectedId }: { rows: MoneyEntryRow[]; isAdmin: boolean; onSelect?: (e: MoneyEntryRow) => void; selectedId?: string | null }) {
@@ -269,8 +270,9 @@ export function EntriesTable({ rows, isAdmin, onSelect, selectedId }: { rows: Mo
                   <span className={clsx(cancelled && "line-through")}>
                     {sideName(e.from)} → {sideName(e.to)}
                   </span>
-                  {e.to.kind === "EXPENSE" ? <Badge tone="danger" className="ml-1.5">Expense</Badge> : null}
-                  {e.isCorrection ? <Badge tone="warning" className="ml-1.5">Correction</Badge> : null}
+                  <Badge tone={CATEGORY_TONE[moneyCategory(e)]} className="ml-1.5">
+                    {MONEY_CATEGORY_LABEL[moneyCategory(e)]}
+                  </Badge>
                   {e.reversesEntryId ? <Badge className="ml-1.5">Reversal</Badge> : e.reversedByEntryId ? <ReversedBadge entry={e} /> : null}
                   {e.gst ? <span className="ml-1.5 text-2xs text-ink-muted">GST bill {e.gst.billNo}</span> : null}
                 </td>
