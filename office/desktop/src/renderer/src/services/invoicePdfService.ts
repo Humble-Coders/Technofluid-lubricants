@@ -26,7 +26,7 @@ export function needsLiveCompany(sale: SaleRow): boolean {
 
 export interface InvoicePdfOptions {
   copyLabel: string;
-  action: "save" | "open";
+  action: "save" | "open" | "preview";
   /** The current company settings — used only for an older sale with no bank/terms frozen on it. */
   company: CompanyProfile | null;
   /** The buyer's phones, from their customer record. */

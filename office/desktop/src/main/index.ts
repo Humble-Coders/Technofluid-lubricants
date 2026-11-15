@@ -184,7 +184,8 @@ app.whenReady().then(() => {
               "img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com",
               "font-src 'self' data:",
               "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.cloudfunctions.net https://*.run.app",
-              "frame-src 'none'",
+              // The invoice screen shows the real PDF (made in memory) in a frame.
+              "frame-src blob:",
               "object-src 'none'",
             ].join("; "),
           ],
