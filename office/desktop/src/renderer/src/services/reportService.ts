@@ -1,5 +1,5 @@
-import { collection, documentId, getDocs, query, where, type DocumentData } from "firebase/firestore";
-import type { LinkedPaymentState } from "@technofluid/core";
+import { collection, getDocs, query, where, type DocumentData } from "firebase/firestore";
+import type { EntityForReport, MoneyEntryForReport } from "@technofluid/core";
 import { db } from "@/lib/firebase";
 import { toPurchase, type PurchaseRow } from "./purchaseService";
 import { toSale, type SaleRow } from "./saleService";
@@ -40,48 +40,53 @@ export async function readStockItems(): Promise<StockItem[]> {
   return snap.docs.map((d) => toStockItem(d.id, d.data()));
 }
 
-/** entityId → name, for every customer / supplier (archived ones too: they can still owe). */
-export async function readEntityNames(): Promise<Record<string, string>> {
+/** Every customer / supplier with its opening balance (archived ones too: they can still owe). */
+export async function readEntitiesForReport(): Promise<EntityForReport[]> {
   const snap = await getDocs(query(collection(db, "entities"), where("deleted", "==", false)));
-  return Object.fromEntries(snap.docs.map((d) => [d.id, String(d.data().name ?? d.id)]));
+  return snap.docs.map((d) => {
+    const x = d.data();
+    const o = x.opening;
+    return {
+      id: d.id,
+      name: String(x.name ?? d.id),
+      opening:
+        o && typeof o.amountPaise === "number"
+          ? { amountPaise: o.amountPaise, direction: o.direction === "payable" ? "payable" : "receivable", asOf: String(o.asOf ?? ""), posted: o.posted === true }
+          : null,
+    };
+  });
 }
 
-const chunks = <T,>(xs: readonly T[], n = 30): T[][] => {
-  const out: T[][] = [];
-  for (let i = 0; i < xs.length; i += n) out.push(xs.slice(i, i + n));
-  return out;
-};
+const side = (r: DocumentData | undefined) => ({ kind: String(r?.kind ?? ""), entityId: typeof r?.entityId === "string" ? r.entityId : undefined, name: typeof r?.name === "string" ? r.name : undefined });
 
 /**
- * Money linked to these invoices / bills, each with its reversal's status, grouped by
- * document id — the input to documentDue (the same rule the screens and the server use).
+ * Every money entry with a customer / supplier on either side (two single-field queries),
+ * any date: payments against invoices and bills, advances, refunds, corrections, transfers
+ * and the mirrors of reversed ones.
  */
-export async function readLinkedPayments(field: "saleId" | "purchaseId", ids: readonly string[]): Promise<Map<string, LinkedPaymentState[]>> {
-  const rows: DocumentData[] = [];
-  for (const chunk of chunks(ids)) {
-    const snap = await getDocs(query(collection(db, "moneyEntries"), where(field, "in", chunk)));
-    for (const d of snap.docs) rows.push(d.data());
-  }
-  const mirrorIds = [...new Set(rows.flatMap((r) => (typeof r.reversedByEntryId === "string" && r.reversedByEntryId ? [r.reversedByEntryId] : [])))];
-  const mirrorStatus = new Map<string, string>();
-  for (const chunk of chunks(mirrorIds)) {
-    const snap = await getDocs(query(collection(db, "moneyEntries"), where(documentId(), "in", chunk)));
-    for (const d of snap.docs) mirrorStatus.set(d.id, String(d.data().syncStatus ?? ""));
-  }
-  const out = new Map<string, LinkedPaymentState[]>();
-  for (const r of rows) {
-    const id = String(r[field] ?? "");
-    const list = out.get(id) ?? [];
-    list.push({
-      amountPaise: Number(r.amountPaise ?? 0),
-      deleted: r.deleted === true,
-      reversesEntryId: typeof r.reversesEntryId === "string" ? r.reversesEntryId : null,
-      reversedByEntryId: typeof r.reversedByEntryId === "string" ? r.reversedByEntryId : null,
-      mirrorStatus: typeof r.reversedByEntryId === "string" ? (mirrorStatus.get(r.reversedByEntryId) ?? null) : null,
+export async function readPartyMoneyEntries(): Promise<MoneyEntryForReport[]> {
+  const [a, b] = await Promise.all([getDocs(query(collection(db, "moneyEntries"), where("from.kind", "==", "PARTY"))), getDocs(query(collection(db, "moneyEntries"), where("to.kind", "==", "PARTY")))]);
+  const out = new Map<string, MoneyEntryForReport>();
+  for (const d of [...a.docs, ...b.docs]) {
+    const x = d.data();
+    if (x.deleted === true || out.has(d.id)) continue;
+    out.set(d.id, {
+      id: d.id,
+      from: side(x.from),
+      to: side(x.to),
+      amountPaise: Number(x.amountPaise ?? 0),
+      businessDay: String(x.businessDay ?? ""),
+      note: typeof x.note === "string" ? x.note : null,
+      isCorrection: x.isCorrection === true,
+      saleId: typeof x.saleId === "string" && x.saleId ? x.saleId : null,
+      purchaseId: typeof x.purchaseId === "string" && x.purchaseId ? x.purchaseId : null,
+      reversesEntryId: typeof x.reversesEntryId === "string" ? x.reversesEntryId : null,
+      reversedByEntryId: typeof x.reversedByEntryId === "string" ? x.reversedByEntryId : null,
+      syncStatus: String(x.syncStatus ?? "PENDING"),
+      inBooks: x.syncStatus === "SYNCED" || (typeof x.hlTxnId === "string" && x.hlTxnId !== ""),
     });
-    out.set(id, list);
   }
-  return out;
+  return [...out.values()];
 }
 
 /**

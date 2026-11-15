@@ -84,3 +84,10 @@ Nothing is posted to HL and nothing is written to Firestore. Reports only read.
 6. **Stock items without a unit** are left out of Stock value: they can't hold stock or be bought.
 7. **Where the functions' pure filter lives.** It's `paidLaterSum` in `money/moneyModel.ts`, the server's mirror module (pure and loadable by the emulator tests), and `paidLaterOn` in `money/entries.ts` calls it. Same behaviour. The only deployed function affected is `recordMoneyEntry`; it can ride the next deploy on Ansh's word.
 8. **Lint in firebase/functions.** `money/moneyModel.ts` and `entries.ts` already fail the functions eslint (max-len and similar: 210 errors on main). The new function adds 8 of the same kind, written line for line like its core twin, as the rest of that file is. `tsc` is clean.
+9. **"Not matched" is broken down (Sharnya's request, 15 Nov).** Instead of one lump line, each party lists what makes up the rest of its balance, from our own records (core `moneyOwedFromRecords`, shared cases in reports.cases.json):
+   - the opening balance (if it's posted to the books);
+   - money received or paid with no invoice or bill chosen, balance corrections, and money moved between parties (each with date, cash/bank and note);
+   - payments kept as credit after an invoice or bill was cancelled;
+   - anything not in the books yet: an invoice or bill still syncing, a payment still syncing, or a cancellation still syncing.
+
+   Whatever is still left shows in red as "Not found in our records" (an invoice or bill older than the date window, or something entered directly in HL). On the test data every party is fully explained. Reads: money entries with a party on either side, as two single-field queries (`from.kind == PARTY`, `to.kind == PARTY`); no new index. These replace the chunked `in` reads of linked payments.

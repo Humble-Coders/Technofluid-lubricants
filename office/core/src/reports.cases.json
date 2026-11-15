@@ -1,128 +1,603 @@
 {
   "about": "Report rules — run by office/core (vitest). The `due` table ALSO runs against the Cloud Functions' paid-later filter (office/emulator/tests/money.test.mjs), so the app's \"still due\" and the server's can't drift. Made-up names only.",
   "due": [
-    { "case": "partial: paid at billing + one payment later", "input": { "totalPaise": 100000, "paidAtCreationPaise": 20000, "linked": [{ "amountPaise": 30000 }] }, "expect": { "paidLaterPaise": 30000, "paidPaise": 50000, "duePaise": 50000 } },
-    { "case": "full at billing", "input": { "totalPaise": 100000, "paidAtCreationPaise": 100000, "linked": [] }, "expect": { "paidLaterPaise": 0, "paidPaise": 100000, "duePaise": 0 } },
-    { "case": "full through later payments", "input": { "totalPaise": 50000, "paidAtCreationPaise": 0, "linked": [{ "amountPaise": 20000 }, { "amountPaise": 30000 }] }, "expect": { "paidLaterPaise": 50000, "paidPaise": 50000, "duePaise": 0 } },
+    {
+      "case": "partial: paid at billing + one payment later",
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 20000,
+        "linked": [
+          {
+            "amountPaise": 30000
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 30000,
+        "paidPaise": 50000,
+        "duePaise": 50000
+      }
+    },
+    {
+      "case": "full at billing",
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 100000,
+        "linked": []
+      },
+      "expect": {
+        "paidLaterPaise": 0,
+        "paidPaise": 100000,
+        "duePaise": 0
+      }
+    },
+    {
+      "case": "full through later payments",
+      "input": {
+        "totalPaise": 50000,
+        "paidAtCreationPaise": 0,
+        "linked": [
+          {
+            "amountPaise": 20000
+          },
+          {
+            "amountPaise": 30000
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 50000,
+        "paidPaise": 50000,
+        "duePaise": 0
+      }
+    },
     {
       "case": "reversed, mirror still PENDING: still counts (the books still have it as paid); the mirror itself never counts",
-      "input": { "totalPaise": 100000, "paidAtCreationPaise": 0, "linked": [{ "amountPaise": 40000, "reversedByEntryId": "m1", "mirrorStatus": "PENDING" }, { "amountPaise": 40000, "reversesEntryId": "e1" }] },
-      "expect": { "paidLaterPaise": 40000, "paidPaise": 40000, "duePaise": 60000 }
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 0,
+        "linked": [
+          {
+            "amountPaise": 40000,
+            "reversedByEntryId": "m1",
+            "mirrorStatus": "PENDING"
+          },
+          {
+            "amountPaise": 40000,
+            "reversesEntryId": "e1"
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 40000,
+        "paidPaise": 40000,
+        "duePaise": 60000
+      }
     },
     {
       "case": "reversed, mirror FAILED: still counts",
-      "input": { "totalPaise": 100000, "paidAtCreationPaise": 0, "linked": [{ "amountPaise": 40000, "reversedByEntryId": "m1", "mirrorStatus": "FAILED" }] },
-      "expect": { "paidLaterPaise": 40000, "paidPaise": 40000, "duePaise": 60000 }
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 0,
+        "linked": [
+          {
+            "amountPaise": 40000,
+            "reversedByEntryId": "m1",
+            "mirrorStatus": "FAILED"
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 40000,
+        "paidPaise": 40000,
+        "duePaise": 60000
+      }
     },
     {
       "case": "reversed, mirror status not known yet: still counts",
-      "input": { "totalPaise": 100000, "paidAtCreationPaise": 0, "linked": [{ "amountPaise": 40000, "reversedByEntryId": "m1", "mirrorStatus": null }] },
-      "expect": { "paidLaterPaise": 40000, "paidPaise": 40000, "duePaise": 60000 }
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 0,
+        "linked": [
+          {
+            "amountPaise": 40000,
+            "reversedByEntryId": "m1",
+            "mirrorStatus": null
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 40000,
+        "paidPaise": 40000,
+        "duePaise": 60000
+      }
     },
     {
       "case": "reversed, mirror SYNCED: stops counting",
-      "input": { "totalPaise": 100000, "paidAtCreationPaise": 0, "linked": [{ "amountPaise": 40000, "reversedByEntryId": "m1", "mirrorStatus": "SYNCED" }, { "amountPaise": 40000, "reversesEntryId": "e1" }] },
-      "expect": { "paidLaterPaise": 0, "paidPaise": 0, "duePaise": 100000 }
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 0,
+        "linked": [
+          {
+            "amountPaise": 40000,
+            "reversedByEntryId": "m1",
+            "mirrorStatus": "SYNCED"
+          },
+          {
+            "amountPaise": 40000,
+            "reversesEntryId": "e1"
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 0,
+        "paidPaise": 0,
+        "duePaise": 100000
+      }
     },
     {
       "case": "deleted entry never counts",
-      "input": { "totalPaise": 100000, "paidAtCreationPaise": 0, "linked": [{ "amountPaise": 25000, "deleted": true }, { "amountPaise": 10000 }] },
-      "expect": { "paidLaterPaise": 10000, "paidPaise": 10000, "duePaise": 90000 }
+      "input": {
+        "totalPaise": 100000,
+        "paidAtCreationPaise": 0,
+        "linked": [
+          {
+            "amountPaise": 25000,
+            "deleted": true
+          },
+          {
+            "amountPaise": 10000
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 10000,
+        "paidPaise": 10000,
+        "duePaise": 90000
+      }
     },
     {
       "case": "more paid than the total: due stays at zero",
-      "input": { "totalPaise": 10000, "paidAtCreationPaise": 6000, "linked": [{ "amountPaise": 5000 }] },
-      "expect": { "paidLaterPaise": 5000, "paidPaise": 11000, "duePaise": 0 }
+      "input": {
+        "totalPaise": 10000,
+        "paidAtCreationPaise": 6000,
+        "linked": [
+          {
+            "amountPaise": 5000
+          }
+        ]
+      },
+      "expect": {
+        "paidLaterPaise": 5000,
+        "paidPaise": 11000,
+        "duePaise": 0
+      }
     }
   ],
   "ageing": [
-    { "today": "2026-11-15", "date": "2026-11-15", "days": 0, "bucket": "0-30" },
-    { "today": "2026-11-15", "date": "2026-10-16", "days": 30, "bucket": "0-30" },
-    { "today": "2026-11-15", "date": "2026-10-15", "days": 31, "bucket": "31-60" },
-    { "today": "2026-11-15", "date": "2026-09-16", "days": 60, "bucket": "31-60" },
-    { "today": "2026-11-15", "date": "2026-09-15", "days": 61, "bucket": "61-90" },
-    { "today": "2026-11-15", "date": "2026-08-17", "days": 90, "bucket": "61-90" },
-    { "today": "2026-11-15", "date": "2026-08-16", "days": 91, "bucket": "90+" },
-    { "today": "2026-11-15", "date": "2026-11-20", "days": 0, "bucket": "0-30" },
-    { "today": "2027-01-05", "date": "2026-12-31", "days": 5, "bucket": "0-30" },
-    { "today": "2028-03-01", "date": "2028-02-28", "days": 2, "bucket": "0-30" }
+    {
+      "today": "2026-11-15",
+      "date": "2026-11-15",
+      "days": 0,
+      "bucket": "0-30"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-10-16",
+      "days": 30,
+      "bucket": "0-30"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-10-15",
+      "days": 31,
+      "bucket": "31-60"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-09-16",
+      "days": 60,
+      "bucket": "31-60"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-09-15",
+      "days": 61,
+      "bucket": "61-90"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-08-17",
+      "days": 90,
+      "bucket": "61-90"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-08-16",
+      "days": 91,
+      "bucket": "90+"
+    },
+    {
+      "today": "2026-11-15",
+      "date": "2026-11-20",
+      "days": 0,
+      "bucket": "0-30"
+    },
+    {
+      "today": "2027-01-05",
+      "date": "2026-12-31",
+      "days": 5,
+      "bucket": "0-30"
+    },
+    {
+      "today": "2028-03-01",
+      "date": "2028-02-28",
+      "days": 2,
+      "bucket": "0-30"
+    }
   ],
   "openFrom": [
-    { "today": "2026-11-15", "from": "2025-04-01" },
-    { "today": "2027-03-31", "from": "2025-04-01" },
-    { "today": "2027-04-01", "from": "2026-04-01" },
-    { "today": "2026-01-10", "from": "2024-04-01" }
+    {
+      "today": "2026-11-15",
+      "from": "2025-04-01"
+    },
+    {
+      "today": "2027-03-31",
+      "from": "2025-04-01"
+    },
+    {
+      "today": "2027-04-01",
+      "from": "2026-04-01"
+    },
+    {
+      "today": "2026-01-10",
+      "from": "2024-04-01"
+    }
   ],
   "moneyOwed": {
     "today": "2026-11-15",
-    "balances": { "ent_a": 150000, "ent_b": -80000, "ent_c": 0, "ent_d": 30000 },
-    "names": { "ent_a": "TEST Alpha Traders", "ent_b": "TEST Base Oils Co", "ent_c": "TEST Cans Ltd", "ent_d": "TEST Dual Lubes", "ent_e": "TEST Echo Motors" },
+    "balances": {
+      "ent_a": 150000,
+      "ent_b": -80000,
+      "ent_c": 0,
+      "ent_d": 30000
+    },
+    "names": {
+      "ent_a": "TEST Alpha Traders",
+      "ent_b": "TEST Base Oils Co",
+      "ent_c": "TEST Cans Ltd",
+      "ent_d": "TEST Dual Lubes",
+      "ent_e": "TEST Echo Motors"
+    },
     "documents": [
-      { "kind": "INVOICE", "id": "s1", "ref": "TF/2026-27/0011", "partyRef": null, "entityId": "ent_a", "partyName": "TEST Alpha Traders", "date": "2026-11-01", "totalPaise": 100000, "paidPaise": 20000 },
-      { "kind": "INVOICE", "id": "s2", "ref": "TF/2026-27/0002", "partyRef": null, "entityId": "ent_a", "partyName": "TEST Alpha Traders", "date": "2026-08-01", "totalPaise": 50000, "paidPaise": 0 },
-      { "kind": "INVOICE", "id": "s3", "ref": "TF/2026-27/0012", "partyRef": null, "entityId": "ent_a", "partyName": "TEST Alpha Traders", "date": "2026-11-02", "totalPaise": 10000, "paidPaise": 10000 },
-      { "kind": "BILL", "id": "p1", "ref": "PB/2026-27/0001", "partyRef": "TBO/77", "entityId": "ent_b", "partyName": "TEST Base Oils Co", "date": "2026-10-01", "totalPaise": 100000, "paidPaise": 20000 },
-      { "kind": "INVOICE", "id": "s4", "ref": "TF/2026-27/0005", "partyRef": null, "entityId": "ent_d", "partyName": "TEST Dual Lubes", "date": "2026-09-20", "totalPaise": 60000, "paidPaise": 0 },
-      { "kind": "BILL", "id": "p2", "ref": "PB/2026-27/0002", "partyRef": "DL-9", "entityId": "ent_d", "partyName": "TEST Dual Lubes", "date": "2026-11-10", "totalPaise": 40000, "paidPaise": 10000 },
-      { "kind": "INVOICE", "id": "s5", "ref": "TF/2026-27/0013", "partyRef": null, "entityId": "ent_e", "partyName": "TEST Echo Motors", "date": "2026-11-14", "totalPaise": 5000, "paidPaise": 0 }
+      {
+        "kind": "INVOICE",
+        "id": "s1",
+        "ref": "TF/2026-27/0011",
+        "partyRef": null,
+        "entityId": "ent_a",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-11-01",
+        "totalPaise": 100000,
+        "paidPaise": 20000
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s2",
+        "ref": "TF/2026-27/0002",
+        "partyRef": null,
+        "entityId": "ent_a",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-08-01",
+        "totalPaise": 50000,
+        "paidPaise": 0
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s3",
+        "ref": "TF/2026-27/0012",
+        "partyRef": null,
+        "entityId": "ent_a",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-11-02",
+        "totalPaise": 10000,
+        "paidPaise": 10000
+      },
+      {
+        "kind": "BILL",
+        "id": "p1",
+        "ref": "PB/2026-27/0001",
+        "partyRef": "TBO/77",
+        "entityId": "ent_b",
+        "partyName": "TEST Base Oils Co",
+        "date": "2026-10-01",
+        "totalPaise": 100000,
+        "paidPaise": 20000
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s4",
+        "ref": "TF/2026-27/0005",
+        "partyRef": null,
+        "entityId": "ent_d",
+        "partyName": "TEST Dual Lubes",
+        "date": "2026-09-20",
+        "totalPaise": 60000,
+        "paidPaise": 0
+      },
+      {
+        "kind": "BILL",
+        "id": "p2",
+        "ref": "PB/2026-27/0002",
+        "partyRef": "DL-9",
+        "entityId": "ent_d",
+        "partyName": "TEST Dual Lubes",
+        "date": "2026-11-10",
+        "totalPaise": 40000,
+        "paidPaise": 10000
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s5",
+        "ref": "TF/2026-27/0013",
+        "partyRef": null,
+        "entityId": "ent_e",
+        "partyName": "TEST Echo Motors",
+        "date": "2026-11-14",
+        "totalPaise": 5000,
+        "paidPaise": 0
+      }
     ],
     "expect": {
       "owedToUs": [
-        { "entityId": "ent_a", "balancePaise": 150000, "openInvoicesPaise": 130000, "openBillsPaise": 0, "notMatchedPaise": 20000, "documents": [["TF/2026-27/0002", 50000, 106, "90+"], ["TF/2026-27/0011", 80000, 14, "0-30"]] },
-        { "entityId": "ent_d", "balancePaise": 30000, "openInvoicesPaise": 60000, "openBillsPaise": 30000, "notMatchedPaise": 0, "documents": [["TF/2026-27/0005", 60000, 56, "31-60"], ["PB/2026-27/0002", 30000, 5, "0-30"]] }
+        {
+          "entityId": "ent_a",
+          "balancePaise": 150000,
+          "openInvoicesPaise": 130000,
+          "openBillsPaise": 0,
+          "notMatchedPaise": 20000,
+          "documents": [
+            [
+              "TF/2026-27/0002",
+              50000,
+              106,
+              "90+"
+            ],
+            [
+              "TF/2026-27/0011",
+              80000,
+              14,
+              "0-30"
+            ]
+          ]
+        },
+        {
+          "entityId": "ent_d",
+          "balancePaise": 30000,
+          "openInvoicesPaise": 60000,
+          "openBillsPaise": 30000,
+          "notMatchedPaise": 0,
+          "documents": [
+            [
+              "TF/2026-27/0005",
+              60000,
+              56,
+              "31-60"
+            ],
+            [
+              "PB/2026-27/0002",
+              30000,
+              5,
+              "0-30"
+            ]
+          ]
+        }
       ],
       "weOwe": [
-        { "entityId": "ent_b", "balancePaise": -80000, "openInvoicesPaise": 0, "openBillsPaise": 80000, "notMatchedPaise": 0, "documents": [["PB/2026-27/0001", 80000, 45, "31-60"]] }
+        {
+          "entityId": "ent_b",
+          "balancePaise": -80000,
+          "openInvoicesPaise": 0,
+          "openBillsPaise": 80000,
+          "notMatchedPaise": 0,
+          "documents": [
+            [
+              "PB/2026-27/0001",
+              80000,
+              45,
+              "31-60"
+            ]
+          ]
+        }
       ],
       "settled": [
-        { "entityId": "ent_c", "balancePaise": 0, "openInvoicesPaise": 0, "openBillsPaise": 0, "notMatchedPaise": 0, "documents": [] },
-        { "entityId": "ent_e", "balancePaise": null, "openInvoicesPaise": 5000, "openBillsPaise": 0, "notMatchedPaise": -5000, "documents": [["TF/2026-27/0013", 5000, 1, "0-30"]] }
+        {
+          "entityId": "ent_c",
+          "balancePaise": 0,
+          "openInvoicesPaise": 0,
+          "openBillsPaise": 0,
+          "notMatchedPaise": 0,
+          "documents": []
+        },
+        {
+          "entityId": "ent_e",
+          "balancePaise": null,
+          "openInvoicesPaise": 5000,
+          "openBillsPaise": 0,
+          "notMatchedPaise": -5000,
+          "documents": [
+            [
+              "TF/2026-27/0013",
+              5000,
+              1,
+              "0-30"
+            ]
+          ]
+        }
       ],
       "owedToUsPaise": 180000,
       "weOwePaise": 80000,
-      "invoiceAgeing": { "0-30": 85000, "31-60": 60000, "61-90": 0, "90+": 50000 },
-      "billAgeing": { "0-30": 30000, "31-60": 80000, "61-90": 0, "90+": 0 }
+      "invoiceAgeing": {
+        "0-30": 85000,
+        "31-60": 60000,
+        "61-90": 0,
+        "90+": 50000
+      },
+      "billAgeing": {
+        "0-30": 30000,
+        "31-60": 80000,
+        "61-90": 0,
+        "90+": 0
+      }
     }
   },
   "sales": {
     "list": [
       {
         "status": "ACTIVE",
-        "customer": { "entityId": "c1", "name": "TEST Alpha Traders" },
+        "customer": {
+          "entityId": "c1",
+          "name": "TEST Alpha Traders"
+        },
         "lines": [
-          { "sku": "HYD68-20L", "productName": "TEST Hydraulic 68", "packLabel": "20 L", "productKey": "hyd68", "baseUnit": "L", "packs": 2, "qtyMilli": 40000, "taxablePaise": 400000, "cgstPaise": 36000, "sgstPaise": 36000, "igstPaise": 0, "totalPaise": 472000 },
-          { "sku": "HYD68-5L", "productName": "TEST Hydraulic 68", "packLabel": "5 L", "productKey": "hyd68", "baseUnit": "L", "packs": 4, "qtyMilli": 20000, "taxablePaise": 220000, "cgstPaise": 19800, "sgstPaise": 19800, "igstPaise": 0, "totalPaise": 259600 }
+          {
+            "sku": "HYD68-20L",
+            "productName": "TEST Hydraulic 68",
+            "packLabel": "20 L",
+            "productKey": "hyd68",
+            "baseUnit": "L",
+            "packs": 2,
+            "qtyMilli": 40000,
+            "taxablePaise": 400000,
+            "cgstPaise": 36000,
+            "sgstPaise": 36000,
+            "igstPaise": 0,
+            "totalPaise": 472000
+          },
+          {
+            "sku": "HYD68-5L",
+            "productName": "TEST Hydraulic 68",
+            "packLabel": "5 L",
+            "productKey": "hyd68",
+            "baseUnit": "L",
+            "packs": 4,
+            "qtyMilli": 20000,
+            "taxablePaise": 220000,
+            "cgstPaise": 19800,
+            "sgstPaise": 19800,
+            "igstPaise": 0,
+            "totalPaise": 259600
+          }
         ],
-        "freight": { "taxablePaise": 10050, "cgstPaise": 905, "sgstPaise": 905, "igstPaise": 0, "totalPaise": 11860 },
-        "totals": { "roundOffPaise": -60, "grandTotalPaise": 743400 }
+        "freight": {
+          "taxablePaise": 10050,
+          "cgstPaise": 905,
+          "sgstPaise": 905,
+          "igstPaise": 0,
+          "totalPaise": 11860
+        },
+        "totals": {
+          "roundOffPaise": -60,
+          "grandTotalPaise": 743400
+        }
       },
       {
         "status": "ACTIVE",
-        "customer": { "entityId": "c2", "name": "TEST Beta Motors" },
+        "customer": {
+          "entityId": "c2",
+          "name": "TEST Beta Motors"
+        },
         "lines": [
-          { "sku": "GR-1KG", "productName": "TEST Grease MP3", "packLabel": "1 kg", "productKey": "grease-mp3", "baseUnit": "kg", "packs": 10, "qtyMilli": 10000, "taxablePaise": 150000, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 27000, "totalPaise": 177000 },
-          { "sku": "HYD68-20L", "productName": "TEST Hydraulic 68", "packLabel": "20 L", "productKey": "hyd68", "baseUnit": "L", "packs": 1, "qtyMilli": 20000, "taxablePaise": 200000, "cgstPaise": 0, "sgstPaise": 0, "igstPaise": 36000, "totalPaise": 236000 }
+          {
+            "sku": "GR-1KG",
+            "productName": "TEST Grease MP3",
+            "packLabel": "1 kg",
+            "productKey": "grease-mp3",
+            "baseUnit": "kg",
+            "packs": 10,
+            "qtyMilli": 10000,
+            "taxablePaise": 150000,
+            "cgstPaise": 0,
+            "sgstPaise": 0,
+            "igstPaise": 27000,
+            "totalPaise": 177000
+          },
+          {
+            "sku": "HYD68-20L",
+            "productName": "TEST Hydraulic 68",
+            "packLabel": "20 L",
+            "productKey": "hyd68",
+            "baseUnit": "L",
+            "packs": 1,
+            "qtyMilli": 20000,
+            "taxablePaise": 200000,
+            "cgstPaise": 0,
+            "sgstPaise": 0,
+            "igstPaise": 36000,
+            "totalPaise": 236000
+          }
         ],
         "freight": null,
-        "totals": { "roundOffPaise": 0, "grandTotalPaise": 413000 }
+        "totals": {
+          "roundOffPaise": 0,
+          "grandTotalPaise": 413000
+        }
       },
       {
         "status": "CANCELLED",
-        "customer": { "entityId": "c1", "name": "TEST Alpha Traders" },
+        "customer": {
+          "entityId": "c1",
+          "name": "TEST Alpha Traders"
+        },
         "lines": [
-          { "sku": "HYD68-20L", "productName": "TEST Hydraulic 68", "packLabel": "20 L", "productKey": "hyd68", "baseUnit": "L", "packs": 5, "qtyMilli": 100000, "taxablePaise": 1000000, "cgstPaise": 90000, "sgstPaise": 90000, "igstPaise": 0, "totalPaise": 1180000 }
+          {
+            "sku": "HYD68-20L",
+            "productName": "TEST Hydraulic 68",
+            "packLabel": "20 L",
+            "productKey": "hyd68",
+            "baseUnit": "L",
+            "packs": 5,
+            "qtyMilli": 100000,
+            "taxablePaise": 1000000,
+            "cgstPaise": 90000,
+            "sgstPaise": 90000,
+            "igstPaise": 0,
+            "totalPaise": 1180000
+          }
         ],
         "freight": null,
-        "totals": { "roundOffPaise": 0, "grandTotalPaise": 1180000 }
+        "totals": {
+          "roundOffPaise": 0,
+          "grandTotalPaise": 1180000
+        }
       },
       {
         "status": "ACTIVE",
-        "customer": { "entityId": "c1", "name": "TEST Alpha Traders" },
+        "customer": {
+          "entityId": "c1",
+          "name": "TEST Alpha Traders"
+        },
         "lines": [
-          { "sku": "SPL-1L", "productName": "TEST Special Oil (one-off price)", "packLabel": "1 L", "productKey": "special", "baseUnit": "L", "packs": 3, "qtyMilli": 3000, "taxablePaise": 30000, "cgstPaise": 2700, "sgstPaise": 2700, "igstPaise": 0, "totalPaise": 35400 }
+          {
+            "sku": "SPL-1L",
+            "productName": "TEST Special Oil (one-off price)",
+            "packLabel": "1 L",
+            "productKey": "special",
+            "baseUnit": "L",
+            "packs": 3,
+            "qtyMilli": 3000,
+            "taxablePaise": 30000,
+            "cgstPaise": 2700,
+            "sgstPaise": 2700,
+            "igstPaise": 0,
+            "totalPaise": 35400
+          }
         ],
         "freight": null,
-        "totals": { "roundOffPaise": 0, "grandTotalPaise": 35400 }
+        "totals": {
+          "roundOffPaise": 0,
+          "grandTotalPaise": 35400
+        }
       }
     ],
     "cases": [
@@ -132,14 +607,66 @@
         "customer": null,
         "expect": {
           "rows": [
-            ["HYD68-20L", "TEST Hydraulic 68", "20 L", 3, { "L": 60000 }, 600000, 108000, 708000],
-            ["HYD68-5L", "TEST Hydraulic 68", "5 L", 4, { "L": 20000 }, 220000, 39600, 259600],
-            ["GR-1KG", "TEST Grease MP3", "1 kg", 10, { "kg": 10000 }, 150000, 27000, 177000],
-            ["SPL-1L", "TEST Special Oil (one-off price)", "1 L", 3, { "L": 3000 }, 30000, 5400, 35400]
+            [
+              "HYD68-20L",
+              "TEST Hydraulic 68",
+              "20 L",
+              3,
+              {
+                "L": 60000
+              },
+              600000,
+              108000,
+              708000
+            ],
+            [
+              "HYD68-5L",
+              "TEST Hydraulic 68",
+              "5 L",
+              4,
+              {
+                "L": 20000
+              },
+              220000,
+              39600,
+              259600
+            ],
+            [
+              "GR-1KG",
+              "TEST Grease MP3",
+              "1 kg",
+              10,
+              {
+                "kg": 10000
+              },
+              150000,
+              27000,
+              177000
+            ],
+            [
+              "SPL-1L",
+              "TEST Special Oil (one-off price)",
+              "1 L",
+              3,
+              {
+                "L": 3000
+              },
+              30000,
+              5400,
+              35400
+            ]
           ],
-          "freight": { "taxablePaise": 10050, "gstPaise": 1810, "totalPaise": 11860 },
+          "freight": {
+            "taxablePaise": 10050,
+            "gstPaise": 1810,
+            "totalPaise": 11860
+          },
           "roundOffPaise": -60,
-          "totals": { "taxablePaise": 1010050, "gstPaise": 181810, "totalPaise": 1191800 },
+          "totals": {
+            "taxablePaise": 1010050,
+            "gstPaise": 181810,
+            "totalPaise": 1191800
+          },
           "invoiceCount": 3,
           "cancelledCount": 1,
           "invoicesTotalPaise": 1191800,
@@ -152,13 +679,54 @@
         "customer": null,
         "expect": {
           "rows": [
-            ["hyd68", "TEST Hydraulic 68", "2 pack sizes", null, { "L": 80000 }, 820000, 147600, 967600],
-            ["grease-mp3", "TEST Grease MP3", "1 kg", 10, { "kg": 10000 }, 150000, 27000, 177000],
-            ["special", "TEST Special Oil (one-off price)", "1 L", 3, { "L": 3000 }, 30000, 5400, 35400]
+            [
+              "hyd68",
+              "TEST Hydraulic 68",
+              "2 pack sizes",
+              null,
+              {
+                "L": 80000
+              },
+              820000,
+              147600,
+              967600
+            ],
+            [
+              "grease-mp3",
+              "TEST Grease MP3",
+              "1 kg",
+              10,
+              {
+                "kg": 10000
+              },
+              150000,
+              27000,
+              177000
+            ],
+            [
+              "special",
+              "TEST Special Oil (one-off price)",
+              "1 L",
+              3,
+              {
+                "L": 3000
+              },
+              30000,
+              5400,
+              35400
+            ]
           ],
-          "freight": { "taxablePaise": 10050, "gstPaise": 1810, "totalPaise": 11860 },
+          "freight": {
+            "taxablePaise": 10050,
+            "gstPaise": 1810,
+            "totalPaise": 11860
+          },
           "roundOffPaise": -60,
-          "totals": { "taxablePaise": 1010050, "gstPaise": 181810, "totalPaise": 1191800 },
+          "totals": {
+            "taxablePaise": 1010050,
+            "gstPaise": 181810,
+            "totalPaise": 1191800
+          },
           "invoiceCount": 3,
           "cancelledCount": 1,
           "invoicesTotalPaise": 1191800,
@@ -171,12 +739,43 @@
         "customer": null,
         "expect": {
           "rows": [
-            ["c1", "TEST Alpha Traders", "2 invoices", null, { "L": 63000 }, 650000, 117000, 767000],
-            ["c2", "TEST Beta Motors", "1 invoice", null, { "kg": 10000, "L": 20000 }, 350000, 63000, 413000]
+            [
+              "c1",
+              "TEST Alpha Traders",
+              "2 invoices",
+              null,
+              {
+                "L": 63000
+              },
+              650000,
+              117000,
+              767000
+            ],
+            [
+              "c2",
+              "TEST Beta Motors",
+              "1 invoice",
+              null,
+              {
+                "kg": 10000,
+                "L": 20000
+              },
+              350000,
+              63000,
+              413000
+            ]
           ],
-          "freight": { "taxablePaise": 10050, "gstPaise": 1810, "totalPaise": 11860 },
+          "freight": {
+            "taxablePaise": 10050,
+            "gstPaise": 1810,
+            "totalPaise": 11860
+          },
           "roundOffPaise": -60,
-          "totals": { "taxablePaise": 1010050, "gstPaise": 181810, "totalPaise": 1191800 },
+          "totals": {
+            "taxablePaise": 1010050,
+            "gstPaise": 181810,
+            "totalPaise": 1191800
+          },
           "invoiceCount": 3,
           "cancelledCount": 1,
           "invoicesTotalPaise": 1191800,
@@ -189,12 +788,42 @@
         "customer": "c2",
         "expect": {
           "rows": [
-            ["HYD68-20L", "TEST Hydraulic 68", "20 L", 1, { "L": 20000 }, 200000, 36000, 236000],
-            ["GR-1KG", "TEST Grease MP3", "1 kg", 10, { "kg": 10000 }, 150000, 27000, 177000]
+            [
+              "HYD68-20L",
+              "TEST Hydraulic 68",
+              "20 L",
+              1,
+              {
+                "L": 20000
+              },
+              200000,
+              36000,
+              236000
+            ],
+            [
+              "GR-1KG",
+              "TEST Grease MP3",
+              "1 kg",
+              10,
+              {
+                "kg": 10000
+              },
+              150000,
+              27000,
+              177000
+            ]
           ],
-          "freight": { "taxablePaise": 0, "gstPaise": 0, "totalPaise": 0 },
+          "freight": {
+            "taxablePaise": 0,
+            "gstPaise": 0,
+            "totalPaise": 0
+          },
           "roundOffPaise": 0,
-          "totals": { "taxablePaise": 350000, "gstPaise": 63000, "totalPaise": 413000 },
+          "totals": {
+            "taxablePaise": 350000,
+            "gstPaise": 63000,
+            "totalPaise": 413000
+          },
           "invoiceCount": 1,
           "cancelledCount": 0,
           "invoicesTotalPaise": 413000,
@@ -207,39 +836,190 @@
       "list": [
         {
           "status": "ACTIVE",
-          "customer": { "entityId": "c9", "name": "TEST Odd Co" },
-          "lines": [{ "sku": "X-1L", "productName": "TEST X", "packLabel": "1 L", "productKey": "x", "baseUnit": "L", "packs": 1, "qtyMilli": 1000, "taxablePaise": 762, "cgstPaise": 69, "sgstPaise": 69, "igstPaise": 0, "totalPaise": 900 }],
+          "customer": {
+            "entityId": "c9",
+            "name": "TEST Odd Co"
+          },
+          "lines": [
+            {
+              "sku": "X-1L",
+              "productName": "TEST X",
+              "packLabel": "1 L",
+              "productKey": "x",
+              "baseUnit": "L",
+              "packs": 1,
+              "qtyMilli": 1000,
+              "taxablePaise": 762,
+              "cgstPaise": 69,
+              "sgstPaise": 69,
+              "igstPaise": 0,
+              "totalPaise": 900
+            }
+          ],
           "freight": null,
-          "totals": { "roundOffPaise": 0, "grandTotalPaise": 1000 }
+          "totals": {
+            "roundOffPaise": 0,
+            "grandTotalPaise": 1000
+          }
         }
       ],
-      "expect": { "totalPaise": 900, "invoicesTotalPaise": 1000, "matches": false }
+      "expect": {
+        "totalPaise": 900,
+        "invoicesTotalPaise": 1000,
+        "matches": false
+      }
     }
   },
   "stock": {
     "items": [
-      { "id": "rm_base", "name": "TEST Base Oil SN150", "kind": "raw_material", "baseUnit": "L", "onHandMilli": 1234567 },
-      { "id": "cons_can", "name": "TEST 26 L Can", "kind": "consumable", "baseUnit": "piece", "onHandMilli": 40000 },
-      { "id": "pool_made", "name": "TEST Engine Oil 20W40", "kind": "product_pool", "baseUnit": "L", "onHandMilli": 200000 },
-      { "id": "rm_neg", "name": "TEST Additive Pack", "kind": "raw_material", "baseUnit": "kg", "onHandMilli": -5000 },
-      { "id": "rm_zero", "name": "TEST Base Oil SN500", "kind": "raw_material", "baseUnit": "L", "onHandMilli": 0 },
-      { "id": "rm_half", "name": "TEST Label Roll", "kind": "consumable", "baseUnit": "piece", "onHandMilli": 1000 }
+      {
+        "id": "rm_base",
+        "name": "TEST Base Oil SN150",
+        "kind": "raw_material",
+        "baseUnit": "L",
+        "onHandMilli": 1234567
+      },
+      {
+        "id": "cons_can",
+        "name": "TEST 26 L Can",
+        "kind": "consumable",
+        "baseUnit": "piece",
+        "onHandMilli": 40000
+      },
+      {
+        "id": "pool_made",
+        "name": "TEST Engine Oil 20W40",
+        "kind": "product_pool",
+        "baseUnit": "L",
+        "onHandMilli": 200000
+      },
+      {
+        "id": "rm_neg",
+        "name": "TEST Additive Pack",
+        "kind": "raw_material",
+        "baseUnit": "kg",
+        "onHandMilli": -5000
+      },
+      {
+        "id": "rm_zero",
+        "name": "TEST Base Oil SN500",
+        "kind": "raw_material",
+        "baseUnit": "L",
+        "onHandMilli": 0
+      },
+      {
+        "id": "rm_half",
+        "name": "TEST Label Roll",
+        "kind": "consumable",
+        "baseUnit": "piece",
+        "onHandMilli": 1000
+      }
     ],
     "purchases": [
-      { "status": "ACTIVE", "lines": [{ "itemId": "rm_base", "qtyMilli": 1000000, "taxablePaise": 8500000 }, { "itemId": "rm_neg", "qtyMilli": 10000, "taxablePaise": 100000 }] },
-      { "status": "ACTIVE", "lines": [{ "itemId": "rm_base", "qtyMilli": 500000, "taxablePaise": 4600000 }] },
-      { "status": "CANCELLED", "lines": [{ "itemId": "rm_base", "qtyMilli": 1000000, "taxablePaise": 1 }, { "itemId": "pool_made", "qtyMilli": 1000, "taxablePaise": 50000 }] },
-      { "status": "ACTIVE", "lines": [{ "itemId": "cons_can", "qtyMilli": 100000, "taxablePaise": 600000 }] },
-      { "status": "ACTIVE", "lines": [{ "itemId": "rm_zero", "qtyMilli": 1000, "taxablePaise": 9999 }, { "itemId": "rm_half", "qtyMilli": 2000, "taxablePaise": 1001 }] }
+      {
+        "status": "ACTIVE",
+        "lines": [
+          {
+            "itemId": "rm_base",
+            "qtyMilli": 1000000,
+            "taxablePaise": 8500000
+          },
+          {
+            "itemId": "rm_neg",
+            "qtyMilli": 10000,
+            "taxablePaise": 100000
+          }
+        ]
+      },
+      {
+        "status": "ACTIVE",
+        "lines": [
+          {
+            "itemId": "rm_base",
+            "qtyMilli": 500000,
+            "taxablePaise": 4600000
+          }
+        ]
+      },
+      {
+        "status": "CANCELLED",
+        "lines": [
+          {
+            "itemId": "rm_base",
+            "qtyMilli": 1000000,
+            "taxablePaise": 1
+          },
+          {
+            "itemId": "pool_made",
+            "qtyMilli": 1000,
+            "taxablePaise": 50000
+          }
+        ]
+      },
+      {
+        "status": "ACTIVE",
+        "lines": [
+          {
+            "itemId": "cons_can",
+            "qtyMilli": 100000,
+            "taxablePaise": 600000
+          }
+        ]
+      },
+      {
+        "status": "ACTIVE",
+        "lines": [
+          {
+            "itemId": "rm_zero",
+            "qtyMilli": 1000,
+            "taxablePaise": 9999
+          },
+          {
+            "itemId": "rm_half",
+            "qtyMilli": 2000,
+            "taxablePaise": 1001
+          }
+        ]
+      }
     ],
     "expect": {
       "rows": [
-        ["rm_base", "valued", 8733, 10781885],
-        ["cons_can", "valued", 6000, 240000],
-        ["rm_half", "valued", 501, 501],
-        ["rm_zero", "valued", 9999, 0],
-        ["rm_neg", "belowZero", 10000, null],
-        ["pool_made", "noCost", null, null]
+        [
+          "rm_base",
+          "valued",
+          8733,
+          10781885
+        ],
+        [
+          "cons_can",
+          "valued",
+          6000,
+          240000
+        ],
+        [
+          "rm_half",
+          "valued",
+          501,
+          501
+        ],
+        [
+          "rm_zero",
+          "valued",
+          9999,
+          0
+        ],
+        [
+          "rm_neg",
+          "belowZero",
+          10000,
+          null
+        ],
+        [
+          "pool_made",
+          "noCost",
+          null,
+          null
+        ]
       ],
       "totalPaise": 11022386,
       "noCostCount": 1,
@@ -247,9 +1027,496 @@
     }
   },
   "csv": {
-    "paise": [[123456, "1234.56"], [-5, "-0.05"], [0, "0.00"], [100, "1.00"]],
-    "milli": [[1500, "1.5"], [2000, "2"], [-250, "-0.25"], [1, "0.001"]],
-    "rows": [["a", "b,c", "say \"hi\""], ["=SUM(A1)", -12.5, null], ["-0.05", "@x", "+91 99"]],
+    "paise": [
+      [
+        123456,
+        "1234.56"
+      ],
+      [
+        -5,
+        "-0.05"
+      ],
+      [
+        0,
+        "0.00"
+      ],
+      [
+        100,
+        "1.00"
+      ]
+    ],
+    "milli": [
+      [
+        1500,
+        "1.5"
+      ],
+      [
+        2000,
+        "2"
+      ],
+      [
+        -250,
+        "-0.25"
+      ],
+      [
+        1,
+        "0.001"
+      ]
+    ],
+    "rows": [
+      [
+        "a",
+        "b,c",
+        "say \"hi\""
+      ],
+      [
+        "=SUM(A1)",
+        -12.5,
+        null
+      ],
+      [
+        "-0.05",
+        "@x",
+        "+91 99"
+      ]
+    ],
     "text": "a,\"b,c\",\"say \"\"hi\"\"\"\r\n'=SUM(A1),-12.5,\r\n-0.05,'@x,'+91 99\r\n"
+  },
+  "fromRecords": {
+    "about": "Where a balance comes from: every kind of item, and what's left unexplained (777 paise on p1). Made-up names.",
+    "today": "2026-11-15",
+    "balances": {
+      "p1": 3568827,
+      "p2": -616000
+    },
+    "entities": [
+      {
+        "id": "p1",
+        "name": "TEST Alpha Traders",
+        "opening": {
+          "amountPaise": 3500050,
+          "direction": "receivable",
+          "asOf": "2026-11-01",
+          "posted": true
+        }
+      },
+      {
+        "id": "p2",
+        "name": "TEST Base Oils Co",
+        "opening": {
+          "amountPaise": 600000,
+          "direction": "payable",
+          "asOf": "2026-11-01",
+          "posted": true
+        }
+      },
+      {
+        "id": "p3",
+        "name": "TEST Not Synced Yet",
+        "opening": {
+          "amountPaise": 99900,
+          "direction": "receivable",
+          "asOf": "2026-11-01",
+          "posted": false
+        }
+      }
+    ],
+    "documents": [
+      {
+        "kind": "INVOICE",
+        "id": "s_a",
+        "ref": "TF/2026-27/0001",
+        "partyRef": null,
+        "entityId": "p1",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-11-02",
+        "status": "ACTIVE",
+        "totalPaise": 100000,
+        "paidAtCreation": [
+          {
+            "amountPaise": 20000,
+            "name": "Cash",
+            "inBooks": true
+          }
+        ],
+        "inBooks": true,
+        "cancelInBooks": false
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s_b",
+        "ref": "TF/2026-27/0002",
+        "partyRef": null,
+        "entityId": "p1",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-11-03",
+        "status": "CANCELLED",
+        "totalPaise": 50000,
+        "paidAtCreation": [
+          {
+            "amountPaise": 8000,
+            "name": "TEST Bank",
+            "inBooks": true
+          }
+        ],
+        "inBooks": true,
+        "cancelInBooks": true
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s_c",
+        "ref": "TF/2026-27/0003",
+        "partyRef": null,
+        "entityId": "p1",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-11-04",
+        "status": "CANCELLED",
+        "totalPaise": 30000,
+        "paidAtCreation": [],
+        "inBooks": true,
+        "cancelInBooks": false
+      },
+      {
+        "kind": "INVOICE",
+        "id": "s_d",
+        "ref": "TF/2026-27/0004",
+        "partyRef": null,
+        "entityId": "p1",
+        "partyName": "TEST Alpha Traders",
+        "date": "2026-11-14",
+        "status": "ACTIVE",
+        "totalPaise": 40000,
+        "paidAtCreation": [
+          {
+            "amountPaise": 4000,
+            "name": "Cash",
+            "inBooks": false
+          }
+        ],
+        "inBooks": false,
+        "cancelInBooks": false
+      },
+      {
+        "kind": "BILL",
+        "id": "p_x",
+        "ref": "PB/2026-27/0001",
+        "partyRef": "TBO/9",
+        "entityId": "p2",
+        "partyName": "TEST Base Oils Co",
+        "date": "2026-11-06",
+        "status": "ACTIVE",
+        "totalPaise": 100000,
+        "paidAtCreation": [
+          {
+            "amountPaise": 70000,
+            "name": "TEST Bank",
+            "inBooks": true
+          }
+        ],
+        "inBooks": true,
+        "cancelInBooks": false
+      }
+    ],
+    "entries": [
+      {
+        "id": "e1",
+        "from": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "to": {
+          "kind": "CASH",
+          "name": "Cash"
+        },
+        "amountPaise": 10000,
+        "businessDay": "2026-11-08",
+        "note": null,
+        "isCorrection": false,
+        "saleId": "s_a",
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      },
+      {
+        "id": "e2",
+        "from": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "to": {
+          "kind": "BANK",
+          "name": "TEST Bank"
+        },
+        "amountPaise": 5000,
+        "businessDay": "2026-11-10",
+        "note": null,
+        "isCorrection": false,
+        "saleId": "s_a",
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "PENDING",
+        "inBooks": false
+      },
+      {
+        "id": "e3",
+        "from": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "to": {
+          "kind": "CASH",
+          "name": "Cash"
+        },
+        "amountPaise": 25000,
+        "businessDay": "2026-11-05",
+        "note": "Advance for December order",
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      },
+      {
+        "id": "e4",
+        "from": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "to": {
+          "kind": "CASH",
+          "name": "Cash"
+        },
+        "amountPaise": 1000,
+        "businessDay": "2026-11-13",
+        "note": null,
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "PENDING",
+        "inBooks": false
+      },
+      {
+        "id": "e5",
+        "from": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "to": {
+          "kind": "CASH",
+          "name": "Cash"
+        },
+        "amountPaise": 7000,
+        "businessDay": "2026-11-07",
+        "note": null,
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": "e5m",
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      },
+      {
+        "id": "e5m",
+        "from": {
+          "kind": "CASH",
+          "name": "Cash"
+        },
+        "to": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "amountPaise": 7000,
+        "businessDay": "2026-11-07",
+        "note": null,
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": null,
+        "reversesEntryId": "e5",
+        "reversedByEntryId": null,
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      },
+      {
+        "id": "e6",
+        "from": {
+          "kind": "BANK",
+          "name": "TEST Bank"
+        },
+        "to": {
+          "kind": "PARTY",
+          "entityId": "p2",
+          "name": "TEST Base Oils Co"
+        },
+        "amountPaise": 10000,
+        "businessDay": "2026-11-09",
+        "note": null,
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": "p_x",
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      },
+      {
+        "id": "e7",
+        "from": {
+          "kind": "CASH",
+          "name": "Cash"
+        },
+        "to": {
+          "kind": "PARTY",
+          "entityId": "p2",
+          "name": "TEST Base Oils Co"
+        },
+        "amountPaise": 5000,
+        "businessDay": "2026-11-11",
+        "note": null,
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      },
+      {
+        "id": "e8",
+        "from": {
+          "kind": "PARTY",
+          "entityId": "p2",
+          "name": "TEST Base Oils Co"
+        },
+        "to": {
+          "kind": "PARTY",
+          "entityId": "p1",
+          "name": "TEST Alpha Traders"
+        },
+        "amountPaise": 1000,
+        "businessDay": "2026-11-12",
+        "note": "Set off",
+        "isCorrection": false,
+        "saleId": null,
+        "purchaseId": null,
+        "reversesEntryId": null,
+        "reversedByEntryId": null,
+        "syncStatus": "SYNCED",
+        "inBooks": true
+      }
+    ],
+    "expect": {
+      "p1": {
+        "openInvoicesPaise": 101000,
+        "openBillsPaise": 0,
+        "notMatchedPaise": 3467827,
+        "unexplainedPaise": 777,
+        "documents": [
+          [
+            "TF/2026-27/0001",
+            65000
+          ],
+          [
+            "TF/2026-27/0004",
+            36000
+          ]
+        ],
+        "items": [
+          [
+            "OPENING",
+            "2026-11-01",
+            3500050
+          ],
+          [
+            "CANCELLED_CREDIT",
+            "2026-11-03",
+            -8000
+          ],
+          [
+            "CANCEL_NOT_IN_BOOKS",
+            "2026-11-04",
+            30000
+          ],
+          [
+            "MONEY",
+            "2026-11-05",
+            -25000
+          ],
+          [
+            "PAYMENT_NOT_IN_BOOKS",
+            "2026-11-10",
+            5000
+          ],
+          [
+            "TRANSFER",
+            "2026-11-12",
+            1000
+          ],
+          [
+            "NOT_IN_BOOKS",
+            "2026-11-14",
+            -36000
+          ]
+        ]
+      },
+      "p2": {
+        "openInvoicesPaise": 0,
+        "openBillsPaise": 20000,
+        "notMatchedPaise": -596000,
+        "unexplainedPaise": 0,
+        "documents": [
+          [
+            "PB/2026-27/0001",
+            20000
+          ]
+        ],
+        "items": [
+          [
+            "OPENING",
+            "2026-11-01",
+            -600000
+          ],
+          [
+            "MONEY",
+            "2026-11-11",
+            5000
+          ],
+          [
+            "TRANSFER",
+            "2026-11-12",
+            -1000
+          ]
+        ]
+      }
+    },
+    "labels": {
+      "p1": [
+        "Opening balance",
+        "Paid on cancelled invoice TF/2026-27/0002",
+        "TF/2026-27/0003 was cancelled — not in the books yet",
+        "Money received, no invoice chosen",
+        "Payment on TF/2026-27/0001 isn't in the books yet",
+        "Moved from TEST Base Oils Co",
+        "TF/2026-27/0004 isn't in the books yet"
+      ],
+      "p2": [
+        "Opening balance",
+        "Money paid, no bill chosen",
+        "Moved to TEST Alpha Traders"
+      ]
+    }
   }
 }

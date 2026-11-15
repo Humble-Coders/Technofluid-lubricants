@@ -114,6 +114,10 @@ export interface PartyOwed {
   openBillsPaise: number;
   /** HL balance − (open invoices − open bills). Shown, never forced to zero. */
   notMatchedPaise: number;
+  /** Where that difference comes from, found in our own records (date order). */
+  items: BalanceItem[];
+  /** notMatched − Σ items: what our records don't explain (older documents, entries made directly in the books). */
+  unexplainedPaise: number;
 }
 
 export interface MoneyOwedReport {
@@ -145,6 +149,8 @@ export function moneyOwed(input: {
   names: Readonly<Record<string, string>>;
   documents: readonly OpenDocumentInput[];
   today: string;
+  /** entityId → what makes up the balance besides the open documents (balanceItems). */
+  items?: Readonly<Record<string, readonly BalanceItem[]>>;
 }): MoneyOwedReport {
   const parties = new Map<string, PartyOwed>();
   const party = (entityId: string, fallbackName: string) => {
@@ -159,12 +165,15 @@ export function moneyOwed(input: {
         openInvoicesPaise: 0,
         openBillsPaise: 0,
         notMatchedPaise: 0,
+        items: [...(input.items?.[entityId] ?? [])],
+        unexplainedPaise: 0,
       };
       parties.set(entityId, p);
     }
     return p;
   };
   for (const id of Object.keys(input.balances)) party(id, id);
+  for (const id of Object.keys(input.items ?? {})) if ((input.items?.[id] ?? []).length) party(id, input.names[id] ?? id);
 
   const invoiceAgeing = emptyBuckets();
   const billAgeing = emptyBuckets();
@@ -190,6 +199,7 @@ export function moneyOwed(input: {
   for (const p of parties.values()) {
     p.documents.sort((a, b) => a.date.localeCompare(b.date) || a.ref.localeCompare(b.ref, undefined, { numeric: true }));
     p.notMatchedPaise = (p.balancePaise ?? 0) - (p.openInvoicesPaise - p.openBillsPaise);
+    p.unexplainedPaise = p.notMatchedPaise - p.items.reduce((sum, i) => sum + i.amountPaise, 0);
     const bal = p.balancePaise ?? 0;
     (bal > 0 ? owedToUs : bal < 0 ? weOwe : settled).push(p);
   }
@@ -206,6 +216,160 @@ export function moneyOwed(input: {
     invoiceAgeing,
     billAgeing,
   };
+}
+
+// ─── Where a balance comes from ──────────────────────────────────────────────────
+
+/**
+ * One piece of a party's balance that isn't an open invoice or bill, found in our own
+ * records. Signed like the balance: + they owe us more / we owe them less, − the other way.
+ */
+export interface BalanceItem {
+  kind: "OPENING" | "MONEY" | "CORRECTION" | "TRANSFER" | "CANCELLED_CREDIT" | "CANCEL_NOT_IN_BOOKS" | "NOT_IN_BOOKS" | "PAYMENT_NOT_IN_BOOKS";
+  date: string | null;
+  label: string;
+  /** The note typed with it, the cash/bank account… */
+  detail: string | null;
+  amountPaise: number;
+  /** The invoice / bill it belongs to, when it does. */
+  document: { kind: "INVOICE" | "BILL"; id: string; ref: string } | null;
+}
+
+/** A side of a money entry, as stored (MoneyAccountRef). */
+export interface MoneySideForReport {
+  kind: string;
+  entityId?: string;
+  name?: string;
+}
+
+/** A money entry with a party on at least one side (a MoneyEntryRow fits, plus inBooks). */
+export interface MoneyEntryForReport {
+  id: string;
+  from: MoneySideForReport;
+  to: MoneySideForReport;
+  amountPaise: number;
+  businessDay: string;
+  note: string | null;
+  isCorrection: boolean;
+  saleId: string | null;
+  purchaseId: string | null;
+  deleted?: boolean;
+  reversesEntryId: string | null;
+  reversedByEntryId: string | null;
+  syncStatus: string;
+  /** Posted to the books (SYNCED, or it has its HL transaction). */
+  inBooks: boolean;
+}
+
+/** An invoice or a supplier's bill dated inside the report's window (active or cancelled). */
+export interface DocumentForReport {
+  kind: "INVOICE" | "BILL";
+  id: string;
+  ref: string;
+  partyRef: string | null;
+  entityId: string;
+  partyName: string;
+  date: string;
+  status: "ACTIVE" | "CANCELLED";
+  totalPaise: number;
+  /** Paid with the invoice / bill, each with whether it's in the books. */
+  paidAtCreation: readonly { amountPaise: number; name: string; inBooks: boolean }[];
+  /** The invoice / bill itself is in the books. */
+  inBooks: boolean;
+  /** Its cancellation is in the books. */
+  cancelInBooks: boolean;
+}
+
+export interface EntityForReport {
+  id: string;
+  name: string;
+  opening: { amountPaise: number; direction: "receivable" | "payable"; asOf: string; posted: boolean } | null;
+}
+
+/** What one side of an entry does to that party's balance: money to them +, from them −. */
+const effectOn = (e: MoneyEntryForReport, entityId: string) => (e.to.kind === "PARTY" && e.to.entityId === entityId ? e.amountPaise : 0) - (e.from.kind === "PARTY" && e.from.entityId === entityId ? e.amountPaise : 0);
+const sideName = (s: MoneySideForReport) => (s.kind === "ADJUSTMENT" ? "Adjustment" : (s.name ?? s.kind));
+const docLabel = (d: DocumentForReport) => (d.kind === "INVOICE" ? d.ref : `${d.ref}${d.partyRef ? ` (their bill ${d.partyRef})` : ""}`);
+
+/**
+ * Money owed, built from the records: open invoices / bills with what's due (the one paid
+ * rule), and — per party — every piece of the books' balance that isn't an open document:
+ * the opening balance, money in / out with no invoice or bill chosen, corrections, money
+ * moved between parties, payments left as credit by a cancelled invoice / bill, and
+ * anything not saved to the books yet. What's still left is `unexplainedPaise`.
+ */
+export function moneyOwedFromRecords(input: {
+  balances: Readonly<Record<string, number>>;
+  entities: readonly EntityForReport[];
+  documents: readonly DocumentForReport[];
+  entries: readonly MoneyEntryForReport[];
+  today: string;
+}): MoneyOwedReport {
+  const names: Record<string, string> = Object.fromEntries(input.entities.map((e) => [e.id, e.name]));
+  const items: Record<string, BalanceItem[]> = {};
+  const add = (entityId: string, item: BalanceItem) => {
+    if (item.amountPaise !== 0) (items[entityId] ??= []).push(item);
+  };
+
+  for (const e of input.entities) {
+    const o = e.opening;
+    if (o && o.posted && o.amountPaise > 0) add(e.id, { kind: "OPENING", date: o.asOf, label: "Opening balance", detail: o.direction === "receivable" ? "They owed us when the books started" : "We owed them when the books started", amountPaise: o.direction === "receivable" ? o.amountPaise : -o.amountPaise, document: null });
+  }
+
+  const status = new Map(input.entries.map((e) => [e.id, e.syncStatus]));
+  const counting = input.entries.filter((e) => countsAsPaid({ ...e, mirrorStatus: e.reversedByEntryId ? (status.get(e.reversedByEntryId) ?? null) : null }));
+  const docs = new Map(input.documents.map((d) => [d.id, d]));
+  const linked = new Map<string, MoneyEntryForReport[]>();
+  for (const e of counting) {
+    const docId = e.saleId ?? e.purchaseId;
+    if (docId) linked.set(docId, [...(linked.get(docId) ?? []), e]);
+  }
+
+  // Money not tied to an invoice or bill (advances, refunds, corrections, transfers).
+  for (const e of counting) {
+    if (e.saleId || e.purchaseId || !e.inBooks) continue;
+    for (const side of [e.from, e.to]) {
+      if (side.kind !== "PARTY" || !side.entityId) continue;
+      const id = side.entityId;
+      const amount = effectOn(e, id);
+      const other = side === e.from ? e.to : e.from;
+      const [kind, label]: [BalanceItem["kind"], string] =
+        other.kind === "ADJUSTMENT"
+          ? ["CORRECTION", "Balance correction"]
+          : other.kind === "PARTY"
+            ? ["TRANSFER", side === e.from ? `Moved to ${sideName(other)}` : `Moved from ${sideName(other)}`]
+            : ["MONEY", side === e.from ? "Money received, no invoice chosen" : "Money paid, no bill chosen"];
+      const detail = [other.kind === "CASH" || other.kind === "BANK" ? sideName(other) : null, e.note].filter(Boolean).join(" · ") || null;
+      add(id, { kind: e.isCorrection ? "CORRECTION" : kind, date: e.businessDay, label: e.isCorrection && kind === "MONEY" ? "Balance correction" : label, detail, amountPaise: amount, document: null });
+    }
+  }
+
+  // Invoices and bills: what the books hold for each besides what's open on it.
+  const openDocs: OpenDocumentInput[] = [];
+  for (const d of input.documents) {
+    const sign = d.kind === "INVOICE" ? 1 : -1; // an invoice adds to what they owe us; a bill to what we owe
+    const later = linked.get(d.id) ?? [];
+    const ref = { kind: d.kind, id: d.id, ref: d.ref };
+    if (d.status === "ACTIVE") {
+      const paid = documentDue({ totalPaise: d.totalPaise, paidAtCreationPaise: d.paidAtCreation.reduce((s, p) => s + p.amountPaise, 0), linked: later }).paidPaise;
+      openDocs.push({ kind: d.kind, id: d.id, ref: d.ref, partyRef: d.partyRef, entityId: d.entityId, partyName: d.partyName, date: d.date, totalPaise: d.totalPaise, paidPaise: paid });
+      if (!d.inBooks) {
+        add(d.entityId, { kind: "NOT_IN_BOOKS", date: d.date, label: `${docLabel(d)} isn't in the books yet`, detail: "Still being saved — the balance doesn't include it", amountPaise: -sign * Math.max(d.totalPaise - paid, 0), document: ref });
+        continue;
+      }
+      for (const p of d.paidAtCreation) if (!p.inBooks) add(d.entityId, { kind: "PAYMENT_NOT_IN_BOOKS", date: d.date, label: `Payment with ${d.ref} isn't in the books yet`, detail: p.name, amountPaise: sign * p.amountPaise, document: ref });
+      for (const e of later) if (!e.inBooks) add(d.entityId, { kind: "PAYMENT_NOT_IN_BOOKS", date: e.businessDay, label: `Payment on ${d.ref} isn't in the books yet`, detail: e.note, amountPaise: -effectOn(e, d.entityId), document: ref });
+    } else {
+      if (d.inBooks && !d.cancelInBooks) add(d.entityId, { kind: "CANCEL_NOT_IN_BOOKS", date: d.date, label: `${docLabel(d)} was cancelled — not in the books yet`, detail: "The books still count it until the cancellation is saved", amountPaise: sign * d.totalPaise, document: ref });
+      const credit = d.kind === "INVOICE" ? "Paid on cancelled invoice" : "Paid on cancelled bill";
+      for (const p of d.paidAtCreation) if (p.inBooks) add(d.entityId, { kind: "CANCELLED_CREDIT", date: d.date, label: `${credit} ${docLabel(d)}`, detail: `${p.name} · kept as ${d.kind === "INVOICE" ? "their credit" : "money they owe back"}`, amountPaise: -sign * p.amountPaise, document: ref });
+      for (const e of later) if (e.inBooks) add(d.entityId, { kind: "CANCELLED_CREDIT", date: e.businessDay, label: `${credit} ${docLabel(d)}`, detail: [e.note, d.kind === "INVOICE" ? "kept as their credit" : "money they owe back"].filter(Boolean).join(" · "), amountPaise: effectOn(e, d.entityId), document: ref });
+    }
+  }
+
+  for (const list of Object.values(items)) list.sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+  for (const d of input.documents) if (!(d.entityId in names)) names[d.entityId] = d.partyName;
+  return moneyOwed({ balances: input.balances, names, documents: openDocs, today: input.today, items });
 }
 
 // ─── Sales by product ────────────────────────────────────────────────────────────

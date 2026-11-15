@@ -9,6 +9,8 @@ import { fileDay, NotReady, ReportBar, Stat } from "./reportParts";
 
 type Side = "owedToUs" | "weOwe";
 
+const UNEXPLAINED = "Not found in our records (older than our date range, or entered directly in the books)";
+
 /** What a balance means, in words: "owes us ₹…" / "we owe ₹…". */
 const balanceText = (p: PartyOwed) => (p.balancePaise === null ? "Not in the books" : p.balancePaise > 0 ? `Owes us ${formatINR(p.balancePaise)}` : p.balancePaise < 0 ? `We owe ${formatINR(-p.balancePaise)}` : "Settled");
 
@@ -38,7 +40,8 @@ export function MoneyOwedReportView() {
           for (const p of list) {
             const bal = p.balancePaise === null ? "" : paiseCsv(p.balancePaise);
             for (const d of p.documents) rows.push([label, p.name, bal, d.ref, d.partyRef, d.date, paiseCsv(d.totalPaise), paiseCsv(d.paidPaise), paiseCsv(d.kind === "BILL" ? -d.duePaise : d.duePaise), d.ageDays, AGE_BUCKET_LABEL[d.bucket]]);
-            rows.push([label, p.name, bal, "Not matched to an invoice/bill", null, null, null, null, paiseCsv(p.notMatchedPaise), null, null]);
+            for (const i of p.items) rows.push([label, p.name, bal, i.detail ? `${i.label} (${i.detail})` : i.label, null, i.date, null, null, paiseCsv(i.amountPaise), null, null]);
+            if (p.unexplainedPaise !== 0) rows.push([label, p.name, bal, UNEXPLAINED, null, null, null, null, paiseCsv(p.unexplainedPaise), null, null]);
           }
         };
         add("Owed to us", r.owedToUs);
@@ -157,21 +160,46 @@ export function MoneyOwedReportView() {
                         </td>
                       </tr>
                     ))}
-                    <tr className="border-b border-line/50 text-ink-muted">
-                      <td className="py-1.5 pr-3 pl-4 italic" colSpan={4} title="Openings, money recorded without an invoice or bill, and credit left by cancelled invoices aren't tied to an open document.">
-                        Not matched to an invoice/bill
-                      </td>
-                      <td className={clsx("num py-1.5 pr-3 text-right", p.notMatchedPaise !== 0 && "text-ink")}>{formatINR(p.notMatchedPaise)}</td>
-                      <td />
-                    </tr>
+                    {p.items.map((i, n) => (
+                      <tr key={`i${n}`} className="border-b border-line/50 text-ink-muted">
+                        <td className="py-1.5 pr-3 pl-4">
+                          {i.document ? (
+                            <Link to={i.document.kind === "INVOICE" ? `/sales/${i.document.id}` : `/purchases/${i.document.id}`} className="text-ink hover:underline">
+                              {i.label}
+                            </Link>
+                          ) : (
+                            <span className="text-ink">{i.label}</span>
+                          )}
+                          {i.detail ? <span className="ml-2 text-[12px]">{i.detail}</span> : null}
+                          {i.kind === "NOT_IN_BOOKS" || i.kind === "PAYMENT_NOT_IN_BOOKS" || i.kind === "CANCEL_NOT_IN_BOOKS" ? (
+                            <Badge tone="warning" className="ml-2">
+                              Saving to books
+                            </Badge>
+                          ) : null}
+                        </td>
+                        <td className="py-1.5 pr-3 whitespace-nowrap">{i.date ?? ""}</td>
+                        <td colSpan={2} />
+                        <td className="num py-1.5 pr-3 text-right">{formatINR(i.amountPaise)}</td>
+                        <td />
+                      </tr>
+                    ))}
+                    {p.unexplainedPaise !== 0 ? (
+                      <tr className="border-b border-line/50">
+                        <td className="py-1.5 pr-3 pl-4 text-danger" colSpan={4} title="Not found in our records: an invoice or bill older than 1 April of last financial year, or something entered directly in the books. Check the party's statement.">
+                          {UNEXPLAINED}
+                        </td>
+                        <td className="num py-1.5 pr-3 text-right text-danger">{formatINR(p.unexplainedPaise)}</td>
+                        <td />
+                      </tr>
+                    ) : null}
                   </Fragment>
                 ))}
               </tbody>
             </table>
           )}
           <p className="text-[12px] text-ink-faint">
-            Balances are the books'. Open invoices and bills are ours, dated from 1 April of last financial year; a bill's due shows as “−” (we owe it). “Not matched” = balance − (open invoices − open bills): openings, money recorded without an invoice or bill, and credit
-            from cancelled invoices land there.
+            Balances are the books'. Under each party: the invoices and bills still open (ours, dated from 1 April of last financial year; a bill's due shows as “−”, we owe it), then everything else that makes up the balance — opening balance, money received or
+            paid without choosing an invoice or bill, corrections, money moved between parties, payments kept as credit after a cancellation, and anything still being saved to the books. “+” adds to what they owe us; “−” to what we owe them.
           </p>
         </>
       ) : null}

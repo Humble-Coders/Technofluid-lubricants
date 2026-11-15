@@ -1,19 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  documentDue,
   indiaDate,
-  moneyOwed,
+  moneyOwedFromRecords,
   openDocumentsFrom,
   salesByProduct,
   stockValue,
+  type DocumentForReport,
   type MoneyOwedReport,
-  type OpenDocumentInput,
   type SalesByProductReport,
   type SalesGroupBy,
   type StockValueReport,
 } from "@technofluid/core";
 import { getEntityBalances } from "@/services/ledgerService";
-import { readActivePurchases, readEntityNames, readLinkedPayments, readPurchasesFrom, readSales, readStockItems } from "@/services/reportService";
+import { readActivePurchases, readEntitiesForReport, readPartyMoneyEntries, readPurchasesFrom, readSales, readStockItems } from "@/services/reportService";
 import type { SaleRow } from "@/services/saleService";
 import type { StockItem } from "@/services/stockService";
 
@@ -47,15 +46,10 @@ export function useMoneyOwedReport() {
   return useOneShot<MoneyOwedReport>(async () => {
     const today = indiaDate();
     const from = openDocumentsFrom(today);
-    const [balances, names, sales, purchases] = await Promise.all([getEntityBalances(), readEntityNames(), readSales(from), readPurchasesFrom(from)]);
-    const liveSales = sales.filter((s) => s.status === "ACTIVE");
-    const liveBills = purchases.filter((p) => p.status === "ACTIVE");
-    const [salePay, billPay] = await Promise.all([
-      readLinkedPayments("saleId", liveSales.map((s) => s.id)),
-      readLinkedPayments("purchaseId", liveBills.map((p) => p.id)),
-    ]);
-    const documents: OpenDocumentInput[] = [
-      ...liveSales.map((s) => ({
+    const [balances, entities, sales, purchases, entries] = await Promise.all([getEntityBalances(), readEntitiesForReport(), readSales(from), readPurchasesFrom(from), readPartyMoneyEntries()]);
+    const paidWith = (payments: { amountPaise: number; name: string; hlTxnId: string | null }[], synced: boolean) => payments.map((p) => ({ amountPaise: p.amountPaise, name: p.name, inBooks: synced || !!p.hlTxnId }));
+    const documents: DocumentForReport[] = [
+      ...sales.map((s) => ({
         kind: "INVOICE" as const,
         id: s.id,
         ref: s.invoiceNo,
@@ -63,10 +57,13 @@ export function useMoneyOwedReport() {
         entityId: s.customer.entityId,
         partyName: s.customer.name,
         date: s.invoiceDate,
+        status: s.status,
         totalPaise: s.totals.grandTotalPaise,
-        paidPaise: documentDue({ totalPaise: s.totals.grandTotalPaise, paidAtCreationPaise: s.paidAtBillingPaise, linked: salePay.get(s.id) ?? [] }).paidPaise,
+        paidAtCreation: paidWith(s.payments, s.syncStatus === "SYNCED"),
+        inBooks: s.invoiceInBooks,
+        cancelInBooks: s.cancelSyncStatus === "SYNCED",
       })),
-      ...liveBills.map((p) => ({
+      ...purchases.map((p) => ({
         kind: "BILL" as const,
         id: p.id,
         ref: p.ref,
@@ -74,12 +71,15 @@ export function useMoneyOwedReport() {
         entityId: p.supplier.entityId,
         partyName: p.supplier.name,
         date: p.billDate,
+        status: p.status,
         totalPaise: p.billTotalPaise,
-        paidPaise: documentDue({ totalPaise: p.billTotalPaise, paidAtCreationPaise: p.paidAtPurchasePaise, linked: billPay.get(p.id) ?? [] }).paidPaise,
+        paidAtCreation: paidWith(p.payments, p.syncStatus === "SYNCED"),
+        inBooks: p.billInBooks,
+        cancelInBooks: p.cancelSyncStatus === "SYNCED",
       })),
     ];
     const signed = Object.fromEntries(Object.entries(balances).map(([id, b]) => [id, b.balancePaise]));
-    return moneyOwed({ balances: signed, names, documents, today });
+    return moneyOwedFromRecords({ balances: signed, entities, documents, entries, today });
   }, []);
 }
 

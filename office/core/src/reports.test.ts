@@ -6,6 +6,7 @@ import {
   documentDue,
   milliCsv,
   moneyOwed,
+  moneyOwedFromRecords,
   mulDivRound,
   openDocumentsFrom,
   paidLaterPaise,
@@ -14,6 +15,9 @@ import {
   stockValue,
   toCsv,
   type OpenDocumentInput,
+  type DocumentForReport,
+  type EntityForReport,
+  type MoneyEntryForReport,
   type PartyOwed,
   type SaleForReport,
   type SalesGroupBy,
@@ -106,4 +110,34 @@ describe("CSV", () => {
   for (const [p, t] of cases.csv.paise) it(`paise ${p} → ${t}`, () => expect(paiseCsv(p as number)).toBe(t));
   for (const [m, t] of cases.csv.milli) it(`milli ${m} → ${t}`, () => expect(milliCsv(m as number)).toBe(t));
   it("quotes, escapes and defuses formulas", () => expect(toCsv(cases.csv.rows as (string | number | null)[][])).toBe(cases.csv.text));
+});
+
+describe("where a balance comes from (moneyOwedFromRecords)", () => {
+  const c = cases.fromRecords;
+  const r = moneyOwedFromRecords({
+    balances: c.balances,
+    entities: c.entities as EntityForReport[],
+    documents: c.documents as DocumentForReport[],
+    entries: c.entries as MoneyEntryForReport[],
+    today: c.today,
+  });
+  const all = [...r.owedToUs, ...r.weOwe, ...r.settled];
+  for (const id of ["p1", "p2"] as const) {
+    it(`${id}: opening, money with no document, transfers, cancelled credit, not-in-books items; the rest is unexplained`, () => {
+      const p = all.find((x) => x.entityId === id)!;
+      const want = c.expect[id];
+      expect({
+        openInvoicesPaise: p.openInvoicesPaise,
+        openBillsPaise: p.openBillsPaise,
+        notMatchedPaise: p.notMatchedPaise,
+        unexplainedPaise: p.unexplainedPaise,
+        documents: p.documents.map((d) => [d.ref, d.duePaise]),
+        items: p.items.map((i) => [i.kind, i.date, i.amountPaise]),
+      }).toEqual(want);
+      expect(p.items.map((i) => i.label)).toEqual(c.labels[id]);
+    });
+  }
+  it("an opening not posted to the books yet isn't counted", () => {
+    expect(all.find((x) => x.entityId === "p3")).toBeUndefined();
+  });
 });
