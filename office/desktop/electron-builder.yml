@@ -20,7 +20,7 @@ files:
 publish:
   provider: github
   owner: Humble-Coders
-  repo: technofluid-office-releases
+  repo: TechnoFluid-2026-exe
   releaseType: release
 # Invoice PDFs: the layout ships with the app so the first invoice prints offline.
 # The PDF maker itself goes in per platform (resources/hbe-render/<platform>, see main/hbe/invoices.ts);

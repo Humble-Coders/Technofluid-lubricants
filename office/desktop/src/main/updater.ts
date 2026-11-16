@@ -12,7 +12,7 @@ import { UPDATE_ACTION_CHANNEL, UPDATE_EVENT_CHANNEL, type UpdateAction, type Up
  *  - A failed download: the error and "Open download page" (install by hand).
  * Off in development (not packaged). Only a HIGHER version than package.json's is offered.
  */
-const RELEASES_PAGE = "https://github.com/Humble-Coders/technofluid-office-releases/releases/latest";
+const RELEASES_PAGE = "https://github.com/Humble-Coders/TechnoFluid-2026-exe/releases/latest";
 const FIRST_CHECK_MS = 15_000;
 const CHECK_EVERY_MS = 4 * 60 * 60 * 1000;
 
