@@ -17,6 +17,7 @@ import { NewPurchaseScreen } from "@/features/purchases/NewPurchaseScreen";
 import { PurchaseDetail } from "@/features/purchases/PurchaseDetail";
 import { PurchasesScreen } from "@/features/purchases/PurchasesScreen";
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
+import { UpdatePrompt } from "@/features/updates/UpdatePrompt";
 import { EntitiesScreen } from "@/features/entities/EntitiesScreen";
 import { ExpensesScreen } from "@/features/money/ExpensesScreen";
 import { MoneyScreen } from "@/features/money/MoneyScreen";
@@ -84,6 +85,7 @@ export function App() {
   return (
     <SessionProvider>
       <Gate />
+      <UpdatePrompt />
     </SessionProvider>
   );
 }

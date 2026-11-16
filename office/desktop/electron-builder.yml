@@ -12,8 +12,16 @@ directories:
 files:
   - out/**/*
   - package.json
-  # Everything the app runs is bundled into out/ — no node_modules needed inside the app.
-  - "!node_modules{,/**/*}"
+# The screens are bundled into out/; the only runtime package is electron-updater (main process),
+# which electron-builder copies in from "dependencies".
+
+# In-app updates (main/updater.ts): installed apps read new versions from this PUBLIC, releases-only
+# repo. Release with `npm run release:win` (scripts/publish-release.mjs) — never `--publish` here.
+publish:
+  provider: github
+  owner: Humble-Coders
+  repo: technofluid-office-releases
+  releaseType: release
 # Invoice PDFs: the layout ships with the app so the first invoice prints offline.
 # The PDF maker itself goes in per platform (resources/hbe-render/<platform>, see main/hbe/invoices.ts);
 # its package lives in office/hbe/vendor (not in git — office/hbe/README.md says how to fetch it).

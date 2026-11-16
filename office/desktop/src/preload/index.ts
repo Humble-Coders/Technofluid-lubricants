@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { OfficeBridge } from "../shared/ipc";
+import { UPDATE_ACTION_CHANNEL, UPDATE_EVENT_CHANNEL, type OfficeBridge, type UpdateEvent } from "../shared/ipc";
 
 /**
  * The only door between the screens and the computer. Each method maps to one
@@ -11,6 +11,12 @@ const office: OfficeBridge = {
   invoicePdf: (req) => ipcRenderer.invoke("invoice:pdf", req),
   invoicePdfReady: () => ipcRenderer.invoke("invoice:pdfReady"),
   saveCsv: (req) => ipcRenderer.invoke("report:saveCsv", req),
+  onUpdate: (listener) => {
+    const handler = (_event: Electron.IpcRendererEvent, update: UpdateEvent) => listener(update);
+    ipcRenderer.on(UPDATE_EVENT_CHANNEL, handler);
+    return () => ipcRenderer.removeListener(UPDATE_EVENT_CHANNEL, handler);
+  },
+  update: (action) => ipcRenderer.invoke(UPDATE_ACTION_CHANNEL, action),
 };
 
 contextBridge.exposeInMainWorld("office", office);

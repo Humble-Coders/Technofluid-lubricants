@@ -35,6 +35,18 @@ export interface SaveCsvRequest {
 
 export type SaveCsvResult = { ok: true; cancelled: true } | { ok: true; cancelled: false; path: string } | { ok: false; message: string };
 
+/** In-app updates (main/updater.ts): what the main process tells the screens, and what they can ask. */
+export const UPDATE_EVENT_CHANNEL = "technofluid:update-event";
+export const UPDATE_ACTION_CHANNEL = "technofluid:update-action";
+
+export type UpdateEvent =
+  | { kind: "available"; version: string; notes: string | null }
+  | { kind: "progress"; percent: number }
+  | { kind: "downloaded"; version: string }
+  | { kind: "error"; message: string };
+
+export type UpdateAction = "download" | "install" | "openPage";
+
 /** Everything the screens can ask the computer for. Keep this list short on purpose. */
 export interface OfficeBridge {
   platform: string;
@@ -44,4 +56,8 @@ export interface OfficeBridge {
   invoicePdfReady(): Promise<{ ready: boolean; reason: string | null }>;
   /** Asks where to save a report's CSV and writes it there. */
   saveCsv(req: SaveCsvRequest): Promise<SaveCsvResult>;
+  /** Update news from the main process; returns a function that stops listening. */
+  onUpdate(listener: (event: UpdateEvent) => void): () => void;
+  /** Download the offered update, install it now (restart), or open the download page. */
+  update(action: UpdateAction): Promise<void>;
 }
