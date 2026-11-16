@@ -11,8 +11,9 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "dist:mac": "electron-vite build && electron-builder --mac",
-    "dist:win": "electron-vite build && electron-builder --win",
+    "dist:mac": "node scripts/check-live-env.mjs && electron-vite build && electron-builder --mac",
+    "dist:win": "node scripts/check-live-env.mjs && electron-vite build && electron-builder --win",
+    "dist:win:trial": "electron-vite build && electron-builder --win",
     "dev:screens": "vite --config vite.screens.config.ts"
   },
   "dependencies": {
