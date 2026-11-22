@@ -1,17 +1,30 @@
-import { Archive, Plus } from "lucide-react";
+import { Archive, History, Plus } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { DEFAULT_REGISTERS, formatINR, indiaDate, rupeesToPaise, type RegisterKind } from "@technofluid/core";
-import { Badge, Banner, Button, Dialog, Input, MoneyInput, Select } from "@/components/ui";
+import { Badge, Banner, Button, Dialog, IconButton, Input, MoneyInput, Select } from "@/components/ui";
 import { ensureDefaultRegisters, saveRegister, setRegisterActive, setRegisterOpening, type RegisterRow } from "@/services/moneyService";
 
 const isDefault = (id: string) => DEFAULT_REGISTERS.some((r) => r.id === id);
 
 /**
- * Admin: our cash boxes and bank accounts. Add, rename, reorder, set the opening balance
- * ONCE (it can't be changed later), archive (not the defaults; only at ₹0). The kind is
- * fixed once created.
+ * Our cash boxes and bank accounts, each with its balance and a way to its history. Admin
+ * also manages them here: add, rename, reorder, set the opening balance ONCE (it can't be
+ * changed later), archive (not the defaults; only at ₹0). The kind is fixed once created.
+ * Without `canManage` (Accounts) it is the list and the histories only.
  */
-export function RegistersPanel({ registers, balances, onClose }: { registers: RegisterRow[]; balances: Record<string, number> | null; onClose: () => void }) {
+export function RegistersPanel({
+  registers,
+  balances,
+  onClose,
+  canManage = true,
+}: {
+  registers: RegisterRow[];
+  balances: Record<string, number> | null;
+  onClose: () => void;
+  canManage?: boolean;
+}) {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [kind, setKind] = useState<RegisterKind>("BANK");
   const [busy, setBusy] = useState(false);
@@ -29,6 +42,28 @@ export function RegistersPanel({ registers, balances, onClose }: { registers: Re
       setBusy(false);
     }
   };
+
+  if (!canManage) {
+    return (
+      <Dialog title="Cash & bank accounts" onClose={onClose} size="md">
+        <ul className="border-t border-line-row">
+          {registers
+            .filter((r) => !r.placeholder)
+            .map((r) => (
+              <li key={r.id} className="flex h-11 items-center gap-3 border-b border-line-row">
+                <span className="w-10 shrink-0 text-label text-ink-muted">{r.kind === "CASH" ? "Cash" : "Bank"}</span>
+                <span className="min-w-0 flex-1 truncate text-ink">{r.name}</span>
+                {!r.isActive ? <Badge>Archived</Badge> : null}
+                <span className={balances && (balances[r.id] ?? 0) < 0 ? "num shrink-0 text-danger" : "num shrink-0 text-ink"}>{balances ? formatINR(balances[r.id] ?? 0) : "-"}</span>
+                <Button size="sm" icon={<History />} onClick={() => navigate(`/payments/registers/${r.id}`)}>
+                  History
+                </Button>
+              </li>
+            ))}
+        </ul>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog title="Cash & bank accounts" onClose={onClose} busy={busy} size="lg">
@@ -48,7 +83,7 @@ export function RegistersPanel({ registers, balances, onClose }: { registers: Re
         {registers
           .filter((r) => !r.placeholder)
           .map((r) => (
-            <RegisterRowEditor key={r.id} register={r} balance={balances?.[r.id] ?? null} busy={busy} run={run} />
+            <RegisterRowEditor key={r.id} register={r} balance={balances?.[r.id] ?? null} busy={busy} run={run} onHistory={() => navigate(`/payments/registers/${r.id}`)} />
           ))}
       </ul>
       <div>
@@ -79,7 +114,19 @@ export function RegistersPanel({ registers, balances, onClose }: { registers: Re
   );
 }
 
-function RegisterRowEditor({ register: r, balance, busy, run }: { register: RegisterRow; balance: number | null; busy: boolean; run: (fn: () => Promise<unknown>) => Promise<void> }) {
+function RegisterRowEditor({
+  register: r,
+  balance,
+  busy,
+  run,
+  onHistory,
+}: {
+  register: RegisterRow;
+  balance: number | null;
+  busy: boolean;
+  run: (fn: () => Promise<unknown>) => Promise<void>;
+  onHistory: () => void;
+}) {
   const [name, setName] = useState(r.name);
   const [order, setOrder] = useState(String(r.displayOrder));
   const [openAmount, setOpenAmount] = useState("");
@@ -96,6 +143,9 @@ function RegisterRowEditor({ register: r, balance, busy, run }: { register: Regi
           Save
         </Button>
         <span className="num w-28 shrink-0 text-right text-ink">{balance === null ? "-" : formatINR(balance)}</span>
+        <IconButton label={`${r.name} history`} onClick={onHistory}>
+          <History />
+        </IconButton>
         {!r.isActive ? <Badge>Archived</Badge> : null}
       </div>
       {r.opening ? (

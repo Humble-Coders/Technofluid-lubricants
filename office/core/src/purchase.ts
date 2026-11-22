@@ -107,8 +107,8 @@ export type PurchaseLineErrorCode = "UNKNOWN_ITEM" | "NOT_BUYABLE" | "NO_UNIT" |
 
 export const PURCHASE_LINE_ERROR_TEXT: Record<PurchaseLineErrorCode, string> = {
   UNKNOWN_ITEM: "This stock item doesn't exist any more.",
-  NOT_BUYABLE: "Premixes and blends are made in the factory, not bought — choose a raw material, consumable or product.",
-  NO_UNIT: "This item has no unit yet — an Admin must set it on the Stock screen first.",
+  NOT_BUYABLE: "Premixes and blends are made in the factory, not bought. Choose a raw material, consumable or product.",
+  NO_UNIT: "This item has no unit yet. An Admin must set it on the Stock screen first.",
   BAD_QTY: "Quantity must be more than 0, with at most 3 decimals.",
   BAD_TAXABLE: "The value before GST must be ₹0 or more (at most ₹10 crore a line).",
   BAD_GST_RATE: "GST % must be a rate like 0, 5, 12, 18 or 28.",
@@ -275,14 +275,14 @@ export const PURCHASE_ERROR_TEXT: Record<PurchaseErrorCode, string> = {
   FUTURE_DATE: "A bill can't be dated in the future.",
   BAD_FREIGHT: "Freight must be ₹0 or more.",
   BAD_ROUND_OFF: "Round-off can be at most ₹1.00 either way.",
-  GST_WITHOUT_GSTIN: "This supplier has no GSTIN on record, so the bill can't carry GST — set GST to 0 %, or add their GSTIN first.",
+  GST_WITHOUT_GSTIN: "This supplier has no GSTIN on record, so the bill can't carry GST. Set GST to 0 %, or add their GSTIN first.",
   TOO_MANY_PAYMENTS: `At most ${MAX_PURCHASE_PAYMENTS} payments with the bill.`,
   BAD_PAYMENT: "Each payment must be more than ₹0, from a cash or bank account.",
-  SAME_REGISTER_TWICE: "Two payments from the same account — put them together.",
+  SAME_REGISTER_TWICE: "Two payments from the same account. Put them together.",
   NOTE_TOO_LONG: `Keep the note under ${MAX_PURCHASE_NOTE_LENGTH} characters.`,
-  ZERO_BILL: "The bill comes to ₹0 — there's nothing to record.",
-  TOTAL_MISMATCH: "Our total doesn't match the supplier's bill total — check the lines, freight and round-off.",
-  PAYMENT_TOO_MUCH: "Paid now is more than the bill total — record the extra separately as money paid.",
+  ZERO_BILL: "The bill comes to ₹0, so there's nothing to record.",
+  TOTAL_MISMATCH: "Our total doesn't match the supplier's bill total. Check the lines, freight and round-off.",
+  PAYMENT_TOO_MUCH: "Paid now is more than the bill total. Record the extra separately as money paid.",
 };
 
 const realDay = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d;

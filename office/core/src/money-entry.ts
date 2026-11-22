@@ -80,7 +80,7 @@ export type MoneyErrorCode =
   | "GST_WRONG_TYPE";
 
 export const MONEY_ERROR_TEXT: Record<MoneyErrorCode, string> = {
-  REASON_REQUIRED: "Say why — a correction needs a reason.",
+  REASON_REQUIRED: "Say why. A correction needs a reason.",
   EXPENSE_REVERSAL_ONLY: "Money can't come from an expense (that only happens when an expense is reversed).",
   EXPENSE_NEEDS_REGISTER: "An expense is paid from cash or a bank account.",
   ADJUSTMENT_NEEDS_PARTY_OR_REGISTER: "A correction is for one customer/supplier or one cash/bank account.",
@@ -152,7 +152,7 @@ export const canReverse = (e: MoneyEntryState) => e.syncStatus === "SYNCED" && !
 /** An expense in a catch-all category ("Other") must say what it was. */
 export const expenseNeedsNote = (categoryName: string) => ["other", "others", "misc", "miscellaneous"].includes(categoryName.trim().toLowerCase());
 
-export const OTHER_EXPENSE_NOTE_TEXT = "Say what the expense was — needed for the category \"Other\".";
+export const OTHER_EXPENSE_NOTE_TEXT = "Say what the expense was. It's needed for the category \"Other\".";
 
 export type ReversalState = "none" | "pending" | "failed" | "done";
 /**

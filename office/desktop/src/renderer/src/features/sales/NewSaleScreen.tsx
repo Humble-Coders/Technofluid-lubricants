@@ -31,6 +31,7 @@ import {
   type SaleProduct,
 } from "@technofluid/core";
 import { Badge, Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Section, Select, Spinner, tableClass, Workspace, WorkspacePanel } from "@/components/ui";
+import { EntityForm } from "@/features/entities/EntityForm";
 import { useEntities, useEntityBalances } from "@/hooks/useEntities";
 import { useRegisters } from "@/hooks/useMoney";
 import { useProducts } from "@/hooks/useProducts";
@@ -148,6 +149,7 @@ export function NewSaleScreen() {
   const regs = useMemo(() => (registers.status === "ready" ? registers.data.filter((r) => r.isActive && !r.placeholder) : []), [registers]);
 
   const [customerId, setCustomerId] = useState<string | null>(params.get("customer"));
+  const [adding, setAdding] = useState<{ name: string } | null>(null);
   const customer = customers.find((c) => c.id === customerId) ?? null;
   const [invoiceDate, setInvoiceDate] = useState(today);
   const [lines, setLines] = useState<Line[]>([{ key: 0, ...EMPTY_LINE }]);
@@ -280,6 +282,7 @@ export function NewSaleScreen() {
   const loading = entities.status === "loading" || products.status === "loading" || company.status === "loading";
 
   return (
+    <>
     <Workspace
       panel={
         <WorkspacePanel
@@ -340,6 +343,8 @@ export function NewSaleScreen() {
                 meta={(c) => [c.address.city, c.priceTier ?? "no price list"].filter(Boolean).join(" · ")}
                 placeholder="Type a name, GSTIN or city"
                 autoFocus={!customerId}
+                onCreate={(name) => setAdding({ name })}
+                createLabel="Add customer"
               />
             </div>
           </Field>
@@ -659,6 +664,18 @@ export function NewSaleScreen() {
         </Section>
       </div>
     </Workspace>
+    {adding ? (
+      <EntityForm
+        entity={null}
+        all={entities.status === "ready" ? entities.data : []}
+        defaults={{ name: adding.name, kinds: ["customer"] }}
+        onClose={(id) => {
+          setAdding(null);
+          if (id) setCustomerId(id);
+        }}
+      />
+    ) : null}
+    </>
   );
 }
 

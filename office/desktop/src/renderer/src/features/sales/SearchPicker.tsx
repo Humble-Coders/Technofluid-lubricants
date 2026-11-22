@@ -1,11 +1,13 @@
 import clsx from "clsx";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Input } from "@/components/ui";
 
 /**
  * Type-to-find box for customers and products (same feel as the stock ItemPicker):
  * every typed word must match; ↑/↓ to move, Enter to pick, Esc to close. Leaving the
- * box with exactly one match picks it.
+ * box with exactly one match picks it. With `onCreate`, typing a name that isn't in the list
+ * offers "Add “name”" at the foot of the list (the caller opens its own form).
  */
 export function SearchPicker<T>({
   id,
@@ -19,6 +21,8 @@ export function SearchPicker<T>({
   placeholder,
   invalid,
   autoFocus,
+  onCreate,
+  createLabel = "Add",
 }: {
   id?: string;
   items: T[];
@@ -33,6 +37,10 @@ export function SearchPicker<T>({
   placeholder?: string;
   invalid?: boolean;
   autoFocus?: boolean;
+  /** Offer to add what's typed when nothing has exactly that name. */
+  onCreate?: (text: string) => void;
+  /** The word in front of the typed name, e.g. "Add supplier". */
+  createLabel?: string;
 }) {
   const [text, setText] = useState(value ? labelOf(value) : "");
   const [open, setOpen] = useState(false);
@@ -50,6 +58,14 @@ export function SearchPicker<T>({
     const list = words.length === 0 || (value && labelOf(value) === text) ? items : items.filter((i) => words.every((w) => searchOf(i).includes(w)));
     return list.slice(0, 50);
   }, [items, text, value]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const typed = text.trim();
+  const canCreate = Boolean(onCreate) && typed.length > 0 && !value && !items.some((i) => labelOf(i).trim().toLowerCase() === typed.toLowerCase());
+  const optionCount = matches.length + (canCreate ? 1 : 0);
+  const create = () => {
+    setOpen(false);
+    onCreate?.(typed);
+  };
 
   const pick = (item: T) => {
     onChange(item);
@@ -99,20 +115,23 @@ export function SearchPicker<T>({
           if (e.key === "ArrowDown") {
             e.preventDefault();
             setOpen(true);
-            setActive((a) => Math.min(a + 1, matches.length - 1));
+            setActive((a) => Math.min(a + 1, optionCount - 1));
           } else if (e.key === "ArrowUp") {
             e.preventDefault();
             setActive((a) => Math.max(a - 1, 0));
           } else if (e.key === "Enter" && open && matches[active]) {
             e.preventDefault();
             pick(matches[active]!);
+          } else if (e.key === "Enter" && open && canCreate && active === matches.length) {
+            e.preventDefault();
+            create();
           } else if (e.key === "Escape" && open) {
             e.stopPropagation();
             setOpen(false);
           }
         }}
       />
-      {open && matches.length > 0 ? (
+      {open && optionCount > 0 ? (
         <ul role="listbox" className="absolute top-full left-0 z-30 mt-1 max-h-72 w-max max-w-[min(560px,85vw)] min-w-full overflow-y-auto rounded-control border border-line bg-surface p-1 shadow-pop">
           {matches.map((item, i) => (
             <li
@@ -132,6 +151,27 @@ export function SearchPicker<T>({
               {meta ? <span className="shrink-0 text-caption text-ink-subtle">{meta(item)}</span> : null}
             </li>
           ))}
+          {canCreate ? (
+            <li
+              role="option"
+              aria-selected={active === matches.length}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                create();
+              }}
+              onMouseEnter={() => setActive(matches.length)}
+              className={clsx(
+                "flex min-h-8 cursor-default items-center gap-2 rounded-[6px] px-2.5 py-1 text-body font-medium text-accent",
+                matches.length > 0 && "mt-1 border-t border-line-row pt-1.5",
+                active === matches.length ? "bg-surface-alt" : null,
+              )}
+            >
+              <Plus className="size-4 shrink-0" aria-hidden />
+              <span className="min-w-0 truncate">
+                {createLabel} “{typed}”
+              </span>
+            </li>
+          ) : null}
         </ul>
       ) : null}
     </div>

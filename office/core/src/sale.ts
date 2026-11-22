@@ -132,12 +132,12 @@ export const SALE_LINE_ERROR_TEXT: Record<SaleLineErrorCode, string> = {
   UNKNOWN_PRODUCT: "This product doesn't exist any more.",
   PRODUCT_INACTIVE: "This product is hidden from sales.",
   NO_PRICE: "This product has no price for the customer's price list yet.",
-  NO_PRICE_BASIS: "This product's price has no \"per\" (per litre / per case …) — an Admin must set it.",
-  BAD_PACK_SIZE: "This product's pack size isn't set properly — an Admin must fix it.",
+  NO_PRICE_BASIS: "This product's price has no \"per\" (per litre / per case …). An Admin must set it.",
+  BAD_PACK_SIZE: "This product's pack size isn't set properly. An Admin must fix it.",
   BAD_PACKS: `Packs must be a whole number from 1 to ${MAX_PACKS_PER_LINE.toLocaleString("en-IN")}.`,
   BAD_DISCOUNT: "Discount must be between 0 and 100 %, at most two decimals.",
-  BAD_GST_RATE: "This product's GST rate isn't usable — an Admin must fix it.",
-  MANUAL_PRICE_NOT_ALLOWED: "This product already has a price for this price list — use a discount instead.",
+  BAD_GST_RATE: "This product's GST rate isn't usable. An Admin must fix it.",
+  MANUAL_PRICE_NOT_ALLOWED: "This product already has a price for this price list. Use a discount instead.",
   BAD_MANUAL_PRICE: `The price for one pack must be from ₹0.01 to ₹${(MAX_MANUAL_PACK_PRICE_PAISE / 100).toLocaleString("en-IN")}.`,
 };
 
@@ -333,13 +333,13 @@ export const SALE_ERROR_TEXT: Record<SaleErrorCode, string> = {
   NO_LINES: "Add at least one product.",
   TOO_MANY_LINES: `At most ${MAX_SALE_LINES} lines on one invoice.`,
   NO_PRICE_TIER: "Choose the customer's price list (Dealer or Distributor) on their record first.",
-  NO_STATE: "The customer has no state on record — needed for GST. Add it on their record first.",
+  NO_STATE: "The customer has no state on record, and GST needs it. Add it on their record first.",
   BAD_FREIGHT: "Freight must be ₹0 or more.",
   BAD_DATE: "Invoice date must look like 2026-10-27.",
   FUTURE_DATE: "An invoice can't be dated in the future.",
   TOO_MANY_PAYMENTS: `At most ${MAX_SALE_PAYMENTS} payments at billing.`,
   BAD_PAYMENT: "Each payment must be more than ₹0, into a cash or bank account.",
-  SAME_REGISTER_TWICE: "Two payments into the same account — put them together.",
+  SAME_REGISTER_TWICE: "Two payments into the same account. Put them together.",
   NOTE_TOO_LONG: "Keep the note under 300 characters.",
 };
 
@@ -366,7 +366,7 @@ export function saleError(s: SaleHeaderInput, today: string): SaleErrorCode | nu
 export type SalePaymentErrorCode = "PAYMENT_TOO_MUCH" | "WALK_IN_MUST_PAY_FULL";
 
 export const SALE_PAYMENT_ERROR_TEXT: Record<SalePaymentErrorCode, string> = {
-  PAYMENT_TOO_MUCH: "Paid now is more than the invoice total — record the extra separately as money received.",
+  PAYMENT_TOO_MUCH: "Paid now is more than the invoice total. Record the extra separately as money received.",
   WALK_IN_MUST_PAY_FULL: "A walk-in customer must pay the full amount now.",
 };
 

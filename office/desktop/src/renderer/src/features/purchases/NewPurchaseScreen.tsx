@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Check, Plus, Trash2, UserPlus } from "lucide-react";
+import { Check, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
@@ -22,18 +22,20 @@ import {
   type PurchaseItem,
   type PurchaseLineInput,
 } from "@technofluid/core";
-import { Badge, Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Select, Spinner, tableClass, Workspace, WorkspacePanel } from "@/components/ui";
+import { Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Select, Spinner, tableClass, Tabs, Workspace, WorkspacePanel } from "@/components/ui";
 import { EntityForm } from "@/features/entities/EntityForm";
 import { SearchPicker } from "@/features/sales/SearchPicker";
 import { KIND_LABEL, unitWord } from "@/features/stock/stockFormat";
 import { useEntities } from "@/hooks/useEntities";
 import { useRegisters } from "@/hooks/useMoney";
+import type { RegisterRow } from "@/services/moneyService";
 import { useStockItems } from "@/hooks/useStock";
 import { createPurchase } from "@/services/purchaseService";
 import { newRequestId, type StockItem } from "@/services/stockService";
 
 type Line = { key: number; item: StockItem | null; qty: string; taxable: string; gst: string };
 type Pay = { registerId: string; amount: string };
+type PanelTab = "bill" | "payment";
 
 const EMPTY_LINE = { item: null, qty: "", taxable: "", gst: "" } as const;
 
@@ -96,7 +98,8 @@ export function NewPurchaseScreen() {
 
   const [supplierId, setSupplierId] = useState<string | null>(params.get("supplier"));
   const supplier = suppliers.find((s) => s.id === supplierId) ?? null;
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<{ name: string } | null>(null);
+  const [tab, setTab] = useState<PanelTab>("bill");
   const [billNo, setBillNo] = useState("");
   const [billDate, setBillDate] = useState(today);
   const [lines, setLines] = useState<Line[]>([{ key: 0, ...EMPTY_LINE }]);
@@ -105,7 +108,8 @@ export function NewPurchaseScreen() {
   const [roundOff, setRoundOff] = useState<string | null>(null);
   const [supplierTotal, setSupplierTotal] = useState("");
   const [alreadyCounted, setAlreadyCounted] = useState(false);
-  const [pays, setPays] = useState<Pay[]>([]);
+  const [cash, setCash] = useState<Pay>({ registerId: "", amount: "" });
+  const [bank, setBank] = useState<Pay>({ registerId: "", amount: "" });
   const [note, setNote] = useState("");
   const [requestId, setRequestId] = useState(newRequestId);
   const [busy, setBusy] = useState(false);
@@ -116,7 +120,15 @@ export function NewPurchaseScreen() {
   const defaultRate = registered ? "18" : "0";
   const filled = lines.filter((l) => l.item);
   const freightPaise = paiseOf(freight);
-  const payments = pays.map((p) => ({ registerId: p.registerId, amountPaise: paiseOf(p.amount, NaN) }));
+  // Cash and Bank are always there; an empty or 0 amount means nothing paid that way.
+  const cashRegs = regs.filter((r) => r.kind === "CASH");
+  const bankRegs = regs.filter((r) => r.kind === "BANK");
+  const payments = [
+    { pay: cash, list: cashRegs },
+    { pay: bank, list: bankRegs },
+  ]
+    .filter(({ pay }) => pay.amount.trim() !== "" && paiseOf(pay.amount, NaN) !== 0)
+    .map(({ pay, list }) => ({ registerId: pay.registerId || list[0]?.id || "", amountPaise: paiseOf(pay.amount, NaN) }));
 
   const lineInputs: PurchaseLineInput[] = filled.map((l) => ({
     itemId: l.item!.id,
@@ -202,10 +214,86 @@ export function NewPurchaseScreen() {
       <Workspace
         panel={
           <WorkspacePanel
-            title="Bill details"
             footer={
               <>
-                <div className="space-y-1 text-label">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-semibold text-ink">Our total</span>
+                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.billTotalPaise) : "-"}</span>
+                </div>
+                {error ? <Banner tone="danger">{error}</Banner> : null}
+                {problem ? <p className="text-label text-ink-muted">{problem}</p> : null}
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" onClick={() => navigate("/purchases")} disabled={busy}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" className="flex-1" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
+                    {busy ? "Saving…" : "Save purchase"}
+                  </Button>
+                </div>
+              </>
+            }
+          >
+            <Tabs<PanelTab>
+              value={tab}
+              onChange={setTab}
+              options={[
+                ["bill", "Bill details"],
+                ["payment", "Totals & payment"],
+              ]}
+            />
+            {tab === "bill" ? (
+              <>
+                <Field label="Supplier" htmlFor="np-supplier">
+                  <div className="[&_[role=listbox]]:w-84 [&_[role=listbox]]:max-w-84">
+                    <SearchPicker
+                      id="np-supplier"
+                      items={suppliers}
+                      value={supplier}
+                      onChange={(s) => setSupplierId(s?.id ?? null)}
+                      keyOf={(s) => s.id}
+                      labelOf={(s) => s.name}
+                      searchOf={(s) => `${s.name} ${s.gstin ?? ""} ${s.address.city} ${s.phones.join(" ")}`.toLowerCase()}
+                      meta={(s) => [s.address.city, s.gstin ? "GSTIN" : "no GSTIN"].filter(Boolean).join(" · ")}
+                      placeholder="Type a name, GSTIN or city"
+                      autoFocus={!supplierId}
+                      onCreate={(name) => setAdding({ name })}
+                      createLabel="Add supplier"
+                    />
+                  </div>
+                  <p className="mt-1.5 truncate text-caption text-ink-muted" title={supplier?.gstin ?? undefined}>
+                    {!supplier ? (
+                      "Not in the list? Type the name and choose Add supplier."
+                    ) : registered ? (
+                      <>
+                        GST registered · {gstState === SELLER_STATE_CODE ? "CGST + SGST" : "IGST"} · {GST_STATES[gstState!] ?? gstState}
+                      </>
+                    ) : (
+                      <span className="text-warning">{supplier.gstin ? "GSTIN not valid" : "No GSTIN"}, so the bill can't carry GST</span>
+                    )}
+                  </p>
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Supplier's bill no." htmlFor="np-billno">
+                    <Input id="np-billno" value={billNo} onChange={(e) => setBillNo(e.target.value)} maxLength={40} placeholder="As printed" />
+                  </Field>
+                  <Field label="Bill date" htmlFor="np-date">
+                    <Input id="np-date" type="date" value={billDate} max={today} onChange={(e) => e.target.value && setBillDate(e.target.value)} />
+                  </Field>
+                </div>
+                <Field label="Freight on the bill (before GST)" htmlFor="np-freight">
+                  <MoneyInput id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
+                </Field>
+                <Field label="Note" htmlFor="np-note">
+                  <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional, e.g. vehicle no., challan" />
+                </Field>
+                <label className="flex items-center gap-2 text-body text-ink">
+                  <Checkbox checked={alreadyCounted} onChange={(e) => setAlreadyCounted(e.target.checked)} />
+                  <span className="min-w-0 truncate">Goods already added to stock, don't add again</span>
+                </label>
+              </>
+            ) : (
+              <>
+                <div className="space-y-1.5 text-label">
                   <Row label="Value before GST" value={t ? formatINR(t.taxablePaise - (priced?.ok && priced.freight ? priced.freight.taxablePaise : 0)) : "-"} />
                   {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
                   {t && t.supplyType === "INTRA" ? (
@@ -230,145 +318,31 @@ export function NewPurchaseScreen() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-baseline justify-between gap-3 border-t border-line pt-3">
-                  <span className="font-semibold text-ink">Our total</span>
-                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.billTotalPaise) : "-"}</span>
-                </div>
                 <Field
                   label="Supplier's bill total (as printed)"
                   htmlFor="np-total"
-                  error={t && supplierTotal.trim() && Number.isInteger(supplierTotalPaise) && !matches ? `Off by ${signed(supplierTotalPaise - t.billTotalPaise)}. A difference up to ₹1 goes in Round off.` : undefined}
+                  help={matches || !(t && supplierTotal.trim()) ? "Must match our total, to catch typing mistakes." : undefined}
+                  error={t && supplierTotal.trim() && Number.isInteger(supplierTotalPaise) && !matches ? `Off by ${signed(supplierTotalPaise - t.billTotalPaise)}. Up to ₹1 goes in Round off.` : undefined}
                 >
                   <div className="flex items-center gap-2">
                     <MoneyInput id="np-total" value={supplierTotal} onChange={(e) => setSupplierTotal(e.target.value)} invalid={Boolean(supplierTotal) && !matches} className="flex-1" />
                     {matches ? <Check className="size-4 shrink-0 text-success" aria-label="Matches" /> : null}
                   </div>
                 </Field>
-                {t && paidNow > 0 ? (
-                  <div className="space-y-1 text-label">
-                    <Row label="Paid now" value={formatINR(paidNow)} />
-                    {paidNow < t.billTotalPaise ? <Row label="Still to pay" value={formatINR(t.billTotalPaise - paidNow)} /> : null}
-                  </div>
-                ) : null}
-                {t && t.taxPaise > 0 ? <p className="text-caption text-ink-muted">Input GST {formatINR(t.taxPaise)} is recorded to claim back{t.byRate.length > 1 ? ` (${t.byRate.map((r) => formatRate(r.gstRateBp)).join(", ")})` : ""}.</p> : null}
-                {error ? <Banner tone="danger">{error}</Banner> : null}
-                {problem ? <p className="text-label text-ink-muted">{problem}</p> : null}
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" onClick={() => navigate("/purchases")} disabled={busy}>
-                    Cancel
-                  </Button>
-                  <Button variant="primary" className="flex-1" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
-                    {busy ? "Saving…" : "Save purchase"}
-                  </Button>
-                </div>
-              </>
-            }
-          >
-            <Field label="Supplier" htmlFor="np-supplier">
-              <div className="flex gap-2">
-                <div className="min-w-0 flex-1 [&_[role=listbox]]:w-84 [&_[role=listbox]]:max-w-84">
-                  <SearchPicker
-                    id="np-supplier"
-                    items={suppliers}
-                    value={supplier}
-                    onChange={(s) => setSupplierId(s?.id ?? null)}
-                    keyOf={(s) => s.id}
-                    labelOf={(s) => s.name}
-                    searchOf={(s) => `${s.name} ${s.gstin ?? ""} ${s.address.city} ${s.phones.join(" ")}`.toLowerCase()}
-                    meta={(s) => [s.address.city, s.gstin ? "GSTIN" : "no GSTIN"].filter(Boolean).join(" · ")}
-                    placeholder="Type a name, GSTIN or city"
-                    autoFocus={!supplierId}
-                  />
-                </div>
-                <Button icon={<UserPlus />} onClick={() => setAdding(true)} title="Add a new supplier">
-                  Add
-                </Button>
-              </div>
-            </Field>
-            <div className="space-y-1 text-label">
-              <p className="font-medium text-ink">GST</p>
-              {supplier ? (
-                registered ? (
-                  <>
-                    <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-ink">
-                      <span>Registered, input GST</span>
-                      <span className="text-ink-faint" aria-hidden>
-                        ·
-                      </span>
-                      <span>{gstState === SELLER_STATE_CODE ? "CGST + SGST" : "IGST"}</span>
-                    </p>
-                    <p className="text-ink-muted">
-                      {supplier.gstin} · {GST_STATES[gstState!] ?? gstState}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <Badge tone="warning">Unregistered, no GST</Badge>
-                    <p className="text-ink-muted">{supplier.gstin ? "The GSTIN on record isn't valid." : "No GSTIN on record."} The bill can't carry GST.</p>
-                  </>
-                )
-              ) : (
-                <p className="text-ink-muted">Choose a supplier</p>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Supplier's bill no." htmlFor="np-billno">
-                <Input id="np-billno" value={billNo} onChange={(e) => setBillNo(e.target.value)} maxLength={40} placeholder="As printed" />
-              </Field>
-              <Field label="Bill date" htmlFor="np-date">
-                <Input id="np-date" type="date" value={billDate} max={today} onChange={(e) => e.target.value && setBillDate(e.target.value)} />
-              </Field>
-            </div>
-            <Field label="Freight on the bill (before GST)" htmlFor="np-freight" help="Part of the cost; taxed at the highest line rate.">
-              <MoneyInput id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
-            </Field>
-            <Field label="Note" htmlFor="np-note">
-              <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional, e.g. vehicle no., delivery challan" />
-            </Field>
-            <label className="flex items-start gap-2 text-body text-ink">
-              <span className="flex h-5 items-center">
-                <Checkbox checked={alreadyCounted} onChange={(e) => setAlreadyCounted(e.target.checked)} />
-              </span>
-              <span>
-                Goods already counted in stock
-                <span className="mt-0.5 block text-caption text-ink-subtle">Tick only if Stock & Production already recorded these goods as "In". Then this bill updates the books only, so stock isn't counted twice.</span>
-              </span>
-            </label>
-            <div className="space-y-2">
-              <div>
-                <p className="text-label font-medium text-ink">Paid now</p>
-                <p className="mt-0.5 text-caption text-ink-subtle">Leave empty if on credit</p>
-              </div>
-              {pays.map((p, i) => (
-                <div key={i} className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Select value={p.registerId} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, registerId: e.target.value } : x)))} aria-label={`Payment ${i + 1} from`} className="min-w-0 flex-1">
-                      {regs.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </Select>
-                    <MoneyInput value={p.amount} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="Amount" className="w-28 shrink-0" aria-label={`Payment ${i + 1} amount`} />
-                    <IconButton size="sm" label={`Remove payment ${i + 1}`} onClick={() => setPays((ps) => ps.filter((_, j) => j !== i))}>
-                      <Trash2 />
-                    </IconButton>
-                  </div>
-                  {t && pays.length === 1 ? (
-                    <div className="flex justify-end">
-                      <Button size="sm" variant="ghost" onClick={() => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: String(t.billTotalPaise / 100) } : x)))}>
-                        Full amount
-                      </Button>
+                <div className="space-y-2">
+                  <p className="text-label font-medium text-ink">
+                    Paid now <span className="font-normal text-ink-subtle">· 0 if on credit</span>
+                  </p>
+                  <PayRow label="Cash" pay={cash} onChange={setCash} accounts={cashRegs} />
+                  <PayRow label="Bank" pay={bank} onChange={setBank} accounts={bankRegs} />
+                  {t ? (
+                    <div className="space-y-1 text-label">
+                      <Row label="Still to pay" value={formatINR(Math.max(0, t.billTotalPaise - paidNow))} />
                     </div>
                   ) : null}
                 </div>
-              ))}
-              {pays.length < 2 && regs.length > 0 ? (
-                <Button size="sm" icon={<Plus />} onClick={() => setPays((ps) => [...ps, { registerId: regs.find((r) => !ps.some((x) => x.registerId === r.id))?.id ?? regs[0]!.id, amount: "" }])}>
-                  {pays.length === 0 ? "Add payment made now" : "Split: add a second payment"}
-                </Button>
-              ) : null}
-            </div>
+              </>
+            )}
           </WorkspacePanel>
         }
       >
@@ -491,13 +465,37 @@ export function NewPurchaseScreen() {
         <EntityForm
           entity={null}
           all={allEntities}
+          defaults={{ name: adding.name, kinds: ["supplier"] }}
           onClose={(id) => {
-            setAdding(false);
+            setAdding(null);
             if (id) setSupplierId(id);
           }}
         />
       ) : null}
     </>
+  );
+}
+
+/** One way of paying (Cash or Bank): which account (only asked when there's more than one) and how much. */
+function PayRow({ label, pay, onChange, accounts }: { label: string; pay: Pay; onChange: (p: Pay) => void; accounts: RegisterRow[] }) {
+  const registerId = pay.registerId || accounts[0]?.id || "";
+  return (
+    <div className="flex items-center gap-2">
+      {accounts.length > 1 ? (
+        <Select value={registerId} onChange={(e) => onChange({ ...pay, registerId: e.target.value })} aria-label={`${label} account`} className="min-w-0 flex-1">
+          {accounts.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name}
+            </option>
+          ))}
+        </Select>
+      ) : (
+        <span className="min-w-0 flex-1 truncate text-body text-ink" title={accounts[0]?.name}>
+          {accounts[0]?.name ?? `No ${label.toLowerCase()} account`}
+        </span>
+      )}
+      <MoneyInput value={pay.amount} onChange={(e) => onChange({ ...pay, amount: e.target.value })} placeholder="0" className="w-32 shrink-0" aria-label={`Paid by ${label.toLowerCase()}, rupees`} disabled={accounts.length === 0} />
+    </div>
   );
 }
 
