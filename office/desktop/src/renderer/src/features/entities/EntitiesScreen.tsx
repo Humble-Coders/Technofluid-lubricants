@@ -28,6 +28,7 @@ import { useEntities, useEntityBalances } from "@/hooks/useEntities";
 import { retryEntitySync, type EntityRow } from "@/services/entityService";
 import type { EntityBalance } from "@/services/ledgerService";
 import { EntityDetail } from "./EntityDetail";
+import { useSearchParams } from "react-router";
 import { EntityForm } from "./EntityForm";
 import { ImportDistributorsDialog } from "./ImportDistributorsDialog";
 
@@ -48,7 +49,9 @@ export function EntitiesScreen() {
   const syncedKey = list.filter((e) => e.syncStatus === "SYNCED").map((e) => e.id).join(",");
   const books = useEntityBalances(syncedKey);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<Filter>("all");
+  // The dashboard's "They owe us" / "We owe them" open this list already filtered (?show=receivable|payable).
+  const [params] = useSearchParams();
+  const [filter, setFilter] = useState<Filter>(() => (params.get("show") === "receivable" ? "receivable" : params.get("show") === "payable" ? "payable" : "all"));
   const [sort, setSort] = useState<Sort>("name");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState<{ entity: EntityRow | null } | null>(null);
