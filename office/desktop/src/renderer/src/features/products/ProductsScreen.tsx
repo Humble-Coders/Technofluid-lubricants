@@ -162,7 +162,7 @@ export function ProductsScreen() {
   }, []);
 
   const panel = adding ? (
-    <SidePanel label={adding.from ? `Copy of ${adding.from.name}` : "New product"}>
+    <SidePanel label={adding.from ? `Copy of ${adding.from.name}` : "New product"} onClose={() => select(null)}>
       <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <h2 className="min-w-0 flex-1 truncate text-title font-semibold text-ink">
           {adding.from ? `Copy of ${adding.from.name}` : "New product"}
@@ -533,7 +533,7 @@ function ProductPanel({
   }, [p, showPrices]);
 
   return (
-    <SidePanel label={`${p.name} details`}>
+    <SidePanel label={`${p.name} details`} onClose={onClose}>
       <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
           <h2 className="text-title font-semibold break-words text-ink">{p.name}</h2>

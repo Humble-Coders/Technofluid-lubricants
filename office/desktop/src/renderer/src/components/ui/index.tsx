@@ -578,12 +578,16 @@ export const SheetOverlayContext = createContext<HTMLElement | null>(null);
  * A record's details, opened from a list: slides in OVER the right side of the sheet (the list
  * underneath keeps its full width and doesn't move). Give it the same `aside` content as before;
  * it brings the surface, edge and shadow. Width: "md" 384px (default) or "lg" 640px; on a small
- * window it never covers more than the sheet minus 48px. Closing (Esc, ×) stays with the screen.
+ * window it never covers more than the sheet minus 48px. The sheet behind it dims; pass `onClose`
+ * so a click on the dimmed part closes it. Esc and × stay with the screen.
  */
-export function SidePanel({ children, size = "md", label, className }: { children: ReactNode; size?: "md" | "lg"; label?: string; className?: string }) {
+export function SidePanel({ children, size = "md", label, className, onClose }: { children: ReactNode; size?: "md" | "lg"; label?: string; className?: string; onClose?: () => void }) {
   const host = useContext(SheetOverlayContext);
   const panel = (
-    <aside
+    <>
+      {/* The screen underneath dims; clicking it closes the panel (the screen's own close, so unsaved-change checks still run). */}
+      <div aria-hidden className="pointer-events-auto absolute inset-0 bg-ink/35" onMouseDown={onClose} />
+      <aside
       aria-label={label}
       className={clsx(
         "pointer-events-auto absolute inset-y-0 right-0 flex max-w-[calc(100%-3rem)] flex-col border-l border-line bg-surface shadow-[-16px_0_32px_-16px_rgb(26_31_43/0.25)]",
@@ -592,7 +596,8 @@ export function SidePanel({ children, size = "md", label, className }: { childre
       )}
     >
       {children}
-    </aside>
+      </aside>
+    </>
   );
   return host ? createPortal(panel, host) : panel;
 }
