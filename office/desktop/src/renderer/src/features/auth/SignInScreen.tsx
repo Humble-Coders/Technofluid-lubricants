@@ -35,7 +35,7 @@ export function SignInScreen() {
   return (
     <div className="flex h-full flex-col">
       <div className="app-drag h-11 shrink-0" />
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-6 pb-16">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-4 overflow-y-auto px-6 pb-16">
         <Card className="w-full max-w-sm p-8 shadow-card">
           <img src={wordmark} alt="Technofluid" className="mb-6 h-8 w-auto" />
           <h1 className="text-page font-semibold text-ink">Sign in to Technofluid Office</h1>
@@ -58,7 +58,7 @@ export function SignInScreen() {
 
           {usingEmulators ? (
             <Banner tone="info" className="mt-6">
-              Development mode — using test data on this computer, not the live Technofluid data.
+              Development mode: using test data on this computer, not the live Technofluid data.
             </Banner>
           ) : null}
         </Card>

@@ -90,7 +90,7 @@ export function SaleDetail() {
       <div className="mb-6 flex flex-col gap-2 empty:hidden">
         {justCreated && justCreated.belowZero.length > 0 && !cancelled ? (
           <Banner tone="warning">
-            Stock is now below zero for {justCreated.belowZero.map((b) => b.name).join(", ")} — record what came in or was made.
+            Stock is now below zero for {justCreated.belowZero.map((b) => b.name).join(", ")}. Record what came in or was made.
           </Banner>
         ) : null}
         {s.lines.some((l) => l.manualPrice) ? (
@@ -116,7 +116,7 @@ export function SaleDetail() {
           <iframe
             key={preview.url}
             src={`${preview.url}#toolbar=0&navpanes=0&view=FitH`}
-            title={`${s.invoiceNo} ${copy} — as it prints`}
+            title={`${s.invoiceNo} ${copy}, as it prints`}
             className="aspect-[210/297] w-full max-w-[832px] rounded-control border border-line bg-white"
           />
         ) : null}
@@ -194,7 +194,8 @@ export function SaleDetail() {
               </div>
             </section>
 
-            <Table className="mt-2">
+            <div className="mt-2 overflow-x-auto">
+            <Table>
               <thead>
                 <tr>
                   <Th>#</Th>
@@ -221,7 +222,7 @@ export function SaleDetail() {
                     <Td>
                       {l.hsnCode ?? (
                         <span className="text-warning" title="No HSN code">
-                          —
+                          -
                         </span>
                       )}
                     </Td>
@@ -233,7 +234,7 @@ export function SaleDetail() {
                         {PRICE_PER_SHORT[l.pricePer] ?? ` ${l.pricePer}`}
                       </span>
                     </Td>
-                    <Td num>{l.discountBp ? `${formatRate(l.discountBp)} · ${formatINR(l.discountPaise)}` : "—"}</Td>
+                    <Td num>{l.discountBp ? `${formatRate(l.discountBp)} · ${formatINR(l.discountPaise)}` : "-"}</Td>
                     <Td num>{formatINR(l.taxablePaise)}</Td>
                     <Td num>{formatRate(l.gstRateBp)}</Td>
                     <Td num>{formatINR(l.totalPaise)}</Td>
@@ -250,6 +251,7 @@ export function SaleDetail() {
                 ) : null}
               </tbody>
             </Table>
+            </div>
 
             <section className="mt-6 grid grid-cols-[minmax(0,1fr)_280px] gap-8">
               <div className="space-y-3">
@@ -308,7 +310,7 @@ export function SaleDetail() {
           </article>
         ) : null}
 
-        {s.missingHsn.length > 0 ? <Banner tone="warning">Billed without an HSN code for {s.missingHsn.length} product(s) — codes are awaited from the CA.</Banner> : null}
+        {s.missingHsn.length > 0 ? <Banner tone="warning">Billed without an HSN code for {s.missingHsn.length} product(s). Codes are awaited from the CA.</Banner> : null}
       </div>
 
       <Section
@@ -320,7 +322,7 @@ export function SaleDetail() {
         }
       >
         {nothingPaid ? (
-          <p className="text-body text-ink-muted">Nothing paid yet — on credit.</p>
+          <p className="text-body text-ink-muted">Nothing paid yet (on credit).</p>
         ) : (
           <ul className="border-t border-line-row">
             {s.payments.map((p, i) => (
@@ -334,7 +336,7 @@ export function SaleDetail() {
             {paid?.later.map((e) => (
               <li key={e.id} className={clsx("flex min-h-11 items-center gap-3 border-b border-line-row py-1.5", e.reversedByEntryId ? "text-ink-subtle" : "text-ink")}>
                 <span className="selectable min-w-0 flex-1">
-                  Into {e.to.kind === "ADJUSTMENT" ? "—" : e.to.name}, {e.businessDay}
+                  Into {e.to.kind === "ADJUSTMENT" ? "-" : e.to.name}, {e.businessDay}
                   {e.note ? ` · ${e.note}` : ""}
                 </span>
                 {e.reversedByEntryId ? <Badge>Reversed</Badge> : e.syncStatus !== "SYNCED" ? <Badge tone={e.syncStatus === "FAILED" ? "danger" : "neutral"}>{e.syncStatus === "FAILED" ? "Not posted" : "Saving to books…"}</Badge> : null}
@@ -381,7 +383,7 @@ function ReceivePaymentDialog({ sale: s, duePaise, onClose }: { sale: SaleRow; d
   } catch {
     paise = NaN;
   }
-  const problem = !reg ? "Choose where the money went." : !Number.isInteger(paise) || paise <= 0 ? "Give the amount." : paise > duePaise ? `Only ${formatINR(duePaise)} is due — record any extra separately in Money in & out.` : null;
+  const problem = !reg ? "Choose where the money went." : !Number.isInteger(paise) || paise <= 0 ? "Give the amount." : paise > duePaise ? `Only ${formatINR(duePaise)} is due. Record any extra separately in Money in & out.` : null;
   return (
     <Dialog
       title={`Payment for ${s.invoiceNo}`}

@@ -130,7 +130,7 @@ export function MoneyScreen() {
       {books.error ? (
         <Banner
           tone="warning"
-          title="Books unreachable — balances can't be shown right now."
+          title="Books unreachable, so balances can't be shown right now."
           className="mb-6"
           action={
             <Button size="sm" onClick={() => void books.retry()} loading={books.loading} icon={<RefreshCw />}>
@@ -143,7 +143,7 @@ export function MoneyScreen() {
       ) : null}
 
       {regs.some((r) => r.isActive) ? (
-        <div className="mb-8 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6">
+        <div className="mb-8 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
           {regs
             .filter((r) => r.isActive)
             .map((r) => (
@@ -208,7 +208,7 @@ function RegisterTile({ register: r, balance, onOpen }: { register: RegisterRow;
   return (
     <StatTile
       label={r.name}
-      value={balance === null ? "—" : formatINR(balance)}
+      value={balance === null ? "-" : formatINR(balance)}
       tone={balance !== null && balance < 0 ? "danger" : undefined}
       onClick={r.placeholder ? undefined : onOpen}
       hint={
@@ -254,7 +254,7 @@ export function EntriesTable({ rows, isAdmin, onSelect, selectedId, hideKind }: 
                   {e.businessDay}
                 </Td>
                 <Td>
-                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="flex min-w-36 flex-wrap items-center gap-x-2 gap-y-1">
                     <span className={clsx(cancelled && "text-ink-subtle line-through")}>
                       {sideName(e.from)} → {sideName(e.to)}
                     </span>
@@ -263,7 +263,7 @@ export function EntriesTable({ rows, isAdmin, onSelect, selectedId, hideKind }: 
                   </span>
                 </Td>
                 {hideKind ? null : (
-                  <Td className="whitespace-nowrap" muted>
+                  <Td muted>
                     {MONEY_CATEGORY_LABEL[moneyCategory(e)]}
                   </Td>
                 )}
@@ -274,9 +274,15 @@ export function EntriesTable({ rows, isAdmin, onSelect, selectedId, hideKind }: 
                   </span>
                 </Td>
                 <Td className="max-w-60" muted>
-                  {e.note ?? ""}
+                  <span className="line-clamp-2 min-w-24" title={e.note ?? undefined}>
+                    {e.note ?? ""}
+                  </span>
                 </Td>
-                <Td muted className="whitespace-nowrap">{e.createdBy}</Td>
+                <Td muted>
+                  <span className="block max-w-24 truncate" title={e.createdBy}>
+                    {e.createdBy}
+                  </span>
+                </Td>
                 <Td onClick={(ev) => ev.stopPropagation()}>{e.syncStatus === "SYNCED" ? null : <StatusCell entry={e} />}</Td>
                 <Td align="right" onClick={(ev) => ev.stopPropagation()}>
                   {canReverse(e) && (!e.isCorrection || isAdmin) ? <Menu size="sm" label="Entry actions" items={[{ label: "Reverse", icon: <Undo2 />, onSelect: () => setReversing(e) }]} /> : null}

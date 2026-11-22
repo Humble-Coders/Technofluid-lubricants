@@ -7,7 +7,7 @@ export function BlockedScreen({ email, reason }: { email: string | null; reason:
   return (
     <div className="flex h-full flex-col">
       <div className="app-drag h-11 shrink-0" />
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-16">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center-safe overflow-y-auto px-6 pb-16">
         <Card className="flex w-full max-w-sm flex-col p-8 shadow-card">
           <img src={wordmark} alt="Technofluid" className="mb-6 h-8 w-auto self-start" />
           <h1 className="text-page font-semibold text-ink">You can't use Technofluid Office with this account</h1>

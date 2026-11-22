@@ -91,7 +91,7 @@ function RequestCard({ request: r }: { request: RecipeRequest }) {
 
   const decide = async (decision: "approve" | "reject") => {
     setError(null);
-    if (decision === "reject" && !note.trim()) return setError("Say why it's rejected — the person who asked will see it.");
+    if (decision === "reject" && !note.trim()) return setError("Say why it's rejected. The person who asked will see it.");
     setBusy(decision);
     try {
       await decideRecipeChange(r.id, decision, note);
@@ -139,7 +139,7 @@ function RequestCard({ request: r }: { request: RecipeRequest }) {
           </div>
         ) : (
           <p className="text-label text-ink-muted">
-            {status.label} by {r.decidedBy ?? "—"} · {when(r.decidedAt)}
+            {status.label} by {r.decidedBy ?? "-"} · {when(r.decidedAt)}
             {r.decisionNote ? ` · “${r.decisionNote}”` : ""}
           </p>
         )}
@@ -163,7 +163,7 @@ function ProductionCard({ request: r }: { request: ProductionRequest }) {
 
   const decide = async (decision: "approve" | "reject") => {
     setError(null);
-    if (decision === "reject" && !note.trim()) return setError("Say why it's rejected — the person who entered it will see it.");
+    if (decision === "reject" && !note.trim()) return setError("Say why it's rejected. The person who entered it will see it.");
     setBusy(decision);
     try {
       await decideProductionRequest(r.id, decision, note);
@@ -186,7 +186,7 @@ function ProductionCard({ request: r }: { request: ProductionRequest }) {
       <header className={REQUEST_HEAD}>
         <Factory className="size-4 shrink-0 text-ink-subtle" aria-hidden />
         <h3 className="text-body font-semibold text-ink">
-          Production with recipe change: {made.map((l) => `${l.itemName} ${qty(l).slice(1)}`).join(", ") || "—"}
+          Production with recipe change: {made.map((l) => `${l.itemName} ${qty(l).slice(1)}`).join(", ") || "-"}
         </h3>
         {r.status === "approved" ? null : <Badge tone={status.tone}>{status.label}</Badge>}
         <span className="flex-1" />
@@ -244,7 +244,7 @@ function ProductionCard({ request: r }: { request: ProductionRequest }) {
           </div>
         ) : (
           <p className="text-label text-ink-muted">
-            {status.label} by {r.decidedBy ?? "—"} · {when(r.decidedAt)}
+            {status.label} by {r.decidedBy ?? "-"} · {when(r.decidedAt)}
             {r.decisionNote ? ` · “${r.decisionNote}”` : ""}
           </p>
         )}
@@ -263,7 +263,7 @@ export function RecipeDiff({ current, proposed }: { current: string[]; proposed:
   const now = parseRecipe(current);
   const next = parseRecipe(proposed);
   const codes = [...new Set([...now.map((i) => i.code), ...next.map((i) => i.code)])];
-  const pct = (bp: number | null | undefined) => (bp === undefined ? "—" : bp === null ? "no %" : `${bp / 100}%`);
+  const pct = (bp: number | null | undefined) => (bp === undefined ? "-" : bp === null ? "no %" : `${bp / 100}%`);
   const total = (list: typeof now) => list.reduce((s, i) => s + (i.percentBp ?? 0), 0) / 100;
 
   return (

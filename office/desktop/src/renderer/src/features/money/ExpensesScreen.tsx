@@ -15,7 +15,7 @@ import {
   type ExpenseGst,
   type MoneyAccountRef,
 } from "@technofluid/core";
-import { Banner, Button, Checkbox, Dialog, EmptyState, ErrorState, Field, FilterSelect, Input, LoadingState, MoneyInput, Page, PageHeader, SearchInput, Segmented, Select, Workspace } from "@/components/ui";
+import { Banner, Button, Checkbox, Dialog, EmptyState, ErrorState, Field, FilterSelect, Input, LoadingState, MoneyInput, Page, PageHeader, SearchInput, Segmented, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { useEntities } from "@/hooks/useEntities";
 import { useCategories, useMoneyEntries, useRegisters } from "@/hooks/useMoney";
@@ -77,7 +77,7 @@ export function ExpensesScreen() {
   const original = selected?.reversesEntryId ? (all.find((e) => e.id === selected.reversesEntryId) ?? null) : null;
 
   return (
-    <Workspace panel={selected ? <ExpenseDetail entry={selected} isAdmin={role === "admin"} original={original} onClose={() => setSelectedId(null)} /> : null}>
+    <>
       <Page>
         <PageHeader
           title="Expenses"
@@ -124,8 +124,9 @@ export function ExpensesScreen() {
           <EntriesTable rows={rows} isAdmin={role === "admin"} hideKind onSelect={(e) => setSelectedId((id) => (id === e.id ? null : e.id))} selectedId={selectedId} />
         )}
       </Page>
+      {selected ? <ExpenseDetail entry={selected} isAdmin={role === "admin"} original={original} onClose={() => setSelectedId(null)} /> : null}
       {adding ? <ExpenseForm categories={cats} registers={regs} suppliers={suppliers} onClose={() => setAdding(false)} /> : null}
-    </Workspace>
+    </>
   );
 }
 
@@ -266,7 +267,7 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
           <Input id="ex-day" type="date" value={day} max={indiaDate()} onChange={(e) => setDay(e.target.value)} />
         </Field>
       </div>
-      <Field label={noteNeeded ? "What was it?" : "Note"} htmlFor="ex-note" optional={!noteNeeded} help={noteNeeded ? 'Needed for "Other" — e.g. "Diwali sweets for staff".' : undefined}>
+      <Field label={noteNeeded ? "What was it?" : "Note"} htmlFor="ex-note" optional={!noteNeeded} help={noteNeeded ? 'Needed for "Other", e.g. "Diwali sweets for staff".' : undefined}>
         <Input id="ex-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder={noteNeeded ? "Name of the item or service" : undefined} maxLength={500} />
       </Field>
 

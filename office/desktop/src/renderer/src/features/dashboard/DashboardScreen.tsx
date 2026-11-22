@@ -52,18 +52,22 @@ export function DashboardScreen() {
       </StatTiles>
 
       <Section title="Jump to">
-        <ul className="border-t border-line-row">
+        <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           {quick.map((q) => (
-            <li key={q.to}>
-              <Link to={q.to} className="group flex h-11 items-center gap-3 border-b border-line-row text-body text-ink hover:bg-surface-alt">
-                <q.icon className="size-4 shrink-0 text-ink-subtle" />
-                <span className="w-40 shrink-0 font-medium">{q.label}</span>
-                <span className="min-w-0 flex-1 truncate text-ink-muted">{q.hint}</span>
-                <ArrowRight className="size-4 shrink-0 text-ink-subtle opacity-0 transition-opacity group-hover:opacity-100" />
-              </Link>
-            </li>
+            <Link
+              key={q.to}
+              to={q.to}
+              className="group flex flex-col gap-2 rounded-sheet border border-line bg-surface p-4 shadow-card transition-colors hover:border-accent/40 hover:bg-accent-50"
+            >
+              <q.icon className="size-5 text-accent" />
+              <span className="flex items-center gap-1 text-body font-semibold text-ink">
+                {q.label}
+                <ArrowRight className="size-4 opacity-0 transition-opacity group-hover:opacity-100" />
+              </span>
+              <span className="text-label text-ink-muted">{q.hint}</span>
+            </Link>
           ))}
-        </ul>
+        </div>
       </Section>
     </Page>
   );

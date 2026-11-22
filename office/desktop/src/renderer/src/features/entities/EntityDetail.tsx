@@ -3,7 +3,7 @@ import { Archive, ArchiveRestore, IndianRupee, Link2, Pencil, ReceiptIndianRupee
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { formatINR, GST_STATES, indiaDate } from "@technofluid/core";
-import { Badge, Banner, Button, Detail, Details, Dialog, Field, IconButton, Input, LoadingState, Menu, Section, Select, Spinner, Table, Tabs, Td, Th, Tr } from "@/components/ui";
+import { Badge, Banner, Button, Detail, Details, Dialog, Field, IconButton, Input, LoadingState, Menu, Section, Select, SidePanel, Spinner, Table, Tabs, Td, Th, Tr } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { useEntities, useEntityHistory, useEntityStatement } from "@/hooks/useEntities";
 import { useMoneyEntry, useRegisters } from "@/hooks/useMoney";
@@ -34,13 +34,13 @@ const FIELD_LABEL: Record<string, string> = {
 };
 
 const show = (field: string, v: unknown): string => {
-  if (v === null || v === undefined || v === "") return "—";
+  if (v === null || v === undefined || v === "") return "-";
   if (field === "creditLimitPaise" && typeof v === "number") return formatINR(v);
   if (field === "address" && typeof v === "object") {
     const a = v as Record<string, string | null>;
-    return [a.line1, a.city, a.stateCode ? GST_STATES[a.stateCode] : null].filter(Boolean).join(", ") || "—";
+    return [a.line1, a.city, a.stateCode ? GST_STATES[a.stateCode] : null].filter(Boolean).join(", ") || "-";
   }
-  if (Array.isArray(v)) return v.join(", ") || "—";
+  if (Array.isArray(v)) return v.join(", ") || "-";
   if (typeof v === "boolean") return v ? "Yes" : "No";
   return String(v);
 };
@@ -98,7 +98,7 @@ export function EntityDetail({
   const newPurchase = () => navigate(`/purchases/new?supplier=${encodeURIComponent(e.id)}`);
 
   return (
-    <aside className="flex w-1/2 max-w-170 min-w-140 shrink-0 flex-col border-l border-line">
+    <SidePanel size="lg" label={e.name}>
       <header className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-title font-semibold text-ink">{e.name}</h2>
@@ -124,9 +124,9 @@ export function EntityDetail({
         <Section>
           <p className="text-label text-ink-muted">Balance</p>
           {booksError ? (
-            <p className="mt-1 text-body text-warning">— books unreachable</p>
+            <p className="mt-1 text-body text-warning">Books unreachable</p>
           ) : e.syncStatus !== "SYNCED" && !balance ? (
-            <p className="mt-1 text-body text-ink-muted">— not in the books yet</p>
+            <p className="mt-1 text-body text-ink-muted">Not in the books yet</p>
           ) : (
             <p className="mt-1 flex items-baseline gap-2">
               <BalanceText balance={balance ?? { balancePaise: 0, direction: "settled" }} className="text-headline" />
@@ -138,7 +138,7 @@ export function EntityDetail({
           {e.creditLimitPaise !== null ? (
             <p className={clsx("mt-0.5 text-label", balance && balance.balancePaise > e.creditLimitPaise ? "text-warning" : "text-ink-muted")}>
               Credit limit {formatINR(e.creditLimitPaise)}
-              {balance && balance.balancePaise > e.creditLimitPaise ? " — over the limit" : ""}
+              {balance && balance.balancePaise > e.creditLimitPaise ? " (over the limit)" : ""}
             </p>
           ) : null}
           <SyncLine entity={e} />
@@ -177,9 +177,9 @@ export function EntityDetail({
 
         <Section title="Details">
           <Details columns={2}>
-            <Detail label="Phone">{e.phones.join(", ") || "—"}</Detail>
+            <Detail label="Phone">{e.phones.join(", ") || "-"}</Detail>
             <Detail label="Email" className="wrap-anywhere">
-              {e.email ?? "—"}
+              {e.email ?? "-"}
             </Detail>
             <Detail label="GSTIN">
               {e.gstin ? (
@@ -188,23 +188,23 @@ export function EntityDetail({
                   {e.gstVerified ? <span className="ml-1.5 font-sans text-caption text-ink-muted">verified</span> : null}
                 </span>
               ) : (
-                "—"
+                "-"
               )}
             </Detail>
-            <Detail label="State">{state ? `${state} (${e.address.stateCode})` : <span className="text-warning">Needed — edit to choose it</span>}</Detail>
+            <Detail label="State">{state ? `${state} (${e.address.stateCode})` : <span className="text-warning">Needed. Edit to choose it.</span>}</Detail>
             <Detail label="Address" className="col-span-2">
-              {[e.address.line1, e.address.line2, e.address.city, e.address.district, e.address.pincode].filter(Boolean).join(", ") || "—"}
+              {[e.address.line1, e.address.line2, e.address.city, e.address.district, e.address.pincode].filter(Boolean).join(", ") || "-"}
             </Detail>
             {e.kinds.includes("customer") ? (
-              <Detail label="Price list">{e.priceTier ?? <span className="text-warning">Not chosen — Sales can't bill until it is</span>}</Detail>
+              <Detail label="Price list">{e.priceTier ?? <span className="text-warning">Not chosen. Sales can't bill until it is.</span>}</Detail>
             ) : null}
             <Detail label="Opening balance">
-              {e.opening ? `${formatINR(e.opening.amountPaise)} ${e.opening.direction === "receivable" ? "they owed us" : "we owed them"} on ${e.opening.asOf}` : "—"}
+              {e.opening ? `${formatINR(e.opening.amountPaise)} ${e.opening.direction === "receivable" ? "they owed us" : "we owed them"} on ${e.opening.asOf}` : "-"}
             </Detail>
             {/* Only a customer can be a website distributor; a supplier-only party just shows an old link (to remove it). */}
             {e.kinds.includes("customer") || e.distributorId ? (
               <Detail label="Website distributor" className="col-span-2 wrap-anywhere">
-                {e.distributorId ? <span className="font-mono text-label">{e.distributorId}</span> : "—"}
+                {e.distributorId ? <span className="font-mono text-label">{e.distributorId}</span> : "-"}
                 {isAdmin && !e.isWalkIn ? (
                   <button type="button" className="ml-2 rounded text-label font-medium text-accent hover:underline" onClick={() => setLinking(true)}>
                     {e.distributorId ? "Change" : "Link"}
@@ -273,7 +273,7 @@ export function EntityDetail({
           }}
         />
       ) : null}
-    </aside>
+    </SidePanel>
   );
 }
 
@@ -319,7 +319,7 @@ function StatementView({ entity: e }: { entity: EntityRow }) {
   if (!inBooks) return <p className="text-label text-ink-muted">The statement shows once it's saved to the books.</p>;
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-label text-ink-muted">
+      <div className="flex flex-wrap items-center gap-2 text-label text-ink-muted">
         <Input type="date" value={from} max={to} onChange={(ev) => ev.target.value && setFrom(ev.target.value)} aria-label="From" className="w-40" />
         <span>–</span>
         <Input type="date" value={to} min={from} onChange={(ev) => ev.target.value && setTo(ev.target.value)} aria-label="To" className="w-40" />
@@ -403,7 +403,7 @@ function HistoryView({ entityId }: { entityId: string }) {
         <li key={h.id} className="space-y-0.5 border-b border-line-row py-3 text-label">
           <p className="font-medium text-ink">
             {ACTION[h.action] ?? h.action}
-            {h.reason ? <span className="font-normal text-ink-muted"> — “{h.reason}”</span> : null}
+            {h.reason ? <span className="font-normal text-ink-muted">: “{h.reason}”</span> : null}
           </p>
           {Object.entries(h.changes).map(([f, c]) => (
             <p key={f} className="wrap-anywhere text-ink">
@@ -457,7 +457,7 @@ function ArchiveDialog({ entity: e, onClose }: { entity: EntityRow; onClose: (do
       }
     >
       <p className="text-body text-ink-muted">
-        {archive ? "Only a zero balance can be archived — it's archived in the books too." : "It shows in the lists again, and in the books."}
+        {archive ? "Only a zero balance can be archived. It's archived in the books too." : "It shows in the lists again, and in the books."}
       </p>
       <Field label="Reason" htmlFor="entity-archive-reason">
         <Input id="entity-archive-reason" value={reason} onChange={(ev) => setReason(ev.target.value)} autoFocus maxLength={300} />

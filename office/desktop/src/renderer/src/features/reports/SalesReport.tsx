@@ -108,7 +108,7 @@ export function SalesReportView() {
                     <Tr key={x.key}>
                       <Td>{x.label}</Td>
                       <Td muted>{x.detail}</Td>
-                      <Td num>{x.packs ?? "—"}</Td>
+                      <Td num>{x.packs ?? "-"}</Td>
                       <Td num className="whitespace-nowrap">
                         {quantities(x.qtyMilli)}
                       </Td>

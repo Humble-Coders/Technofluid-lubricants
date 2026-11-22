@@ -29,7 +29,7 @@ const EMULATOR_PROJECT_ID = "demo-technofluid";
 export const FUNCTIONS_EMULATOR = { host: "127.0.0.1", port: 5001 };
 
 function required(name: string, value: string | undefined): string {
-  if (!value) throw new Error(`Missing ${name} — copy desktop/.env.example to desktop/.env.local`);
+  if (!value) throw new Error(`Missing ${name}. Copy desktop/.env.example to desktop/.env.local`);
   return value;
 }
 

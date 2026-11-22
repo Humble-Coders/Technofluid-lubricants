@@ -1,11 +1,11 @@
-import { Undo2 } from "lucide-react";
+import { Undo2, X } from "lucide-react";
 import { useState } from "react";
 import { canReverse, formatINR, formatRate, GST_STATES, isCancelled, type MoneyAccountRef } from "@technofluid/core";
-import { Badge, Button, Detail, Details, WorkspacePanel } from "@/components/ui";
+import { Badge, Button, Detail, Details, IconButton, SidePanel } from "@/components/ui";
 import type { MoneyEntryRow } from "@/services/moneyService";
 import { ReverseDialog, ReversedBadge, StatusCell } from "./MoneyScreen";
 
-const accountName = (r: MoneyAccountRef) => ("name" in r && r.name ? r.name : "—");
+const accountName = (r: MoneyAccountRef) => ("name" in r && r.name ? r.name : "-");
 
 /**
  * One expense, in full (Expenses screen side panel): what, from where, how much, the GST
@@ -20,31 +20,28 @@ export function ExpenseDetail({ entry: e, isAdmin, original, onClose }: { entry:
   const account = isReversal ? e.to : e.from;
   const cancelled = isCancelled(e, e.mirrorStatus);
   const g = e.gst;
+  const reversible = canReverse(e) && (!e.isCorrection || isAdmin);
 
   return (
-    <div role="region" aria-label="Expense details" className="flex shrink-0">
-      <WorkspacePanel
-        title={accountName(category)}
-        subtitle={
-          <span className="flex flex-wrap items-center gap-1.5">
+    <SidePanel label="Expense details">
+      <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-title font-semibold text-ink">{accountName(category)}</h2>
+          <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-label text-ink-muted">
             {isReversal ? <Badge>Reversal</Badge> : <span>Expense</span>}
             {g ? <span>· GST bill</span> : null}
             {e.reversedByEntryId ? <ReversedBadge entry={e} /> : null}
-          </span>
-        }
-        onClose={onClose}
-        footer={
-          canReverse(e) && (!e.isCorrection || isAdmin) ? (
-            <Button icon={<Undo2 />} onClick={() => setReversing(true)}>
-              Reverse this expense
-            </Button>
-          ) : undefined
-        }
-      >
+          </div>
+        </div>
+        <IconButton label="Close" size="sm" onClick={onClose}>
+          <X />
+        </IconButton>
+      </div>
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6">
         <div>
           <p className="text-label text-ink-muted">Amount</p>
           <p className={`num mt-0.5 text-headline font-semibold ${cancelled || isReversal ? "text-ink-subtle" : "text-ink"}`}>{formatINR(e.amountPaise)}</p>
-          {cancelled ? <p className="mt-0.5 text-label text-ink-muted">Reversed — no longer counted in the totals.</p> : null}
+          {cancelled ? <p className="mt-0.5 text-label text-ink-muted">Reversed. No longer counted in the totals.</p> : null}
         </div>
 
         <Details columns={2}>
@@ -55,7 +52,7 @@ export function ExpenseDetail({ entry: e, isAdmin, original, onClose }: { entry:
             <StatusCell entry={e} />
           </Detail>
           <Detail label="Note" className="col-span-2">
-            {e.note ?? "—"}
+            {e.note ?? "-"}
           </Detail>
           <Detail label="Entered by" className="col-span-2">
             {e.createdBy}
@@ -107,8 +104,15 @@ export function ExpenseDetail({ entry: e, isAdmin, original, onClose }: { entry:
             </Details>
           </div>
         ) : null}
-      </WorkspacePanel>
+      </div>
+      {reversible ? (
+        <div className="shrink-0 space-y-3 border-t border-line px-6 py-4">
+          <Button icon={<Undo2 />} onClick={() => setReversing(true)}>
+            Reverse this expense
+          </Button>
+        </div>
+      ) : null}
       {reversing ? <ReverseDialog entry={e} onClose={() => setReversing(false)} /> : null}
-    </div>
+    </SidePanel>
   );
 }

@@ -27,8 +27,8 @@ import {
   Page,
   PageHeader,
   SearchInput,
+  SidePanel,
   TableFooter,
-  Workspace,
   tableClass,
 } from "@/components/ui";
 import { canEditProducts, canSeePrices } from "@/lib/access";
@@ -48,7 +48,6 @@ type SegmentFilter = "all" | "Automotive" | "Industrial";
 
 const CATEGORY_LABEL: Record<string, string> = { bulk_oil: "Bulk oil", grease: "Grease", retail: "Retail pack" };
 const ROW_HEIGHT = 44;
-const PANEL = "flex w-96 shrink-0 flex-col border-l border-line";
 
 export function ProductsScreen() {
   const { role } = useStaff();
@@ -163,7 +162,7 @@ export function ProductsScreen() {
   }, []);
 
   const panel = adding ? (
-    <aside className={PANEL}>
+    <SidePanel label={adding.from ? `Copy of ${adding.from.name}` : "New product"}>
       <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <h2 className="min-w-0 flex-1 truncate text-title font-semibold text-ink">
           {adding.from ? `Copy of ${adding.from.name}` : "New product"}
@@ -181,7 +180,7 @@ export function ProductsScreen() {
           if (newSku) setSelectedSku(newSku);
         }}
       />
-    </aside>
+    </SidePanel>
   ) : selected ? (
     <ProductPanel
       key={selected.sku}
@@ -199,7 +198,7 @@ export function ProductsScreen() {
   ) : null;
 
   return (
-    <Workspace panel={panel}>
+    <>
       <Page fill>
         <PageHeader
           title="Products"
@@ -286,7 +285,7 @@ export function ProductsScreen() {
             }
           >
             {deletedNote.restored
-              ? `Restored ${deletedNote.label}. It's switched off — turn Selling on when it's ready.`
+              ? `Restored ${deletedNote.label}. It's switched off, so turn Selling on when it's ready.`
               : `Deleted ${deletedNote.label}.`}
           </Banner>
         ) : null}
@@ -321,8 +320,9 @@ export function ProductsScreen() {
           </>
         )}
       </Page>
+      {panel}
       {bulkTax ? <BulkTaxDialog products={filtered} onClose={() => setBulkTax(false)} /> : null}
-    </Workspace>
+    </>
   );
 }
 
@@ -347,16 +347,19 @@ function ProductTable({
     overscan: 12,
   });
 
-  // Narrow (e.g. detail panel open): keep what matters for picking a product, drop the rest
-  // (the panel shows it). The flexible columns may shrink to nothing, so the list never scrolls sideways.
+  // Narrow window (sheet about 850px wide with the sidebar open): with prices, the full set of
+  // columns needs ~875px, so keep what matters for picking a product and drop the rest (the
+  // detail panel shows it). The flexible columns may shrink to nothing, so the list never scrolls
+  // sideways. Without prices the full columns need ~635px and always fit.
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => setCompact((entry?.contentRect.width ?? 1200) < 1000));
+    const minFull = showPrices ? 880 : 640;
+    const observer = new ResizeObserver(([entry]) => setCompact((entry?.contentRect.width ?? 1200) < minFull));
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [showPrices]);
 
   const cols = compact
     ? showPrices
@@ -530,10 +533,10 @@ function ProductPanel({
   }, [p, showPrices]);
 
   return (
-    <aside className={PANEL}>
+    <SidePanel label={`${p.name} details`}>
       <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
-          <h2 className="text-title font-semibold text-ink">{p.name}</h2>
+          <h2 className="text-title font-semibold break-words text-ink">{p.name}</h2>
           <p className="mt-0.5 text-label text-ink-muted">
             {p.grade || "Single grade"} · {p.packLabel}
           </p>
@@ -591,9 +594,9 @@ function ProductPanel({
             </Detail>
             <Detail label="Category">{CATEGORY_LABEL[p.category] ?? p.category}</Detail>
             <Detail label="Pack size">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</Detail>
-            <Detail label="Density">{p.densityKgPerL ? `${p.densityKgPerL} kg/L` : "—"}</Detail>
+            <Detail label="Density">{p.densityKgPerL ? `${p.densityKgPerL} kg/L` : "-"}</Detail>
             <Detail label="GST">{p.gstPct}%</Detail>
-            <Detail label="HSN code">{p.hsnCode ?? "—"}</Detail>
+            <Detail label="HSN code">{p.hsnCode ?? "-"}</Detail>
             <Detail label="Sold to">{p.segment === "Both" ? "All buyers" : (p.segment ?? "Not set")}</Detail>
           </Details>
 
@@ -601,7 +604,7 @@ function ProductPanel({
             <section>
               <h3 className="mb-2 text-label font-semibold text-ink">Price of one pack (before GST)</h3>
               {packPrice === null ? (
-                <Banner tone="warning">{canEdit ? "No price yet — use Edit to add one." : "No price yet."}</Banner>
+                <Banner tone="warning">{canEdit ? "No price yet. Use Edit to add one." : "No price yet."}</Banner>
               ) : packPrice === "unknown" ? (
                 <Banner tone="warning">Can't work out the pack price from "{p.pricePer}".</Banner>
               ) : (
@@ -619,7 +622,7 @@ function ProductPanel({
         </div>
       )}
       {confirmDelete ? <DeleteProduct product={p} onDeleted={onDeleted} onClose={() => setConfirmDelete(false)} /> : null}
-    </aside>
+    </SidePanel>
   );
 }
 
@@ -669,7 +672,7 @@ function DeleteProduct({ product: p, onDeleted, onClose }: { product: Product; o
     >
       <p className="text-body text-ink">
         <span className="font-semibold">{label}</span> disappears from Technofluid Office and from the pack sizes on the website. Nothing is
-        erased — you can undo it straight after, and it stays in the records.
+        erased: you can undo it straight after, and it stays in the records.
       </p>
       {error ? <Banner tone="danger">{error}</Banner> : null}
     </Dialog>

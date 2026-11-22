@@ -38,7 +38,14 @@ type Pay = { registerId: string; amount: string };
 const EMPTY_LINE = { item: null, qty: "", taxable: "", gst: "" } as const;
 
 const lineTh = "sticky top-0 z-10 h-10 border-b border-line bg-surface px-2 text-label font-medium whitespace-nowrap text-ink-muted first:pl-0 last:pr-0";
-const lineTd = "border-b border-line-row px-2 py-1.5 align-top first:pl-0 last:pr-0";
+const lineTd = "border-b border-line-row px-2 py-1.5 align-top first:pl-0 last:pr-0 @max-xl:border-b-0 @max-xl:px-0 @max-xl:py-0";
+// Below a 576px-wide lines area (the smallest window, next to the form panel) each line stacks:
+// the picker on its own row, the figures under it with a small label each, so nothing scrolls sideways.
+const stackTable = "@max-xl:block";
+const stackHead = "@max-xl:hidden";
+const stackBody = "@max-xl:block";
+const stackRow = "@max-xl:grid @max-xl:items-start @max-xl:gap-x-2 @max-xl:gap-y-1.5 @max-xl:border-b @max-xl:border-line-row @max-xl:py-2";
+const stackLabel = "mb-1 block text-caption text-ink-subtle @xl:hidden";
 
 /** "18" → 1800, "2.5" → 250 basis points; NaN if not a percent with at most two decimals. */
 function percentToBp(text: string): number {
@@ -146,7 +153,7 @@ export function NewPurchaseScreen() {
       today,
     );
     if (head) return PURCHASE_ERROR_TEXT[head];
-    if (lines.some((l) => !l.item && (l.qty || l.taxable))) return "A line has no item — pick one or remove the line.";
+    if (lines.some((l) => !l.item && (l.qty || l.taxable))) return "A line has no item. Pick one or remove the line.";
     if (!priced) return "Working it out…";
     if (!priced.ok) {
       const e = priced.errors[0]!;
@@ -155,7 +162,7 @@ export function NewPurchaseScreen() {
     if (!supplierTotal.trim()) return "Type the total printed on the supplier's bill.";
     if (!Number.isInteger(supplierTotalPaise)) return "The supplier's bill total isn't an amount.";
     const tot = purchaseTotalsError(priced.totals, supplierTotalPaise, payments);
-    if (tot === "TOTAL_MISMATCH") return `Our total is ${formatINR(priced.totals.billTotalPaise)} but the supplier's bill says ${formatINR(supplierTotalPaise)} — check the lines, freight and round-off.`;
+    if (tot === "TOTAL_MISMATCH") return `Our total is ${formatINR(priced.totals.billTotalPaise)} but the supplier's bill says ${formatINR(supplierTotalPaise)}. Check the lines, freight and round-off.`;
     return tot ? PURCHASE_ERROR_TEXT[tot] : null;
   })();
 
@@ -199,7 +206,7 @@ export function NewPurchaseScreen() {
             footer={
               <>
                 <div className="space-y-1 text-label">
-                  <Row label="Value before GST" value={t ? formatINR(t.taxablePaise - (priced?.ok && priced.freight ? priced.freight.taxablePaise : 0)) : "—"} />
+                  <Row label="Value before GST" value={t ? formatINR(t.taxablePaise - (priced?.ok && priced.freight ? priced.freight.taxablePaise : 0)) : "-"} />
                   {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
                   {t && t.supplyType === "INTRA" ? (
                     <>
@@ -225,7 +232,7 @@ export function NewPurchaseScreen() {
                 </div>
                 <div className="flex items-baseline justify-between gap-3 border-t border-line pt-3">
                   <span className="font-semibold text-ink">Our total</span>
-                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.billTotalPaise) : "—"}</span>
+                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.billTotalPaise) : "-"}</span>
                 </div>
                 <Field
                   label="Supplier's bill total (as printed)"
@@ -284,7 +291,7 @@ export function NewPurchaseScreen() {
                 registered ? (
                   <>
                     <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-ink">
-                      <span>Registered — input GST</span>
+                      <span>Registered, input GST</span>
                       <span className="text-ink-faint" aria-hidden>
                         ·
                       </span>
@@ -296,7 +303,7 @@ export function NewPurchaseScreen() {
                   </>
                 ) : (
                   <>
-                    <Badge tone="warning">Unregistered — no GST</Badge>
+                    <Badge tone="warning">Unregistered, no GST</Badge>
                     <p className="text-ink-muted">{supplier.gstin ? "The GSTIN on record isn't valid." : "No GSTIN on record."} The bill can't carry GST.</p>
                   </>
                 )
@@ -316,7 +323,7 @@ export function NewPurchaseScreen() {
               <MoneyInput id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
             </Field>
             <Field label="Note" htmlFor="np-note">
-              <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., delivery challan" />
+              <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional, e.g. vehicle no., delivery challan" />
             </Field>
             <label className="flex items-start gap-2 text-body text-ink">
               <span className="flex h-5 items-center">
@@ -324,7 +331,7 @@ export function NewPurchaseScreen() {
               </span>
               <span>
                 Goods already counted in stock
-                <span className="mt-0.5 block text-caption text-ink-subtle">Tick only if Stock & Production already recorded these goods as "In" — then this bill updates the books only, so stock isn't counted twice.</span>
+                <span className="mt-0.5 block text-caption text-ink-subtle">Tick only if Stock & Production already recorded these goods as "In". Then this bill updates the books only, so stock isn't counted twice.</span>
               </span>
             </label>
             <div className="space-y-2">
@@ -368,8 +375,8 @@ export function NewPurchaseScreen() {
         <div className="@container px-8 pt-6 pb-10">
           <PageHeader back={{ to: "/purchases", label: "Purchases" }} title="New purchase" badge={loading ? <Spinner /> : null} subtitle="Our reference (PB/…) is given on save." />
 
-          <table className={clsx(tableClass.table, "min-w-[35rem]")}>
-            <thead>
+          <table className={clsx(tableClass.table, stackTable)}>
+            <thead className={stackHead}>
               <tr>
                 <th scope="col" className={clsx(lineTh, "text-left")}>
                   Item
@@ -392,13 +399,13 @@ export function NewPurchaseScreen() {
                 <th scope="col" className={clsx(lineTh, "w-9")} />
               </tr>
             </thead>
-            <tbody>
+            <tbody className={stackBody}>
               {lines.map((l, idx) => {
                 const pl = pricedLine(l);
                 const err = lineError(l);
                 return (
-                  <tr key={l.key}>
-                    <td className={lineTd}>
+                  <tr key={l.key} className={clsx(stackRow, "@max-xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_3.5rem_minmax(0,1fr)_2rem]")}>
+                    <td className={clsx(lineTd, "@max-xl:col-span-full @max-xl:[&_[role=listbox]]:max-w-full")}>
                       <SearchPicker
                         items={items}
                         value={l.item}
@@ -421,20 +428,37 @@ export function NewPurchaseScreen() {
                       </div>
                     </td>
                     <td className={lineTd}>
+                      <span className={stackLabel} aria-hidden>
+                        Quantity
+                      </span>
                       <div className="flex items-center gap-1.5">
                         <Input value={l.qty} onChange={(e) => setLine(l.key, { qty: e.target.value })} inputMode="decimal" className="num min-w-0 flex-1" aria-label={`Line ${idx + 1} quantity`} />
                         <span className="w-10 shrink-0 text-label text-ink-muted">{l.item?.unitSet ? unitWord(l.item.baseUnit) : ""}</span>
                       </div>
                     </td>
                     <td className={lineTd}>
+                      <span className={stackLabel} aria-hidden>
+                        Before GST
+                      </span>
                       <MoneyInput value={l.taxable} onChange={(e) => setLine(l.key, { taxable: e.target.value })} aria-label={`Line ${idx + 1} value before GST`} />
                     </td>
                     <td className={lineTd}>
+                      <span className={stackLabel} aria-hidden>
+                        GST %
+                      </span>
                       <Input value={l.gst} onChange={(e) => setLine(l.key, { gst: e.target.value })} inputMode="decimal" placeholder={defaultRate} className="num" aria-label={`Line ${idx + 1} GST percent`} />
                     </td>
-                    <td className={clsx(lineTd, "num hidden text-right leading-8 text-ink-muted @4xl:table-cell")}>{pl ? formatINR(pl.cgstPaise + pl.sgstPaise + pl.igstPaise) : "—"}</td>
-                    <td className={clsx(lineTd, "num text-right leading-8 font-medium")}>{pl ? formatINR(pl.totalPaise) : "—"}</td>
+                    <td className={clsx(lineTd, "num hidden text-right leading-8 text-ink-muted @4xl:table-cell")}>{pl ? formatINR(pl.cgstPaise + pl.sgstPaise + pl.igstPaise) : "-"}</td>
+                    <td className={clsx(lineTd, "num text-right leading-8 font-medium")}>
+                      <span className={stackLabel} aria-hidden>
+                        Amount
+                      </span>
+                      {pl ? formatINR(pl.totalPaise) : "-"}
+                    </td>
                     <td className={lineTd}>
+                      <span className={clsx(stackLabel, "invisible")} aria-hidden>
+                        &nbsp;
+                      </span>
                       {lines.length > 1 ? (
                         <div className="flex h-8 items-center justify-end">
                           <IconButton size="sm" label={`Remove line ${idx + 1}`} onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>

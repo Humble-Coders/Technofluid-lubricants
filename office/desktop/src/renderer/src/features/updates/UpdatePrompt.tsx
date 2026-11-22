@@ -1,43 +1,23 @@
 import { Download } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Banner, Button, Dialog } from "@/components/ui";
-import type { UpdateEvent } from "../../../../shared/ipc";
-
-type State =
-  | { kind: "hidden" }
-  | { kind: "available"; version: string; notes: string | null }
-  | { kind: "downloading"; version: string; percent: number }
-  | { kind: "downloaded"; version: string }
-  | { kind: "error"; message: string };
+import { startUpdateListener, updateActions, useUpdate } from "./updateStore";
 
 /**
- * The in-app update offer (Windows; main/updater.ts sends the news). A newer version is
- * offered with its release notes — Update now / Later, never forced. While it downloads, a
- * small card shows the progress and the person keeps working. Then: Restart now, or install
- * when the app is closed. A failed download offers the download page. "Later" / "Close" hide it
- * until the next start. Mounted once, above the sign-in screen and the app.
+ * The in-app update offer (Windows; main/updater.ts sends the news, updateStore keeps it).
+ * A newer version is offered with its release notes: Update now / Later, never forced.
+ * "Later" hides the pop-up; the sidebar then shows an "Update" button that brings it back.
+ * While it downloads, a small card shows the progress and the person keeps working. Then:
+ * Restart now, or install when the app is closed. A failed download offers the download page.
+ * Mounted once, above the sign-in screen and the app.
  */
 export function UpdatePrompt() {
-  const [state, setState] = useState<State>({ kind: "hidden" });
-  const [dismissed, setDismissed] = useState(false);
+  const { update: state, hidden } = useUpdate();
+  useEffect(() => startUpdateListener(), []);
 
-  useEffect(() => {
-    if (!window.office?.onUpdate) return;
-    return window.office.onUpdate((e: UpdateEvent) => {
-      setState((s) => {
-        if (e.kind === "available") return s.kind === "hidden" ? { kind: "available", version: e.version, notes: e.notes } : s;
-        if (e.kind === "progress") return { kind: "downloading", version: s.kind === "available" || s.kind === "downloading" ? s.version : "", percent: e.percent };
-        if (e.kind === "downloaded") return { kind: "downloaded", version: e.version };
-        return { kind: "error", message: e.message };
-      });
-      // A download that finished or failed is always worth showing, even after "Later".
-      if (e.kind === "downloaded" || e.kind === "error") setDismissed(false);
-    });
-  }, []);
-
-  if (state.kind === "hidden" || dismissed) return null;
-  const hide = () => setDismissed(true);
-  const act = (action: "download" | "install" | "openPage") => void window.office?.update(action);
+  if (state.kind === "none" || hidden) return null;
+  const hide = updateActions.hide;
+  const act = (action: "download" | "install" | "openPage") => updateActions[action]();
 
   if (state.kind === "downloading")
     return (
@@ -48,7 +28,7 @@ export function UpdatePrompt() {
         <div className="h-1.5 overflow-hidden rounded-full bg-surface-alt" aria-label={`${state.percent}% downloaded`}>
           <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${Math.max(2, state.percent)}%` }} />
         </div>
-        <p className="text-caption text-ink-muted">{state.percent}% — keep working, we'll tell you when it's ready.</p>
+        <p className="text-caption text-ink-muted">{state.percent}%. Keep working; we'll tell you when it's ready.</p>
       </div>
     );
 
@@ -67,10 +47,7 @@ export function UpdatePrompt() {
             <Button
               variant="primary"
               icon={<Download />}
-              onClick={() => {
-                setState({ kind: "downloading", version: state.version, percent: 0 });
-                act("download");
-              }}
+              onClick={() => act("download")}
             >
               Update now
             </Button>
@@ -105,7 +82,7 @@ export function UpdatePrompt() {
           </>
         }
       >
-        <p className="text-body text-ink">Restart to finish updating. The app closes, installs the new version and opens again — you stay signed in.</p>
+        <p className="text-body text-ink">Restart to finish updating. The app closes, installs the new version and opens again. You stay signed in.</p>
         <p className="text-label text-ink-muted">Save anything you're typing first. Or keep working: it installs by itself when you close the app.</p>
       </Dialog>
     );

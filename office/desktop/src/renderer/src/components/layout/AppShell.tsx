@@ -1,9 +1,10 @@
 import clsx from "clsx";
-import { ChevronsUpDown, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, Search, WifiOff } from "lucide-react";
+import { ChevronsUpDown, Download, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, Search, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import mark from "@/assets/logo-mark.png";
-import { modKey } from "@/components/ui";
+import { modKey, SheetOverlayContext } from "@/components/ui";
+import { updateActions, useUpdate } from "@/features/updates/updateStore";
 import { navFor, ROLE_LABEL, type NavItem } from "@/lib/access";
 import { usingEmulators } from "@/lib/firebase";
 import { useOnline } from "@/hooks/useConnection";
@@ -42,6 +43,7 @@ export function AppShell() {
   const items = useMemo(() => navFor(role), [role]);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [overlay, setOverlay] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => saveCollapsed(collapsed), [collapsed]);
 
@@ -79,12 +81,17 @@ export function AppShell() {
         onSearch={() => setPaletteOpen(true)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* The strip above the sheet: drags the window; on Windows it sits under the minimise/maximise/close buttons. */}
-        <div className={clsx("app-drag shrink-0", inDesktopApp ? (isMac ? "h-6" : "h-10") : "h-2")} aria-hidden />
-        {/* ONE white sheet per screen, inset 8px. Every screen is a <Page> (or a <Workspace>) inside it. */}
-        <main className="mx-2 mb-2 min-h-0 flex-1 overflow-auto rounded-sheet border border-line bg-surface shadow-card">
-          <Outlet />
-        </main>
+        <TopBar items={items} />
+        {/* ONE white sheet per screen, inset 8px. Every screen is a <Page> (or a <Workspace>) inside it.
+            The overlay layer above it is where <SidePanel>s open, over the sheet's right side. */}
+        <div className="relative m-2 min-h-0 flex-1">
+          <main className="absolute inset-0 overflow-auto rounded-sheet border border-line bg-surface shadow-card">
+            <SheetOverlayContext.Provider value={overlay}>
+              <Outlet />
+            </SheetOverlayContext.Provider>
+          </main>
+          <div ref={setOverlay} className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-sheet" />
+        </div>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} items={items} />
     </div>
@@ -199,6 +206,7 @@ function Sidebar({
         ))}
       </nav>
 
+      <UpdateButton collapsed={collapsed} />
       <StatusNotes collapsed={collapsed} />
 
       <button
@@ -222,6 +230,11 @@ function Sidebar({
       </button>
 
       <UserMenu collapsed={collapsed} />
+
+      {/* Which version this is, for when someone reports a problem. */}
+      <p className={clsx("selectable shrink-0 pb-2 text-caption text-white/30", collapsed ? "text-center" : "px-5")} title="App version">
+        {collapsed ? `v${__APP_VERSION__}` : `Version ${__APP_VERSION__}`}
+      </p>
     </aside>
   );
 }
@@ -244,7 +257,7 @@ function StatusNotes({ collapsed }: { collapsed: boolean }) {
   const realBooks = useRealBooks();
   const notes: Array<{ key: string; icon: typeof WifiOff; label: string; title: string; tone: string }> = [];
   if (!online)
-    notes.push({ key: "offline", icon: WifiOff, label: "Offline — will sync", title: "Offline — you can keep working; changes sync when the internet is back", tone: "bg-warning-soft text-warning" });
+    notes.push({ key: "offline", icon: WifiOff, label: "Offline, will sync", title: "Offline. You can keep working; changes sync when the internet is back", tone: "bg-warning-soft text-warning" });
   if (usingEmulators && realBooks)
     notes.push({ key: "real", icon: FlaskConical, label: "Real books", title: "These test emulators post to Technofluid's real Humble Ledger company", tone: "bg-danger-fill text-white" });
   else if (usingEmulators) notes.push({ key: "test", icon: FlaskConical, label: "Test data", title: "This is test data on this computer, not Technofluid's live company", tone: "bg-white/[0.1] text-white/80" });
@@ -344,5 +357,54 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
         )}
       </button>
     </div>
+  );
+}
+
+/* ─── Top bar ─────────────────────────────────────────────────────────────────── */
+
+/** The orange bar above the sheet with the screen's name. Drags the window; on Windows the
+ *  minimise/maximise/close buttons sit at its right end (main/index.ts colours them to match). */
+function TopBar({ items }: { items: NavItem[] }) {
+  const { pathname } = useLocation();
+  const current = items.find((i) => (i.path === "/" ? pathname === "/" : pathname.startsWith(i.path)));
+  return (
+    <header
+      className={clsx(
+        "app-drag relative flex h-11 shrink-0 items-center bg-gradient-to-r from-brand-orange to-[#f39a5f] text-white",
+        !isMac && inDesktopApp && "pr-[150px]",
+      )}
+    >
+      <h1 className="pointer-events-none absolute left-1/2 max-w-[50%] -translate-x-1/2 truncate text-[15px] font-semibold text-white">{current?.label ?? "Technofluid Office"}</h1>
+    </header>
+  );
+}
+
+/* ─── Update ──────────────────────────────────────────────────────────────────── */
+
+/** After "Later" on the update pop-up: a way back to it, until the app restarts on the new version. */
+function UpdateButton({ collapsed }: { collapsed: boolean }) {
+  const { update, hidden } = useUpdate();
+  if (!hidden || (update.kind !== "available" && update.kind !== "downloaded" && update.kind !== "error")) return null;
+  const version = update.kind === "error" ? "" : update.version;
+  const label = update.kind === "downloaded" ? "Restart to update" : update.kind === "error" ? "Update failed" : "Update available";
+  return (
+    <button
+      type="button"
+      onClick={updateActions.show}
+      title={collapsed ? `${label}${version ? ` (${version})` : ""}` : undefined}
+      aria-label={collapsed ? label : undefined}
+      className={clsx(
+        "mb-2 flex h-8 shrink-0 items-center gap-2.5 rounded-control bg-brand-orange text-label font-medium text-white transition-colors hover:bg-accent",
+        collapsed ? "mx-auto w-10 justify-center" : "mx-3 px-2.5",
+      )}
+    >
+      <Download className="size-4 shrink-0" />
+      {collapsed ? null : (
+        <>
+          <span className="flex-1 truncate text-left">{label}</span>
+          {version ? <span className="text-caption text-white/80">{version}</span> : null}
+        </>
+      )}
+    </button>
   );
 }

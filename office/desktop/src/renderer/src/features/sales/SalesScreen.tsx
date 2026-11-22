@@ -99,13 +99,13 @@ export function SalesScreen() {
 
       {noCompany ? (
         <Banner tone="warning" className="mb-6">
-          The company details printed on invoices (legal name, GSTIN, address) aren't set up yet —{" "}
+          The company details printed on invoices (legal name, GSTIN, address) aren't set up yet.{" "}
           {role === "admin" ? (
             <Link to="/settings" className="font-medium underline">
-              fill them in under Settings
+              Fill them in under Settings
             </Link>
           ) : (
-            "ask an Admin to fill them in under Settings"
+            "Ask an Admin to fill them in under Settings"
           )}{" "}
           before billing.
         </Banner>
@@ -154,7 +154,7 @@ export function SalesScreen() {
                     <Td muted={cancelled} num>
                       {formatINR(s.totals.grandTotalPaise)}
                     </Td>
-                    <Td>{p ? <PaidBadge paid={p} /> : null}</Td>
+                    <Td>{p ? <PaidBadge paid={p} stacked /> : null}</Td>
                     <Td>
                       <BooksStatus sale={s} />
                     </Td>

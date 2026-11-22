@@ -67,7 +67,7 @@ export function pdfProblemText(r: Extract<InvoicePdfResult, { ok: false }>): str
     case "MissingRequiredField":
       return `Can't make the PDF: "${r.field ?? "a required field"}" is empty on this invoice.`;
     case "UnrenderableText":
-      return `Can't make the PDF: some text can't be printed (only English letters work) — ${r.message}`;
+      return `Can't make the PDF: some text can't be printed (only English letters work). ${r.message}`;
     case "HelperMissing":
       return "The PDF maker isn't installed with this copy of the app.";
     case "TemplateUnavailable":

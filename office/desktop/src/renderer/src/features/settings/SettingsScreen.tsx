@@ -82,7 +82,7 @@ export function SettingsScreen() {
               label="GSTIN"
               htmlFor="co-gstin"
               error={check && !check.valid ? check.reason : undefined}
-              help={check?.valid ? `${GST_STATES[check.stateCode]} (${check.stateCode}) — sales to this state are CGST + SGST` : undefined}
+              help={check?.valid ? `${GST_STATES[check.stateCode]} (${check.stateCode}). Sales to this state are CGST + SGST` : undefined}
             >
               <Input id="co-gstin" value={form.gstin} onChange={(e) => set({ gstin: e.target.value })} invalid={Boolean(check && !check.valid)} className="font-mono [&_input]:uppercase" maxLength={20} />
             </Field>
@@ -108,7 +108,7 @@ export function SettingsScreen() {
               <Input id="co-email" value={form.email} onChange={(e) => set({ email: e.target.value })} maxLength={120} />
             </Field>
           </div>
-          <p className="mt-4 text-caption text-ink-subtle">A new prefix starts with the next financial year once this year already has invoices — numbers in one year never change their prefix.</p>
+          <p className="mt-4 text-caption text-ink-subtle">A new prefix starts with the next financial year once this year already has invoices. Numbers in one year never change their prefix.</p>
         </Section>
 
         <Section title="Bank details" description={'Printed under "Bank Details" on the invoice; leave empty to leave it off.'} className="border-t border-line-row pt-6">
@@ -132,7 +132,7 @@ export function SettingsScreen() {
         </Section>
 
         <Section title="Terms & conditions" className="border-t border-line-row pt-6">
-          <Field label="Lines printed on the invoice" htmlFor="co-terms" help="One per line, up to 8 lines — e.g. E.& O.E. / 1. Goods once sold will not be taken back.">
+          <Field label="Lines printed on the invoice" htmlFor="co-terms" help="One per line, up to 8 lines, e.g. E.& O.E. / 1. Goods once sold will not be taken back.">
             <Textarea id="co-terms" value={form.terms} onChange={(e) => set({ terms: e.target.value })} rows={5} />
           </Field>
         </Section>

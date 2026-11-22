@@ -312,7 +312,7 @@ export function readReview(groups: ReviewGroup[]): { lines: JournalLine[]; probl
         const twice = codes.find((c, i) => codes.indexOf(c) !== i);
         if (twice) problems.push({ key: recipeProblemKey(g.key), message: `"${twice}" is in the recipe twice.` });
         else if (total !== 10_000) {
-          problems.push({ key: recipeProblemKey(g.key), message: `The recipe adds up to ${total / 100}% — it must make exactly 100%.` });
+          problems.push({ key: recipeProblemKey(g.key), message: `The recipe adds up to ${total / 100}%. It must make exactly 100%.` });
         }
       }
       for (const u of g.uses) {
@@ -334,7 +334,7 @@ export function readReview(groups: ReviewGroup[]): { lines: JournalLine[]; probl
           continue;
         }
         if (!u.item.unitSet) {
-          problems.push({ key: u.key, message: `${u.item.name} has no unit yet — an Admin must set it, or clear the amount to skip it.` });
+          problems.push({ key: u.key, message: `${u.item.name} has no unit yet. An Admin must set it, or clear the amount to skip it.` });
           continue;
         }
         const ing = effectiveIngredient(u);

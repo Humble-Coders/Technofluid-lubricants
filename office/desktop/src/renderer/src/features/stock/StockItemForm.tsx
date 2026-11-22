@@ -94,11 +94,11 @@ export function StockItemForm({
             htmlFor="si-unit"
             help={
               hasHistory
-                ? "Fixed — it has stock history."
+                ? "Fixed: it has stock history."
                 : unitless && role !== "admin"
                   ? "Only an Admin can set the unit."
                   : unitless
-                    ? "Not set yet — choose it to start counting."
+                    ? "Not set yet. Choose it to start counting."
                     : undefined
             }
           >

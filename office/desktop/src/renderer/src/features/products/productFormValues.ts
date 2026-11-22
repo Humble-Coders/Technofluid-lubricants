@@ -78,7 +78,7 @@ export function parsePrice(text: string): { paise: number | null } | { error: st
   try {
     const paise = rupeesToPaise(trimmed);
     if (paise < 0) return { error: "Can't be negative." };
-    if (paise > 1_00_00_000_00) return { error: "Over ₹1 crore — check it." };
+    if (paise > 1_00_00_000_00) return { error: "Over ₹1 crore. Check it." };
     return { paise };
   } catch {
     return { error: "Enter an amount like 1250.50." };

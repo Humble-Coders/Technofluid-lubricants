@@ -11,7 +11,7 @@ import { saveStockItem, type StockItem, type StockMode } from "@/services/stockS
 
 const MODE_HELP: Record<StockMode, string> = {
   breakDown: "Making a product uses the raw materials in this recipe directly.",
-  stocked: "Made in advance and kept in stock — making a product takes it from stock.",
+  stocked: "Made in advance and kept in stock. Making a product takes it from stock.",
 };
 
 /**

@@ -75,8 +75,8 @@ export function plainWords(from: MoneyAccountRef | undefined, to: MoneyAccountRe
   if (!from || !to) return "";
   const a = amount.trim() ? `₹${amount.trim()}` : "the amount";
   if (from.kind === "PARTY" && to.kind === "PARTY") return `${from.name}'s balance goes down by ${a}, ${to.name}'s goes up by ${a}.`;
-  if (from.kind === "PARTY") return `${from.name} pays ${a} into ${name(to)} — what they owe goes down.`;
-  if (to.kind === "PARTY") return `${a} is paid to ${to.name} from ${name(from)} — what we owe them goes down.`;
+  if (from.kind === "PARTY") return `${from.name} pays ${a} into ${name(to)}, so what they owe goes down.`;
+  if (to.kind === "PARTY") return `${a} is paid to ${to.name} from ${name(from)}, so what we owe them goes down.`;
   return `${a} moves from ${name(from)} to ${name(to)}.`;
 }
 
@@ -177,7 +177,7 @@ export function MoneyEntryForm({
           <span className="min-w-0">{plainWords(fromRef, toRef, amount)}</span>
         </p>
       ) : (
-        <p className="text-label text-ink-muted">From and To can each be a customer / supplier or our cash / bank — money received, money paid, a transfer between our accounts, or a balance moved between two parties.</p>
+        <p className="text-label text-ink-muted">From and To can each be a customer / supplier or our cash / bank: money received, money paid, a transfer between our accounts, or a balance moved between two parties.</p>
       )}
       {error ? <Banner tone="danger">{error}</Banner> : null}
     </Dialog>
@@ -233,7 +233,7 @@ export function CorrectionDialog({
     try {
       const r = await correctBalance(ref, wantedSigned, indiaDate(), reason);
       if (r.noChange) {
-        setDone("Already right — nothing was recorded.");
+        setDone("Already right. Nothing was recorded.");
         setBusy(false);
       } else onClose(r.entryId ?? null);
     } catch (e) {
@@ -260,7 +260,7 @@ export function CorrectionDialog({
         </>
       }
     >
-      <Field label="Whose balance" htmlFor="cb-target" help={ref ? `Now in the books: ${current === null ? "— (books unreachable or not saved yet)" : describe(current)}` : undefined}>
+      <Field label="Whose balance" htmlFor="cb-target" help={ref ? `Now in the books: ${current === null ? "- (books unreachable or not saved yet)" : describe(current)}` : undefined}>
         <AccountPicker id="cb-target" value={target} onChange={setTarget} parties={opts.partyOpts} registers={opts.regOpts} />
       </Field>
       <div className="grid grid-cols-[1fr_auto] items-end gap-3">
@@ -280,10 +280,10 @@ export function CorrectionDialog({
       {draft ? (
         <p className="rounded-control bg-surface-alt px-3 py-2 text-body text-ink">
           This records a correction of <b className="num font-semibold">{formatINR(draft.amountPaise)}</b>:{" "}
-          {draft.from.kind === "ADJUSTMENT" ? `${name(draft.to)} goes up` : `${name(draft.from)} goes down`} — to {describe(wantedSigned!)}.
+          {draft.from.kind === "ADJUSTMENT" ? `${name(draft.to)} goes up` : `${name(draft.from)} goes down`}, bringing it to {describe(wantedSigned!)}.
         </p>
       ) : ref && current !== null && wantedSigned !== null ? (
-        <p className="text-label text-ink-muted">It's already {describe(current)} — nothing to correct.</p>
+        <p className="text-label text-ink-muted">It's already {describe(current)}. Nothing to correct.</p>
       ) : null}
       {done ? <Banner tone="success">{done}</Banner> : null}
       {error ? <Banner tone="danger">{error}</Banner> : null}

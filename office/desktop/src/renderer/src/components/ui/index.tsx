@@ -10,7 +10,9 @@
 import clsx from "clsx";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, ChevronDown, ChevronLeft, CircleAlert, Info, Loader2, MoreHorizontal, Search, X } from "lucide-react";
 import {
+  createContext,
   forwardRef,
+  useContext,
   useEffect,
   useId,
   useRef,
@@ -24,6 +26,7 @@ import {
   type TextareaHTMLAttributes,
   type ThHTMLAttributes,
 } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router";
 
 /* ─── Button ───────────────────────────────────────────────────────────────────── */
@@ -565,6 +568,35 @@ export function Workspace({ children, panel }: { children: ReactNode; panel: Rea
   );
 }
 
+/**
+ * Where <SidePanel>s appear: a layer over the whole white sheet, set up once by the app shell.
+ * Not for screens to use directly.
+ */
+export const SheetOverlayContext = createContext<HTMLElement | null>(null);
+
+/**
+ * A record's details, opened from a list: slides in OVER the right side of the sheet (the list
+ * underneath keeps its full width and doesn't move). Give it the same `aside` content as before;
+ * it brings the surface, edge and shadow. Width: "md" 384px (default) or "lg" 640px; on a small
+ * window it never covers more than the sheet minus 48px. Closing (Esc, ×) stays with the screen.
+ */
+export function SidePanel({ children, size = "md", label, className }: { children: ReactNode; size?: "md" | "lg"; label?: string; className?: string }) {
+  const host = useContext(SheetOverlayContext);
+  const panel = (
+    <aside
+      aria-label={label}
+      className={clsx(
+        "pointer-events-auto absolute inset-y-0 right-0 flex max-w-[calc(100%-3rem)] flex-col border-l border-line bg-surface shadow-[-16px_0_32px_-16px_rgb(26_31_43/0.25)]",
+        size === "lg" ? "w-160" : "w-96",
+        className,
+      )}
+    >
+      {children}
+    </aside>
+  );
+  return host ? createPortal(panel, host) : panel;
+}
+
 /** The right-hand panel of a <Workspace>. `footer` (total + the primary button) is pinned at the bottom. */
 export function WorkspacePanel({ title, subtitle, children, footer, onClose }: { title?: ReactNode; subtitle?: ReactNode; children: ReactNode; footer?: ReactNode; onClose?: () => void }) {
   return (
@@ -592,7 +624,7 @@ export function WorkspacePanel({ title, subtitle, children, footer, onClose }: {
 
 /** A row of equal tiles — NOT cards: a hairline on top, a 13px label, a 28px figure. */
 export function StatTiles({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={clsx("mb-8 grid auto-cols-fr grid-flow-col gap-6", className)}>{children}</div>;
+  return <div className={clsx("mb-8 grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-6", className)}>{children}</div>;
 }
 
 /**
@@ -973,16 +1005,16 @@ export function Dialog({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/35 p-6 pt-[10vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/35 p-6 pt-[min(10vh,4rem)]">
       <div
         ref={panel}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={clsx("w-full overflow-hidden rounded-dialog bg-surface shadow-modal outline-none", size === "lg" ? "max-w-[704px]" : size === "md" ? "max-w-[512px]" : "max-w-[384px]")}
+        className={clsx("flex max-h-[calc(100vh-min(10vh,4rem)-1.5rem)] w-full flex-col overflow-hidden rounded-dialog bg-surface shadow-modal outline-none", size === "lg" ? "max-w-[704px]" : size === "md" ? "max-w-[512px]" : "max-w-[384px]")}
       >
-        <div className="flex items-start gap-3 bg-linear-to-r from-band-from to-band-to py-3.5 pr-3 pl-5 text-white">
+        <div className="flex shrink-0 items-start gap-3 bg-linear-to-r from-band-from to-band-to py-3.5 pr-3 pl-5 text-white">
           {danger ? <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden /> : null}
           <div className="min-w-0 flex-1">
             <h2 id={titleId} className="text-title font-semibold">
@@ -994,8 +1026,8 @@ export function Dialog({
             <X className="size-4" />
           </button>
         </div>
-        <div className="space-y-4 p-5">{children}</div>
-        {footer ? <div className="flex items-center justify-end gap-2 px-5 pb-5">{footer}</div> : null}
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">{children}</div>
+        {footer ? <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 px-5 pb-5">{footer}</div> : null}
       </div>
     </div>
   );

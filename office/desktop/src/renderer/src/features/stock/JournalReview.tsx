@@ -39,14 +39,14 @@ const KIND_ICON: Record<string, typeof Factory> = { IN: ArrowDownToLine, OUT: Ar
 /** Short status tag + the longer explanation shown on hover. */
 const STATUS: Record<UseLine["status"], { tag: string; help: string; warn: boolean }> = {
   ok: { tag: "From recipe", help: "Worked out from the recipe (by volume). Change it if more or less was used.", warn: false },
-  no_percent: { tag: "No % — enter amount", help: "The recipe gives no percent. Type how much was used, or leave it empty if it wasn't.", warn: true },
+  no_percent: { tag: "No %: enter amount", help: "The recipe gives no percent. Type how much was used, or leave it empty if it wasn't.", warn: true },
   not_in_stock: { tag: "Not in stock", help: "No stock item has this recipe code. Pick the matching item, or leave the amount empty to skip it.", warn: true },
   needs_density: { tag: "Enter amount", help: "Litres ↔ kg needs a density that isn't known. Type how much was used.", warn: true },
   unit_mismatch: { tag: "Enter amount", help: "This can't be worked out from a percent. Type how much was used.", warn: true },
   added: { tag: "Added", help: "Added by you.", warn: false },
   cycle: { tag: "Loop in recipes", help: "This recipe leads back to itself (A → B → A). Type how much was used, or leave it empty.", warn: true },
   too_deep: { tag: "Enter amount", help: "Too many levels of premixes/blends to follow. Type how much was used.", warn: true },
-  no_unit: { tag: "Unit not set", help: "This material has no unit yet — an Admin sets it on Live stock (Edit). Until then it can't be deducted.", warn: true },
+  no_unit: { tag: "Unit not set", help: "This material has no unit yet. An Admin sets it on Live stock (Edit). Until then it can't be deducted.", warn: true },
 };
 
 /** Sent with "Send for review" / "Save recipe and confirm" when a recipe was changed. */
@@ -135,7 +135,7 @@ export function JournalReview({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-ink/35 p-6" role="dialog" aria-modal="true" aria-label="Review and confirm">
-      <div className="flex max-h-[90vh] w-full max-w-[1024px] flex-col overflow-hidden rounded-dialog bg-surface shadow-modal">
+      <div className="flex max-h-full w-full max-w-[1024px] flex-col overflow-hidden rounded-dialog bg-surface shadow-modal">
         <header className="flex shrink-0 items-start gap-3 bg-linear-to-r from-band-from to-band-to py-3.5 pr-3 pl-6 text-white">
           <div className="min-w-0 flex-1">
             <h2 className="text-title font-semibold">Review and confirm</h2>
@@ -209,7 +209,7 @@ export function JournalReview({
           ) : null}
           {summary.some((c) => c.afterMilli < 0) ? (
             <Banner tone="warning" className="mt-6">
-              Some items will go below zero — you can still save.
+              Some items will go below zero. You can still save.
             </Banner>
           ) : null}
         </div>
@@ -218,7 +218,7 @@ export function JournalReview({
           {changed ? (
             <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
               <Banner tone="info" className="min-w-60 flex-1">
-                {isAdmin ? "The new recipe is saved with this entry." : "Recipe changed — the Admin approves it before anything is saved."}
+                {isAdmin ? "The new recipe is saved with this entry." : "Recipe changed. The Admin approves it before anything is saved."}
               </Banner>
               <Field label="Why change the recipe?" htmlFor={reasonId} optional={isAdmin} error={reasonError ?? undefined} className="w-96">
                 <Input
@@ -314,7 +314,7 @@ function StockAfterRow({ change: c }: { change: NetChange }) {
       <Td num muted>
         {formatQuantity(before, unit)}
       </Td>
-      <Td num>{c.changeMilli === 0 ? "—" : signedQuantity(c.changeMilli, unit)}</Td>
+      <Td num>{c.changeMilli === 0 ? "-" : signedQuantity(c.changeMilli, unit)}</Td>
       <Td num>
         <span className={clsx("font-semibold", c.afterMilli < 0 && "text-danger")}>{formatQuantity(c.afterMilli, unit)}</span>
       </Td>
@@ -446,7 +446,7 @@ function ProductionCard({
         <p className="mt-0.5 mb-2 text-label text-ink-muted">
           {g.hasRecipe || g.uses.length > 0
             ? "Used from stock by the recipe. Change any amount, or use ✎ to change the recipe."
-            : "No recipe — nothing is deducted. Add the materials it's made of."}
+            : "No recipe, so nothing is deducted. Add the materials it's made of."}
         </p>
         <datalist id={listId}>
           {codes.map((c) => (
@@ -511,7 +511,7 @@ function ProductionCard({
                         />
                       ) : (
                         <>
-                          <p className="font-mono text-label font-semibold text-ink">{u.ingredient?.code || "—"}</p>
+                          <p className="font-mono text-label font-semibold text-ink">{u.ingredient?.code || "-"}</p>
                           {u.alternates.length > 0 ? (
                             <Select
                               aria-label={`Material used for ${u.ingredient?.code}`}
@@ -558,13 +558,13 @@ function ProductionCard({
                       ) : ing?.code ? (
                         pctText(ing.percentBp)
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </Td>
                     <Td>
                       {u.parts ? (
-                        <span className="num text-ink-muted" title="Made from its own recipe — the lines below are deducted instead">
-                          {u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "—"}
+                        <span className="num text-ink-muted" title="Made from its own recipe. The lines below are deducted instead.">
+                          {u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "-"}
                         </span>
                       ) : (
                         <div data-use={u.key}>
@@ -580,13 +580,13 @@ function ProductionCard({
                       )}
                     </Td>
                     <Td num muted>
-                      {u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}
+                      {u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "-"}
                     </Td>
                     <Td num>
                       <RemainingAfter item={u.item} after={after} />
                     </Td>
                     <Td>
-                      <StatusTag status={status} title={u.parts ? "Not taken from stock — its recipe's materials are, below." : s.help} />
+                      <StatusTag status={status} title={u.parts ? "Not taken from stock. Its recipe's materials below are taken instead." : s.help} />
                     </Td>
                     <Td>
                       <div className="flex justify-center gap-1">
@@ -630,7 +630,7 @@ function ProductionCard({
                     className={clsx("num text-label font-medium", changed && total !== 10_000 ? "text-danger" : "text-ink-muted")}
                     title="A changed recipe's percents must add up to exactly 100%."
                   >
-                    Recipe total {total / 100}%{changed && total !== 10_000 ? " — must be 100%" : ""}
+                    Recipe total {total / 100}%{changed && total !== 10_000 ? " (must be 100%)" : ""}
                   </span>
                 </div>
                 {problemFor(recipeProblemKey(g.key)) ? (
@@ -648,7 +648,7 @@ function ProductionCard({
           productName={pool.name}
           currentRecipe={currentRecipe}
           currentAlternates={currentAlternates}
-          onSent={() => setRecipeNote("Recipe change sent for approval — this run still uses the current recipe.")}
+          onSent={() => setRecipeNote("Recipe change sent for approval. This run still uses the current recipe.")}
           onClose={(applied) => {
             openRecipe(false);
             if (applied) {
@@ -693,7 +693,7 @@ function PartRows({
     <>
       {parts.map((u) => {
         const s = STATUS[u.status];
-        const code = u.ingredient?.code ?? "—";
+        const code = u.ingredient?.code ?? "-";
         const after = u.item && !u.parts ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
         const status = statusOf(u, after);
         const pickable = !u.parts && (!u.item || u.status === "not_in_stock") && u.status !== "no_percent";
@@ -723,7 +723,7 @@ function PartRows({
               </Td>
               <Td>
                 {u.parts ? (
-                  <span className="num text-ink-muted">{u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "—"}</span>
+                  <span className="num text-ink-muted">{u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "-"}</span>
                 ) : (
                   <QtyInput
                     line={u}
@@ -736,7 +736,7 @@ function PartRows({
                 )}
               </Td>
               <Td num muted>
-                {u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}
+                {u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "-"}
               </Td>
               <Td num>
                 <RemainingAfter item={u.item} after={after} />
@@ -758,7 +758,7 @@ function PartRows({
 
 /** What's left of a material after this entry — red only when it goes below zero. */
 function RemainingAfter({ item, after }: { item: StockItem | null; after: number | null }) {
-  if (!item || after === null) return <span className="text-ink-faint">—</span>;
+  if (!item || after === null) return <span className="text-ink-faint">-</span>;
   return <span className={clsx("font-semibold", after < 0 && "text-danger")}>{formatQuantity(after, item.baseUnit)}</span>;
 }
 

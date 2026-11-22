@@ -87,7 +87,7 @@ export function MoneyOwedReportView() {
                   <Td>{label}</Td>
                   {AGE_BUCKETS.map((b) => (
                     <Td key={b} num>
-                      {b === "90+" && ageing[b] > 0 ? <span className="font-medium text-danger">{formatINR(ageing[b])}</span> : ageing[b] ? formatINR(ageing[b]) : "—"}
+                      {b === "90+" && ageing[b] > 0 ? <span className="font-medium text-danger">{formatINR(ageing[b])}</span> : ageing[b] ? formatINR(ageing[b]) : "-"}
                     </Td>
                   ))}
                   <Td num className="font-medium">
@@ -209,7 +209,7 @@ export function MoneyOwedReportView() {
             </Table>
           )}
           <p className="mt-4 max-w-4xl text-caption text-ink-subtle">
-            Balances are the books'. Under each party: the invoices and bills still open (ours, dated from 1 April of last financial year; a bill's due shows as “−”, we owe it), then everything else that makes up the balance — opening balance, money received or
+            Balances are the books'. Under each party: the invoices and bills still open (ours, dated from 1 April of last financial year; a bill's due shows as “−”, we owe it), then everything else that makes up the balance: opening balance, money received or
             paid without choosing an invoice or bill, corrections, money moved between parties, payments kept as credit after a cancellation, and anything still being saved to the books. “+” adds to what they owe us; “−” to what we owe them.
           </p>
         </>
