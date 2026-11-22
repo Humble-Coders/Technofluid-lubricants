@@ -18,3 +18,6 @@ declare module "*.png" {
   const src: string;
   export default src;
 }
+
+/** The app version from package.json (set by the vite configs). */
+declare const __APP_VERSION__: string;

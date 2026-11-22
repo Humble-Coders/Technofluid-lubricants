@@ -222,6 +222,11 @@ function Sidebar({
       </button>
 
       <UserMenu collapsed={collapsed} />
+
+      {/* Which version this is, for when someone reports a problem. */}
+      <p className={clsx("selectable shrink-0 pb-2 text-caption text-white/30", collapsed ? "text-center" : "px-5")} title="App version">
+        {collapsed ? `v${__APP_VERSION__}` : `Version ${__APP_VERSION__}`}
+      </p>
     </aside>
   );
 }
