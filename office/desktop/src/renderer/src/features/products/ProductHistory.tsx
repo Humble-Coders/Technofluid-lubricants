@@ -1,4 +1,3 @@
-import { History } from "lucide-react";
 import { formatINR } from "@technofluid/core";
 import { Spinner } from "@/components/ui";
 import { useProductChanges } from "@/hooks/useProductChanges";
@@ -72,17 +71,15 @@ export function ProductHistory({ sku }: { sku: string }) {
 
   return (
     <section>
-      <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-        <History className="size-3.5" /> Change history
-      </h3>
+      <h3 className="mb-2 text-label font-semibold text-ink">Change history</h3>
       {state.status === "loading" ? (
         <Spinner />
       ) : state.status === "error" ? (
-        <p className="text-[12px] text-danger">Couldn't load the history: {state.message}</p>
+        <p className="text-label text-danger">Couldn't load the history: {state.message}</p>
       ) : state.data.length === 0 ? (
-        <p className="text-[12px] text-ink-muted">Not changed in Technofluid Office yet.</p>
+        <p className="text-label text-ink-muted">Not changed in Technofluid Office yet.</p>
       ) : (
-        <ol className="space-y-2">
+        <ol className="border-t border-line-row">
           {state.data.map((change) => (
             <ChangeRow key={change.id} change={change} />
           ))}
@@ -105,7 +102,7 @@ function ChangeRow({ change }: { change: ProductChange }) {
           : "Restored"
         : null;
   return (
-    <li className="rounded bg-canvas px-2.5 py-1.5 text-[12px]">
+    <li className="border-b border-line-row py-2 text-label">
       {event ? (
         <p className="font-medium text-ink">{event}</p>
       ) : (
@@ -115,7 +112,7 @@ function ChangeRow({ change }: { change: ProductChange }) {
           <span className="num font-medium">{show(change.field, change.new)}</span>
         </p>
       )}
-      <p className="text-2xs text-ink-faint">
+      <p className="mt-0.5 text-caption text-ink-subtle">
         {change.byName} · {when(change.at)}
         {change.reason ? ` · “${change.reason}”` : ""}
       </p>

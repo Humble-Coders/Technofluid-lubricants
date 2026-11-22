@@ -1,4 +1,4 @@
-import { Clock, FlaskConical, Pencil } from "lucide-react";
+import { Clock, Pencil } from "lucide-react";
 import { useState } from "react";
 import { parseAlternates } from "@technofluid/core";
 import { Badge, Button } from "@/components/ui";
@@ -27,31 +27,30 @@ export function RecipeSection({ product: p }: { product: Product }) {
 
   return (
     <section>
-      <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-        <FlaskConical className="size-3.5" /> Recipe
-        <span className="flex-1" />
+      <div className="mb-2 flex min-h-7 items-center gap-2">
+        <h3 className="min-w-0 flex-1 text-label font-semibold text-ink">Recipe</h3>
         {allowed ? (
-          <Button size="sm" variant="ghost" onClick={() => setOpen(true)} icon={<Pencil className="size-3" />} className="normal-case tracking-normal">
+          <Button size="sm" variant="ghost" onClick={() => setOpen(true)} icon={<Pencil />} className="-mr-2.5">
             Change recipe
           </Button>
         ) : null}
-      </h3>
+      </div>
       {p.recipe.length === 0 ? (
-        <p className="text-[12px] text-ink-muted">No recipe recorded.</p>
+        <p className="text-label text-ink-muted">No recipe recorded.</p>
       ) : (
-        <ul className="space-y-1">
+        <ul className="border-t border-line-row">
           {p.recipe.map((item, i) => {
             const [name, pct] = item.split("/");
             const code = name?.trim().toLowerCase() ?? "";
             const alts = alternates.filter((a) => a.main === code);
             return (
-              <li key={i} className="rounded bg-canvas px-2.5 py-1.5 text-[12px]">
+              <li key={i} className="border-b border-line-row py-2 text-label">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono">{name?.trim()}</span>
+                  <span className="font-mono text-ink">{name?.trim()}</span>
                   {(() => {
                     const m = find(code);
                     return m && isMix(m.kind) ? (
-                      <Badge tone="warning" className="mr-auto">
+                      <Badge tone="neutral" className="mr-auto">
                         {m.kind === "premix" ? "Premix" : "Blend"} · {m.stockMode === "stocked" ? "kept in stock" : "mixed on the spot"}
                       </Badge>
                     ) : null;
@@ -59,7 +58,7 @@ export function RecipeSection({ product: p }: { product: Product }) {
                   <span className="num text-ink-muted">{pct?.trim() ? `${pct.trim()}%` : "no %"}</span>
                 </div>
                 {alts.map((a) => (
-                  <div key={a.ingredient.code} className="flex items-center justify-between pl-3 text-ink-muted">
+                  <div key={a.ingredient.code} className="mt-1 flex items-center justify-between pl-3 text-ink-muted">
                     <span>
                       or <span className="font-mono">{a.ingredient.code}</span>
                     </span>
@@ -72,11 +71,15 @@ export function RecipeSection({ product: p }: { product: Product }) {
         </ul>
       )}
       {latest ? (
-        <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[12px] text-ink-muted">
-          {latest.status === "pending" ? <Clock className="size-3.5 text-warning" /> : null}
-          <Badge tone={latest.status === "pending" ? "warning" : latest.status === "approved" ? "success" : latest.status === "rejected" ? "danger" : "neutral"}>
-            {latest.status === "pending" ? "Change waiting for approval" : latest.status === "approved" ? "Last change approved" : latest.status === "rejected" ? "Last change rejected" : "Last change replaced"}
-          </Badge>
+        <p className="mt-3 flex flex-wrap items-center gap-1.5 text-caption text-ink-muted">
+          {latest.status === "approved" ? (
+            <span>Last change approved ·</span>
+          ) : (
+            <Badge tone={latest.status === "pending" ? "warning" : latest.status === "rejected" ? "danger" : "neutral"}>
+              {latest.status === "pending" ? <Clock /> : null}
+              {latest.status === "pending" ? "Change waiting for approval" : latest.status === "rejected" ? "Last change rejected" : "Last change replaced"}
+            </Badge>
+          )}
           <span>
             asked by {latest.requestedBy}
             {latest.status === "rejected" && latest.decisionNote ? ` — “${latest.decisionNote}”` : ""}

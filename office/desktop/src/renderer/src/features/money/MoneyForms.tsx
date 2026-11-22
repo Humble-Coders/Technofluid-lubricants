@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { useMemo, useState } from "react";
 import {
   correctionFor,
@@ -11,8 +10,7 @@ import {
   rupeesToPaise,
   type MoneyAccountRef,
 } from "@technofluid/core";
-import { Badge, Button, Field, Input, Select } from "@/components/ui";
-import { Modal } from "@/features/entities/EntityDetail";
+import { Badge, Banner, Button, Dialog, Field, Input, MoneyInput, Select } from "@/components/ui";
 import type { EntityRow } from "@/services/entityService";
 import { correctBalance, recordMoneyEntry, type RegisterRow } from "@/services/moneyService";
 
@@ -139,45 +137,50 @@ export function MoneyEntryForm({
   };
 
   return (
-    <Modal title="Record money in or out" onClose={() => onClose(null)} busy={busy}>
-      <div className="grid grid-cols-2 gap-3">
+    <Dialog
+      title="Record money in or out"
+      size="md"
+      onClose={() => onClose(null)}
+      busy={busy}
+      footer={
+        <>
+          {problem ? <span className="mr-auto min-w-0 text-label text-ink-muted">{problem}</span> : null}
+          <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
+            {busy ? "Saving…" : "Save"}
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <Field label="From" htmlFor="me-from">
           <AccountPicker id="me-from" value={from} onChange={setFrom} parties={opts.partyOpts} registers={opts.regOpts} />
         </Field>
         <Field label="To" htmlFor="me-to">
           <AccountPicker id="me-to" value={to} onChange={setTo} parties={opts.partyOpts} registers={opts.regOpts} />
         </Field>
-        <Field label="Amount (₹)" htmlFor="me-amount">
-          <Input id="me-amount" value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="10000" className="num" autoFocus />
+        <Field label="Amount" htmlFor="me-amount">
+          <MoneyInput id="me-amount" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="10000" autoFocus />
         </Field>
         <Field label="Day" htmlFor="me-day">
           <Input id="me-day" type="date" value={day} max={indiaDate()} onChange={(e) => setDay(e.target.value)} />
         </Field>
       </div>
-      <Field label="Note" htmlFor="me-note">
-        <Input id="me-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional — e.g. cheque no." maxLength={500} />
+      <Field label="Note" htmlFor="me-note" optional>
+        <Input id="me-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. cheque no." maxLength={500} />
       </Field>
       {fromRef && toRef ? (
-        <p className="rounded-md bg-canvas px-3 py-2 text-[13px] text-ink">
-          <Badge tone="brand" className="mr-2">
-            {MONEY_CATEGORY_LABEL[moneyCategory({ from: fromRef, to: toRef })]}
-          </Badge>
-          {plainWords(fromRef, toRef, amount)}
+        <p className="flex items-start gap-2 rounded-control bg-surface-alt px-3 py-2 text-body text-ink">
+          <Badge className="shrink-0">{MONEY_CATEGORY_LABEL[moneyCategory({ from: fromRef, to: toRef })]}</Badge>
+          <span className="min-w-0">{plainWords(fromRef, toRef, amount)}</span>
         </p>
       ) : (
-        <p className="text-[12px] text-ink-muted">From and To can each be a customer / supplier or our cash / bank — money received, money paid, a transfer between our accounts, or a balance moved between two parties.</p>
+        <p className="text-label text-ink-muted">From and To can each be a customer / supplier or our cash / bank — money received, money paid, a transfer between our accounts, or a balance moved between two parties.</p>
       )}
-      {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-      <div className="flex items-center justify-end gap-2">
-        {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}
-        <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
-          Save
-        </Button>
-      </div>
-    </Modal>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }
 
@@ -221,6 +224,7 @@ export function CorrectionDialog({
   }
   const draft = ref && current !== null && wantedSigned !== null && ref.kind !== "ADJUSTMENT" && ref.kind !== "EXPENSE" ? correctionFor(ref, current, wantedSigned) : null;
   const describe = (p: number) => (isParty ? (p > 0 ? `${formatINR(p)} they owe us` : p < 0 ? `${formatINR(-p)} we owe them` : "settled") : formatINR(p));
+  const blocked = done ? null : !ref ? "Choose whose balance." : wantedSigned === null ? "Enter what it should be." : draft && !reason.trim() ? "Give a reason." : null;
 
   const save = async () => {
     if (!ref || wantedSigned === null) return;
@@ -239,47 +243,54 @@ export function CorrectionDialog({
   };
 
   return (
-    <Modal title="Correct a balance" onClose={() => onClose(null)} busy={busy}>
-      <Field label="Whose balance" htmlFor="cb-target">
+    <Dialog
+      title="Correct a balance"
+      size="md"
+      onClose={() => onClose(null)}
+      busy={busy}
+      footer={
+        <>
+          {blocked ? <span className="mr-auto min-w-0 text-label text-ink-muted">{blocked}</span> : null}
+          <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
+            {done ? "Close" : "Cancel"}
+          </Button>
+          <Button variant="primary" onClick={() => void save()} loading={busy} disabled={!draft || !reason.trim() || Boolean(done)}>
+            {busy ? "Recording…" : "Record correction"}
+          </Button>
+        </>
+      }
+    >
+      <Field label="Whose balance" htmlFor="cb-target" help={ref ? `Now in the books: ${current === null ? "— (books unreachable or not saved yet)" : describe(current)}` : undefined}>
         <AccountPicker id="cb-target" value={target} onChange={setTarget} parties={opts.partyOpts} registers={opts.regOpts} />
       </Field>
-      {ref ? (
-        <p className="text-[12px] text-ink-muted">Now in the books: {current === null ? "— (books unreachable or not saved yet)" : describe(current)}</p>
-      ) : null}
       <div className="grid grid-cols-[1fr_auto] items-end gap-3">
-        <Field label="It should be (₹)" htmlFor="cb-wanted">
-          <Input id="cb-wanted" value={wanted} onChange={(e) => setWanted(e.target.value)} inputMode="decimal" className="num" placeholder="0" />
+        <Field label="It should be" htmlFor="cb-wanted">
+          <MoneyInput id="cb-wanted" value={wanted} onChange={(e) => setWanted(e.target.value)} placeholder="0" />
         </Field>
         {isParty ? (
-          <Select value={owedBy} onChange={(e) => setOwedBy(e.target.value as "them" | "us")} aria-label="Who owes" className="w-40">
+          <Select value={owedBy} onChange={(e) => setOwedBy(e.target.value as "them" | "us")} aria-label="Who owes" className="w-36">
             <option value="them">they owe us</option>
             <option value="us">we owe them</option>
           </Select>
         ) : null}
       </div>
       <Field label="Reason" htmlFor="cb-reason">
-        <Input id="cb-reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Required — e.g. matches the paper ledger" maxLength={500} />
+        <Input id="cb-reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. matches the paper ledger" maxLength={500} />
       </Field>
       {draft ? (
-        <p className="rounded-md bg-canvas px-3 py-2 text-[13px] text-ink">
-          This records a correction of <b>{formatINR(draft.amountPaise)}</b>:{" "}
+        <p className="rounded-control bg-surface-alt px-3 py-2 text-body text-ink">
+          This records a correction of <b className="num font-semibold">{formatINR(draft.amountPaise)}</b>:{" "}
           {draft.from.kind === "ADJUSTMENT" ? `${name(draft.to)} goes up` : `${name(draft.from)} goes down`} — to {describe(wantedSigned!)}.
         </p>
       ) : ref && current !== null && wantedSigned !== null ? (
-        <p className="text-[12px] text-success">It's already {describe(current)} — nothing to correct.</p>
+        <p className="text-label text-ink-muted">It's already {describe(current)} — nothing to correct.</p>
       ) : null}
-      {done ? <p className="text-[12px] text-success">{done}</p> : null}
-      {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
-          {done ? "Close" : "Cancel"}
-        </Button>
-        <Button variant="primary" onClick={() => void save()} loading={busy} disabled={!draft || !reason.trim() || Boolean(done)}>
-          Record correction
-        </Button>
-      </div>
-    </Modal>
+      {done ? <Banner tone="success">{done}</Banner> : null}
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }
 
-export const amountClass = (dir: "IN" | "OUT" | "INTERNAL") => clsx("num font-semibold", dir === "IN" ? "text-success" : dir === "OUT" ? "text-danger" : "text-ink");
+/** Amounts are plain ink; the direction is said with a sign (see `amountSign`), not a colour. */
+export const amountClass = (_dir: "IN" | "OUT" | "INTERNAL") => "num font-medium";
+export const amountSign = (dir: "IN" | "OUT" | "INTERNAL") => (dir === "IN" ? "+" : dir === "OUT" ? "−" : "");

@@ -1,8 +1,7 @@
-import clsx from "clsx";
 import { BellRing, Check, Factory, X } from "lucide-react";
 import { useState } from "react";
 import { formatQuantity, parseRecipe, type BaseUnit } from "@technofluid/core";
-import { Badge, Button, EmptyState, Input, Spinner } from "@/components/ui";
+import { Badge, Button, EmptyState, ErrorState, Input, LoadingState, Page, PageHeader, Section, Table, Td, Th, Tr } from "@/components/ui";
 import { useProductionRequests } from "@/hooks/useProductionRequests";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { decideProductionRequest, type ProductionRequest } from "@/services/productionService";
@@ -51,40 +50,38 @@ export function ApprovalsScreen() {
     e.type === "recipe" ? <RequestCard key={`r-${e.r.id}`} request={e.r} /> : <ProductionCard key={`p-${e.r.id}`} request={e.r} />;
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-5xl space-y-6 px-5 py-5">
-        <section>
-          <h2 className="mb-3 text-[14px] font-semibold text-ink">
-            Waiting for your approval
-            {pending.status === "ready" && pending.data.length > 0 ? (
-              <Badge tone="warning" className="ml-2 align-middle">
-                {pending.data.length}
-              </Badge>
-            ) : null}
-          </h2>
-          {pending.status === "loading" ? (
-            <Spinner />
-          ) : pending.status === "error" ? (
-            <p className="text-[12px] text-danger">{pending.message}</p>
-          ) : pending.data.length === 0 ? (
-            <EmptyState icon={<BellRing className="size-6" />} title="Nothing waiting">
-              Recipe changes and production entries from Stock & Production show up here.
-            </EmptyState>
-          ) : (
-            <div className="space-y-3">{pending.data.map(card)}</div>
-          )}
-        </section>
+    <Page>
+      <PageHeader
+        title="Approvals"
+        badge={pending.status === "ready" && pending.data.length > 0 ? <Badge tone="warning">{pending.data.length} waiting</Badge> : null}
+      />
 
-        {decided.length > 0 ? (
-          <section>
-            <h2 className="mb-3 text-[14px] font-semibold text-ink">Recently decided</h2>
-            <div className="space-y-3">{decided.map(card)}</div>
-          </section>
-        ) : null}
-      </div>
-    </div>
+      <Section title="Waiting for your approval" className="mt-0!">
+        {pending.status === "loading" ? (
+          <LoadingState />
+        ) : pending.status === "error" ? (
+          <ErrorState>{pending.message}</ErrorState>
+        ) : pending.data.length === 0 ? (
+          <EmptyState icon={<BellRing />} title="Nothing waiting">
+            Recipe changes and production entries from Stock & Production show up here.
+          </EmptyState>
+        ) : (
+          <div className="border-t border-line-row">{pending.data.map(card)}</div>
+        )}
+      </Section>
+
+      {decided.length > 0 ? (
+        <Section title="Recently decided">
+          <div className="border-t border-line-row">{decided.map(card)}</div>
+        </Section>
+      ) : null}
+    </Page>
   );
 }
+
+const REQUEST = "border-b border-line-row py-5";
+const REQUEST_HEAD = "flex flex-wrap items-center gap-x-2 gap-y-1";
+const REQUEST_BODY = "mt-3 max-w-2xl space-y-4";
 
 function RequestCard({ request: r }: { request: RecipeRequest }) {
   const [note, setNote] = useState("");
@@ -106,18 +103,18 @@ function RequestCard({ request: r }: { request: RecipeRequest }) {
   };
 
   return (
-    <article className={clsx("rounded-lg border bg-surface", r.status === "pending" ? "border-brand-orange/40" : "border-line")}>
-      <header className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2.5">
-        <span className="text-[13px] font-semibold text-ink">Recipe change: {r.productName}</span>
-        <Badge tone={status.tone}>{status.label}</Badge>
+    <article className={REQUEST}>
+      <header className={REQUEST_HEAD}>
+        <h3 className="text-body font-semibold text-ink">Recipe change: {r.productName}</h3>
+        {r.status === "approved" ? null : <Badge tone={status.tone}>{status.label}</Badge>}
         <span className="flex-1" />
-        <span className="text-2xs text-ink-faint">
+        <span className="text-caption text-ink-subtle">
           Asked by {r.requestedBy} · {when(r.requestedAt)}
         </span>
       </header>
-      <div className="space-y-3 px-4 py-3">
+      <div className={REQUEST_BODY}>
         {r.reason ? (
-          <p className="text-[13px] text-ink">
+          <p className="text-body text-ink">
             <span className="text-ink-muted">Why: </span>
             {r.reason}
           </p>
@@ -133,27 +130,24 @@ function RequestCard({ request: r }: { request: RecipeRequest }) {
               maxLength={300}
               className="min-w-60 flex-1"
             />
-            <Button size="sm" onClick={() => void decide("reject")} loading={busy === "reject"} disabled={busy !== null} icon={<X className="size-3.5" />}>
+            <Button onClick={() => void decide("reject")} loading={busy === "reject"} disabled={busy !== null} icon={<X />}>
               Reject
             </Button>
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => void decide("approve")}
-              loading={busy === "approve"}
-              disabled={busy !== null}
-              icon={<Check className="size-3.5" />}
-            >
+            <Button variant="primary" onClick={() => void decide("approve")} loading={busy === "approve"} disabled={busy !== null} icon={<Check />}>
               Approve
             </Button>
           </div>
         ) : (
-          <p className="text-[12px] text-ink-muted">
+          <p className="text-label text-ink-muted">
             {status.label} by {r.decidedBy ?? "—"} · {when(r.decidedAt)}
             {r.decisionNote ? ` · “${r.decisionNote}”` : ""}
           </p>
         )}
-        {error ? <p role="alert" className="text-[12px] text-danger">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-caption text-danger">
+            {error}
+          </p>
+        ) : null}
       </div>
     </article>
   );
@@ -188,51 +182,48 @@ function ProductionCard({ request: r }: { request: ProductionRequest }) {
   const KIND: Record<string, string> = { MADE: "Made", USED: "Used", IN: "In", OUT: "Out", COUNT: "Counted", OPENING: "Opening" };
 
   return (
-    <article className={clsx("rounded-lg border bg-surface", r.status === "pending" ? "border-brand-orange/40" : "border-line")}>
-      <header className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2.5">
-        <Factory className="size-4 text-brand-orange" />
-        <span className="text-[13px] font-semibold text-ink">
+    <article className={REQUEST}>
+      <header className={REQUEST_HEAD}>
+        <Factory className="size-4 shrink-0 text-ink-subtle" aria-hidden />
+        <h3 className="text-body font-semibold text-ink">
           Production with recipe change: {made.map((l) => `${l.itemName} ${qty(l).slice(1)}`).join(", ") || "—"}
-        </span>
-        <Badge tone={status.tone}>{status.label}</Badge>
+        </h3>
+        {r.status === "approved" ? null : <Badge tone={status.tone}>{status.label}</Badge>}
         <span className="flex-1" />
-        <span className="text-2xs text-ink-faint">
+        <span className="text-caption text-ink-subtle">
           Entered by {r.requestedBy} · {when(r.requestedAt)} · for {r.journalDate}
         </span>
       </header>
-      <div className="space-y-3 px-4 py-3">
+      <div className={REQUEST_BODY}>
         {r.reason ? (
-          <p className="text-[13px] text-ink">
+          <p className="text-body text-ink">
             <span className="text-ink-muted">Why: </span>
             {r.reason}
           </p>
         ) : null}
         {r.recipeChanges.map((c) => (
           <div key={c.key}>
-            <p className="mb-1 text-[12px] font-medium text-ink">Recipe of {c.productName}</p>
+            <p className="text-label font-medium text-ink">Recipe of {c.productName}</p>
             <RecipeDiff current={c.currentRecipe} proposed={c.proposedRecipe} />
           </div>
         ))}
         <div>
-          <p className="mb-1 text-[12px] font-medium text-ink">Stock saved when approved</p>
-          <table className="w-full border-collapse text-[13px]">
+          <p className="text-label font-medium text-ink">Stock saved when approved</p>
+          <Table>
             <tbody>
               {r.display.map((l, i) => (
-                <tr key={i} className="border-b border-line/70">
-                  <td className="w-24 py-1.5 pr-3 text-[12px] text-ink-muted">{KIND[l.kind] ?? l.kind}</td>
-                  <td className="py-1.5 pr-3 text-ink">{l.itemName}</td>
-                  <td
-                    className={clsx(
-                      "num py-1.5 text-right font-semibold",
-                      l.kind === "USED" || l.kind === "OUT" ? "text-danger" : "text-success",
-                    )}
-                  >
+                <Tr key={i}>
+                  <Td muted className="w-28">
+                    {KIND[l.kind] ?? l.kind}
+                  </Td>
+                  <Td>{l.itemName}</Td>
+                  <Td num className="font-medium">
                     {qty(l)}
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         </div>
         {r.status === "pending" ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -244,27 +235,24 @@ function ProductionCard({ request: r }: { request: ProductionRequest }) {
               maxLength={300}
               className="min-w-60 flex-1"
             />
-            <Button size="sm" onClick={() => void decide("reject")} loading={busy === "reject"} disabled={busy !== null} icon={<X className="size-3.5" />}>
+            <Button onClick={() => void decide("reject")} loading={busy === "reject"} disabled={busy !== null} icon={<X />}>
               Reject
             </Button>
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={() => void decide("approve")}
-              loading={busy === "approve"}
-              disabled={busy !== null}
-              icon={<Check className="size-3.5" />}
-            >
+            <Button variant="primary" onClick={() => void decide("approve")} loading={busy === "approve"} disabled={busy !== null} icon={<Check />}>
               Approve and save
             </Button>
           </div>
         ) : (
-          <p className="text-[12px] text-ink-muted">
+          <p className="text-label text-ink-muted">
             {status.label} by {r.decidedBy ?? "—"} · {when(r.decidedAt)}
             {r.decisionNote ? ` · “${r.decisionNote}”` : ""}
           </p>
         )}
-        {error ? <p role="alert" className="text-[12px] text-danger">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-caption text-danger">
+            {error}
+          </p>
+        ) : null}
       </div>
     </article>
   );
@@ -279,13 +267,13 @@ export function RecipeDiff({ current, proposed }: { current: string[]; proposed:
   const total = (list: typeof now) => list.reduce((s, i) => s + (i.percentBp ?? 0), 0) / 100;
 
   return (
-    <table className="w-full border-collapse text-[13px]">
+    <Table>
       <thead>
-        <tr className="border-b border-line text-center text-2xs font-medium tracking-wide text-ink-muted uppercase">
-          <th className="px-3 py-1.5 text-left font-medium">Ingredient</th>
-          <th className="px-3 py-1.5 font-medium">Current</th>
-          <th className="px-3 py-1.5 font-medium">Proposed</th>
-          <th className="px-3 py-1.5 font-medium">Change</th>
+        <tr>
+          <Th>Ingredient</Th>
+          <Th align="right">Current</Th>
+          <Th align="right">Proposed</Th>
+          <Th className="w-28">Change</Th>
         </tr>
       </thead>
       <tbody>
@@ -294,23 +282,29 @@ export function RecipeDiff({ current, proposed }: { current: string[]; proposed:
           const b = next.find((i) => i.code === code);
           const change = !a ? "Added" : !b ? "Removed" : a.percentBp !== b.percentBp ? "Changed" : "";
           return (
-            <tr key={code} className={clsx("border-b border-line/70 text-center", change && "bg-brand-orange/[0.04]")}>
-              <td className="px-3 py-1.5 text-left font-mono text-[12px] text-ink">{code}</td>
-              <td className={clsx("num px-3 py-1.5", !b && a && "text-danger line-through")}>{pct(a?.percentBp)}</td>
-              <td className={clsx("num px-3 py-1.5", change ? "font-semibold text-ink" : "text-ink-muted")}>{pct(b?.percentBp)}</td>
-              <td className="px-3 py-1.5 text-[12px]">
-                {change ? <Badge tone={change === "Removed" ? "danger" : change === "Added" ? "success" : "warning"}>{change}</Badge> : null}
-              </td>
-            </tr>
+            <Tr key={code}>
+              <Td className="font-mono text-label">{code}</Td>
+              <Td num muted>
+                {!b && a ? <span className="text-danger line-through">{pct(a.percentBp)}</span> : pct(a?.percentBp)}
+              </Td>
+              <Td num muted={!change} className={change ? "font-semibold" : undefined}>
+                {pct(b?.percentBp)}
+              </Td>
+              <Td>{change ? <Badge tone={change === "Removed" ? "danger" : change === "Added" ? "success" : "warning"}>{change}</Badge> : null}</Td>
+            </Tr>
           );
         })}
-        <tr className="text-center text-[12px] text-ink-muted">
-          <td className="px-3 py-1.5 text-left">Total</td>
-          <td className="num px-3 py-1.5">{total(now)}%</td>
-          <td className="num px-3 py-1.5">{total(next)}%</td>
-          <td />
-        </tr>
+        <Tr>
+          <Td muted>Total</Td>
+          <Td num muted>
+            {total(now)}%
+          </Td>
+          <Td num muted>
+            {total(next)}%
+          </Td>
+          <Td />
+        </Tr>
       </tbody>
-    </table>
+    </Table>
   );
 }

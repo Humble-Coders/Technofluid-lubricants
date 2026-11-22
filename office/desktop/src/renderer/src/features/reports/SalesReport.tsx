@@ -1,8 +1,7 @@
-import clsx from "clsx";
-import { CheckCircle2, ReceiptIndianRupee, TriangleAlert } from "lucide-react";
+import { Check, ReceiptIndianRupee } from "lucide-react";
 import { useState } from "react";
 import { financialYear, formatINR, indiaDate, milliCsv, paiseCsv, toCsv, type SalesGroupBy } from "@technofluid/core";
-import { EmptyState, Input, Segmented, Select } from "@/components/ui";
+import { Banner, EmptyState, FilterSelect, Input, Segmented, StatTiles, Table, Td, Th, Tr } from "@/components/ui";
 import { rangeFor } from "@/features/money/MoneyScreen";
 import { useSalesReport } from "@/hooks/useReports";
 import { NotReady, quantities, ReportBar, Stat } from "./reportParts";
@@ -26,6 +25,9 @@ export function SalesReportView() {
   const { state, refresh } = useSalesReport(from, to, groupBy, customer || null);
   const r = state.status === "ready" ? state.data : null;
   const [h1, h2] = GROUP_HEAD[groupBy];
+  // The list holds the customers billed in these dates; the chosen one stays in it (by a few words) while it reloads or if they weren't billed.
+  const customerOptions: Array<[string, string]> = [["", "All customers"], ...(r?.customers ?? []).map((c): [string, string] => [c.entityId, c.name])];
+  if (customer && !customerOptions.some(([id]) => id === customer)) customerOptions.push([customer, r ? "Not billed in these dates" : "…"]);
 
   const csv = r
     ? () => {
@@ -40,15 +42,21 @@ export function SalesReportView() {
     : null;
 
   return (
-    <div className="space-y-4 px-5 py-4">
+    <>
       <ReportBar asOf={state.status === "ready" ? state.asOf : null} loading={state.status === "loading"} onRefresh={refresh} csv={csv}>
-        <Select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} aria-label="Dates" className="w-40">
-          <option value="today">Today</option>
-          <option value="week">Last 7 days</option>
-          <option value="month">This month</option>
-          <option value="fy">This financial year</option>
-          <option value="custom">Custom…</option>
-        </Select>
+        <FilterSelect
+          label="Dates"
+          value={preset}
+          onChange={(v) => setPreset(v as Preset)}
+          active={preset !== "month"}
+          options={[
+            ["today", "Today"],
+            ["week", "Last 7 days"],
+            ["month", "This month"],
+            ["fy", "This financial year"],
+            ["custom", "Custom…"],
+          ]}
+        />
         {preset === "custom" ? (
           <>
             <Input type="date" value={custom[0]} max={custom[1]} onChange={(e) => e.target.value && setCustom([e.target.value, custom[1]])} aria-label="From" className="w-36" />
@@ -56,14 +64,7 @@ export function SalesReportView() {
             <Input type="date" value={custom[1]} min={custom[0]} max={today} onChange={(e) => e.target.value && setCustom([custom[0], e.target.value])} aria-label="To" className="w-36" />
           </>
         ) : null}
-        <Select value={customer} onChange={(e) => setCustomer(e.target.value)} aria-label="Customer" className="w-56">
-          <option value="">All customers</option>
-          {(r?.customers ?? []).map((c) => (
-            <option key={c.entityId} value={c.entityId}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
+        <FilterSelect label="Customer" value={customer} onChange={setCustomer} options={customerOptions} />
         <Segmented
           value={groupBy}
           onChange={setGroupBy}
@@ -77,77 +78,97 @@ export function SalesReportView() {
       <NotReady state={state} onRetry={refresh} />
       {r ? (
         <>
-          <div className="flex flex-wrap gap-3">
+          <StatTiles>
             <Stat label="Invoices" value={String(r.invoiceCount)} hint={r.cancelledCount ? `${r.cancelledCount} cancelled left out` : `${from} – ${to}`} />
             <Stat label="Taxable value" value={formatINR(r.totals.taxablePaise)} />
             <Stat label="GST" value={formatINR(r.totals.gstPaise)} />
             <Stat label="Total billed" value={formatINR(r.totals.totalPaise)} />
-          </div>
+          </StatTiles>
 
           {r.invoiceCount === 0 ? (
-            <EmptyState icon={<ReceiptIndianRupee className="size-6" />} title="No invoices in these dates">
+            <EmptyState icon={<ReceiptIndianRupee />} title="No invoices in these dates">
               {r.cancelledCount ? `${r.cancelledCount} cancelled invoice${r.cancelledCount === 1 ? "" : "s"} left out.` : "Pick other dates or another customer."}
             </EmptyState>
           ) : (
             <>
-              <table className="w-full border-collapse text-[13px]">
-                <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-                  <tr className="border-b border-line">
-                    <th className="py-2 pr-3 font-medium">{h1}</th>
-                    <th className="py-2 pr-3 font-medium">{h2}</th>
-                    <th className="py-2 pr-3 text-right font-medium">Packs</th>
-                    <th className="py-2 pr-3 text-right font-medium">Quantity</th>
-                    <th className="py-2 pr-3 text-right font-medium">Taxable</th>
-                    <th className="py-2 pr-3 text-right font-medium">GST</th>
-                    <th className="py-2 text-right font-medium">Total</th>
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{h1}</Th>
+                    <Th>{h2}</Th>
+                    <Th align="right">Packs</Th>
+                    <Th align="right">Quantity</Th>
+                    <Th align="right">Taxable</Th>
+                    <Th align="right">GST</Th>
+                    <Th align="right">Total</Th>
                   </tr>
                 </thead>
                 <tbody>
                   {r.rows.map((x) => (
-                    <tr key={x.key} className="border-b border-line/70">
-                      <td className="py-1.5 pr-3">{x.label}</td>
-                      <td className="py-1.5 pr-3 text-ink-muted">{x.detail}</td>
-                      <td className="num py-1.5 pr-3 text-right">{x.packs ?? "—"}</td>
-                      <td className="num py-1.5 pr-3 text-right whitespace-nowrap">{quantities(x.qtyMilli)}</td>
-                      <td className="num py-1.5 pr-3 text-right">{formatINR(x.taxablePaise)}</td>
-                      <td className="num py-1.5 pr-3 text-right">{formatINR(x.gstPaise)}</td>
-                      <td className="num py-1.5 text-right">{formatINR(x.totalPaise)}</td>
-                    </tr>
+                    <Tr key={x.key}>
+                      <Td>{x.label}</Td>
+                      <Td muted>{x.detail}</Td>
+                      <Td num>{x.packs ?? "—"}</Td>
+                      <Td num className="whitespace-nowrap">
+                        {quantities(x.qtyMilli)}
+                      </Td>
+                      <Td num>{formatINR(x.taxablePaise)}</Td>
+                      <Td num>{formatINR(x.gstPaise)}</Td>
+                      <Td num>{formatINR(x.totalPaise)}</Td>
+                    </Tr>
                   ))}
-                  <tr className="border-b border-line/70 text-ink-muted">
-                    <td className="py-1.5 pr-3" colSpan={4}>
+                  <Tr>
+                    <Td muted colSpan={4}>
                       Freight
-                    </td>
-                    <td className="num py-1.5 pr-3 text-right">{formatINR(r.freight.taxablePaise)}</td>
-                    <td className="num py-1.5 pr-3 text-right">{formatINR(r.freight.gstPaise)}</td>
-                    <td className="num py-1.5 text-right">{formatINR(r.freight.totalPaise)}</td>
-                  </tr>
-                  <tr className="border-b border-line/70 text-ink-muted">
-                    <td className="py-1.5 pr-3" colSpan={6}>
+                    </Td>
+                    <Td num muted>
+                      {formatINR(r.freight.taxablePaise)}
+                    </Td>
+                    <Td num muted>
+                      {formatINR(r.freight.gstPaise)}
+                    </Td>
+                    <Td num muted>
+                      {formatINR(r.freight.totalPaise)}
+                    </Td>
+                  </Tr>
+                  <Tr>
+                    <Td muted colSpan={6}>
                       Round-off
-                    </td>
-                    <td className="num py-1.5 text-right">{formatINR(r.roundOffPaise)}</td>
-                  </tr>
-                  <tr className="font-semibold">
-                    <td className="py-2 pr-3" colSpan={4}>
+                    </Td>
+                    <Td num muted>
+                      {formatINR(r.roundOffPaise)}
+                    </Td>
+                  </Tr>
+                  <Tr>
+                    <Td colSpan={4} className="border-b-0 font-semibold">
                       Total
-                    </td>
-                    <td className="num py-2 pr-3 text-right">{formatINR(r.totals.taxablePaise)}</td>
-                    <td className="num py-2 pr-3 text-right">{formatINR(r.totals.gstPaise)}</td>
-                    <td className="num py-2 text-right">{formatINR(r.totals.totalPaise)}</td>
-                  </tr>
+                    </Td>
+                    <Td num className="border-b-0 font-semibold">
+                      {formatINR(r.totals.taxablePaise)}
+                    </Td>
+                    <Td num className="border-b-0 font-semibold">
+                      {formatINR(r.totals.gstPaise)}
+                    </Td>
+                    <Td num className="border-b-0 font-semibold">
+                      {formatINR(r.totals.totalPaise)}
+                    </Td>
+                  </Tr>
                 </tbody>
-              </table>
-              <p className={clsx("flex items-center gap-1.5 text-[12px]", r.matches ? "text-success" : "text-danger")}>
-                {r.matches ? <CheckCircle2 className="size-3.5" /> : <TriangleAlert className="size-3.5" />}
-                {r.matches
-                  ? `Adds up: the report total equals the ${r.invoiceCount} invoice${r.invoiceCount === 1 ? "" : "s"}' total (${formatINR(r.invoicesTotalPaise)}) to the paisa.`
-                  : `Doesn't add up: the report total is ${formatINR(r.totals.totalPaise)} but the invoices' total is ${formatINR(r.invoicesTotalPaise)}. Tell the developers.`}
-              </p>
+              </Table>
+              {r.matches ? (
+                <p className="mt-4 flex items-center gap-1.5 text-label text-ink-muted">
+                  <Check className="size-4 shrink-0 text-ink-subtle" aria-hidden />
+                  {`Adds up: the report total equals the ${r.invoiceCount} invoice${r.invoiceCount === 1 ? "" : "s"}' total (${formatINR(r.invoicesTotalPaise)}) to the paisa.`}
+                </p>
+              ) : (
+                <Banner tone="danger" className="mt-4">
+                  {`Doesn't add up: the report total is ${formatINR(r.totals.totalPaise)} but the invoices' total is ${formatINR(r.invoicesTotalPaise)}. Tell the developers.`}
+                </Banner>
+              )}
             </>
           )}
         </>
       ) : null}
-    </div>
+    </>
   );
 }

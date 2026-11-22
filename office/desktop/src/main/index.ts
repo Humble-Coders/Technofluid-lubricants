@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { AppInfo } from "../shared/ipc";
 import { registerCsv } from "./csv";
 import { registerInvoicePdf, stopInvoicePdf } from "./hbe/invoices";
+import { startUpdates } from "./updater";
 
 /**
  * Electron main process. Deliberately small: it owns the window and a short list of
@@ -80,11 +81,11 @@ function createWindow(): void {
     minHeight: 680,
     show: false,
     title: "Technofluid Office",
-    backgroundColor: "#f6f7f9",
+    backgroundColor: "#f4f4f5",
     // Native-feeling chrome: traffic lights inset on Mac, overlay buttons on Windows.
     titleBarStyle: isMac ? "hiddenInset" : "hidden",
     trafficLightPosition: isMac ? { x: 16, y: 14 } : undefined,
-    titleBarOverlay: isMac ? undefined : { color: "#ffffff", symbolColor: "#2B2B2B", height: 44 },
+    titleBarOverlay: isMac ? undefined : { color: "#f4f4f5", symbolColor: "#2B2B2B", height: 40 },
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,
@@ -173,6 +174,13 @@ app.whenReady().then(() => {
   if (!isDev) {
     // Strict content policy in the shipped app: only our own code, Firebase and Google APIs.
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      // Only our own screens (loaded from file://). Chromium's built-in PDF viewer (the invoice
+      // preview) runs its own chrome-extension:// and chrome:// pages; giving them this policy
+      // blocks the viewer's scripts and the preview stays blank (Windows build, 16 Nov 2026).
+      if (!details.url.startsWith("file://")) {
+        callback({ responseHeaders: details.responseHeaders });
+        return;
+      }
       callback({
         responseHeaders: {
           ...details.responseHeaders,
@@ -199,6 +207,7 @@ app.whenReady().then(() => {
   registerCsv(() => mainWindow);
   buildMenu();
   createWindow();
+  startUpdates(() => mainWindow);
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

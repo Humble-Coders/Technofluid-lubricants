@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Segmented } from "@/components/ui";
+import { Page, PageHeader, Tabs } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { canEditStock } from "@/lib/access";
 import { useProducts } from "@/hooks/useProducts";
@@ -38,19 +38,22 @@ export function StockScreen() {
   }, [canEdit, items, products]);
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="shrink-0 bg-surface px-5 pt-3 pb-1">
-        <Segmented
-          wide
-          value={tab}
-          onChange={setTab}
-          options={[
-            ["live", "Live stock"],
-            ["journal", "Daily journal"],
-            ["history", "History"],
-          ]}
-        />
-      </div>
+    <Page fill>
+      <PageHeader
+        title="Stock"
+        toolbar={
+          <Tabs
+            className="w-full"
+            value={tab}
+            onChange={setTab}
+            options={[
+              ["live", "Live stock"],
+              ["journal", "Daily journal"],
+              ["history", "History"],
+            ]}
+          />
+        }
+      />
       {tab === "live" ? (
         <LiveStock items={items} products={productList} canEdit={canEdit} />
       ) : tab === "journal" ? (
@@ -58,6 +61,6 @@ export function StockScreen() {
       ) : (
         <StockHistory canEdit={canEdit} />
       )}
-    </div>
+    </Page>
   );
 }

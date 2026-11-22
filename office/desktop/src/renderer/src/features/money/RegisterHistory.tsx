@@ -1,9 +1,8 @@
-import clsx from "clsx";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
 import { formatINR, indiaDate } from "@technofluid/core";
-import { Button, Input, Select, Spinner } from "@/components/ui";
+import { Banner, Button, ErrorState, FilterSelect, Input, LoadingState, Page, PageHeader, StatTile, StatTiles, Table, Td, Th, Tr } from "@/components/ui";
 import { useRegisters, useRegisterStatement } from "@/hooks/useMoney";
 import type { RegisterStatementRow } from "@/services/moneyService";
 
@@ -31,87 +30,96 @@ export function RegisterHistory() {
   const rows = useMemo(() => (state.status === "ready" ? state.data.rows.filter((r) => kind === "all" || r.kind === kind) : []), [state, kind]);
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="space-y-4 px-5 py-4">
-        <Link to="/payments" className="inline-flex items-center gap-1 text-[12px] text-info hover:underline">
-          <ArrowLeft className="size-3.5" /> Money in & out
-        </Link>
-        <h2 className="text-[16px] font-semibold text-ink">{register?.name ?? "Cash / bank account"}</h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input type="date" value={from} max={to} onChange={(e) => e.target.value && setFrom(e.target.value)} aria-label="From" className="w-36" />
-          <span className="text-ink-muted">–</span>
-          <Input type="date" value={to} min={from} max={today} onChange={(e) => e.target.value && setTo(e.target.value)} aria-label="To" className="w-36" />
-          <Select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} aria-label="Type" className="w-40">
-            <option value="all">Everything</option>
-            <option value="received">Received</option>
-            <option value="paid">Paid</option>
-            <option value="transfer">Transfers</option>
-            <option value="expense">Expenses</option>
-            <option value="correction">Corrections</option>
-          </Select>
-        </div>
-        {state.status === "loading" ? (
-          <Spinner />
-        ) : state.status === "error" ? (
-          <p className="flex items-center gap-2 text-[12px] text-warning">
-            {state.message}
-            <Button size="sm" onClick={retry} icon={<RefreshCw className="size-3.5" />}>
+    <Page>
+      <PageHeader
+        back={{ to: "/payments", label: "Money in & out" }}
+        title={register?.name ?? "Cash / bank account"}
+        toolbar={
+          <>
+            <Input type="date" value={from} max={to} onChange={(e) => e.target.value && setFrom(e.target.value)} aria-label="From" className="w-36" />
+            <span className="text-ink-muted">–</span>
+            <Input type="date" value={to} min={from} max={today} onChange={(e) => e.target.value && setTo(e.target.value)} aria-label="To" className="w-36" />
+            <FilterSelect
+              label="Type"
+              value={kind}
+              onChange={(v) => setKind(v as typeof kind)}
+              options={[
+                ["all", "Everything"],
+                ["received", "Received"],
+                ["paid", "Paid"],
+                ["transfer", "Transfers"],
+                ["expense", "Expenses"],
+                ["correction", "Corrections"],
+              ]}
+            />
+          </>
+        }
+      />
+      {state.status === "loading" ? (
+        <LoadingState />
+      ) : state.status === "error" ? (
+        <ErrorState
+          action={
+            <Button onClick={retry} icon={<RefreshCw />}>
               Retry
             </Button>
-          </p>
-        ) : (
-          <>
-            <div className="grid grid-cols-4 gap-3">
-              {[
-                ["Money in", state.data.inPaise, "text-success"],
-                ["Money out", state.data.outPaise, "text-danger"],
-                ["Net", state.data.inPaise - state.data.outPaise, "text-ink"],
-                [`Balance as at ${state.data.to}`, state.data.closingPaise, "text-ink"],
-              ].map(([label, paise, cls]) => (
-                <div key={String(label)} className="rounded-lg border border-line px-4 py-3">
-                  <p className="text-[12px] text-ink-muted">{label}</p>
-                  <p className={clsx("num text-[18px] font-semibold", cls)}>{formatINR(Number(paise))}</p>
-                </div>
+          }
+        >
+          {state.message}
+        </ErrorState>
+      ) : (
+        <>
+          <StatTiles>
+            <StatTile label="Money in" value={formatINR(state.data.inPaise)} />
+            <StatTile label="Money out" value={formatINR(state.data.outPaise)} />
+            <StatTile label="Net" value={formatINR(state.data.inPaise - state.data.outPaise)} />
+            <StatTile label={`Balance as at ${state.data.to}`} value={formatINR(state.data.closingPaise)} tone={state.data.closingPaise < 0 ? "danger" : undefined} />
+          </StatTiles>
+          <Table>
+            <thead>
+              <tr>
+                <Th>Date</Th>
+                <Th>Type</Th>
+                <Th>With</Th>
+                <Th align="right">In</Th>
+                <Th align="right">Out</Th>
+                <Th align="right">Balance</Th>
+              </tr>
+            </thead>
+            <tbody>
+              <Tr>
+                <Td muted>{state.data.from}</Td>
+                <Td muted colSpan={4}>
+                  Brought forward
+                </Td>
+                <Td num muted>
+                  {formatINR(state.data.openingPaise)}
+                </Td>
+              </Tr>
+              {rows.map((r, i) => (
+                <Tr key={`${r.entryId ?? r.kind}-${i}`}>
+                  <Td className="whitespace-nowrap">{r.date}</Td>
+                  <Td>{KIND[r.kind]}</Td>
+                  <Td muted>
+                    {r.counterpart ?? ""}
+                    {r.note ? <span className="ml-1 text-caption">· {r.note}</span> : null}
+                  </Td>
+                  <Td num>{r.inPaise ? formatINR(r.inPaise) : ""}</Td>
+                  <Td num>{r.outPaise ? formatINR(r.outPaise) : ""}</Td>
+                  <Td num>
+                    <span className={r.balancePaise < 0 ? "font-medium text-danger" : "font-medium"}>{formatINR(r.balancePaise)}</span>
+                  </Td>
+                </Tr>
               ))}
-            </div>
-            <table className="w-full border-collapse text-[13px]">
-              <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-                <tr className="border-b border-line">
-                  <th className="py-2 pr-3 font-medium">Date</th>
-                  <th className="py-2 pr-3 font-medium">Type</th>
-                  <th className="py-2 pr-3 font-medium">With</th>
-                  <th className="py-2 pr-3 text-right font-medium">In</th>
-                  <th className="py-2 pr-3 text-right font-medium">Out</th>
-                  <th className="py-2 text-right font-medium">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-line/70 text-ink-muted">
-                  <td className="py-2 pr-3">{state.data.from}</td>
-                  <td className="py-2 pr-3" colSpan={4}>
-                    Brought forward
-                  </td>
-                  <td className="num py-2 text-right">{formatINR(state.data.openingPaise)}</td>
-                </tr>
-                {rows.map((r, i) => (
-                  <tr key={`${r.entryId ?? r.kind}-${i}`} className="border-b border-line/70">
-                    <td className="py-2 pr-3 whitespace-nowrap">{r.date}</td>
-                    <td className="py-2 pr-3">{KIND[r.kind]}</td>
-                    <td className="py-2 pr-3 text-ink-muted">
-                      {r.counterpart ?? ""}
-                      {r.note ? <span className="ml-1 text-2xs">· {r.note}</span> : null}
-                    </td>
-                    <td className="num py-2 pr-3 text-right text-success">{r.inPaise ? formatINR(r.inPaise) : ""}</td>
-                    <td className="num py-2 pr-3 text-right text-danger">{r.outPaise ? formatINR(r.outPaise) : ""}</td>
-                    <td className={clsx("num py-2 text-right font-medium", r.balancePaise < 0 ? "text-danger" : "text-ink")}>{formatINR(r.balancePaise)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {state.data.hasMore ? <p className="text-[12px] text-ink-muted">More rows than shown — narrow the dates.</p> : null}
-          </>
-        )}
-      </div>
-    </div>
+            </tbody>
+          </Table>
+          {state.data.hasMore ? (
+            <Banner tone="warning" className="mt-4">
+              More rows than shown — narrow the dates.
+            </Banner>
+          ) : null}
+        </>
+      )}
+    </Page>
   );
 }

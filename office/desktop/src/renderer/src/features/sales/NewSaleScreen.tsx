@@ -1,7 +1,7 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   amountInWords,
   formatINR,
@@ -30,7 +30,7 @@ import {
   type SaleLineInput,
   type SaleProduct,
 } from "@technofluid/core";
-import { Badge, Button, Card, Field, Input, Select, Spinner } from "@/components/ui";
+import { Badge, Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Section, Select, Spinner, tableClass, Workspace, WorkspacePanel } from "@/components/ui";
 import { useEntities, useEntityBalances } from "@/hooks/useEntities";
 import { useRegisters } from "@/hooks/useMoney";
 import { useProducts } from "@/hooks/useProducts";
@@ -85,6 +85,9 @@ const paiseOf = (t: string) => {
     return NaN;
   }
 };
+
+const lineTh = "sticky top-0 z-10 h-10 border-b border-line bg-surface px-2 text-label font-medium whitespace-nowrap text-ink-muted first:pl-0 last:pr-0";
+const lineTd = "border-b border-line-row px-2 py-1.5 align-top first:pl-0 last:pr-0";
 
 const WALK_IN_STAND_IN = (stateCode: string): EntityRow => ({
   id: WALK_IN_ENTITY_ID,
@@ -270,50 +273,79 @@ export function NewSaleScreen() {
   const loading = entities.status === "loading" || products.status === "loading" || company.status === "loading";
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-6xl space-y-4 px-5 py-4">
-        <div className="flex items-center gap-2">
-          <Link to="/sales" className="inline-flex items-center gap-1 text-[12px] text-ink-muted hover:text-ink">
-            <ArrowLeft className="size-3.5" /> Sales
-          </Link>
-          <h2 className="text-[16px] font-semibold text-ink">New sale</h2>
-          {nextInvoiceNo ? (
-            <span className="text-[12px] text-ink-muted" title="The number is given when the invoice is saved — if someone else saves one first, this one takes the next number.">
-              Invoice no. <span className="num font-medium text-ink">{nextInvoiceNo}</span> (given on save)
-            </span>
-          ) : null}
-          {loading ? <Spinner /> : null}
-        </div>
-
-        <Card className="grid grid-cols-[2fr_1fr_1fr] gap-4 p-4">
+    <Workspace
+      panel={
+        <WorkspacePanel
+          title="Invoice details"
+          footer={
+            <>
+              <div className="space-y-1 text-label">
+                <Row label="Value before discount" value={t ? formatINR(t.grossPaise) : "—"} />
+                {t && t.discountPaise > 0 ? <Row label="Discount" value={`−${formatINR(t.discountPaise)}`} /> : null}
+                {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
+                <Row label="Taxable value" value={t ? formatINR(t.taxablePaise) : "—"} strong />
+                {t && t.supplyType === "INTRA_STATE" ? (
+                  <>
+                    <Row label="CGST" value={formatINR(t.cgstPaise)} />
+                    <Row label="SGST" value={formatINR(t.sgstPaise)} />
+                  </>
+                ) : t ? (
+                  <Row label="IGST" value={formatINR(t.igstPaise)} />
+                ) : null}
+                {t && t.roundOffPaise !== 0 ? <Row label="Round off" value={`${t.roundOffPaise > 0 ? "+" : "−"}${formatINR(Math.abs(t.roundOffPaise))}`} /> : null}
+              </div>
+              <div className="border-t border-line pt-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-semibold text-ink">Invoice total</span>
+                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.grandTotalPaise) : "—"}</span>
+                </div>
+                {t ? <p className="mt-0.5 text-caption text-ink-muted">{amountInWords(t.grandTotalPaise)}</p> : null}
+              </div>
+              {t && paidNow > 0 ? (
+                <div className="space-y-1 text-label">
+                  <Row label="Paid now" value={formatINR(paidNow)} />
+                  {paidNow < t.grandTotalPaise ? <Row label="Left on credit" value={formatINR(t.grandTotalPaise - paidNow)} /> : null}
+                </div>
+              ) : null}
+              {error ? <Banner tone="danger">{error}</Banner> : null}
+              {problem ? <p className="text-label text-ink-muted">{problem}</p> : null}
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={() => navigate("/sales")} disabled={busy}>
+                  Cancel
+                </Button>
+                <Button variant="primary" className="flex-1" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
+                  {busy ? "Saving…" : "Save invoice"}
+                </Button>
+              </div>
+            </>
+          }
+        >
           <Field label="Customer" htmlFor="ns-customer">
-            <SearchPicker
-              id="ns-customer"
-              items={customers}
-              value={customer}
-              onChange={(c) => setCustomerId(c?.id ?? null)}
-              keyOf={(c) => c.id}
-              labelOf={(c) => c.name}
-              searchOf={(c) => `${c.name} ${c.gstin ?? ""} ${c.address.city} ${c.phones.join(" ")}`.toLowerCase()}
-              meta={(c) => [c.address.city, c.priceTier ?? "no price list"].filter(Boolean).join(" · ")}
-              placeholder="Type a name, GSTIN or city"
-              autoFocus={!customerId}
-            />
+            <div className="[&_[role=listbox]]:max-w-full">
+              <SearchPicker
+                id="ns-customer"
+                items={customers}
+                value={customer}
+                onChange={(c) => setCustomerId(c?.id ?? null)}
+                keyOf={(c) => c.id}
+                labelOf={(c) => c.name}
+                searchOf={(c) => `${c.name} ${c.gstin ?? ""} ${c.address.city} ${c.phones.join(" ")}`.toLowerCase()}
+                meta={(c) => [c.address.city, c.priceTier ?? "no price list"].filter(Boolean).join(" · ")}
+                placeholder="Type a name, GSTIN or city"
+                autoFocus={!customerId}
+              />
+            </div>
           </Field>
-          <Field label="Invoice date" htmlFor="ns-date">
-            <Input id="ns-date" type="date" value={invoiceDate} max={today} onChange={(e) => e.target.value && setInvoiceDate(e.target.value)} />
-          </Field>
-          <div className="space-y-1 text-[12px]">
+          <div className="space-y-1 text-label">
             <p className="font-medium text-ink">Billed as</p>
             {customer ? (
               <>
-                <p>
-                  {tier ? <Badge tone="info">{tier} price list</Badge> : <Badge tone="danger">No price list</Badge>}{" "}
-                  {placeOfSupply && GST_STATES[placeOfSupply] ? (
-                    <Badge>{placeOfSupply === seller?.stateCode ? "CGST + SGST" : "IGST"}</Badge>
-                  ) : (
-                    <Badge tone="danger">No state</Badge>
-                  )}
+                <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-ink">
+                  {tier ? <span>{tier} price list</span> : <Badge tone="danger">No price list</Badge>}
+                  <span className="text-ink-faint" aria-hidden>
+                    ·
+                  </span>
+                  {placeOfSupply && GST_STATES[placeOfSupply] ? <span>{placeOfSupply === seller?.stateCode ? "CGST + SGST" : "IGST"}</span> : <Badge tone="danger">No state</Badge>}
                 </p>
                 <p className="text-ink-muted">
                   {placeOfSupply ? GST_STATES[placeOfSupply] ?? placeOfSupply : "—"}
@@ -324,294 +356,293 @@ export function NewSaleScreen() {
               <p className="text-ink-muted">Choose a customer</p>
             )}
           </div>
-        </Card>
-
-        <Card className="p-0">
-          <table className="w-full border-collapse text-[13px]">
-            <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-              <tr className="border-b border-line">
-                <th className="py-2 pr-2 pl-3 font-medium">Product</th>
-                <th className="w-20 py-2 pr-2 font-medium">Packs</th>
-                <th className="w-28 py-2 pr-2 text-right font-medium">Price / pack</th>
-                <th className="w-20 py-2 pr-2 font-medium">Disc. %</th>
-                <th className="w-28 py-2 pr-2 text-right font-medium">Taxable</th>
-                <th className="w-14 py-2 pr-2 text-right font-medium">GST</th>
-                <th className="w-28 py-2 pr-2 text-right font-medium">Amount</th>
-                <th className="w-10 py-2 pr-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {lines.map((l, idx) => {
-                const pl = pricedLine(l);
-                const err = lineError(l);
-                const pool = l.product ? `pool_${l.product.productKey}` : null;
-                const packQtyMilli = l.product ? toMilli(l.product.packQty) : 0;
-                const left = pool && packQtyMilli > 0 ? packsAvailable(Math.max(shortPools.onHand.get(pool) ?? 0, 0), packQtyMilli) : null;
-                const listPrice = l.product && tier ? tierPrice(toSaleProduct(l.product), tier) : null;
-                return (
-                  <tr key={l.key} className="border-b border-line/70 align-top">
-                    <td className="py-2 pr-2 pl-3">
-                      <SearchPicker
-                        items={productList}
-                        value={l.product}
-                        onChange={(p) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, product: p } : x)))}
-                        keyOf={(p) => p.sku}
-                        labelOf={(p) => `${[p.name, p.grade].filter(Boolean).join(" ")} · ${p.packLabel}`}
-                        searchOf={(p) => `${p.name} ${p.grade} ${p.packLabel} ${p.sku}`.toLowerCase()}
-                        meta={(p) => {
-                          const price = tier ? tierPrice(toSaleProduct(p), tier) : null;
-                          return price === null ? "no price" : `${formatINR(price)} ${p.pricePer ?? ""}`;
-                        }}
-                        placeholder={`Line ${idx + 1}: type a product`}
-                        autoFocus={idx > 0 && !l.product}
-                      />
-                      <div className="mt-1 flex flex-wrap gap-x-3 text-2xs">
-                        {l.product && listPrice !== null ? <span className="text-ink-faint">{formatINR(listPrice)} {l.product.pricePer}</span> : null}
-                        {l.product && !l.product.hsnCode ? <span className="text-warning">No HSN code</span> : null}
-                        {pool && shortPools.short.has(pool) ? <span className="text-warning">Stock short — {left} pack{left === 1 ? "" : "s"} in stock</span> : null}
-                        {err ? <span className="text-danger">{err}</span> : null}
-                      </div>
-                    </td>
-                    <td className="py-2 pr-2">
-                      <Input value={l.packs} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, packs: e.target.value } : x)))} inputMode="numeric" className="num" aria-label={`Line ${idx + 1} packs`} />
-                    </td>
-                    <td className="num py-2 pr-2 text-right">
-                      {isAdmin && l.product && noListPrice(l.product) ? (
-                        <>
-                          <Input
-                            value={l.manualPrice}
-                            onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, manualPrice: e.target.value } : x)))}
-                            inputMode="decimal"
-                            placeholder="₹ / pack"
-                            className="num text-right"
-                            aria-label={`Line ${idx + 1} price for one pack, this sale only`}
-                          />
-                          <span className="mt-1 block text-2xs text-ink-faint">this sale only</span>
-                        </>
-                      ) : pl ? (
-                        formatINR(pl.packPricePaise)
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="py-2 pr-2">
-                      <Input value={l.discount} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, discount: e.target.value } : x)))} inputMode="decimal" placeholder="0" className="num" aria-label={`Line ${idx + 1} discount percent`} />
-                    </td>
-                    <td className="num py-2 pr-2 text-right">{pl ? formatINR(pl.taxablePaise) : "—"}</td>
-                    <td className="num py-2 pr-2 text-right text-ink-muted">{pl ? formatRate(pl.gstRateBp) : ""}</td>
-                    <td className="num py-2 pr-2 text-right font-medium">{pl ? formatINR(pl.totalPaise) : "—"}</td>
-                    <td className="py-2 pr-3 text-right">
-                      {lines.length > 1 ? (
-                        <Button size="sm" variant="ghost" className="px-1.5" aria-label={`Remove line ${idx + 1}`} onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      ) : null}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="px-3 py-2">
-            <Button
-              size="sm"
-              icon={<Plus className="size-3.5" />}
-              onClick={() => {
-                setLines((ls) => [...ls, { key: nextKey, ...EMPTY_LINE }]);
-                setNextKey((k) => k + 1);
-              }}
-            >
-              Add line
-            </Button>
-          </div>
-        </Card>
-
-        <div className="grid grid-cols-[1fr_360px] gap-4">
-          <Card className="space-y-3 p-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Freight charged (₹, before GST)" htmlFor="ns-freight" help="Taxed at the goods' GST rate.">
-                <Input id="ns-freight" value={freight} onChange={(e) => setFreight(e.target.value)} inputMode="decimal" placeholder="0" className="num" />
-              </Field>
-              <Field label="Note on the invoice" htmlFor="ns-note">
-                <Input id="ns-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., order ref." />
-              </Field>
-            </div>
-            <div className="space-y-2">
-              <p className="text-[12px] font-medium text-ink">
-                Dispatch <span className="font-normal text-ink-muted">— printed on the invoice; all optional</span>
-              </p>
-              <div className="grid grid-cols-4 gap-3">
-                <Field label="Transport" htmlFor="ns-transport">
-                  <Input id="ns-transport" value={transport} onChange={(e) => setTransport(e.target.value)} maxLength={60} placeholder="e.g. Sample Cargo" />
-                </Field>
-                <Field label="Vehicle No." htmlFor="ns-vehicle">
-                  <Input id="ns-vehicle" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value.toUpperCase())} maxLength={15} placeholder="HR99X0001" className="uppercase" />
-                </Field>
-                <Field label="Station" htmlFor="ns-station">
-                  <Input id="ns-station" value={station} onChange={(e) => setStation(e.target.value)} maxLength={40} placeholder="e.g. Jagadhri" />
-                </Field>
-                <Field label="E-Way Bill No." htmlFor="ns-eway">
-                  <Input id="ns-eway" value={ewayBillNo} onChange={(e) => setEwayBillNo(e.target.value)} inputMode="numeric" maxLength={14} placeholder="12 digits" className="num" />
-                </Field>
-              </div>
-              {customer?.isWalkIn ? (
-                <p className="text-[12px] text-ink-muted">A walk-in sale can't be shipped to another address. Bill it to a saved customer to ship elsewhere.</p>
-              ) : (
-                <label className="flex items-center gap-2 text-[12px] text-ink">
-                  <input type="checkbox" checked={shipElsewhere} onChange={(e) => setShipElsewhere(e.target.checked)} className="size-3.5 accent-brand-orange" />
-                  Ship to a different address <span className="text-ink-muted">(GST still follows the billed-to customer's state)</span>
-                </label>
-              )}
-              {shipElsewhere && !customer?.isWalkIn ? (
-                <div className="grid grid-cols-3 gap-3 rounded-lg bg-canvas px-3 py-3">
-                  <Field label="Ship to (name)" htmlFor="ns-ship-name">
-                    <Input id="ns-ship-name" value={ship.name} onChange={(e) => setShip((x) => ({ ...x, name: e.target.value }))} maxLength={120} />
-                  </Field>
-                  <Field label="Address" htmlFor="ns-ship-address">
-                    <Input id="ns-ship-address" value={ship.address} onChange={(e) => setShip((x) => ({ ...x, address: e.target.value }))} maxLength={200} placeholder="Shop / street" />
-                  </Field>
-                  <Field label="City" htmlFor="ns-ship-city">
-                    <Input id="ns-ship-city" value={ship.city} onChange={(e) => setShip((x) => ({ ...x, city: e.target.value }))} maxLength={60} />
-                  </Field>
-                  <Field label="State" htmlFor="ns-ship-state">
-                    <Select id="ns-ship-state" value={ship.stateCode || placeOfSupply || ""} onChange={(e) => setShip((x) => ({ ...x, stateCode: e.target.value }))}>
-                      <option value="">Choose…</option>
-                      {STATES.map(([c, l]) => (
-                        <option key={c} value={c}>
-                          {l} ({c})
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
-                  <Field label="PIN code" htmlFor="ns-ship-pin">
-                    <Input id="ns-ship-pin" value={ship.pincode} onChange={(e) => setShip((x) => ({ ...x, pincode: e.target.value }))} inputMode="numeric" maxLength={6} />
-                  </Field>
-                  <Field label="GSTIN (optional)" htmlFor="ns-ship-gstin">
-                    <Input id="ns-ship-gstin" value={ship.gstin} onChange={(e) => setShip((x) => ({ ...x, gstin: e.target.value.toUpperCase() }))} maxLength={15} className="font-mono uppercase" />
-                  </Field>
-                </div>
-              ) : null}
-            </div>
-            {customer?.isWalkIn ? (
-              <div className="space-y-2">
-                <p className="text-[12px] font-medium text-ink">
-                  Buyer on the invoice{" "}
-                  <span className="font-normal text-ink-muted">
-                    {t && t.taxablePaise >= WALK_IN_BUYER_NEEDED_FROM_PAISE
-                      ? "— name and address needed for a bill of ₹50,000 or more (before GST)"
-                      : "— optional; name and address needed from ₹50,000 (before GST)"}
-                  </span>
+          {overLimit ? (
+            <Banner tone="warning">
+              This takes {customer!.name} over their credit limit of {formatINR(customer!.creditLimitPaise!)} (they owe {formatINR(balance!)} now).
+            </Banner>
+          ) : null}
+          {customer?.isWalkIn ? (
+            <div className="space-y-3">
+              <div>
+                <p className="text-label font-medium text-ink">Buyer on the invoice</p>
+                <p className="mt-0.5 text-caption text-ink-subtle">
+                  {t && t.taxablePaise >= WALK_IN_BUYER_NEEDED_FROM_PAISE
+                    ? "Name and address needed for a bill of ₹50,000 or more (before GST)"
+                    : "Optional; name and address needed from ₹50,000 (before GST)"}
                 </p>
-                <div className="grid grid-cols-[1fr_1fr_2fr] gap-3">
-                  <Field label="Name" htmlFor="ns-buyer-name">
-                    <Input id="ns-buyer-name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} maxLength={100} placeholder="e.g. Ravi Kumar" />
-                  </Field>
-                  <Field label="Phone" htmlFor="ns-buyer-phone">
-                    <Input id="ns-buyer-phone" value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} maxLength={20} inputMode="tel" placeholder="Optional" />
-                  </Field>
-                  <Field label="Address" htmlFor="ns-buyer-address">
-                    <Input id="ns-buyer-address" value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} maxLength={200} placeholder="Shop / street, city" />
-                  </Field>
-                </div>
               </div>
-            ) : null}
-            <div className="space-y-2">
-              <p className="text-[12px] font-medium text-ink">
-                Paid now {customer?.isWalkIn ? <span className="font-normal text-ink-muted">— a walk-in pays the full amount</span> : <span className="font-normal text-ink-muted">— leave empty if on credit</span>}
-              </p>
-              {pays.map((p, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Select value={p.registerId} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, registerId: e.target.value } : x)))} aria-label={`Payment ${i + 1} into`} className="w-52">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Name" htmlFor="ns-buyer-name">
+                  <Input id="ns-buyer-name" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} maxLength={100} placeholder="e.g. Ravi Kumar" />
+                </Field>
+                <Field label="Phone" htmlFor="ns-buyer-phone">
+                  <Input id="ns-buyer-phone" value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} maxLength={20} inputMode="tel" placeholder="Optional" />
+                </Field>
+              </div>
+              <Field label="Address" htmlFor="ns-buyer-address">
+                <Input id="ns-buyer-address" value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} maxLength={200} placeholder="Shop / street, city" />
+              </Field>
+            </div>
+          ) : null}
+          <Field label="Invoice date" htmlFor="ns-date">
+            <Input id="ns-date" type="date" value={invoiceDate} max={today} onChange={(e) => e.target.value && setInvoiceDate(e.target.value)} />
+          </Field>
+          <Field label="Freight charged (before GST)" htmlFor="ns-freight" help="Taxed at the goods' GST rate.">
+            <MoneyInput id="ns-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
+          </Field>
+          <Field label="Note on the invoice" htmlFor="ns-note">
+            <Input id="ns-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., order ref." />
+          </Field>
+          <div className="space-y-2">
+            <div>
+              <p className="text-label font-medium text-ink">Paid now</p>
+              <p className="mt-0.5 text-caption text-ink-subtle">{customer?.isWalkIn ? "A walk-in pays the full amount" : "Leave empty if on credit"}</p>
+            </div>
+            {pays.map((p, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Select value={p.registerId} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, registerId: e.target.value } : x)))} aria-label={`Payment ${i + 1} into`} className="min-w-0 flex-1">
                     {regs.map((r) => (
                       <option key={r.id} value={r.id}>
                         {r.name}
                       </option>
                     ))}
                   </Select>
-                  <Input value={p.amount} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} inputMode="decimal" placeholder="Amount ₹" className="num w-40" aria-label={`Payment ${i + 1} amount`} />
-                  {t && pays.length === 1 ? (
+                  <MoneyInput value={p.amount} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="Amount" className="w-28 shrink-0" aria-label={`Payment ${i + 1} amount`} />
+                  <IconButton size="sm" label={`Remove payment ${i + 1}`} onClick={() => setPays((ps) => ps.filter((_, j) => j !== i))}>
+                    <Trash2 />
+                  </IconButton>
+                </div>
+                {t && pays.length === 1 ? (
+                  <div className="flex justify-end">
                     <Button size="sm" variant="ghost" onClick={() => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: String(t.grandTotalPaise / 100) } : x)))}>
                       Full amount
                     </Button>
-                  ) : null}
-                  <Button size="sm" variant="ghost" className="px-1.5" aria-label={`Remove payment ${i + 1}`} onClick={() => setPays((ps) => ps.filter((_, j) => j !== i))}>
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                </div>
-              ))}
-              {pays.length < 2 && regs.length > 0 ? (
-                <Button size="sm" icon={<Plus className="size-3.5" />} onClick={() => setPays((ps) => [...ps, { registerId: regs.find((r) => !ps.some((x) => x.registerId === r.id))?.id ?? regs[0]!.id, amount: "" }])}>
-                  {pays.length === 0 ? "Add payment received now" : "Split: add a second payment"}
-                </Button>
-              ) : null}
-            </div>
-          </Card>
-
-          <Card className="space-y-1.5 p-4 text-[13px]">
-            <Row label="Value before discount" value={t ? formatINR(t.grossPaise) : "—"} />
-            {t && t.discountPaise > 0 ? <Row label="Discount" value={`−${formatINR(t.discountPaise)}`} /> : null}
-            {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
-            <Row label="Taxable value" value={t ? formatINR(t.taxablePaise) : "—"} strong />
-            {t && t.supplyType === "INTRA_STATE" ? (
-              <>
-                <Row label="CGST" value={formatINR(t.cgstPaise)} />
-                <Row label="SGST" value={formatINR(t.sgstPaise)} />
-              </>
-            ) : t ? (
-              <Row label="IGST" value={formatINR(t.igstPaise)} />
+                  </div>
+                ) : null}
+              </div>
+            ))}
+            {pays.length < 2 && regs.length > 0 ? (
+              <Button size="sm" icon={<Plus />} onClick={() => setPays((ps) => [...ps, { registerId: regs.find((r) => !ps.some((x) => x.registerId === r.id))?.id ?? regs[0]!.id, amount: "" }])}>
+                {pays.length === 0 ? "Add payment received now" : "Split: add a second payment"}
+              </Button>
             ) : null}
-            {t && t.roundOffPaise !== 0 ? <Row label="Round off" value={`${t.roundOffPaise > 0 ? "+" : "−"}${formatINR(Math.abs(t.roundOffPaise))}`} /> : null}
-            <div className="flex items-baseline justify-between border-t border-line pt-2">
-              <span className="font-semibold text-ink">Invoice total</span>
-              <span className="num text-[20px] font-semibold text-ink">{t ? formatINR(t.grandTotalPaise) : "—"}</span>
-            </div>
-            {t ? <p className="text-2xs text-ink-muted">{amountInWords(t.grandTotalPaise)}</p> : null}
-            {t && paidNow > 0 ? <Row label="Paid now" value={formatINR(paidNow)} /> : null}
-            {t && paidNow > 0 && paidNow < t.grandTotalPaise ? <Row label="Left on credit" value={formatINR(t.grandTotalPaise - paidNow)} /> : null}
-          </Card>
+          </div>
+        </WorkspacePanel>
+      }
+    >
+      <div className="@container px-8 pt-6 pb-10">
+        <PageHeader
+          back={{ to: "/sales", label: "Sales" }}
+          title="New sale"
+          badge={loading ? <Spinner /> : null}
+          subtitle={
+            nextInvoiceNo ? (
+              <span title="The number is given when the invoice is saved — if someone else saves one first, this one takes the next number.">
+                Invoice no. <span className="num font-medium text-ink">{nextInvoiceNo}</span> (given on save)
+              </span>
+            ) : undefined
+          }
+        />
+
+        <table className={clsx(tableClass.table, "min-w-[36rem]")}>
+          <thead>
+            <tr>
+              <th scope="col" className={clsx(lineTh, "text-left")}>
+                Product
+              </th>
+              <th scope="col" className={clsx(lineTh, "w-18 text-left")}>
+                Packs
+              </th>
+              <th scope="col" className={clsx(lineTh, "w-30 text-right")}>
+                Price / pack
+              </th>
+              <th scope="col" className={clsx(lineTh, "w-18 text-left")}>
+                Disc. %
+              </th>
+              <th scope="col" className={clsx(lineTh, "hidden w-28 text-right @4xl:table-cell")}>
+                Taxable
+              </th>
+              <th scope="col" className={clsx(lineTh, "hidden w-14 text-right @4xl:table-cell")}>
+                GST
+              </th>
+              <th scope="col" className={clsx(lineTh, "w-28 text-right")}>
+                Amount
+              </th>
+              <th scope="col" className={clsx(lineTh, "w-9")} />
+            </tr>
+          </thead>
+          <tbody>
+            {lines.map((l, idx) => {
+              const pl = pricedLine(l);
+              const err = lineError(l);
+              const pool = l.product ? `pool_${l.product.productKey}` : null;
+              const packQtyMilli = l.product ? toMilli(l.product.packQty) : 0;
+              const left = pool && packQtyMilli > 0 ? packsAvailable(Math.max(shortPools.onHand.get(pool) ?? 0, 0), packQtyMilli) : null;
+              const listPrice = l.product && tier ? tierPrice(toSaleProduct(l.product), tier) : null;
+              return (
+                <tr key={l.key}>
+                  <td className={lineTd}>
+                    <SearchPicker
+                      items={productList}
+                      value={l.product}
+                      onChange={(p) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, product: p } : x)))}
+                      keyOf={(p) => p.sku}
+                      labelOf={(p) => `${[p.name, p.grade].filter(Boolean).join(" ")} · ${p.packLabel}`}
+                      searchOf={(p) => `${p.name} ${p.grade} ${p.packLabel} ${p.sku}`.toLowerCase()}
+                      meta={(p) => {
+                        const price = tier ? tierPrice(toSaleProduct(p), tier) : null;
+                        return price === null ? "no price" : `${formatINR(price)} ${p.pricePer ?? ""}`;
+                      }}
+                      placeholder={`Line ${idx + 1}: type a product`}
+                      autoFocus={idx > 0 && !l.product}
+                    />
+                    <div className="mt-1 flex flex-wrap gap-x-3 text-caption empty:hidden">
+                      {l.product && listPrice !== null ? <span className="text-ink-subtle">{formatINR(listPrice)} {l.product.pricePer}</span> : null}
+                      {pl ? (
+                        <span className="num text-ink-subtle @4xl:hidden">
+                          Taxable {formatINR(pl.taxablePaise)} · GST {formatRate(pl.gstRateBp)}
+                        </span>
+                      ) : null}
+                      {l.product && !l.product.hsnCode ? <span className="text-warning">No HSN code</span> : null}
+                      {pool && shortPools.short.has(pool) ? <span className="text-warning">Stock short — {left} pack{left === 1 ? "" : "s"} in stock</span> : null}
+                      {err ? <span className="text-danger">{err}</span> : null}
+                    </div>
+                  </td>
+                  <td className={lineTd}>
+                    <Input value={l.packs} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, packs: e.target.value } : x)))} inputMode="numeric" className="num" aria-label={`Line ${idx + 1} packs`} />
+                  </td>
+                  <td className={clsx(lineTd, "num text-right leading-8")}>
+                    {isAdmin && l.product && noListPrice(l.product) ? (
+                      <>
+                        <MoneyInput
+                          value={l.manualPrice}
+                          onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, manualPrice: e.target.value } : x)))}
+                          placeholder="per pack"
+                          aria-label={`Line ${idx + 1} price for one pack, this sale only`}
+                        />
+                        <span className="mt-1 block text-caption text-ink-subtle">this sale only</span>
+                      </>
+                    ) : pl ? (
+                      formatINR(pl.packPricePaise)
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className={lineTd}>
+                    <Input value={l.discount} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, discount: e.target.value } : x)))} inputMode="decimal" placeholder="0" className="num" aria-label={`Line ${idx + 1} discount percent`} />
+                  </td>
+                  <td className={clsx(lineTd, "num hidden text-right leading-8 @4xl:table-cell")}>{pl ? formatINR(pl.taxablePaise) : "—"}</td>
+                  <td className={clsx(lineTd, "num hidden text-right leading-8 text-ink-muted @4xl:table-cell")}>{pl ? formatRate(pl.gstRateBp) : ""}</td>
+                  <td className={clsx(lineTd, "num text-right leading-8 font-medium")}>{pl ? formatINR(pl.totalPaise) : "—"}</td>
+                  <td className={lineTd}>
+                    {lines.length > 1 ? (
+                      <div className="flex h-8 items-center justify-end">
+                        <IconButton size="sm" label={`Remove line ${idx + 1}`} onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
+                          <Trash2 />
+                        </IconButton>
+                      </div>
+                    ) : null}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className="mt-3">
+          <Button
+            size="sm"
+            icon={<Plus />}
+            onClick={() => {
+              setLines((ls) => [...ls, { key: nextKey, ...EMPTY_LINE }]);
+              setNextKey((k) => k + 1);
+            }}
+          >
+            Add line
+          </Button>
         </div>
 
         {priced?.ok && priced.missingHsn.length > 0 ? (
-          <Warn>
+          <Banner tone="warning" className="mt-4">
             {priced.missingHsn.length} product{priced.missingHsn.length === 1 ? " has" : "s have"} no HSN code yet — the invoice can still go out (codes are awaited from the CA; GST is 18% for now).
-          </Warn>
+          </Banner>
         ) : null}
-        {shortPools.short.size > 0 ? <Warn>Some products are short in stock — the sale is still recorded and stock goes below zero.</Warn> : null}
-        {overLimit ? (
-          <Warn>
-            This takes {customer!.name} over their credit limit of {formatINR(customer!.creditLimitPaise!)} (they owe {formatINR(balance!)} now).
-          </Warn>
+        {shortPools.short.size > 0 ? (
+          <Banner tone="warning" className="mt-4">
+            Some products are short in stock — the sale is still recorded and stock goes below zero.
+          </Banner>
         ) : null}
-        {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
 
-        <div className="flex items-center justify-end gap-2 pb-6">
-          {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}
-          <Button variant="ghost" onClick={() => navigate("/sales")} disabled={busy}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
-            Save invoice
-          </Button>
-        </div>
+        <Section title="Dispatch" description="Printed on the invoice; all optional">
+          <div className="grid grid-cols-2 gap-4 @xl:grid-cols-4">
+            <Field label="Transport" htmlFor="ns-transport">
+              <Input id="ns-transport" value={transport} onChange={(e) => setTransport(e.target.value)} maxLength={60} placeholder="e.g. Sample Cargo" />
+            </Field>
+            <Field label="Vehicle no." htmlFor="ns-vehicle">
+              <Input id="ns-vehicle" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value.toUpperCase())} maxLength={15} placeholder="HR99X0001" />
+            </Field>
+            <Field label="Station" htmlFor="ns-station">
+              <Input id="ns-station" value={station} onChange={(e) => setStation(e.target.value)} maxLength={40} placeholder="e.g. Jagadhri" />
+            </Field>
+            <Field label="E-way bill no." htmlFor="ns-eway">
+              <Input id="ns-eway" value={ewayBillNo} onChange={(e) => setEwayBillNo(e.target.value)} inputMode="numeric" maxLength={14} placeholder="12 digits" className="num" />
+            </Field>
+          </div>
+          <div className="mt-4">
+            {customer?.isWalkIn ? (
+              <p className="text-label text-ink-muted">A walk-in sale can't be shipped to another address. Bill it to a saved customer to ship elsewhere.</p>
+            ) : (
+              <Checkbox
+                checked={shipElsewhere}
+                onChange={(e) => setShipElsewhere(e.target.checked)}
+                label={
+                  <span>
+                    Ship to a different address <span className="text-ink-muted">(GST still follows the billed-to customer's state)</span>
+                  </span>
+                }
+              />
+            )}
+          </div>
+          {shipElsewhere && !customer?.isWalkIn ? (
+            <div className="mt-4 grid grid-cols-2 gap-4 @xl:grid-cols-3">
+              <Field label="Ship to (name)" htmlFor="ns-ship-name">
+                <Input id="ns-ship-name" value={ship.name} onChange={(e) => setShip((x) => ({ ...x, name: e.target.value }))} maxLength={120} />
+              </Field>
+              <Field label="Address" htmlFor="ns-ship-address">
+                <Input id="ns-ship-address" value={ship.address} onChange={(e) => setShip((x) => ({ ...x, address: e.target.value }))} maxLength={200} placeholder="Shop / street" />
+              </Field>
+              <Field label="City" htmlFor="ns-ship-city">
+                <Input id="ns-ship-city" value={ship.city} onChange={(e) => setShip((x) => ({ ...x, city: e.target.value }))} maxLength={60} />
+              </Field>
+              <Field label="State" htmlFor="ns-ship-state">
+                <Select id="ns-ship-state" value={ship.stateCode || placeOfSupply || ""} onChange={(e) => setShip((x) => ({ ...x, stateCode: e.target.value }))}>
+                  <option value="">Choose…</option>
+                  {STATES.map(([c, l]) => (
+                    <option key={c} value={c}>
+                      {l} ({c})
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="PIN code" htmlFor="ns-ship-pin">
+                <Input id="ns-ship-pin" value={ship.pincode} onChange={(e) => setShip((x) => ({ ...x, pincode: e.target.value }))} inputMode="numeric" maxLength={6} />
+              </Field>
+              <Field label="GSTIN" optional htmlFor="ns-ship-gstin">
+                <Input id="ns-ship-gstin" value={ship.gstin} onChange={(e) => setShip((x) => ({ ...x, gstin: e.target.value.toUpperCase() }))} maxLength={15} className="font-mono" />
+              </Field>
+            </div>
+          ) : null}
+        </Section>
       </div>
-    </div>
+    </Workspace>
   );
 }
 
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="flex items-baseline justify-between">
+    <div className="flex items-baseline justify-between gap-3">
       <span className={clsx(strong ? "font-medium text-ink" : "text-ink-muted")}>{label}</span>
-      <span className={clsx("num", strong ? "font-medium text-ink" : "text-ink")}>{value}</span>
+      <span className={clsx("num text-ink", strong && "font-medium")}>{value}</span>
     </div>
-  );
-}
-
-function Warn({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="flex items-start gap-2 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-      <span>{children}</span>
-    </p>
   );
 }

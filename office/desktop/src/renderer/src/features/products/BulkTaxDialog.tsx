@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button, Field, Input, Select } from "@/components/ui";
-import { Modal } from "@/features/entities/EntityDetail";
+import { Banner, Button, Dialog, Field, Input, Select } from "@/components/ui";
 import type { Product } from "@/services/productService";
 import { GST_SLABS, setProductsTax } from "@/services/productEditService";
 
@@ -65,25 +64,44 @@ export function BulkTaxDialog({ products, onClose }: { products: Product[]; onCl
 
   if (done) {
     return (
-      <Modal title="GST / HSN changed" onClose={onClose} busy={false}>
-        <p className="text-[13px] text-ink">{done}</p>
-        <p className="text-[12px] text-ink-muted">New sales use the new values. Invoices already made keep the GST and HSN they were billed with.</p>
-        <div className="flex justify-end">
+      <Dialog
+        title="GST / HSN changed"
+        onClose={onClose}
+        footer={
           <Button variant="primary" onClick={onClose}>
             Done
           </Button>
-        </div>
-      </Modal>
+        }
+      >
+        <p className="text-body text-ink">{done}</p>
+        <p className="text-label text-ink-muted">New sales use the new values. Invoices already made keep the GST and HSN they were billed with.</p>
+      </Dialog>
     );
   }
 
   return (
-    <Modal title={`Change GST / HSN for ${products.length.toLocaleString("en-IN")} product${products.length === 1 ? "" : "s"}`} onClose={onClose} busy={busy}>
-      <p className="text-[12px] text-ink-muted">
+    <Dialog
+      title={`Change GST / HSN for ${products.length.toLocaleString("en-IN")} product${products.length === 1 ? "" : "s"}`}
+      onClose={onClose}
+      busy={busy}
+      size="md"
+      footer={
+        <>
+          {problem ? <span className="mr-auto text-caption text-ink-muted">{problem}</span> : null}
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
+            {busy ? "Changing…" : `Change ${preview.any.toLocaleString("en-IN")} product${preview.any === 1 ? "" : "s"}`}
+          </Button>
+        </>
+      }
+    >
+      <p className="text-label text-ink-muted">
         This changes every product shown on the screen now
         {preview.rates.length ? ` (now: ${preview.rates.map(([r, n]) => `${n} at ${r}%`).join(", ")})` : ""}. Filter the list first — for example one category — to change only those. HSN codes usually differ by product type, so set them one group at a time.
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <Field label="GST %" htmlFor="bt-gst">
           <Select id="bt-gst" value={gst} onChange={(e) => setGst(e.target.value as typeof gst)}>
             <option value="keep">Keep as it is</option>
@@ -102,35 +120,22 @@ export function BulkTaxDialog({ products, onClose }: { products: Product[]; onCl
           </Select>
         </Field>
         {hsnMode === "set" ? (
-          <Field label="New HSN code" htmlFor="bt-hsn" error={hsn.trim() && hsnBad ? "4, 6 or 8 digits" : undefined}>
+          <Field label="New HSN code" htmlFor="bt-hsn" error={hsn.trim() && hsnBad ? "4, 6 or 8 digits" : undefined} className="col-start-2">
             <Input id="bt-hsn" value={hsn} onChange={(e) => setHsn(e.target.value.replace(/\D/g, ""))} inputMode="numeric" maxLength={8} className="num" placeholder="e.g. 27101980" />
           </Field>
         ) : null}
-        <Field label="Reason" htmlFor="bt-reason">
-          <Input id="bt-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={200} placeholder="Optional — e.g. rates from the CA" />
+        <Field label="Reason" htmlFor="bt-reason" optional className="col-span-2">
+          <Input id="bt-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={200} placeholder="e.g. rates from the CA" />
         </Field>
       </div>
       {!problem ? (
-        <p className="rounded-md bg-canvas px-3 py-2 text-[13px] text-ink">
+        <Banner tone="info">
           {preview.any.toLocaleString("en-IN")} product{preview.any === 1 ? "" : "s"} will change
           {gstPct !== undefined ? ` · GST to ${gstPct}% on ${preview.gstChanges.toLocaleString("en-IN")}` : ""}
           {hsnValue !== undefined ? ` · HSN ${hsnValue === null ? "removed" : `set to ${hsnValue}`} on ${preview.hsnChanges.toLocaleString("en-IN")}` : ""}. Invoices already made don't change.
-        </p>
+        </Banner>
       ) : null}
-      {error ? (
-        <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
-          {error}
-        </p>
-      ) : null}
-      <div className="flex items-center justify-end gap-2">
-        {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}
-        <Button variant="ghost" onClick={onClose} disabled={busy}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
-          Change {preview.any.toLocaleString("en-IN")} product{preview.any === 1 ? "" : "s"}
-        </Button>
-      </div>
-    </Modal>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }

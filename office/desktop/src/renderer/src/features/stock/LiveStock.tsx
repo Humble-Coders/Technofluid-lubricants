@@ -1,9 +1,25 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, Boxes, Pencil, Plus, Search, Trash2, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { AlertTriangle, Boxes, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatQuantity, indiaDate, parseQuantityToMilli } from "@technofluid/core";
-import { Badge, Button, EmptyState, Input, Segmented, Spinner } from "@/components/ui";
+import {
+  Badge,
+  Banner,
+  Button,
+  Dialog,
+  EmptyState,
+  ErrorState,
+  Field,
+  FilterPill,
+  FilterSelect,
+  IconButton,
+  Input,
+  LoadingState,
+  Menu,
+  SearchInput,
+  Section,
+} from "@/components/ui";
 import { useMovements } from "@/hooks/useStock";
 import type { LoadState } from "@/hooks/useProducts";
 import type { Product } from "@/services/productService";
@@ -55,19 +71,20 @@ export function LiveStock({
   return (
     <div className="flex min-h-0 flex-1">
       <section className="flex min-w-0 flex-1 flex-col">
-        <div className="flex shrink-0 flex-wrap items-center gap-2 bg-surface px-5 py-2.5">
-          <Input
+        <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2">
+          <SearchInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+            onClear={() => setSearch("")}
             placeholder="Search"
-            leading={<Search className="size-3.5" />}
-            className="w-[260px]"
+            className="w-64"
             aria-label="Search stock"
           />
-          <Segmented
+          <FilterSelect
+            label="Kind"
             value={kind}
-            onChange={setKind}
+            onChange={(v) => setKind(v as KindFilter)}
             options={[
               ["all", "All"],
               ["product_pool", "Products"],
@@ -78,21 +95,15 @@ export function LiveStock({
             ]}
           />
           {belowZeroCount > 0 || belowZeroOnly ? (
-            <Button
-              size="sm"
-              variant={belowZeroOnly ? "primary" : "secondary"}
-              onClick={() => setBelowZeroOnly((v) => !v)}
-              icon={<AlertTriangle className="size-3.5" />}
-            >
+            <FilterPill active={belowZeroOnly} onClick={() => setBelowZeroOnly((v) => !v)} icon={<AlertTriangle />}>
               Below zero ({belowZeroCount})
-            </Button>
+            </FilterPill>
           ) : null}
           <div className="flex-1" />
           {canEdit ? (
             <Button
-              size="sm"
               variant="primary"
-              icon={<Plus className="size-3.5" />}
+              icon={<Plus />}
               onClick={() => {
                 setSelectedId(null);
                 setAdding(true);
@@ -104,15 +115,11 @@ export function LiveStock({
         </div>
 
         {items.status === "loading" ? (
-          <div className="flex flex-1 items-center justify-center">
-            <Spinner />
-          </div>
+          <LoadingState className="flex-1" />
         ) : items.status === "error" ? (
-          <EmptyState icon={<AlertTriangle className="size-6" />} title="Stock could not be loaded">
-            {items.message}
-          </EmptyState>
+          <ErrorState title="Stock could not be loaded">{items.message}</ErrorState>
         ) : filtered.length === 0 ? (
-          <EmptyState icon={<Boxes className="size-6" />} title={list.length === 0 ? "No stock items yet" : "Nothing matches"}>
+          <EmptyState icon={<Boxes />} title={list.length === 0 ? "No stock items yet" : "Nothing matches"}>
             {list.length === 0 ? "Product stock pools are created from the products automatically." : "Try fewer words, or clear the filters."}
           </EmptyState>
         ) : (
@@ -179,73 +186,62 @@ function StockTable({
     return () => observer.disconnect();
   }, []);
   const cols = compact
-    ? "grid-cols-[minmax(160px,1fr)_120px]"
-    : "grid-cols-[minmax(200px,2fr)_110px_120px_minmax(180px,2fr)]";
+    ? "grid-cols-[minmax(160px,1fr)_128px]"
+    : "grid-cols-[minmax(200px,2fr)_112px_128px_minmax(180px,2fr)]";
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div ref={scrollRef} className="-ml-3 min-h-0 flex-1 overflow-auto pl-3">
       <div
         className={clsx(
-          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-center text-2xs font-medium tracking-wide text-ink-muted uppercase",
+          "sticky top-0 z-10 grid h-10 items-center gap-6 border-b border-line bg-surface text-label font-medium whitespace-nowrap text-ink-muted before:absolute before:inset-y-0 before:-left-3 before:w-3 before:bg-surface",
           cols,
         )}
-        style={{ height: 32 }}
       >
-        <span className="text-left">Item</span>
+        <span>Item</span>
         {compact ? null : <span>Kind</span>}
-        <span>On hand</span>
+        <span className="text-right">On hand</span>
         {compact ? null : <span>Packs that could be filled</span>}
       </div>
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
-        <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
-          {virtualizer.getVirtualItems().map((v) => {
-            const item = rows[v.index]!;
-            const isSelected = item.id === selectedId;
-            return (
-              <div
-                key={item.id}
-                role="row"
-                aria-selected={isSelected}
-                onClick={() => onSelect(isSelected ? null : item.id)}
-                className={clsx(
-                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-center text-[13px]",
-                  cols,
-                  isSelected ? "bg-brand-orange/[0.08]" : "bg-surface hover:bg-hover",
+      <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+        {virtualizer.getVirtualItems().map((v) => {
+          const item = rows[v.index]!;
+          const isSelected = item.id === selectedId;
+          return (
+            <div
+              key={item.id}
+              role="row"
+              aria-selected={isSelected}
+              onClick={() => onSelect(isSelected ? null : item.id)}
+              className={clsx(
+                "absolute inset-x-0 grid cursor-pointer items-center gap-6 border-b border-line-row text-body",
+                cols,
+                isSelected
+                  ? "bg-accent-50 before:absolute before:inset-y-0 before:-left-3 before:w-3 before:bg-accent-50 before:shadow-[inset_2px_0_0_var(--color-accent)]"
+                  : "hover:bg-surface-alt",
+              )}
+              style={{ height: ROW_HEIGHT, transform: `translateY(${v.start}px)` }}
+            >
+              <span className="min-w-0 truncate">
+                <span className="font-medium text-ink">{item.name}</span>
+                {item.code ? <span className="ml-2 font-mono text-caption text-ink-subtle">{item.code}</span> : null}
+              </span>
+              {compact ? null : <span className="truncate text-ink-muted">{KIND_LABEL[item.kind]}</span>}
+              <span className={clsx("num text-right whitespace-nowrap", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
+                {!item.unitSet ? (
+                  <Badge tone="warning">Unit not set</Badge>
+                ) : (
+                  <>
+                    {item.onHandMilli < 0 ? <AlertTriangle className="mr-1 inline size-4 align-[-3px]" aria-hidden /> : null}
+                    {formatQuantity(item.onHandMilli, item.baseUnit)}
+                  </>
                 )}
-                style={{ height: ROW_HEIGHT, transform: `translateY(${v.start}px)` }}
-              >
-                <span className="min-w-0 truncate text-left">
-                  <span className="font-medium text-ink">{item.name}</span>
-                  {item.code ? <span className="ml-1.5 font-mono text-[11px] text-ink-faint">{item.code}</span> : null}
-                </span>
-                {compact ? null : (
-                  <span>
-                    <Badge
-                      tone={
-                        item.kind === "product_pool" ? "brand" : item.kind === "raw_material" ? "info" : isMix(item.kind) ? "warning" : "neutral"
-                      }
-                    >
-                      {KIND_LABEL[item.kind]}
-                    </Badge>
-                  </span>
-                )}
-                <span className={clsx("num font-medium", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
-                  {!item.unitSet ? (
-                    <Badge tone="warning">Unit not set</Badge>
-                  ) : (
-                    <>
-                      {item.onHandMilli < 0 ? <AlertTriangle className="mr-1 inline size-3.5 align-[-2px]" /> : null}
-                      {formatQuantity(item.onHandMilli, item.baseUnit)}
-                    </>
-                  )}
-                </span>
-                {compact ? null : (
-                  <span className="truncate text-[12px] text-ink-muted">{packsSummary(item, products).join(" · ") || "—"}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+              </span>
+              {compact ? null : (
+                <span className="truncate text-label text-ink-muted">{packsSummary(item, products).join(" · ") || "—"}</span>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -259,16 +255,16 @@ function Panel({ title, subtitle, onClose, actions, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <aside className="flex w-[380px] shrink-0 flex-col border-l border-line bg-surface">
-      <div className="flex items-start gap-2 border-b border-line px-4 py-3">
+    <aside className="ml-6 flex w-96 shrink-0 flex-col border-l border-line pl-6">
+      <div className="flex shrink-0 items-start gap-2 pb-4">
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] leading-snug font-semibold">{title}</p>
-          {subtitle ? <p className="text-[12px] text-ink-muted">{subtitle}</p> : null}
+          <h2 className="text-title font-semibold text-ink">{title}</h2>
+          {subtitle ? <p className="mt-0.5 text-label text-ink-muted">{subtitle}</p> : null}
         </div>
         {actions}
-        <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close" className="px-1.5">
-          <X className="size-4" />
-        </Button>
+        <IconButton label="Close" size="sm" onClick={onClose}>
+          <X />
+        </IconButton>
       </div>
       {children}
     </aside>
@@ -282,6 +278,7 @@ function ItemPanel({ item, products, canEdit, onClose }: {
   onClose: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const history = useMovements({ itemId: item.id });
   const packs = packsSummary(item, products);
   const isPool = item.kind === "product_pool";
@@ -301,42 +298,39 @@ function ItemPanel({ item, products, canEdit, onClose }: {
       onClose={onClose}
       actions={
         canEdit && !isPool ? (
-          <Button size="sm" onClick={() => setEditing(true)} icon={<Pencil className="size-3.5" />}>
-            Edit
-          </Button>
+          <>
+            <Button size="sm" onClick={() => setEditing(true)} icon={<Pencil />}>
+              Edit
+            </Button>
+            <Menu size="sm" items={[{ label: "Delete item", icon: <Trash2 />, danger: true, onSelect: () => setDeleting(true) }]} />
+          </>
         ) : null
       }
     >
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
+      <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-2">
         <section>
-          <p className="text-2xs font-medium tracking-wide text-ink-muted uppercase">On hand</p>
+          <p className="text-label text-ink-muted">On hand</p>
           <OnHandCount item={item} canEdit={canEdit} />
           {item.onHandMilli < 0 ? (
-            <p className="mt-1 flex items-center gap-1.5 text-[12px] text-danger">
-              <AlertTriangle className="size-3.5" /> Below zero — count it and correct.
+            <p className="mt-1 flex items-center gap-1.5 text-label text-danger">
+              <AlertTriangle className="size-4 shrink-0" /> Below zero — count it and correct.
             </p>
           ) : null}
           {packs.length ? (
-            <div className="mt-2 flex flex-wrap gap-1.5" title="Packs this could fill">
-              {packs.map((p) => (
-                <span key={p} className="num rounded bg-canvas px-2 py-0.5 text-[12px] text-ink-muted">
-                  {p}
-                </span>
-              ))}
-            </div>
+            <p className="num mt-2 text-label text-ink-muted" title="Packs this could fill">
+              {packs.join(" · ")}
+            </p>
           ) : null}
-          {item.aliases.length ? <p className="mt-1.5 text-[12px] text-ink-faint">Also called {item.aliases.join(", ")}</p> : null}
+          {item.aliases.length ? <p className="mt-2 text-caption text-ink-subtle">Also called {item.aliases.join(", ")}</p> : null}
         </section>
 
-        <section>
-          <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">History</h3>
+        <Section title="History">
           <MovementList state={history} canEdit={canEdit} showItem={false} emptyText="No stock recorded for this item yet." />
-        </section>
+        </Section>
 
         {isMix(item.kind) ? <MixRecipeSection item={item} /> : null}
-
-        {canEdit && !isPool ? <DeleteItem item={item} onDeleted={onClose} /> : null}
       </div>
+      {deleting ? <DeleteItemDialog item={item} onClose={() => setDeleting(false)} onDeleted={onClose} /> : null}
     </Panel>
   );
 }
@@ -355,6 +349,8 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
   const [why, setWhy] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "warn" | "error"; text: string } | null>(null);
+  const qtyId = useId();
+  const whyId = useId();
 
   const start = () => {
     setQty(opening ? "" : String(item.onHandMilli / 1000));
@@ -396,9 +392,9 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
 
   if (!item.unitSet) {
     return (
-      <div className="mt-1 space-y-1">
+      <div className="mt-1 space-y-1.5">
         <Badge tone="warning">Unit not set</Badge>
-        <p className="text-[12px] text-ink-muted">
+        <p className="text-label text-ink-muted">
           An Admin sets it with Edit (top right): litres, kg or pieces. No stock can be recorded until then.
         </p>
       </div>
@@ -406,21 +402,16 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
   }
 
   const note = message ? (
-    <p
-      className={clsx(
-        "mt-1 text-[12px]",
-        message.tone === "ok" ? "text-success" : message.tone === "warn" ? "text-warning" : "text-danger",
-      )}
-    >
+    <Banner tone={message.tone === "ok" ? "success" : message.tone === "warn" ? "warning" : "danger"} className="mt-2">
       {message.text}
-    </p>
+    </Banner>
   ) : null;
 
   if (!editing) {
     return (
       <>
-        <div className="flex items-center gap-2">
-          <p className={clsx("num text-[22px] font-semibold", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
+        <div className="mt-1 flex items-center gap-2">
+          <p className={clsx("num text-headline font-semibold", item.onHandMilli < 0 ? "text-danger" : "text-ink")}>
             {formatQuantity(item.onHandMilli, item.baseUnit)}
           </p>
           {canEdit ? (
@@ -428,7 +419,7 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
               size="sm"
               variant="ghost"
               onClick={start}
-              icon={<Pencil className="size-3.5" />}
+              icon={<Pencil />}
               title={opening ? "Enter the opening stock" : "Correct the count to what's really there"}
             >
               Edit
@@ -442,7 +433,7 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
 
   return (
     <form
-      className="mt-1 space-y-2"
+      className="mt-2 space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
         void save();
@@ -454,34 +445,40 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
         }
       }}
     >
-      <div className="relative">
+      <Field label={opening ? "Opening quantity" : "Quantity actually there"} htmlFor={qtyId}>
+        <div className="relative">
+          <Input
+            id={qtyId}
+            aria-label={opening ? "Opening quantity" : "Quantity actually there"}
+            value={qty}
+            onChange={(e) => setQty(e.target.value)}
+            inputMode="decimal"
+            placeholder={opening ? "How much is there?" : "What's really there?"}
+            className="num [&_input]:pr-14"
+            autoFocus
+            onFocus={(e) => e.target.select()}
+          />
+          <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-label text-ink-muted">
+            {unitWord(item.baseUnit)}
+          </span>
+        </div>
+      </Field>
+      <Field label="Reason" htmlFor={whyId} optional={opening}>
         <Input
-          aria-label={opening ? "Opening quantity" : "Quantity actually there"}
-          value={qty}
-          onChange={(e) => setQty(e.target.value)}
-          inputMode="decimal"
-          placeholder={opening ? "How much is there?" : "What's really there?"}
-          className="num [&_input]:pr-14"
-          autoFocus
-          onFocus={(e) => e.target.select()}
+          id={whyId}
+          aria-label="Reason"
+          value={why}
+          onChange={(e) => setWhy(e.target.value)}
+          placeholder={opening ? "Note (optional)" : "Why? e.g. monthly count"}
+          maxLength={200}
         />
-        <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">
-          {unitWord(item.baseUnit)}
-        </span>
-      </div>
-      <Input
-        aria-label="Reason"
-        value={why}
-        onChange={(e) => setWhy(e.target.value)}
-        placeholder={opening ? "Note (optional)" : "Why? e.g. monthly count"}
-        maxLength={200}
-      />
+      </Field>
       {note}
       <div className="flex justify-end gap-2">
-        <Button size="sm" variant="ghost" onClick={() => setEditing(false)} disabled={busy}>
+        <Button variant="ghost" onClick={() => setEditing(false)} disabled={busy}>
           Cancel
         </Button>
-        <Button size="sm" variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
+        <Button variant="primary" type="submit" loading={busy} disabled={!qty.trim()}>
           {opening ? "Save" : "Save count"}
         </Button>
       </div>
@@ -489,11 +486,10 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
   );
 }
 
-function DeleteItem({ item, onDeleted }: { item: StockItem; onDeleted: () => void }) {
+function DeleteItemDialog({ item, onClose, onDeleted }: { item: StockItem; onClose: () => void; onDeleted: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const remove = async () => {
-    if (!window.confirm(`Delete ${item.name}? It must have nothing on hand. Its history is kept.`)) return;
     setBusy(true);
     setError(null);
     try {
@@ -505,11 +501,24 @@ function DeleteItem({ item, onDeleted }: { item: StockItem; onDeleted: () => voi
     }
   };
   return (
-    <section className="border-t border-line pt-4">
-      <Button variant="ghost" size="sm" onClick={() => void remove()} loading={busy} icon={<Trash2 className="size-3.5" />} className="text-danger hover:text-danger">
-        Delete item
-      </Button>
-      {error ? <p className="mt-2 text-[12px] text-danger">{error}</p> : null}
-    </section>
+    <Dialog
+      danger
+      title="Delete item"
+      onClose={onClose}
+      busy={busy}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={() => void remove()} loading={busy}>
+            {busy ? "Deleting…" : "Delete item"}
+          </Button>
+        </>
+      }
+    >
+      <p className="text-body text-ink">Delete {item.name}? It must have nothing on hand. Its history is kept.</p>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }

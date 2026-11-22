@@ -1,0 +1,70 @@
+# Technofluid Office — installers (electron-builder). Windows: `npm run dist:win` → release/.
+# The app connects to whatever .env.local says at build time (VITE_USE_EMULATORS=false + the
+# live Firebase web config for an office build). Installer art: build-assets/make-installer-art.py.
+appId: in.technofluid.office
+productName: Technofluid Office
+# The installed Electron (office/node_modules); keep in step with package.json.
+electronVersion: 44.7.0
+copyright: Copyright © 2026 Technofluid Lubricants
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+# The screens are bundled into out/; the only runtime package is electron-updater (main process),
+# which electron-builder copies in from "dependencies".
+
+# In-app updates (main/updater.ts): installed apps read new versions from this PUBLIC, releases-only
+# repo. Release with `npm run release:win` (scripts/publish-release.mjs) — never `--publish` here.
+publish:
+  provider: github
+  owner: Humble-Coders
+  repo: TechnoFluid-2026-exe
+  releaseType: release
+# Invoice PDFs: the layout ships with the app so the first invoice prints offline.
+# The PDF maker itself goes in per platform (resources/hbe-render/<platform>, see main/hbe/invoices.ts);
+# its package lives in office/hbe/vendor (not in git — office/hbe/README.md says how to fetch it).
+extraResources:
+  - from: ../hbe/templates
+    to: hbe-templates
+  - from: ../hbe/samples/typical.json
+    to: hbe-probe.json
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  extraResources:
+    - from: ../hbe/vendor/hbe-render-0.3.0-windows-x64
+      to: hbe-render/windows-x64
+  artifactName: Technofluid-Office-Setup-${version}.${ext}
+
+# A guided setup (not one-click): welcome, choose folder, install, finish → "Run Technofluid Office".
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Technofluid Office
+  menuCategory: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  installerSidebar: build/installerSidebar.bmp
+  uninstallerSidebar: build/uninstallerSidebar.bmp
+  installerHeader: build/installerHeader.bmp
+  uninstallDisplayName: Technofluid Office
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+
+mac:
+  target: [dmg]
+  icon: resources/icon.png
+  category: public.app-category.business
+  extraResources:
+    - from: ../hbe/vendor/hbe-render-0.3.0-macos-arm64
+      to: hbe-render/macos-arm64

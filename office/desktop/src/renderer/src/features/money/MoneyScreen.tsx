@@ -1,15 +1,14 @@
 import clsx from "clsx";
-import { CloudOff, Landmark, Plus, RefreshCw, Scale, Settings2, Undo2, Wallet } from "lucide-react";
+import { Plus, RefreshCw, Scale, Settings2, Undo2, Wallet } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { canReverse, formatINR, indiaDate, isCancelled, MONEY_CATEGORIES, MONEY_CATEGORY_LABEL, moneyCategory, moneyDirection, reversalState, type MoneyAccountRef, type MoneyCategory } from "@technofluid/core";
-import { Badge, Button, EmptyState, Input, Select, Spinner } from "@/components/ui";
+import { Badge, Banner, Button, Dialog, EmptyState, ErrorState, Field, FilterPill, FilterSelect, Input, LoadingState, Menu, Page, PageHeader, StatTile, Table, Td, Th, Tr } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
-import { Modal } from "@/features/entities/EntityDetail";
 import { useEntities, useEntityBalances } from "@/hooks/useEntities";
 import { useMoneyEntries, useMoneyEntry, useRegisterBalances, useRegisters } from "@/hooks/useMoney";
 import { retryMoneyEntrySync, reverseMoneyEntry, type MoneyEntryRow, type RegisterRow } from "@/services/moneyService";
-import { amountClass, CorrectionDialog, MoneyEntryForm } from "./MoneyForms";
+import { amountClass, amountSign, CorrectionDialog, MoneyEntryForm } from "./MoneyForms";
 import { RegistersPanel } from "./RegistersPanel";
 
 type Preset = "today" | "week" | "month" | "custom";
@@ -81,105 +80,101 @@ export function MoneyScreen() {
   }, [entries, showReversed, category, registerFilter, partyFilter]);
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="space-y-4 px-5 py-4">
-        {books.error ? (
-          <div role="alert" className="flex items-center gap-2 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-            <CloudOff className="size-4 shrink-0" />
-            <span className="flex-1">Books unreachable — balances can't be shown right now. {books.error}</span>
-            <Button size="sm" onClick={() => void books.retry()} loading={books.loading} icon={<RefreshCw className="size-3.5" />}>
+    <Page>
+      <PageHeader
+        title="Money in & out"
+        actions={
+          <>
+            {isAdmin ? (
+              <Button icon={<Scale />} onClick={() => setCorrecting(true)}>
+                Correction
+              </Button>
+            ) : null}
+            <Button variant="primary" icon={<Plus />} onClick={() => setRecording(true)}>
+              Record money
+            </Button>
+            {isAdmin ? <Menu items={[{ label: "Cash & bank accounts", icon: <Settings2 />, onSelect: () => setManaging(true) }]} /> : null}
+          </>
+        }
+        toolbar={
+          <>
+            <FilterSelect
+              label="Dates"
+              value={preset}
+              onChange={(v) => setPreset(v as Preset)}
+              active={preset !== "month"}
+              options={[
+                ["today", "Today"],
+                ["week", "Last 7 days"],
+                ["month", "This month"],
+                ["custom", "Custom…"],
+              ]}
+            />
+            {preset === "custom" ? (
+              <>
+                <Input type="date" value={custom[0]} max={custom[1]} onChange={(e) => e.target.value && setCustom([e.target.value, custom[1]])} aria-label="From" className="w-36" />
+                <span className="text-ink-muted">–</span>
+                <Input type="date" value={custom[1]} min={custom[0]} max={today} onChange={(e) => e.target.value && setCustom([custom[0], e.target.value])} aria-label="To" className="w-36" />
+              </>
+            ) : null}
+            <FilterSelect label="Kind" value={category} onChange={(v) => setCategory(v as MoneyCategory | "")} options={[["", "All"], ...MONEY_CATEGORIES.map((c): [string, string] => [c, MONEY_CATEGORY_LABEL[c]])]} />
+            <FilterSelect label="Cash or bank" value={registerFilter} onChange={setRegisterFilter} options={[["", "All"], ...regs.map((r): [string, string] => [r.id, r.name])]} />
+            <FilterSelect label="Customer or supplier" value={partyFilter} onChange={setPartyFilter} options={[["", "All"], ...parties.map((p): [string, string] => [p.id, p.name])]} />
+            <FilterPill active={showReversed} onClick={() => setShowReversed((v) => !v)}>
+              Show reversed
+            </FilterPill>
+          </>
+        }
+      />
+
+      {books.error ? (
+        <Banner
+          tone="warning"
+          title="Books unreachable — balances can't be shown right now."
+          className="mb-6"
+          action={
+            <Button size="sm" onClick={() => void books.retry()} loading={books.loading} icon={<RefreshCw />}>
               Retry
             </Button>
-          </div>
-        ) : null}
+          }
+        >
+          {books.error}
+        </Banner>
+      ) : null}
 
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
+      {regs.some((r) => r.isActive) ? (
+        <div className="mb-8 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6">
           {regs
             .filter((r) => r.isActive)
             .map((r) => (
-              <RegisterCard key={r.id} register={r} balance={books.error ? null : books.balances ? (books.balances[r.id] ?? 0) : null} onOpen={() => navigate(`/payments/registers/${r.id}`)} />
+              <RegisterTile key={r.id} register={r} balance={books.error ? null : books.balances ? (books.balances[r.id] ?? 0) : null} onOpen={() => navigate(`/payments/registers/${r.id}`)} />
             ))}
         </div>
+      ) : null}
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="primary" icon={<Plus className="size-3.5" />} onClick={() => setRecording(true)}>
-            Record money
-          </Button>
-          {isAdmin ? (
-            <Button icon={<Scale className="size-3.5" />} onClick={() => setCorrecting(true)}>
-              Correction
-            </Button>
-          ) : null}
-          <span className="flex-1" />
-          {isAdmin ? (
-            <Button size="sm" variant="ghost" icon={<Settings2 className="size-3.5" />} onClick={() => setManaging(true)}>
-              Cash & bank accounts
-            </Button>
-          ) : null}
-        </div>
-
-        {saved && saved.syncStatus !== "SYNCED" ? (
-          <p className={clsx("rounded-md px-3 py-2 text-[12px]", saved.syncStatus === "FAILED" ? "bg-danger-soft text-danger" : "bg-canvas text-ink-muted")}>
-            {saved.syncStatus === "FAILED" ? `Not posted: ${saved.hlSyncError ?? "the books refused it"}` : "Saving to books…"}
-          </p>
-        ) : null}
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} aria-label="Dates" className="w-36">
-            <option value="today">Today</option>
-            <option value="week">Last 7 days</option>
-            <option value="month">This month</option>
-            <option value="custom">Custom…</option>
-          </Select>
-          {preset === "custom" ? (
-            <>
-              <Input type="date" value={custom[0]} max={custom[1]} onChange={(e) => e.target.value && setCustom([e.target.value, custom[1]])} aria-label="From" className="w-36" />
-              <span className="text-ink-muted">–</span>
-              <Input type="date" value={custom[1]} min={custom[0]} max={today} onChange={(e) => e.target.value && setCustom([custom[0], e.target.value])} aria-label="To" className="w-36" />
-            </>
-          ) : null}
-          <Select value={category} onChange={(e) => setCategory(e.target.value as MoneyCategory | "")} aria-label="Kind" className="w-48">
-            <option value="">All kinds</option>
-            {MONEY_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {MONEY_CATEGORY_LABEL[c]}
-              </option>
-            ))}
-          </Select>
-          <Select value={registerFilter} onChange={(e) => setRegisterFilter(e.target.value)} aria-label="Cash or bank" className="w-44">
-            <option value="">All cash & bank</option>
-            {regs.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-          </Select>
-          <Select value={partyFilter} onChange={(e) => setPartyFilter(e.target.value)} aria-label="Customer or supplier" className="w-52">
-            <option value="">All customers & suppliers</option>
-            {parties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </Select>
-          <label className="flex items-center gap-1.5 text-[12px] text-ink">
-            <input type="checkbox" checked={showReversed} onChange={(e) => setShowReversed(e.target.checked)} className="size-3.5 accent-brand-orange" />
-            Show reversed
-          </label>
-        </div>
-
-        {entries.status === "loading" ? (
-          <Spinner />
-        ) : entries.status === "error" ? (
-          <p className="text-[12px] text-danger">{entries.message}</p>
-        ) : rows.length === 0 ? (
-          <EmptyState icon={<Wallet className="size-6" />} title="Nothing in these dates">
-            Record money in or out with Record money above.
-          </EmptyState>
+      {saved && saved.syncStatus !== "SYNCED" ? (
+        saved.syncStatus === "FAILED" ? (
+          <Banner tone="danger" className="mb-4">
+            Not posted: {saved.hlSyncError ?? "the books refused it"}
+          </Banner>
         ) : (
-          <EntriesTable rows={rows} isAdmin={isAdmin} />
-        )}
-      </div>
+          <Banner tone="info" className="mb-4">
+            Saving to books…
+          </Banner>
+        )
+      ) : null}
+
+      {entries.status === "loading" ? (
+        <LoadingState />
+      ) : entries.status === "error" ? (
+        <ErrorState>{entries.message}</ErrorState>
+      ) : rows.length === 0 ? (
+        <EmptyState icon={<Wallet />} title="Nothing in these dates">
+          Record money in or out with Record money above.
+        </EmptyState>
+      ) : (
+        <EntriesTable rows={rows} isAdmin={isAdmin} />
+      )}
 
       {recording ? (
         <MoneyEntryForm
@@ -204,47 +199,49 @@ export function MoneyScreen() {
         />
       ) : null}
       {managing ? <RegistersPanel registers={regs} balances={books.balances} onClose={() => setManaging(false)} /> : null}
-    </div>
+    </Page>
   );
 }
 
-function RegisterCard({ register: r, balance, onOpen }: { register: RegisterRow; balance: number | null; onOpen: () => void }) {
-  const Icon = r.kind === "CASH" ? Wallet : Landmark;
+/** One cash/bank balance as a top figure; it opens that account's history. */
+function RegisterTile({ register: r, balance, onOpen }: { register: RegisterRow; balance: number | null; onOpen: () => void }) {
   return (
-    <button type="button" onClick={onOpen} disabled={r.placeholder} className="rounded-lg border border-line bg-surface px-4 py-3 text-left transition-colors hover:bg-hover disabled:opacity-60" title="Open its history">
-      <p className="flex items-center gap-1.5 text-[12px] text-ink-muted">
-        <Icon className="size-3.5" /> {r.name}
-      </p>
-      <p className={clsx("num text-[20px] font-semibold", balance !== null && balance < 0 ? "text-danger" : "text-ink")}>{balance === null ? "—" : formatINR(balance)}</p>
-      {r.syncStatus !== "SYNCED" ? <p className="text-2xs text-ink-faint">{r.placeholder ? "Not set up yet" : r.syncStatus === "FAILED" ? "Couldn't save to books" : "Saving to books…"}</p> : null}
-    </button>
+    <StatTile
+      label={r.name}
+      value={balance === null ? "—" : formatINR(balance)}
+      tone={balance !== null && balance < 0 ? "danger" : undefined}
+      onClick={r.placeholder ? undefined : onOpen}
+      hint={
+        r.syncStatus !== "SYNCED" ? (
+          r.placeholder ? (
+            "Not set up yet"
+          ) : r.syncStatus === "FAILED" ? (
+            <span className="text-danger">Couldn't save to books</span>
+          ) : (
+            "Saving to books…"
+          )
+        ) : undefined
+      }
+    />
   );
 }
 
-const CATEGORY_TONE: Record<MoneyCategory, "success" | "info" | "neutral" | "brand" | "danger" | "warning"> = {
-  RECEIVED: "success",
-  PAID: "info",
-  TRANSFER: "neutral",
-  MOVE: "brand",
-  EXPENSE: "danger",
-  CORRECTION: "warning",
-};
-
-/** onSelect: rows open a details panel when given (Expenses). */
-export function EntriesTable({ rows, isAdmin, onSelect, selectedId }: { rows: MoneyEntryRow[]; isAdmin: boolean; onSelect?: (e: MoneyEntryRow) => void; selectedId?: string | null }) {
+/** onSelect: rows open a details panel when given (Expenses). hideKind: every row is the same kind (Expenses), so the column is left out. */
+export function EntriesTable({ rows, isAdmin, onSelect, selectedId, hideKind }: { rows: MoneyEntryRow[]; isAdmin: boolean; onSelect?: (e: MoneyEntryRow) => void; selectedId?: string | null; hideKind?: boolean }) {
   const [reversing, setReversing] = useState<MoneyEntryRow | null>(null);
   return (
     <>
-      <table className="w-full border-collapse text-[13px]">
-        <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-          <tr className="border-b border-line">
-            <th className="py-2 pr-3 font-medium">Day</th>
-            <th className="py-2 pr-3 font-medium">From → To</th>
-            <th className="py-2 pr-3 text-right font-medium">Amount</th>
-            <th className="py-2 pr-3 font-medium">Note</th>
-            <th className="py-2 pr-3 font-medium">By</th>
-            <th className="py-2 pr-3 font-medium">Status</th>
-            <th className="py-2 font-medium" />
+      <Table>
+        <thead>
+          <tr>
+            <Th>Day</Th>
+            <Th>From → To</Th>
+            {hideKind ? null : <Th>Kind</Th>}
+            <Th align="right">Amount</Th>
+            <Th>Note</Th>
+            <Th>By</Th>
+            <Th>Status</Th>
+            <Th aria-label="Actions" />
           </tr>
         </thead>
         <tbody>
@@ -252,65 +249,62 @@ export function EntriesTable({ rows, isAdmin, onSelect, selectedId }: { rows: Mo
             const dir = moneyDirection(e);
             const cancelled = isCancelled(e, e.mirrorStatus);
             return (
-              <tr
-                key={e.id}
-                tabIndex={onSelect ? 0 : undefined}
-                aria-selected={onSelect ? e.id === selectedId : undefined}
-                onClick={onSelect ? () => onSelect(e) : undefined}
-                onKeyDown={onSelect ? (ev) => ev.key === "Enter" && ev.target === ev.currentTarget && onSelect(e) : undefined}
-                className={clsx(
-                  "border-b border-line/70 align-top",
-                  cancelled && "text-ink-faint",
-                  onSelect && "cursor-pointer hover:bg-hover focus:bg-hover focus:outline-none",
-                  onSelect && e.id === selectedId && "bg-hover",
-                )}
-              >
-                <td className="py-2 pr-3 whitespace-nowrap">{e.businessDay}</td>
-                <td className="py-2 pr-3">
-                  <span className={clsx(cancelled && "line-through")}>
-                    {sideName(e.from)} → {sideName(e.to)}
+              <Tr key={e.id} onOpen={onSelect ? () => onSelect(e) : undefined} selected={onSelect ? e.id === selectedId : undefined}>
+                <Td className="whitespace-nowrap" muted={cancelled}>
+                  {e.businessDay}
+                </Td>
+                <Td>
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className={clsx(cancelled && "text-ink-subtle line-through")}>
+                      {sideName(e.from)} → {sideName(e.to)}
+                    </span>
+                    {e.reversesEntryId ? <Badge>Reversal</Badge> : e.reversedByEntryId ? <ReversedBadge entry={e} /> : null}
+                    {e.gst ? <span className="text-caption text-ink-muted">GST bill {e.gst.billNo}</span> : null}
                   </span>
-                  <Badge tone={CATEGORY_TONE[moneyCategory(e)]} className="ml-1.5">
+                </Td>
+                {hideKind ? null : (
+                  <Td className="whitespace-nowrap" muted>
                     {MONEY_CATEGORY_LABEL[moneyCategory(e)]}
-                  </Badge>
-                  {e.reversesEntryId ? <Badge className="ml-1.5">Reversal</Badge> : e.reversedByEntryId ? <ReversedBadge entry={e} /> : null}
-                  {e.gst ? <span className="ml-1.5 text-2xs text-ink-muted">GST bill {e.gst.billNo}</span> : null}
-                </td>
-                <td className={clsx("py-2 pr-3 text-right", cancelled ? "num text-ink-faint" : amountClass(dir))}>{formatINR(e.amountPaise)}</td>
-                <td className="max-w-60 py-2 pr-3 text-ink-muted">{e.note ?? ""}</td>
-                <td className="py-2 pr-3 text-ink-muted">{e.createdBy}</td>
-                <td className="py-2 pr-3" onClick={(ev) => ev.stopPropagation()}>
-                  <StatusCell entry={e} />
-                </td>
-                <td className="py-2 text-right" onClick={(ev) => ev.stopPropagation()}>
-                  {canReverse(e) && (!e.isCorrection || isAdmin) ? (
-                    <Button size="sm" variant="ghost" icon={<Undo2 className="size-3.5" />} onClick={() => setReversing(e)}>
-                      Reverse
-                    </Button>
-                  ) : null}
-                </td>
-              </tr>
+                  </Td>
+                )}
+                <Td num className="whitespace-nowrap">
+                  <span className={cancelled ? "text-ink-subtle" : amountClass(dir)}>
+                    {amountSign(dir)}
+                    {formatINR(e.amountPaise)}
+                  </span>
+                </Td>
+                <Td className="max-w-60" muted>
+                  {e.note ?? ""}
+                </Td>
+                <Td muted className="whitespace-nowrap">{e.createdBy}</Td>
+                <Td onClick={(ev) => ev.stopPropagation()}>{e.syncStatus === "SYNCED" ? null : <StatusCell entry={e} />}</Td>
+                <Td align="right" onClick={(ev) => ev.stopPropagation()}>
+                  {canReverse(e) && (!e.isCorrection || isAdmin) ? <Menu size="sm" label="Entry actions" items={[{ label: "Reverse", icon: <Undo2 />, onSelect: () => setReversing(e) }]} /> : null}
+                </Td>
+              </Tr>
             );
           })}
         </tbody>
-      </table>
+      </Table>
       {reversing ? <ReverseDialog entry={reversing} onClose={() => setReversing(null)} /> : null}
     </>
   );
 }
 
+const retryLink = "text-label font-medium text-accent hover:underline disabled:opacity-50";
+
 /** An original's reversal: it only counts as undone once the reversal is in the books. */
 export function ReversedBadge({ entry: e }: { entry: MoneyEntryRow }) {
   const [busy, setBusy] = useState(false);
   const state = reversalState(e, e.mirrorStatus);
-  if (state === "done") return <Badge className="ml-1.5">Reversed</Badge>;
-  if (state === "pending") return <Badge tone="warning" className="ml-1.5">Reversal pending</Badge>;
+  if (state === "done") return <Badge>Reversed</Badge>;
+  if (state === "pending") return <Badge tone="warning">Reversal pending</Badge>;
   return (
-    <span className="ml-1.5 inline-flex items-center gap-1">
+    <span className="inline-flex items-center gap-1.5">
       <Badge tone="danger">Reversal not posted</Badge>
       <button
         type="button"
-        className="text-[12px] font-medium text-info hover:underline disabled:opacity-50"
+        className={retryLink}
         disabled={busy}
         onClick={() => {
           setBusy(true);
@@ -323,16 +317,18 @@ export function ReversedBadge({ entry: e }: { entry: MoneyEntryRow }) {
   );
 }
 
+/** Whether an entry is in the books. In a table the saved (normal) state is left blank by the caller. */
 export function StatusCell({ entry: e }: { entry: MoneyEntryRow }) {
   const [busy, setBusy] = useState(false);
-  if (e.syncStatus === "SYNCED") return <span className="text-[12px] text-success">In the books</span>;
-  if (e.syncStatus === "PENDING") return <span className="text-[12px] text-ink-muted">Saving to books…</span>;
+  if (e.syncStatus === "SYNCED") return <span className="text-ink">In the books</span>;
+  if (e.syncStatus === "PENDING") return <Badge>Saving to books…</Badge>;
   return (
-    <span className="flex flex-wrap items-center gap-1 text-[12px] text-danger" title={e.hlSyncError ?? undefined}>
-      Not posted: {e.hlSyncError ?? "error"}
+    <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1" title={e.hlSyncError ?? undefined}>
+      <Badge tone="danger">Not posted</Badge>
+      <span className="max-w-56 text-caption text-danger">{e.hlSyncError ?? "error"}</span>
       <button
         type="button"
-        className="font-medium text-info hover:underline disabled:opacity-50"
+        className={retryLink}
         disabled={busy}
         onClick={() => {
           setBusy(true);
@@ -350,36 +346,50 @@ export function ReverseDialog({ entry: e, onClose }: { entry: MoneyEntryRow; onC
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
-    <Modal title="Reverse this entry" onClose={onClose} busy={busy}>
-      <p className="text-[13px] text-ink">
-        {sideName(e.from)} → {sideName(e.to)} · {formatINR(e.amountPaise)} · {e.businessDay}
-      </p>
-      <p className="text-[12px] text-ink-muted">An exact opposite entry is recorded today. Nothing is deleted; both stay on the statements.</p>
-      <Input value={reason} onChange={(ev) => setReason(ev.target.value)} placeholder="Reason (required)" autoFocus maxLength={400} aria-label="Reason" />
-      {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={onClose} disabled={busy}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          loading={busy}
-          disabled={!reason.trim()}
-          onClick={async () => {
-            setBusy(true);
-            setError(null);
-            try {
-              await reverseMoneyEntry(e.id, reason);
-              onClose();
-            } catch (err) {
-              setError(err instanceof Error ? err.message : String(err));
-              setBusy(false);
-            }
-          }}
-        >
-          Reverse
-        </Button>
+    <Dialog
+      title="Reverse this entry"
+      onClose={onClose}
+      busy={busy}
+      footer={
+        <>
+          {!reason.trim() ? <span className="mr-auto text-label text-ink-muted">Give a reason.</span> : null}
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            loading={busy}
+            disabled={!reason.trim()}
+            onClick={async () => {
+              setBusy(true);
+              setError(null);
+              try {
+                await reverseMoneyEntry(e.id, reason);
+                onClose();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : String(err));
+                setBusy(false);
+              }
+            }}
+          >
+            {busy ? "Reversing…" : "Reverse"}
+          </Button>
+        </>
+      }
+    >
+      <div>
+        <p className="text-body font-medium text-ink">
+          {sideName(e.from)} → {sideName(e.to)}
+        </p>
+        <p className="num mt-0.5 text-label text-ink-muted">
+          {formatINR(e.amountPaise)} · {e.businessDay}
+        </p>
       </div>
-    </Modal>
+      <p className="text-label text-ink-muted">An exact opposite entry is recorded today. Nothing is deleted; both stay on the statements.</p>
+      <Field label="Reason" htmlFor="rev-reason">
+        <Input id="rev-reason" value={reason} onChange={(ev) => setReason(ev.target.value)} autoFocus maxLength={400} />
+      </Field>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }

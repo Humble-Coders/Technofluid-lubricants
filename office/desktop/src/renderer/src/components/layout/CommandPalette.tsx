@@ -64,15 +64,15 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/25 pt-[14vh]" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-ink/35 pt-[14vh]" onMouseDown={onClose}>
       <div
         role="dialog"
         aria-label="Command palette"
-        className="w-full max-w-[560px] overflow-hidden rounded-xl border border-line bg-surface shadow-pop"
+        className="w-full max-w-[560px] overflow-hidden rounded-dialog border border-line bg-surface shadow-modal"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 border-b border-line px-4">
-          <Search className="size-4 text-ink-faint" />
+          <Search className="size-4 text-ink-subtle" />
           <input
             ref={inputRef}
             value={query}
@@ -91,13 +91,13 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
               }
             }}
             placeholder="Search screens and actions…"
-            className="h-12 flex-1 bg-transparent text-[14px] outline-none placeholder:text-ink-faint"
+            className="h-12 flex-1 bg-transparent text-body outline-none placeholder:text-ink-faint"
           />
           <Kbd>Esc</Kbd>
         </div>
         <ul className="max-h-[320px] overflow-y-auto p-1.5" role="listbox">
           {filtered.length === 0 ? (
-            <li className="px-3 py-6 text-center text-[13px] text-ink-muted">Nothing matches "{query}"</li>
+            <li className="px-3 py-6 text-center text-body text-ink-muted">Nothing matches "{query}"</li>
           ) : (
             filtered.map((command, index) => (
               <li
@@ -107,14 +107,14 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
                 onMouseEnter={() => setActive(index)}
                 onClick={() => runAt(index)}
                 className={clsx(
-                  "flex h-9 cursor-default items-center gap-3 rounded-md px-3 text-[13px]",
-                  index === active ? "bg-brand-orange/10 text-ink" : "text-ink-muted",
+                  "flex h-9 cursor-default items-center gap-3 rounded-control px-3 text-body",
+                  index === active ? "bg-accent-50 text-ink" : "text-ink-muted",
                 )}
               >
-                <command.icon className={clsx("size-4", index === active ? "text-brand-orange" : "text-ink-faint")} />
+                <command.icon className={clsx("size-4", index === active ? "text-accent" : "text-ink-subtle")} />
                 <span className="flex-1 truncate text-ink">{command.label}</span>
-                <span className="text-2xs text-ink-faint">{command.hint}</span>
-                {index === active ? <CornerDownLeft className="size-3.5 text-ink-faint" /> : null}
+                <span className="text-caption text-ink-subtle">{command.hint}</span>
+                {index === active ? <CornerDownLeft className="size-4 text-ink-subtle" /> : null}
               </li>
             ))
           )}

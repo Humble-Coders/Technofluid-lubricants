@@ -1,15 +1,19 @@
-import clsx from "clsx";
 import { FileDown, RefreshCw } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { formatQuantity, type BaseUnit } from "@technofluid/core";
-import { Button, Spinner } from "@/components/ui";
+import { Banner, Button, ErrorState, LoadingState, StatTile } from "@/components/ui";
 import type { ReportState } from "@/hooks/useReports";
 import { saveCsv } from "@/services/reportService";
 
 const time = (d: Date) => d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
-/** "Figures as of …", Refresh and Save as CSV — the same bar on every report. */
+/** The actions area of the Reports page header: the open report puts its "Figures as of …", Refresh and Save as CSV there. */
+export const ReportActionsSlot = createContext<HTMLElement | null>(null);
+
+/** "Figures as of …", Refresh and Save as CSV — the same on every report — and the report's own filters (`children`) as its toolbar. */
 export function ReportBar({ asOf, loading, onRefresh, csv, children }: { asOf: Date | null; loading: boolean; onRefresh: () => void; csv: (() => { fileName: string; text: string }) | null; children?: ReactNode }) {
+  const slot = useContext(ReportActionsSlot);
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const save = async () => {
@@ -25,44 +29,39 @@ export function ReportBar({ asOf, loading, onRefresh, csv, children }: { asOf: D
       setSaving(false);
     }
   };
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {children}
-      <span className="flex-1" />
-      {note ? <span className={clsx("text-[12px]", note.tone === "ok" ? "text-success" : "text-danger")}>{note.text}</span> : null}
-      <span className="text-[12px] text-ink-muted">{asOf ? `Figures as of ${time(asOf)}` : loading ? "Reading…" : ""}</span>
-      <Button size="sm" variant="ghost" icon={<RefreshCw className="size-3.5" />} onClick={onRefresh} disabled={loading}>
+  const actions = (
+    <>
+      {note?.tone === "ok" ? <span className="text-label text-success">{note.text}</span> : null}
+      <span className="text-label text-ink-muted">{asOf ? `Figures as of ${time(asOf)}` : loading ? "Reading…" : ""}</span>
+      <Button variant="ghost" icon={<RefreshCw />} onClick={onRefresh} disabled={loading}>
         Refresh
       </Button>
-      <Button size="sm" icon={<FileDown className="size-3.5" />} onClick={() => void save()} loading={saving} disabled={!csv}>
-        Save as CSV
+      <Button icon={<FileDown />} onClick={() => void save()} loading={saving} disabled={!csv}>
+        {saving ? "Saving…" : "Save as CSV"}
       </Button>
-    </div>
+    </>
+  );
+  return (
+    <>
+      {slot ? createPortal(actions, slot) : null}
+      {children ? <div className="mb-6 flex flex-wrap items-center gap-2">{children}</div> : null}
+      {note?.tone === "error" ? (
+        <Banner tone="danger" className="mb-6">
+          {note.text}
+        </Banner>
+      ) : null}
+    </>
   );
 }
 
 export function Stat({ label, value, tone, hint }: { label: string; value: string; tone?: "warning" | "success"; hint?: string }) {
-  return (
-    <div className="rounded-lg border border-line bg-surface px-4 py-2.5">
-      <p className="text-[12px] text-ink-muted">{label}</p>
-      <p className={clsx("num text-[18px] font-semibold", tone === "warning" ? "text-warning" : tone === "success" ? "text-success" : "text-ink")}>{value}</p>
-      {hint ? <p className="text-[11px] text-ink-faint">{hint}</p> : null}
-    </div>
-  );
+  return <StatTile label={label} value={value} tone={tone} hint={hint} />;
 }
 
-/** Loading spinner / error with Retry while a report isn't ready. */
+/** Loading / error with Try again while a report isn't ready. */
 export function NotReady({ state, onRetry }: { state: ReportState<unknown>; onRetry: () => void }) {
-  if (state.status === "loading") return <Spinner />;
-  if (state.status === "error")
-    return (
-      <div className="flex items-center gap-3 rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
-        <span>{state.message}</span>
-        <Button size="sm" variant="ghost" onClick={onRetry}>
-          Try again
-        </Button>
-      </div>
-    );
+  if (state.status === "loading") return <LoadingState />;
+  if (state.status === "error") return <ErrorState action={<Button onClick={onRetry}>Try again</Button>}>{state.message}</ErrorState>;
   return null;
 }
 

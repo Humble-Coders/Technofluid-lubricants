@@ -1,7 +1,7 @@
-import { Search, X } from "lucide-react";
+import { ClipboardList, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { indiaDate } from "@technofluid/core";
-import { Button, Input, Select } from "@/components/ui";
+import { Button, EmptyState, FilterPill, FilterSelect, Input, SearchInput, TableFooter } from "@/components/ui";
 import { useMovements } from "@/hooks/useStock";
 import type { ItemKind, MovementType, StockMovement } from "@/services/stockService";
 import { MovementTable } from "./MovementTable";
@@ -46,65 +46,56 @@ export function StockHistory({ canEdit }: { canEdit: boolean }) {
     setHideUndone(false);
   };
 
+  const emptyText = anyFilter ? "No stock lines match these filters." : "No stock recorded yet.";
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-wrap items-center gap-2 bg-surface px-5 py-2.5">
-        <Input
+      <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2">
+        <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+          onClear={() => setSearch("")}
           placeholder="Search"
-          leading={<Search className="size-3.5" />}
-          className="w-[240px]"
+          className="w-64"
           aria-label="Search stock history"
         />
-        <Select value={type} onChange={(e) => setType(e.target.value as typeof type)} aria-label="Type of line" className="w-40">
-          <option value="all">All types</option>
-          {(Object.keys(TYPE_LABEL) as MovementType[]).map((t) => (
-            <option key={t} value={t}>
-              {TYPE_LABEL[t]}
-            </option>
-          ))}
-        </Select>
-        <Select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} aria-label="Kind of item" className="w-40">
-          <option value="all">All items</option>
-          {(Object.keys(KIND_LABEL) as ItemKind[]).map((k) => (
-            <option key={k} value={k}>
-              {KIND_LABEL[k]}s
-            </option>
-          ))}
-        </Select>
-        <div className="flex items-center gap-1.5 text-[12px] text-ink-muted">
-          <Input type="date" value={from} max={to || today} onChange={(e) => setFrom(e.target.value)} aria-label="From date" className="w-36" />
-          <span>–</span>
-          <Input type="date" value={to} min={from || undefined} max={today} onChange={(e) => setTo(e.target.value)} aria-label="To date" className="w-36" />
-        </div>
-        <label className="flex items-center gap-1.5 text-[12px] text-ink">
-          <input
-            type="checkbox"
-            checked={hideUndone}
-            onChange={(e) => setHideUndone(e.target.checked)}
-            className="size-3.5 accent-brand-orange"
-          />
+        <FilterSelect
+          label="Type"
+          value={type}
+          onChange={(v) => setType(v as typeof type)}
+          options={[["all", "All"], ...(Object.keys(TYPE_LABEL) as MovementType[]).map((t): [string, string] => [t, TYPE_LABEL[t]])]}
+        />
+        <FilterSelect
+          label="Item"
+          value={kind}
+          onChange={(v) => setKind(v as typeof kind)}
+          options={[["all", "All"], ...(Object.keys(KIND_LABEL) as ItemKind[]).map((k): [string, string] => [k, `${KIND_LABEL[k]}s`])]}
+        />
+        <Input type="date" value={from} max={to || today} onChange={(e) => setFrom(e.target.value)} aria-label="From date" className="w-36" />
+        <span className="text-ink-muted">–</span>
+        <Input type="date" value={to} min={from || undefined} max={today} onChange={(e) => setTo(e.target.value)} aria-label="To date" className="w-36" />
+        <FilterPill active={hideUndone} onClick={() => setHideUndone((v) => !v)}>
           Hide undone
-        </label>
+        </FilterPill>
         {anyFilter ? (
-          <Button size="sm" variant="ghost" onClick={clear} icon={<X className="size-3.5" />}>
+          <Button variant="ghost" onClick={clear} icon={<X />}>
             Clear
           </Button>
         ) : null}
         <div className="flex-1" />
-        <span className="num text-[12px] text-ink-muted">
-          {dated ? "" : `Latest ${LATEST}`}
-        </span>
+        {dated ? null : <span className="num text-label text-ink-muted">Latest {LATEST}</span>}
       </div>
-      <div className="min-h-0 flex-1 overflow-auto">
-        <MovementTable
-          state={filtered}
-          canEdit={canEdit}
-          emptyText={anyFilter ? "No stock lines match these filters." : "No stock recorded yet."}
-        />
+      <div className="-mx-1 min-h-0 flex-1 overflow-auto px-1">
+        {filtered.status === "ready" && filtered.data.length === 0 ? (
+          <EmptyState icon={<ClipboardList />} title={emptyText} />
+        ) : (
+          <MovementTable state={filtered} canEdit={canEdit} emptyText={emptyText} />
+        )}
       </div>
+      {filtered.status === "ready" && state.status === "ready" && filtered.data.length > 0 ? (
+        <TableFooter shown={filtered.data.length} total={state.data.length} noun={filtered.data.length === 1 ? "line" : "lines"} />
+      ) : null}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import clsx from "clsx";
-import { ArrowLeft, Check, Plus, Trash2, UserPlus } from "lucide-react";
+import { Check, Plus, Trash2, UserPlus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   BUYABLE_KINDS,
   formatINR,
@@ -22,7 +22,7 @@ import {
   type PurchaseItem,
   type PurchaseLineInput,
 } from "@technofluid/core";
-import { Badge, Button, Card, Field, Input, Select, Spinner } from "@/components/ui";
+import { Badge, Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Select, Spinner, tableClass, Workspace, WorkspacePanel } from "@/components/ui";
 import { EntityForm } from "@/features/entities/EntityForm";
 import { SearchPicker } from "@/features/sales/SearchPicker";
 import { KIND_LABEL, unitWord } from "@/features/stock/stockFormat";
@@ -36,6 +36,9 @@ type Line = { key: number; item: StockItem | null; qty: string; taxable: string;
 type Pay = { registerId: string; amount: string };
 
 const EMPTY_LINE = { item: null, qty: "", taxable: "", gst: "" } as const;
+
+const lineTh = "sticky top-0 z-10 h-10 border-b border-line bg-surface px-2 text-label font-medium whitespace-nowrap text-ink-muted first:pl-0 last:pr-0";
+const lineTd = "border-b border-line-row px-2 py-1.5 align-top first:pl-0 last:pr-0";
 
 /** "18" → 1800, "2.5" → 250 basis points; NaN if not a percent with at most two decimals. */
 function percentToBp(text: string): number {
@@ -188,80 +191,205 @@ export function NewPurchaseScreen() {
   const loading = entities.status === "loading" || stock.status === "loading";
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-6xl space-y-4 px-5 py-4">
-        <div className="flex items-center gap-2">
-          <Link to="/purchases" className="inline-flex items-center gap-1 text-[12px] text-ink-muted hover:text-ink">
-            <ArrowLeft className="size-3.5" /> Purchases
-          </Link>
-          <h2 className="text-[16px] font-semibold text-ink">New purchase</h2>
-          <span className="text-[12px] text-ink-muted">Our reference (PB/…) is given on save.</span>
-          {loading ? <Spinner /> : null}
-        </div>
-
-        <Card className="grid grid-cols-[2fr_1fr_1fr_1.2fr] gap-4 p-4">
-          <Field label="Supplier" htmlFor="np-supplier">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <SearchPicker
-                  id="np-supplier"
-                  items={suppliers}
-                  value={supplier}
-                  onChange={(s) => setSupplierId(s?.id ?? null)}
-                  keyOf={(s) => s.id}
-                  labelOf={(s) => s.name}
-                  searchOf={(s) => `${s.name} ${s.gstin ?? ""} ${s.address.city} ${s.phones.join(" ")}`.toLowerCase()}
-                  meta={(s) => [s.address.city, s.gstin ? "GSTIN" : "no GSTIN"].filter(Boolean).join(" · ")}
-                  placeholder="Type a name, GSTIN or city"
-                  autoFocus={!supplierId}
-                />
+    <>
+      <Workspace
+        panel={
+          <WorkspacePanel
+            title="Bill details"
+            footer={
+              <>
+                <div className="space-y-1 text-label">
+                  <Row label="Value before GST" value={t ? formatINR(t.taxablePaise - (priced?.ok && priced.freight ? priced.freight.taxablePaise : 0)) : "—"} />
+                  {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
+                  {t && t.supplyType === "INTRA" ? (
+                    <>
+                      <Row label="Input CGST" value={formatINR(t.cgstPaise)} />
+                      <Row label="Input SGST" value={formatINR(t.sgstPaise)} />
+                    </>
+                  ) : t && t.supplyType === "INTER" ? (
+                    <Row label="Input IGST" value={formatINR(t.igstPaise)} />
+                  ) : t ? (
+                    <Row label="GST" value="none (unregistered)" />
+                  ) : null}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-ink-muted">Round off</span>
+                    <div className="flex items-center gap-2">
+                      {roundOff !== null && exact?.ok && roundOffPaise !== suggested ? (
+                        <button type="button" className="rounded text-caption font-medium text-accent hover:underline" onClick={() => setRoundOff(null)}>
+                          use {signed(suggested)}
+                        </button>
+                      ) : null}
+                      <MoneyInput value={roundOff ?? (suggested ? (suggested / 100).toFixed(2) : "")} onChange={(e) => setRoundOff(e.target.value)} placeholder="0.00" className="w-28" aria-label="Round off, rupees (minus to round down)" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-baseline justify-between gap-3 border-t border-line pt-3">
+                  <span className="font-semibold text-ink">Our total</span>
+                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.billTotalPaise) : "—"}</span>
+                </div>
+                <Field
+                  label="Supplier's bill total (as printed)"
+                  htmlFor="np-total"
+                  error={t && supplierTotal.trim() && Number.isInteger(supplierTotalPaise) && !matches ? `Off by ${signed(supplierTotalPaise - t.billTotalPaise)}. A difference up to ₹1 goes in Round off.` : undefined}
+                >
+                  <div className="flex items-center gap-2">
+                    <MoneyInput id="np-total" value={supplierTotal} onChange={(e) => setSupplierTotal(e.target.value)} invalid={Boolean(supplierTotal) && !matches} className="flex-1" />
+                    {matches ? <Check className="size-4 shrink-0 text-success" aria-label="Matches" /> : null}
+                  </div>
+                </Field>
+                {t && paidNow > 0 ? (
+                  <div className="space-y-1 text-label">
+                    <Row label="Paid now" value={formatINR(paidNow)} />
+                    {paidNow < t.billTotalPaise ? <Row label="Still to pay" value={formatINR(t.billTotalPaise - paidNow)} /> : null}
+                  </div>
+                ) : null}
+                {t && t.taxPaise > 0 ? <p className="text-caption text-ink-muted">Input GST {formatINR(t.taxPaise)} is recorded to claim back{t.byRate.length > 1 ? ` (${t.byRate.map((r) => formatRate(r.gstRateBp)).join(", ")})` : ""}.</p> : null}
+                {error ? <Banner tone="danger">{error}</Banner> : null}
+                {problem ? <p className="text-label text-ink-muted">{problem}</p> : null}
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" onClick={() => navigate("/purchases")} disabled={busy}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" className="flex-1" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
+                    {busy ? "Saving…" : "Save purchase"}
+                  </Button>
+                </div>
+              </>
+            }
+          >
+            <Field label="Supplier" htmlFor="np-supplier">
+              <div className="flex gap-2">
+                <div className="min-w-0 flex-1 [&_[role=listbox]]:w-84 [&_[role=listbox]]:max-w-84">
+                  <SearchPicker
+                    id="np-supplier"
+                    items={suppliers}
+                    value={supplier}
+                    onChange={(s) => setSupplierId(s?.id ?? null)}
+                    keyOf={(s) => s.id}
+                    labelOf={(s) => s.name}
+                    searchOf={(s) => `${s.name} ${s.gstin ?? ""} ${s.address.city} ${s.phones.join(" ")}`.toLowerCase()}
+                    meta={(s) => [s.address.city, s.gstin ? "GSTIN" : "no GSTIN"].filter(Boolean).join(" · ")}
+                    placeholder="Type a name, GSTIN or city"
+                    autoFocus={!supplierId}
+                  />
+                </div>
+                <Button icon={<UserPlus />} onClick={() => setAdding(true)} title="Add a new supplier">
+                  Add
+                </Button>
               </div>
-              <Button icon={<UserPlus className="size-3.5" />} onClick={() => setAdding(true)} title="Add a new supplier">
-                Add
-              </Button>
-            </div>
-          </Field>
-          <Field label="Supplier's bill no." htmlFor="np-billno">
-            <Input id="np-billno" value={billNo} onChange={(e) => setBillNo(e.target.value)} maxLength={40} placeholder="As printed" />
-          </Field>
-          <Field label="Bill date" htmlFor="np-date">
-            <Input id="np-date" type="date" value={billDate} max={today} onChange={(e) => e.target.value && setBillDate(e.target.value)} />
-          </Field>
-          <div className="space-y-1 text-[12px]">
-            <p className="font-medium text-ink">GST</p>
-            {supplier ? (
-              registered ? (
-                <>
-                  <p>
-                    <Badge tone="info">Registered — input GST</Badge> <Badge>{gstState === SELLER_STATE_CODE ? "CGST + SGST" : "IGST"}</Badge>
-                  </p>
-                  <p className="text-ink-muted">
-                    {supplier.gstin} · {GST_STATES[gstState!] ?? gstState}
-                  </p>
-                </>
+            </Field>
+            <div className="space-y-1 text-label">
+              <p className="font-medium text-ink">GST</p>
+              {supplier ? (
+                registered ? (
+                  <>
+                    <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-ink">
+                      <span>Registered — input GST</span>
+                      <span className="text-ink-faint" aria-hidden>
+                        ·
+                      </span>
+                      <span>{gstState === SELLER_STATE_CODE ? "CGST + SGST" : "IGST"}</span>
+                    </p>
+                    <p className="text-ink-muted">
+                      {supplier.gstin} · {GST_STATES[gstState!] ?? gstState}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Badge tone="warning">Unregistered — no GST</Badge>
+                    <p className="text-ink-muted">{supplier.gstin ? "The GSTIN on record isn't valid." : "No GSTIN on record."} The bill can't carry GST.</p>
+                  </>
+                )
               ) : (
-                <>
-                  <Badge tone="warning">Unregistered — no GST</Badge>
-                  <p className="text-ink-muted">{supplier.gstin ? "The GSTIN on record isn't valid." : "No GSTIN on record."} The bill can't carry GST.</p>
-                </>
-              )
-            ) : (
-              <p className="text-ink-muted">Choose a supplier</p>
-            )}
-          </div>
-        </Card>
+                <p className="text-ink-muted">Choose a supplier</p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Supplier's bill no." htmlFor="np-billno">
+                <Input id="np-billno" value={billNo} onChange={(e) => setBillNo(e.target.value)} maxLength={40} placeholder="As printed" />
+              </Field>
+              <Field label="Bill date" htmlFor="np-date">
+                <Input id="np-date" type="date" value={billDate} max={today} onChange={(e) => e.target.value && setBillDate(e.target.value)} />
+              </Field>
+            </div>
+            <Field label="Freight on the bill (before GST)" htmlFor="np-freight" help="Part of the cost; taxed at the highest line rate.">
+              <MoneyInput id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
+            </Field>
+            <Field label="Note" htmlFor="np-note">
+              <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., delivery challan" />
+            </Field>
+            <label className="flex items-start gap-2 text-body text-ink">
+              <span className="flex h-5 items-center">
+                <Checkbox checked={alreadyCounted} onChange={(e) => setAlreadyCounted(e.target.checked)} />
+              </span>
+              <span>
+                Goods already counted in stock
+                <span className="mt-0.5 block text-caption text-ink-subtle">Tick only if Stock & Production already recorded these goods as "In" — then this bill updates the books only, so stock isn't counted twice.</span>
+              </span>
+            </label>
+            <div className="space-y-2">
+              <div>
+                <p className="text-label font-medium text-ink">Paid now</p>
+                <p className="mt-0.5 text-caption text-ink-subtle">Leave empty if on credit</p>
+              </div>
+              {pays.map((p, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Select value={p.registerId} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, registerId: e.target.value } : x)))} aria-label={`Payment ${i + 1} from`} className="min-w-0 flex-1">
+                      {regs.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </Select>
+                    <MoneyInput value={p.amount} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="Amount" className="w-28 shrink-0" aria-label={`Payment ${i + 1} amount`} />
+                    <IconButton size="sm" label={`Remove payment ${i + 1}`} onClick={() => setPays((ps) => ps.filter((_, j) => j !== i))}>
+                      <Trash2 />
+                    </IconButton>
+                  </div>
+                  {t && pays.length === 1 ? (
+                    <div className="flex justify-end">
+                      <Button size="sm" variant="ghost" onClick={() => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: String(t.billTotalPaise / 100) } : x)))}>
+                        Full amount
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+              {pays.length < 2 && regs.length > 0 ? (
+                <Button size="sm" icon={<Plus />} onClick={() => setPays((ps) => [...ps, { registerId: regs.find((r) => !ps.some((x) => x.registerId === r.id))?.id ?? regs[0]!.id, amount: "" }])}>
+                  {pays.length === 0 ? "Add payment made now" : "Split: add a second payment"}
+                </Button>
+              ) : null}
+            </div>
+          </WorkspacePanel>
+        }
+      >
+        <div className="@container px-8 pt-6 pb-10">
+          <PageHeader back={{ to: "/purchases", label: "Purchases" }} title="New purchase" badge={loading ? <Spinner /> : null} subtitle="Our reference (PB/…) is given on save." />
 
-        <Card className="p-0">
-          <table className="w-full border-collapse text-[13px]">
-            <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-              <tr className="border-b border-line">
-                <th className="py-2 pr-2 pl-3 font-medium">Item</th>
-                <th className="w-36 py-2 pr-2 font-medium">Quantity</th>
-                <th className="w-32 py-2 pr-2 font-medium">Value before GST ₹</th>
-                <th className="w-20 py-2 pr-2 font-medium">GST %</th>
-                <th className="w-28 py-2 pr-2 text-right font-medium">GST</th>
-                <th className="w-28 py-2 pr-2 text-right font-medium">Amount</th>
-                <th className="w-10 py-2 pr-3" />
+          <table className={clsx(tableClass.table, "min-w-[35rem]")}>
+            <thead>
+              <tr>
+                <th scope="col" className={clsx(lineTh, "text-left")}>
+                  Item
+                </th>
+                <th scope="col" className={clsx(lineTh, "w-32 text-left")}>
+                  Quantity
+                </th>
+                <th scope="col" className={clsx(lineTh, "w-24 text-right")}>
+                  Value before GST
+                </th>
+                <th scope="col" className={clsx(lineTh, "w-16 text-left")}>
+                  GST %
+                </th>
+                <th scope="col" className={clsx(lineTh, "hidden w-28 text-right @4xl:table-cell")}>
+                  GST
+                </th>
+                <th scope="col" className={clsx(lineTh, "w-24 text-right")}>
+                  Amount
+                </th>
+                <th scope="col" className={clsx(lineTh, "w-9")} />
               </tr>
             </thead>
             <tbody>
@@ -269,8 +397,8 @@ export function NewPurchaseScreen() {
                 const pl = pricedLine(l);
                 const err = lineError(l);
                 return (
-                  <tr key={l.key} className="border-b border-line/70 align-top">
-                    <td className="py-2 pr-2 pl-3">
+                  <tr key={l.key}>
+                    <td className={lineTd}>
                       <SearchPicker
                         items={items}
                         value={l.item}
@@ -282,34 +410,37 @@ export function NewPurchaseScreen() {
                         placeholder={`Line ${idx + 1}: type a raw material, consumable or product`}
                         autoFocus={idx > 0 && !l.item}
                       />
-                      <div className="mt-1 flex flex-wrap gap-x-3 text-2xs">
+                      <div className="mt-1 flex flex-wrap gap-x-3 text-caption empty:hidden">
                         {pl && pl.qtyMilli > 0 ? (
-                          <span className="text-ink-faint">
+                          <span className="num text-ink-subtle">
                             {formatINR(pl.unitCostPaise)} / {pl.baseUnit === "piece" ? "piece" : pl.baseUnit} before GST
                           </span>
                         ) : null}
+                        {pl ? <span className="num text-ink-subtle @4xl:hidden">GST {formatINR(pl.cgstPaise + pl.sgstPaise + pl.igstPaise)}</span> : null}
                         {err ? <span className="text-danger">{err}</span> : null}
                       </div>
                     </td>
-                    <td className="py-2 pr-2">
+                    <td className={lineTd}>
                       <div className="flex items-center gap-1.5">
-                        <Input value={l.qty} onChange={(e) => setLine(l.key, { qty: e.target.value })} inputMode="decimal" className="num" aria-label={`Line ${idx + 1} quantity`} />
-                        <span className="text-[12px] text-ink-muted">{l.item?.unitSet ? unitWord(l.item.baseUnit) : ""}</span>
+                        <Input value={l.qty} onChange={(e) => setLine(l.key, { qty: e.target.value })} inputMode="decimal" className="num min-w-0 flex-1" aria-label={`Line ${idx + 1} quantity`} />
+                        <span className="w-10 shrink-0 text-label text-ink-muted">{l.item?.unitSet ? unitWord(l.item.baseUnit) : ""}</span>
                       </div>
                     </td>
-                    <td className="py-2 pr-2">
-                      <Input value={l.taxable} onChange={(e) => setLine(l.key, { taxable: e.target.value })} inputMode="decimal" className="num text-right" aria-label={`Line ${idx + 1} value before GST`} />
+                    <td className={lineTd}>
+                      <MoneyInput value={l.taxable} onChange={(e) => setLine(l.key, { taxable: e.target.value })} aria-label={`Line ${idx + 1} value before GST`} />
                     </td>
-                    <td className="py-2 pr-2">
+                    <td className={lineTd}>
                       <Input value={l.gst} onChange={(e) => setLine(l.key, { gst: e.target.value })} inputMode="decimal" placeholder={defaultRate} className="num" aria-label={`Line ${idx + 1} GST percent`} />
                     </td>
-                    <td className="num py-2 pr-2 text-right text-ink-muted">{pl ? formatINR(pl.cgstPaise + pl.sgstPaise + pl.igstPaise) : "—"}</td>
-                    <td className="num py-2 pr-2 text-right font-medium">{pl ? formatINR(pl.totalPaise) : "—"}</td>
-                    <td className="py-2 pr-3 text-right">
+                    <td className={clsx(lineTd, "num hidden text-right leading-8 text-ink-muted @4xl:table-cell")}>{pl ? formatINR(pl.cgstPaise + pl.sgstPaise + pl.igstPaise) : "—"}</td>
+                    <td className={clsx(lineTd, "num text-right leading-8 font-medium")}>{pl ? formatINR(pl.totalPaise) : "—"}</td>
+                    <td className={lineTd}>
                       {lines.length > 1 ? (
-                        <Button size="sm" variant="ghost" className="px-1.5" aria-label={`Remove line ${idx + 1}`} onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
-                          <Trash2 className="size-3.5" />
-                        </Button>
+                        <div className="flex h-8 items-center justify-end">
+                          <IconButton size="sm" label={`Remove line ${idx + 1}`} onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
+                            <Trash2 />
+                          </IconButton>
+                        </div>
                       ) : null}
                     </td>
                   </tr>
@@ -317,10 +448,10 @@ export function NewPurchaseScreen() {
               })}
             </tbody>
           </table>
-          <div className="px-3 py-2">
+          <div className="mt-3">
             <Button
               size="sm"
-              icon={<Plus className="size-3.5" />}
+              icon={<Plus />}
               onClick={() => {
                 setLines((ls) => [...ls, { key: nextKey, ...EMPTY_LINE }]);
                 setNextKey((k) => k + 1);
@@ -329,112 +460,8 @@ export function NewPurchaseScreen() {
               Add line
             </Button>
           </div>
-        </Card>
-
-        <div className="grid grid-cols-[1fr_380px] gap-4">
-          <Card className="space-y-3 p-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Freight on the bill (₹, before GST)" htmlFor="np-freight" help="Part of the cost; taxed at the highest line rate.">
-                <Input id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} inputMode="decimal" placeholder="0" className="num" />
-              </Field>
-              <Field label="Note" htmlFor="np-note">
-                <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., delivery challan" />
-              </Field>
-            </div>
-            <label className="flex items-start gap-2 text-[12px] text-ink">
-              <input type="checkbox" checked={alreadyCounted} onChange={(e) => setAlreadyCounted(e.target.checked)} className="mt-0.5 size-3.5 accent-brand-orange" />
-              <span>
-                Goods already counted in stock
-                <span className="block text-ink-muted">Tick only if Stock & Production already recorded these goods as "In" — then this bill updates the books only, so stock isn't counted twice.</span>
-              </span>
-            </label>
-            <div className="space-y-2">
-              <p className="text-[12px] font-medium text-ink">
-                Paid now <span className="font-normal text-ink-muted">— leave empty if on credit</span>
-              </p>
-              {pays.map((p, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Select value={p.registerId} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, registerId: e.target.value } : x)))} aria-label={`Payment ${i + 1} from`} className="w-52">
-                    {regs.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <Input value={p.amount} onChange={(e) => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} inputMode="decimal" placeholder="Amount ₹" className="num w-40" aria-label={`Payment ${i + 1} amount`} />
-                  {t && pays.length === 1 ? (
-                    <Button size="sm" variant="ghost" onClick={() => setPays((ps) => ps.map((x, j) => (j === i ? { ...x, amount: String(t.billTotalPaise / 100) } : x)))}>
-                      Full amount
-                    </Button>
-                  ) : null}
-                  <Button size="sm" variant="ghost" className="px-1.5" aria-label={`Remove payment ${i + 1}`} onClick={() => setPays((ps) => ps.filter((_, j) => j !== i))}>
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                </div>
-              ))}
-              {pays.length < 2 && regs.length > 0 ? (
-                <Button size="sm" icon={<Plus className="size-3.5" />} onClick={() => setPays((ps) => [...ps, { registerId: regs.find((r) => !ps.some((x) => x.registerId === r.id))?.id ?? regs[0]!.id, amount: "" }])}>
-                  {pays.length === 0 ? "Add payment made now" : "Split: add a second payment"}
-                </Button>
-              ) : null}
-            </div>
-          </Card>
-
-          <Card className="space-y-1.5 p-4 text-[13px]">
-            <Row label="Value before GST" value={t ? formatINR(t.taxablePaise - (priced?.ok && priced.freight ? priced.freight.taxablePaise : 0)) : "—"} />
-            {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
-            {t && t.supplyType === "INTRA" ? (
-              <>
-                <Row label="Input CGST" value={formatINR(t.cgstPaise)} />
-                <Row label="Input SGST" value={formatINR(t.sgstPaise)} />
-              </>
-            ) : t && t.supplyType === "INTER" ? (
-              <Row label="Input IGST" value={formatINR(t.igstPaise)} />
-            ) : t ? (
-              <Row label="GST" value="none (unregistered)" />
-            ) : null}
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-ink-muted">Round off</span>
-              <div className="flex items-center gap-1.5">
-                {roundOff !== null && exact?.ok && roundOffPaise !== suggested ? (
-                  <button type="button" className="text-2xs text-info hover:underline" onClick={() => setRoundOff(null)}>
-                    use {signed(suggested)}
-                  </button>
-                ) : null}
-                <Input value={roundOff ?? (suggested ? (suggested / 100).toFixed(2) : "")} onChange={(e) => setRoundOff(e.target.value)} inputMode="decimal" placeholder="0.00" className="num w-24 text-right" aria-label="Round off, rupees (minus to round down)" />
-              </div>
-            </div>
-            <div className="flex items-baseline justify-between border-t border-line pt-2">
-              <span className="font-semibold text-ink">Our total</span>
-              <span className="num text-[20px] font-semibold text-ink">{t ? formatINR(t.billTotalPaise) : "—"}</span>
-            </div>
-            <Field label="Supplier's bill total (₹, as printed)" htmlFor="np-total">
-              <div className="flex items-center gap-2">
-                <Input id="np-total" value={supplierTotal} onChange={(e) => setSupplierTotal(e.target.value)} inputMode="decimal" className={clsx("num text-right", supplierTotal && !matches && "border-danger")} />
-                {matches ? <Check className="size-4 text-success" aria-label="Matches" /> : null}
-              </div>
-            </Field>
-            {t && supplierTotal.trim() && Number.isInteger(supplierTotalPaise) && !matches ? (
-              <p className="text-2xs text-danger">Off by {signed(supplierTotalPaise - t.billTotalPaise)}. A difference up to ₹1 goes in Round off.</p>
-            ) : null}
-            {t && paidNow > 0 ? <Row label="Paid now" value={formatINR(paidNow)} /> : null}
-            {t && paidNow > 0 && paidNow < t.billTotalPaise ? <Row label="Still to pay" value={formatINR(t.billTotalPaise - paidNow)} /> : null}
-            {t && t.taxPaise > 0 ? <p className="text-2xs text-ink-muted">Input GST {formatINR(t.taxPaise)} is recorded to claim back{t.byRate.length > 1 ? ` (${t.byRate.map((r) => formatRate(r.gstRateBp)).join(", ")})` : ""}.</p> : null}
-          </Card>
         </div>
-
-        {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-
-        <div className="flex items-center justify-end gap-2 pb-6">
-          {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}
-          <Button variant="ghost" onClick={() => navigate("/purchases")} disabled={busy}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
-            Save purchase
-          </Button>
-        </div>
-      </div>
+      </Workspace>
 
       {adding ? (
         <EntityForm
@@ -446,13 +473,13 @@ export function NewPurchaseScreen() {
           }}
         />
       ) : null}
-    </div>
+    </>
   );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline justify-between">
+    <div className="flex items-baseline justify-between gap-3">
       <span className="text-ink-muted">{label}</span>
       <span className="num text-ink">{value}</span>
     </div>

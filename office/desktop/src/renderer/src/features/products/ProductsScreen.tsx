@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, CheckCircle2, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   formatINR,
@@ -10,7 +10,27 @@ import {
   priceBasisFromLabel,
   toMilli,
 } from "@technofluid/core";
-import { Badge, Button, EmptyState, Input, Kbd, Segmented, Spinner } from "@/components/ui";
+import {
+  Badge,
+  Banner,
+  Button,
+  Detail,
+  Details,
+  Dialog,
+  EmptyState,
+  ErrorState,
+  FilterPill,
+  FilterSelect,
+  IconButton,
+  LoadingState,
+  Menu,
+  Page,
+  PageHeader,
+  SearchInput,
+  TableFooter,
+  Workspace,
+  tableClass,
+} from "@/components/ui";
 import { canEditProducts, canSeePrices } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
@@ -27,7 +47,8 @@ type StatusFilter = "selling" | "off" | "all";
 type SegmentFilter = "all" | "Automotive" | "Industrial";
 
 const CATEGORY_LABEL: Record<string, string> = { bulk_oil: "Bulk oil", grease: "Grease", retail: "Retail pack" };
-const ROW_HEIGHT = 40;
+const ROW_HEIGHT = 44;
+const PANEL = "flex w-96 shrink-0 flex-col border-l border-line";
 
 export function ProductsScreen() {
   const { role } = useStaff();
@@ -141,166 +162,167 @@ export function ProductsScreen() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const panel = adding ? (
+    <aside className={PANEL}>
+      <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
+        <h2 className="min-w-0 flex-1 truncate text-title font-semibold text-ink">
+          {adding.from ? `Copy of ${adding.from.name}` : "New product"}
+        </h2>
+        <IconButton label="Close" size="sm" onClick={() => select(null)}>
+          <X />
+        </IconButton>
+      </div>
+      <ProductEditor
+        key={adding.from?.sku ?? "new"}
+        mode={{ kind: "new", from: adding.from }}
+        onDirtyChange={onDirtyChange}
+        onDone={({ newSku }) => {
+          setAdding(null);
+          if (newSku) setSelectedSku(newSku);
+        }}
+      />
+    </aside>
+  ) : selected ? (
+    <ProductPanel
+      key={selected.sku}
+      product={selected}
+      showPrices={showPrices}
+      canEdit={canEdit}
+      onDirtyChange={onDirtyChange}
+      onCopy={() => startAdding(selected)}
+      onDeleted={() => {
+        setDeletedNote({ sku: selected.sku, label: `${selected.name}${selected.grade ? ` ${selected.grade}` : ""} · ${selected.packLabel}` });
+        setSelectedSku(null);
+      }}
+      onClose={() => select(null)}
+    />
+  ) : null;
+
   return (
-    <div className="flex h-full">
-      <section className="flex min-w-0 flex-1 flex-col">
-        {/* Toolbar */}
-        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface px-5 py-2.5">
-          <Input
-            ref={searchRef}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-            placeholder="Search name, grade, pack or SKU"
-            leading={<Search className="size-3.5" />}
-            className="w-[300px]"
-            aria-label="Search products"
-          />
-          <Segmented
-            value={category}
-            onChange={setCategory}
-            options={[
-              ["all", "All"],
-              ["bulk_oil", "Bulk oil"],
-              ["grease", "Grease"],
-              ["retail", "Retail"],
-            ]}
-          />
-          <Segmented
-            value={segment}
-            onChange={setSegment}
-            options={[
-              ["all", "All buyers"],
-              ["Automotive", "Automotive"],
-              ["Industrial", "Industrial"],
-            ]}
-          />
-          <Segmented
-            value={status}
-            onChange={setStatus}
-            options={[
-              ["selling", "Selling"],
-              ["off", "Not selling"],
-              ["all", "All"],
-            ]}
-          />
-          {showPrices ? (
-            <Button
-              size="sm"
-              variant={missingPriceOnly ? "primary" : "secondary"}
-              onClick={() => setMissingPriceOnly((v) => !v)}
-              icon={<AlertTriangle className="size-3.5" />}
-            >
-              No price ({missingCount})
-            </Button>
-          ) : null}
-          <div className="flex-1" />
-          <span className="num text-[12px] text-ink-muted">
-            {filtered.length.toLocaleString("en-IN")} {filtered.length === 1 ? "item" : "items"} · {pools}{" "}
-            {pools === 1 ? "stock pool" : "stock pools"}
-          </span>
-          {canEdit && filtered.length > 0 ? (
-            <Button size="sm" onClick={() => setBulkTax(true)} title="Set the GST % or HSN code on every product shown">
-              Change GST / HSN
-            </Button>
-          ) : null}
-          {canEdit ? (
-            <Button size="sm" variant="primary" onClick={() => startAdding()} icon={<Plus className="size-3.5" />}>
-              Add product
-            </Button>
-          ) : null}
-        </div>
+    <Workspace panel={panel}>
+      <Page fill>
+        <PageHeader
+          title="Products"
+          actions={
+            <>
+              {canEdit && filtered.length > 0 ? (
+                <Button onClick={() => setBulkTax(true)} title="Set the GST % or HSN code on every product shown">
+                  Change GST / HSN
+                </Button>
+              ) : null}
+              {canEdit ? (
+                <Button variant={adding ? "secondary" : "primary"} onClick={() => startAdding()} icon={<Plus />}>
+                  Add product
+                </Button>
+              ) : null}
+            </>
+          }
+          toolbar={
+            <>
+              <SearchInput
+                ref={searchRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+                onClear={() => setSearch("")}
+                placeholder="Search name, grade, pack or SKU"
+                aria-label="Search products"
+              />
+              <FilterSelect
+                label="Category"
+                value={category}
+                onChange={(v) => setCategory(v as CategoryFilter)}
+                options={[
+                  ["all", "All"],
+                  ["bulk_oil", "Bulk oil"],
+                  ["grease", "Grease"],
+                  ["retail", "Retail"],
+                ]}
+              />
+              <FilterSelect
+                label="Sold to"
+                value={segment}
+                onChange={(v) => setSegment(v as SegmentFilter)}
+                options={[
+                  ["all", "All buyers"],
+                  ["Automotive", "Automotive"],
+                  ["Industrial", "Industrial"],
+                ]}
+              />
+              <FilterSelect
+                label="Status"
+                value={status}
+                onChange={(v) => setStatus(v as StatusFilter)}
+                options={[
+                  ["selling", "Selling"],
+                  ["off", "Not selling"],
+                  ["all", "All"],
+                ]}
+              />
+              {showPrices ? (
+                <FilterPill active={missingPriceOnly} onClick={() => setMissingPriceOnly((v) => !v)} icon={<AlertTriangle />}>
+                  No price ({missingCount})
+                </FilterPill>
+              ) : null}
+            </>
+          }
+        />
 
         {deletedNote ? (
-          <div
-            role="status"
-            className="flex shrink-0 items-center gap-2 border-b border-line bg-canvas px-5 py-2 text-[12px] text-ink"
+          <Banner
+            tone={deletedNote.restored ? "success" : "info"}
+            className="mb-3 shrink-0 items-center!"
+            action={
+              <div className="flex items-center gap-1">
+                {deletedNote.restored ? null : (
+                  <Button size="sm" onClick={() => void undoDelete()} loading={undoing}>
+                    Undo
+                  </Button>
+                )}
+                <IconButton label="Dismiss" size="sm" onClick={() => setDeletedNote(null)}>
+                  <X />
+                </IconButton>
+              </div>
+            }
           >
-            {deletedNote.restored ? (
-              <>
-                <CheckCircle2 className="size-3.5 text-success" />
-                Restored {deletedNote.label}. It's switched off — turn Selling on when it's ready.
-              </>
-            ) : (
-              <>
-                <Trash2 className="size-3.5 text-ink-muted" />
-                Deleted {deletedNote.label}.
-                <Button size="sm" variant="secondary" onClick={() => void undoDelete()} loading={undoing}>
-                  Undo
-                </Button>
-              </>
-            )}
-            <div className="flex-1" />
-            <Button variant="ghost" size="sm" onClick={() => setDeletedNote(null)} aria-label="Dismiss" className="px-1.5">
-              <X className="size-3.5" />
-            </Button>
-          </div>
+            {deletedNote.restored
+              ? `Restored ${deletedNote.label}. It's switched off — turn Selling on when it's ready.`
+              : `Deleted ${deletedNote.label}.`}
+          </Banner>
         ) : null}
 
         {/* List */}
         {state.status === "loading" ? (
-          <div className="flex flex-1 items-center justify-center">
-            <Spinner />
-          </div>
+          <LoadingState className="flex-1" />
         ) : state.status === "error" ? (
-          <EmptyState icon={<AlertTriangle className="size-6" />} title="Products could not be loaded">
-            {state.message}
-          </EmptyState>
-        ) : products.length === 0 ? (
-          <EmptyState icon={<Package className="size-6" />} title="No products yet">
-            Products are imported from the product master.
-          </EmptyState>
-        ) : filtered.length === 0 ? (
-          <EmptyState icon={<Search className="size-6" />} title="Nothing matches">
-            Try fewer words, or clear the filters.
-          </EmptyState>
-        ) : (
-          <ProductTable
-            rows={filtered}
-            showPrices={showPrices}
-            selectedSku={selectedSku}
-            onSelect={select}
-          />
-        )}
-      </section>
-
-      {adding ? (
-        <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-surface">
-          <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-            <p className="min-w-0 flex-1 truncate text-[14px] font-semibold">
-              {adding.from ? `Copy of ${adding.from.name}` : "New product"}
-            </p>
-            <Button variant="ghost" size="sm" onClick={() => select(null)} aria-label="Close" className="px-1.5">
-              <X className="size-4" />
-            </Button>
+          <div className="min-h-0 flex-1">
+            <ErrorState title="Products could not be loaded">{state.message}</ErrorState>
           </div>
-          <ProductEditor
-            key={adding.from?.sku ?? "new"}
-            mode={{ kind: "new", from: adding.from }}
-            onDirtyChange={onDirtyChange}
-            onDone={({ newSku }) => {
-              setAdding(null);
-              if (newSku) setSelectedSku(newSku);
-            }}
-          />
-        </aside>
-      ) : selected ? (
-        <ProductPanel
-          key={selected.sku}
-          product={selected}
-          showPrices={showPrices}
-          canEdit={canEdit}
-          onDirtyChange={onDirtyChange}
-          onCopy={() => startAdding(selected)}
-          onDeleted={() => {
-            setDeletedNote({ sku: selected.sku, label: `${selected.name}${selected.grade ? ` ${selected.grade}` : ""} · ${selected.packLabel}` });
-            setSelectedSku(null);
-          }}
-          onClose={() => select(null)}
-        />
-      ) : null}
+        ) : products.length === 0 ? (
+          <div className="min-h-0 flex-1">
+            <EmptyState icon={<Package />} title="No products yet">
+              Products are imported from the product master.
+            </EmptyState>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="min-h-0 flex-1">
+            <EmptyState icon={<Search />} title="Nothing matches">
+              Try fewer words, or clear the filters.
+            </EmptyState>
+          </div>
+        ) : (
+          <>
+            <ProductTable rows={filtered} showPrices={showPrices} selectedSku={selectedSku} onSelect={select} />
+            <TableFooter shown={filtered.length} total={products.length} noun={products.length === 1 ? "item" : "items"}>
+              <span className="num">
+                · {pools.toLocaleString("en-IN")} {pools === 1 ? "stock pool" : "stock pools"}
+              </span>
+            </TableFooter>
+          </>
+        )}
+      </Page>
       {bulkTax ? <BulkTaxDialog products={filtered} onClose={() => setBulkTax(false)} /> : null}
-    </div>
+    </Workspace>
   );
 }
 
@@ -325,7 +347,8 @@ function ProductTable({
     overscan: 12,
   });
 
-  // Narrow (e.g. detail panel open): keep what matters for picking a product, drop the rest.
+  // Narrow (e.g. detail panel open): keep what matters for picking a product, drop the rest
+  // (the panel shows it). The flexible columns may shrink to nothing, so the list never scrolls sideways.
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const el = scrollRef.current;
@@ -337,11 +360,11 @@ function ProductTable({
 
   const cols = compact
     ? showPrices
-      ? "grid-cols-[minmax(180px,2fr)_minmax(140px,1.5fr)_76px_104px_104px]"
-      : "grid-cols-[minmax(180px,2fr)_minmax(140px,1.5fr)_76px_90px]"
+      ? "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_96px_96px]"
+      : "grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_76px_90px]"
     : showPrices
-      ? "grid-cols-[minmax(200px,2.2fr)_minmax(160px,1.6fr)_84px_108px_108px_56px_92px_minmax(140px,1.2fr)]"
-      : "grid-cols-[minmax(200px,2.2fr)_minmax(160px,1.6fr)_84px_56px_92px_minmax(140px,1.2fr)]";
+      ? "grid-cols-[minmax(180px,2.2fr)_minmax(140px,1.6fr)_84px_108px_108px_56px_100px_minmax(0,1.2fr)]"
+      : "grid-cols-[minmax(180px,2.2fr)_minmax(140px,1.6fr)_84px_56px_100px_minmax(0,1.2fr)]";
 
   const selectedIndex = rows.findIndex((r) => r.sku === selectedSku);
 
@@ -369,28 +392,24 @@ function ProductTable({
           onSelect(null);
         }
       }}
-      className="flex min-h-0 flex-1 flex-col outline-none"
+      className="-mx-3 flex min-h-0 flex-1 flex-col outline-none"
     >
       <div
         role="row"
-        className={clsx(
-          "grid shrink-0 items-center gap-3 border-b border-line bg-canvas px-5 text-center text-2xs font-medium tracking-wide text-ink-muted uppercase",
-          cols,
-        )}
-        style={{ height: 32 }}
+        className={clsx("grid h-10 shrink-0 items-center gap-3 border-b border-line px-3 text-label font-medium whitespace-nowrap text-ink-muted", cols)}
       >
-        <span className="text-left">Product</span>
+        <span>Product</span>
         <span>Pack</span>
-        <span>Pack size</span>
+        {compact && showPrices ? null : <span className="text-right">Pack size</span>}
         {showPrices ? (
           <>
-            <span>Dealer</span>
-            <span>Distributor</span>
+            <span className="text-right">Dealer</span>
+            <span className="text-right">Distributor</span>
           </>
         ) : null}
         {compact ? null : (
           <>
-            <span>GST</span>
+            <span className="text-right">GST</span>
             <span>Sold to</span>
             <span>SKU</span>
           </>
@@ -398,7 +417,8 @@ function ProductTable({
         {compact && !showPrices ? <span>Sold to</span> : null}
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
+      {/* The scrollbar sits in the 12px the rows bleed past the page edge, so the columns stay under their headings. */}
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable]">
         <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
           {virtualizer.getVirtualItems().map((item) => {
             const p = rows[item.index]!;
@@ -410,13 +430,13 @@ function ProductTable({
                 aria-selected={isSelected}
                 onClick={() => onSelect(isSelected ? null : p.sku)}
                 className={clsx(
-                  "absolute inset-x-0 grid cursor-default items-center gap-3 border-b border-line/70 px-5 text-center text-[13px]",
+                  "absolute inset-x-0 grid cursor-pointer items-center gap-3 border-b border-line-row pr-0.5 pl-3 text-body",
                   cols,
-                  isSelected ? "bg-brand-orange/[0.08]" : "bg-surface hover:bg-hover",
+                  isSelected ? tableClass.trSelected : "hover:bg-surface-alt",
                 )}
                 style={{ height: ROW_HEIGHT, transform: `translateY(${item.start}px)` }}
               >
-                <span className="min-w-0 truncate text-left">
+                <span className="min-w-0 truncate">
                   <span className="font-medium text-ink">{p.name}</span>
                   {p.grade ? <span className="text-ink-muted"> · {p.grade}</span> : null}
                   {p.active ? null : (
@@ -426,24 +446,18 @@ function ProductTable({
                   )}
                 </span>
                 <span className="truncate text-ink-muted">{p.packLabel}</span>
-                <span className="num text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>
+                {compact && showPrices ? null : <span className="num text-right text-ink-muted">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</span>}
                 {showPrices ? (
                   <>
                     <PriceCell paise={p.dealerPricePaise} per={p.pricePer} />
                     <PriceCell paise={p.distributorPricePaise} per={p.pricePer} />
                   </>
                 ) : null}
-                {compact ? null : <span className="num text-ink-muted">{p.gstPct}%</span>}
-                <span className={compact && showPrices ? "hidden" : undefined}>
-                  {p.segment ? (
-                    <Badge tone={p.segment === "Automotive" ? "info" : p.segment === "Industrial" ? "neutral" : "brand"}>
-                      {p.segment === "Both" ? "All buyers" : p.segment}
-                    </Badge>
-                  ) : (
-                    <Badge tone="warning">Not set</Badge>
-                  )}
+                {compact ? null : <span className="num text-right text-ink-muted">{p.gstPct}%</span>}
+                <span className={clsx("truncate text-ink-muted", compact && showPrices && "hidden")}>
+                  {p.segment ? (p.segment === "Both" ? "All buyers" : p.segment) : <Badge tone="warning">Not set</Badge>}
                 </span>
-                {compact ? null : <span className="selectable truncate font-mono text-[12px] text-ink-faint">{p.sku}</span>}
+                {compact ? null : <span className="selectable truncate font-mono text-caption text-ink-subtle">{p.sku}</span>}
               </div>
             );
           })}
@@ -454,11 +468,11 @@ function ProductTable({
 }
 
 function PriceCell({ paise, per }: { paise: number | null; per: string | null }) {
-  if (paise === null) return <span className="text-[12px] text-warning">No price</span>;
+  if (paise === null) return <span className="text-right text-label text-warning">No price</span>;
   return (
-    <span className="num text-ink" title={per ?? undefined}>
+    <span className="num truncate text-right text-ink" title={per ?? undefined}>
       {formatINR(paise)}
-      {per === "per litre" || per === "per kg" ? <span className="text-2xs text-ink-faint">/{per.slice(4)}</span> : null}
+      {per === "per litre" || per === "per kg" ? <span className="text-caption text-ink-subtle">/{per.slice(4)}</span> : null}
     </span>
   );
 }
@@ -484,6 +498,7 @@ function ProductPanel({
 }) {
   const [editing, setEditing] = useState(false);
   const [savedCount, setSavedCount] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // The "Saved" note fades after a few seconds.
   useEffect(() => {
@@ -515,39 +530,43 @@ function ProductPanel({
   }, [p, showPrices]);
 
   return (
-    <aside className="flex w-[360px] shrink-0 flex-col border-l border-line bg-surface">
-      <div className="flex items-start gap-2 border-b border-line px-4 py-3">
+    <aside className={PANEL}>
+      <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] leading-snug font-semibold">{p.name}</p>
-          <p className="text-[12px] text-ink-muted">
+          <h2 className="text-title font-semibold text-ink">{p.name}</h2>
+          <p className="mt-0.5 text-label text-ink-muted">
             {p.grade || "Single grade"} · {p.packLabel}
           </p>
           {p.active ? null : (
-            <Badge tone="neutral" className="mt-1">
+            <Badge tone="neutral" className="mt-1.5">
               Not selling
             </Badge>
           )}
         </div>
         {canEdit && !editing ? (
           <>
-            <Button size="sm" onClick={onCopy} icon={<Copy className="size-3.5" />} title="Copy as a new product">
-              Copy
-            </Button>
             <Button
               size="sm"
               onClick={() => {
                 setSavedCount(null);
                 setEditing(true);
               }}
-              icon={<Pencil className="size-3.5" />}
+              icon={<Pencil />}
             >
               Edit
             </Button>
+            <Menu
+              size="sm"
+              items={[
+                { label: "Copy as a new product", icon: <Copy />, onSelect: onCopy },
+                { label: "Delete product", icon: <Trash2 />, danger: true, onSelect: () => setConfirmDelete(true) },
+              ]}
+            />
           </>
         ) : null}
-        <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close details" className="px-1.5">
-          <X className="size-4" />
-        </Button>
+        <IconButton label="Close details" size="sm" onClick={onClose}>
+          <X />
+        </IconButton>
       </div>
 
       {editing ? (
@@ -560,96 +579,66 @@ function ProductPanel({
           }}
         />
       ) : (
-        <>
-          <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
-            {savedCount !== null ? (
-              <p role="status" className="flex items-center gap-1.5 rounded-md bg-success-soft px-3 py-2 text-[12px] text-success">
-                <CheckCircle2 className="size-3.5" />
-                Saved {savedCount} {savedCount === 1 ? "change" : "changes"}.
-              </p>
-            ) : null}
-            <dl className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-[12px]">
-              <Detail label="SKU" value={<span className="selectable font-mono">{p.sku}</span>} />
-              <Detail label="Category" value={CATEGORY_LABEL[p.category] ?? p.category} />
-              <Detail label="Pack size" value={formatQuantity(toMilli(p.packQty), p.baseUnit)} />
-              <Detail label="Density" value={p.densityKgPerL ? `${p.densityKgPerL} kg/L` : "—"} />
-              <Detail label="GST" value={`${p.gstPct}%`} />
-              <Detail label="HSN code" value={p.hsnCode ?? "—"} />
-              <Detail label="Sold to" value={p.segment === "Both" ? "All buyers" : (p.segment ?? "Not set")} />
-            </dl>
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 pb-6">
+          {savedCount !== null ? (
+            <Banner tone="success">
+              Saved {savedCount} {savedCount === 1 ? "change" : "changes"}.
+            </Banner>
+          ) : null}
+          <Details columns={2}>
+            <Detail label="SKU">
+              <span className="font-mono text-label">{p.sku}</span>
+            </Detail>
+            <Detail label="Category">{CATEGORY_LABEL[p.category] ?? p.category}</Detail>
+            <Detail label="Pack size">{formatQuantity(toMilli(p.packQty), p.baseUnit)}</Detail>
+            <Detail label="Density">{p.densityKgPerL ? `${p.densityKgPerL} kg/L` : "—"}</Detail>
+            <Detail label="GST">{p.gstPct}%</Detail>
+            <Detail label="HSN code">{p.hsnCode ?? "—"}</Detail>
+            <Detail label="Sold to">{p.segment === "Both" ? "All buyers" : (p.segment ?? "Not set")}</Detail>
+          </Details>
 
-            {showPrices ? (
-              <section>
-                <h3 className="mb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">Price of one pack (before GST)</h3>
-                {packPrice === null ? (
-                  <p className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-                    {canEdit ? "No price yet — use Edit to add one." : "No price yet."}
-                  </p>
-                ) : packPrice === "unknown" ? (
-                  <p className="rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-                    Can't work out the pack price from "{p.pricePer}".
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <PriceBox label="Dealer" paise={packPrice.dealer} />
-                    <PriceBox label="Distributor" paise={packPrice.distributor} />
-                  </div>
-                )}
-              </section>
-            ) : null}
+          {showPrices ? (
+            <section>
+              <h3 className="mb-2 text-label font-semibold text-ink">Price of one pack (before GST)</h3>
+              {packPrice === null ? (
+                <Banner tone="warning">{canEdit ? "No price yet — use Edit to add one." : "No price yet."}</Banner>
+              ) : packPrice === "unknown" ? (
+                <Banner tone="warning">Can't work out the pack price from "{p.pricePer}".</Banner>
+              ) : (
+                <Details columns={2}>
+                  <PackPrice label="Dealer" paise={packPrice.dealer} />
+                  <PackPrice label="Distributor" paise={packPrice.distributor} />
+                </Details>
+              )}
+            </section>
+          ) : null}
 
-            <RecipeSection product={p} />
+          <RecipeSection product={p} />
 
-            {canEdit ? <ProductHistory sku={p.sku} /> : null}
-
-            {canEdit ? <DeleteProduct product={p} onDeleted={onDeleted} /> : null}
-          </div>
-
-          <div className="flex items-center gap-1.5 border-t border-line px-4 py-2 text-2xs text-ink-faint">
-            <Kbd>↑</Kbd>
-            <Kbd>↓</Kbd> to move · <Kbd>Esc</Kbd> to close
-          </div>
-        </>
+          {canEdit ? <ProductHistory sku={p.sku} /> : null}
+        </div>
       )}
+      {confirmDelete ? <DeleteProduct product={p} onDeleted={onDeleted} onClose={() => setConfirmDelete(false)} /> : null}
     </aside>
   );
 }
 
-function Detail({ label, value }: { label: string; value: React.ReactNode }) {
+function PackPrice({ label, paise }: { label: string; paise: number | null }) {
   return (
-    <div>
-      <dt className="text-ink-faint">{label}</dt>
-      <dd className="mt-0.5 font-medium text-ink">{value}</dd>
-    </div>
-  );
-}
-
-function PriceBox({ label, paise }: { label: string; paise: number | null }) {
-  return (
-    <div className="rounded-md border border-line px-3 py-2">
-      <p className="text-2xs text-ink-muted">{label}</p>
-      {paise === null ? (
-        <p className="text-[13px] text-warning">No price</p>
-      ) : (
-        <p className="num text-[15px] font-semibold text-ink">{formatINR(paise)}</p>
-      )}
-    </div>
+    <Detail label={label}>
+      {paise === null ? <span className="text-warning">No price</span> : <span className="num text-title font-semibold">{formatINR(paise)}</span>}
+    </Detail>
   );
 }
 
 /* ─── Delete (soft) ──────────────────────────────────────────────────────────── */
 
-function DeleteProduct({ product: p, onDeleted }: { product: Product; onDeleted: () => void }) {
+function DeleteProduct({ product: p, onDeleted, onClose }: { product: Product; onDeleted: () => void; onClose: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const label = `${p.name}${p.grade ? ` ${p.grade}` : ""} (${p.packLabel})`;
 
   const remove = async () => {
-    const label = `${p.name}${p.grade ? ` ${p.grade}` : ""} (${p.packLabel})`;
-    const ok = window.confirm(
-      `Delete ${label}?\n\nIt disappears from Technofluid Office and from the pack sizes on the website. ` +
-        "Nothing is erased — you can undo it straight after, and it stays in the records.",
-    );
-    if (!ok) return;
     setBusy(true);
     setError(null);
     try {
@@ -662,15 +651,27 @@ function DeleteProduct({ product: p, onDeleted }: { product: Product; onDeleted:
   };
 
   return (
-    <section className="border-t border-line pt-4">
-      <Button variant="ghost" size="sm" onClick={() => void remove()} loading={busy} icon={<Trash2 className="size-3.5" />} className="text-danger hover:text-danger">
-        Delete product
-      </Button>
-      {error ? (
-        <p role="alert" className="mt-2 rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
-          {error}
-        </p>
-      ) : null}
-    </section>
+    <Dialog
+      danger
+      title="Delete this product?"
+      onClose={onClose}
+      busy={busy}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={busy} autoFocus>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={() => void remove()} loading={busy}>
+            {busy ? "Deleting…" : "Delete product"}
+          </Button>
+        </>
+      }
+    >
+      <p className="text-body text-ink">
+        <span className="font-semibold">{label}</span> disappears from Technofluid Office and from the pack sizes on the website. Nothing is
+        erased — you can undo it straight after, and it stays in the records.
+      </p>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }

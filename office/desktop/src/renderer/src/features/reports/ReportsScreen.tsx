@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Segmented } from "@/components/ui";
+import { Page, PageHeader, Tabs } from "@/components/ui";
 import { MoneyOwedReportView } from "./MoneyOwedReport";
+import { ReportActionsSlot } from "./reportParts";
 import { SalesReportView } from "./SalesReport";
 import { StockValueReportView } from "./StockValueReport";
 
@@ -13,23 +14,21 @@ type Tab = "owed" | "sales" | "stock";
  */
 export function ReportsScreen() {
   const [tab, setTab] = useState<Tab>("owed");
+  const [actions, setActions] = useState<HTMLDivElement | null>(null);
   return (
-    <div className="flex h-full flex-col">
-      <div className="shrink-0 bg-surface px-5 pt-3 pb-1">
-        <Segmented
-          wide
-          value={tab}
-          onChange={setTab}
-          options={[
-            ["owed", "Money owed"],
-            ["sales", "Sales by product"],
-            ["stock", "Stock value"],
-          ]}
-        />
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {tab === "owed" ? <MoneyOwedReportView /> : tab === "sales" ? <SalesReportView /> : <StockValueReportView />}
-      </div>
-    </div>
+    <Page>
+      <PageHeader title="Reports" actions={<div ref={setActions} className="flex items-center gap-2" />} />
+      <Tabs
+        className="mb-6"
+        value={tab}
+        onChange={setTab}
+        options={[
+          ["owed", "Money owed"],
+          ["sales", "Sales by product"],
+          ["stock", "Stock value"],
+        ]}
+      />
+      <ReportActionsSlot.Provider value={actions}>{tab === "owed" ? <MoneyOwedReportView /> : tab === "sales" ? <SalesReportView /> : <StockValueReportView />}</ReportActionsSlot.Provider>
+    </Page>
   );
 }

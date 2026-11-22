@@ -1,4 +1,4 @@
-import { Plus, Receipt, Search } from "lucide-react";
+import { Plus, Receipt } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   checkGstin,
@@ -15,9 +15,8 @@ import {
   type ExpenseGst,
   type MoneyAccountRef,
 } from "@technofluid/core";
-import { Button, EmptyState, Field, Input, Segmented, Select, Spinner } from "@/components/ui";
+import { Banner, Button, Checkbox, Dialog, EmptyState, ErrorState, Field, FilterSelect, Input, LoadingState, MoneyInput, Page, PageHeader, SearchInput, Segmented, Select, Workspace } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
-import { Modal } from "@/features/entities/EntityDetail";
 import { useEntities } from "@/hooks/useEntities";
 import { useCategories, useMoneyEntries, useRegisters } from "@/hooks/useMoney";
 import { recordExpense, saveExpenseCategory, type CategoryRow, type RegisterRow } from "@/services/moneyService";
@@ -30,7 +29,7 @@ const RATES = [0, 500, 1200, 1800, 2800, 4000];
 
 /**
  * Expenses (Admin, Accounts): freight, electricity, salaries… paid from cash or a bank,
- * with GST input credit when there's a GST bill. Shown as "Expense" (in red), never as a
+ * with GST input credit when there's a GST bill. Shown as "Expense", never as a
  * transfer; reversible like any entry.
  */
 export function ExpensesScreen() {
@@ -78,50 +77,55 @@ export function ExpensesScreen() {
   const original = selected?.reversesEntryId ? (all.find((e) => e.id === selected.reversesEntryId) ?? null) : null;
 
   return (
-    <div className="flex h-full min-h-0">
-      <div className="min-w-0 flex-1 overflow-y-auto">
-        <div className="space-y-4 px-5 py-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search" leading={<Search className="size-3.5" />} className="w-56" aria-label="Search expenses" />
-            <Select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category" className="w-48">
-              <option value="">All categories</option>
-              {cats.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-            <Select value={preset} onChange={(e) => setPreset(e.target.value as typeof preset)} aria-label="Dates" className="w-36">
-              <option value="today">Today</option>
-              <option value="week">Last 7 days</option>
-              <option value="month">This month</option>
-            </Select>
-            <span className="flex-1" />
-            <Button variant="primary" icon={<Plus className="size-3.5" />} onClick={() => setAdding(true)}>
+    <Workspace panel={selected ? <ExpenseDetail entry={selected} isAdmin={role === "admin"} original={original} onClose={() => setSelectedId(null)} /> : null}>
+      <Page>
+        <PageHeader
+          title="Expenses"
+          actions={
+            <Button variant="primary" icon={<Plus />} onClick={() => setAdding(true)}>
               Add expense
             </Button>
-          </div>
-          {totals.length ? (
-            <div className="flex flex-wrap gap-2">
-              {totals.map(([name, paise]) => (
-                <span key={name} className="rounded-md bg-canvas px-3 py-1.5 text-[12px]">
-                  {name} <span className="num font-semibold text-danger">{formatINR(paise)}</span>
-                </span>
-              ))}
-            </div>
-          ) : null}
-          {entries.status === "loading" ? (
-            <Spinner />
-          ) : rows.length === 0 ? (
-            <EmptyState icon={<Receipt className="size-6" />} title="No expenses in these dates" />
-          ) : (
-            <EntriesTable rows={rows} isAdmin={role === "admin"} onSelect={(e) => setSelectedId((id) => (id === e.id ? null : e.id))} selectedId={selectedId} />
-          )}
-        </div>
-      </div>
-      {selected ? <ExpenseDetail entry={selected} isAdmin={role === "admin"} original={original} onClose={() => setSelectedId(null)} /> : null}
+          }
+          toolbar={
+            <>
+              <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch("")} placeholder="Search" className="w-64" aria-label="Search expenses" />
+              <FilterSelect label="Category" value={category} onChange={setCategory} options={[["", "All"], ...cats.map((c): [string, string] => [c.id, c.name])]} />
+              <FilterSelect
+                label="Dates"
+                value={preset}
+                onChange={(v) => setPreset(v as typeof preset)}
+                active={preset !== "month"}
+                options={[
+                  ["today", "Today"],
+                  ["week", "Last 7 days"],
+                  ["month", "This month"],
+                ]}
+              />
+            </>
+          }
+        />
+        {totals.length ? (
+          <dl className="mb-6 flex flex-wrap gap-x-8 gap-y-2 text-label">
+            {totals.map(([name, paise]) => (
+              <div key={name} className="flex items-baseline gap-2">
+                <dt className="text-ink-muted">{name}</dt>
+                <dd className="num font-semibold text-ink">{formatINR(paise)}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+        {entries.status === "loading" ? (
+          <LoadingState />
+        ) : entries.status === "error" ? (
+          <ErrorState>{entries.message}</ErrorState>
+        ) : rows.length === 0 ? (
+          <EmptyState icon={<Receipt />} title="No expenses in these dates" />
+        ) : (
+          <EntriesTable rows={rows} isAdmin={role === "admin"} hideKind onSelect={(e) => setSelectedId((id) => (id === e.id ? null : e.id))} selectedId={selectedId} />
+        )}
+      </Page>
       {adding ? <ExpenseForm categories={cats} registers={regs} suppliers={suppliers} onClose={() => setAdding(false)} /> : null}
-    </div>
+    </Workspace>
   );
 }
 
@@ -208,10 +212,26 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
   };
 
   return (
-    <Modal title="Add expense" onClose={onClose} busy={busy} wide>
-      <div className="grid grid-cols-2 gap-3">
+    <Dialog
+      title="Add expense"
+      size="lg"
+      onClose={onClose}
+      busy={busy}
+      footer={
+        <>
+          {problem ? <span className="mr-auto min-w-0 text-label text-ink-muted">{problem}</span> : null}
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
+            {busy ? "Saving…" : "Save expense"}
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4">
         <Field label="Category" htmlFor="ex-cat">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Select id="ex-cat" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
               <option value="">Choose…</option>
               {categories
@@ -222,9 +242,9 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
                   </option>
                 ))}
             </Select>
-            <div className="flex gap-1.5">
+            <div className="flex gap-2">
               <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Or add a category" className="flex-1" aria-label="New category" maxLength={60} />
-              <Button size="sm" onClick={() => void addCategory()} disabled={!newCategory.trim() || busy}>
+              <Button onClick={() => void addCategory()} disabled={!newCategory.trim() || busy}>
                 Add
               </Button>
             </div>
@@ -239,24 +259,21 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
             ))}
           </Select>
         </Field>
-        <Field label={gstOn ? (enterAs === "total" ? "Bill total (₹)" : "Taxable value (₹)") : "Amount (₹)"} htmlFor="ex-amount">
-          <Input id="ex-amount" value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className="num" autoFocus />
+        <Field label={gstOn ? (enterAs === "total" ? "Bill total" : "Taxable value") : "Amount"} htmlFor="ex-amount">
+          <MoneyInput id="ex-amount" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
         </Field>
         <Field label="Day" htmlFor="ex-day">
           <Input id="ex-day" type="date" value={day} max={indiaDate()} onChange={(e) => setDay(e.target.value)} />
         </Field>
       </div>
-      <Field label={noteNeeded ? "What was it?" : "Note"} htmlFor="ex-note" help={noteNeeded ? 'Needed for "Other" — e.g. "Diwali sweets for staff".' : undefined}>
-        <Input id="ex-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder={noteNeeded ? "Name of the item or service" : "Optional"} maxLength={500} />
+      <Field label={noteNeeded ? "What was it?" : "Note"} htmlFor="ex-note" optional={!noteNeeded} help={noteNeeded ? 'Needed for "Other" — e.g. "Diwali sweets for staff".' : undefined}>
+        <Input id="ex-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder={noteNeeded ? "Name of the item or service" : undefined} maxLength={500} />
       </Field>
 
-      <label className="flex items-center gap-2 text-[13px] font-medium text-ink">
-        <input type="checkbox" checked={gstOn} onChange={(e) => setGstOn(e.target.checked)} className="size-3.5 accent-brand-orange" />
-        GST bill (claim the input credit)
-      </label>
+      <Checkbox checked={gstOn} onChange={(e) => setGstOn(e.target.checked)} label="GST bill (claim the input credit)" className="font-medium" />
       {gstOn ? (
-        <div className="space-y-3 rounded-lg bg-canvas px-4 py-3">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-4 border-t border-line-row pt-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
             <Field label="Supplier" htmlFor="ex-sup">
               <Select id="ex-sup" value={supplierId} onChange={(e) => setSupplierId(e.target.value)}>
                 <option value="">Type the supplier's details…</option>
@@ -277,7 +294,7 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
             {!supplier ? (
               <>
                 <Field label="Supplier GSTIN" htmlFor="ex-supgst" error={gstinCheck && !gstinCheck.valid ? gstinCheck.reason : undefined}>
-                  <Input id="ex-supgst" value={supGstin} onChange={(e) => setSupGstin(e.target.value.toUpperCase())} className="font-mono" maxLength={15} />
+                  <Input id="ex-supgst" value={supGstin} onChange={(e) => setSupGstin(e.target.value.toUpperCase())} className="font-mono" maxLength={15} invalid={Boolean(gstinCheck && !gstinCheck.valid)} />
                 </Field>
                 <Field label="Supplier state" htmlFor="ex-supstate">
                   <Select id="ex-supstate" value={stateCode} onChange={(e) => setSupState(e.target.value)} disabled={Boolean(gstinCheck?.valid)}>
@@ -308,6 +325,7 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
             <Field label="I'm entering" htmlFor="ex-enter">
               <div id="ex-enter">
                 <Segmented
+                  wide
                   value={enterAs}
                   onChange={setEnterAs}
                   options={[
@@ -319,24 +337,15 @@ function ExpenseForm({ categories, registers, suppliers, onClose }: { categories
             </Field>
           </div>
           {split ? (
-            <p className="num text-[13px] text-ink">
+            <p className="num rounded-control bg-surface-alt px-3 py-2 text-body text-ink">
               Taxable {formatINR(split.taxablePaise)}
-              {split.cgstPaise ? ` + CGST ${formatINR(split.cgstPaise)} + SGST ${formatINR(split.sgstPaise)}` : ` + IGST ${formatINR(split.igstPaise)}`} = <b>{formatINR(split.grossPaise)}</b>
+              {split.cgstPaise ? ` + CGST ${formatINR(split.cgstPaise)} + SGST ${formatINR(split.sgstPaise)}` : ` + IGST ${formatINR(split.igstPaise)}`} = <b className="font-semibold">{formatINR(split.grossPaise)}</b>
             </p>
           ) : null}
         </div>
       ) : null}
 
-      {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-      <div className="flex items-center justify-end gap-2">
-        {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}
-        <Button variant="ghost" onClick={onClose} disabled={busy}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={() => void save()} loading={busy} disabled={Boolean(problem)}>
-          Save expense
-        </Button>
-      </div>
-    </Modal>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }

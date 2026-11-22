@@ -1,6 +1,5 @@
-import clsx from "clsx";
-import { AlertTriangle, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Plus, Search, X } from "lucide-react";
+import { useEffect, useId, useMemo, useState } from "react";
 import {
   checkEntityInput,
   checkGstin,
@@ -13,7 +12,7 @@ import {
   type EntityInput,
   type EntityKind,
 } from "@technofluid/core";
-import { Button, Field, Input, Segmented, Select } from "@/components/ui";
+import { Banner, Button, Checkbox, Dialog, Field, IconButton, Input, MoneyInput, Segmented, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { lookUpGstin, saveEntity, type EntityRow } from "@/services/entityService";
 
@@ -65,12 +64,7 @@ export function EntityForm({
   const [gstBusy, setGstBusy] = useState(false);
   const [gstNote, setGstNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && !busy && onClose(null);
-    window.addEventListener("keydown", esc);
-    return () => window.removeEventListener("keydown", esc);
-  }, [busy, onClose]);
+  const formId = useId();
 
   // A valid GSTIN decides the state (GST place of supply).
   const gstCheck = gstin.trim() ? checkGstin(gstin) : null;
@@ -156,59 +150,64 @@ export function EntityForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 p-6" role="dialog" aria-modal="true" aria-label={entity ? `Edit ${entity.name}` : "Add customer or supplier"}>
+    <Dialog
+      title={entity ? `Edit ${entity.name}` : "Add customer or supplier"}
+      subtitle={walkIn ? "The walk-in customer — only its notes can change." : "Saved here and in the books (Humble Ledger)."}
+      size="lg"
+      onClose={() => onClose(null)}
+      busy={busy}
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
+            Cancel
+          </Button>
+          <Button type="submit" form={formId} variant="primary" loading={busy}>
+            {busy ? "Saving…" : entity ? "Save" : "Add"}
+          </Button>
+        </>
+      }
+    >
       <form
-        className="w-full max-w-2xl rounded-xl bg-surface shadow-pop"
+        id={formId}
         onSubmit={(e) => {
           e.preventDefault();
           void save();
         }}
       >
-        <header className="flex items-start gap-2 border-b border-line px-5 py-4">
-          <div className="flex-1">
-            <h2 className="text-[16px] font-semibold text-ink">{entity ? `Edit ${entity.name}` : "Add customer or supplier"}</h2>
-            <p className="text-[12px] text-ink-muted">
-              {walkIn ? "The walk-in customer — only its notes can change." : "Saved here and in the books (Humble Ledger)."}
-            </p>
-          </div>
-          <Button variant="ghost" size="sm" className="px-1.5" aria-label="Close" onClick={() => onClose(null)} disabled={busy}>
-            <X className="size-4" />
-          </Button>
-        </header>
-
-        <fieldset disabled={busy} className="space-y-4 px-5 py-4">
-          <fieldset disabled={walkIn} className="space-y-4">
-            <div className="grid grid-cols-[1fr_auto] items-end gap-3">
+        <fieldset disabled={busy} className="min-w-0 space-y-4">
+          <fieldset disabled={walkIn} className="min-w-0 space-y-4">
+            <div className="grid grid-cols-[1fr_auto] items-end gap-4">
               <Field label="Name" htmlFor="en-name" error={errorFor("name")}>
-                <Input id="en-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} autoFocus={!walkIn} />
+                <Input id="en-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} autoFocus={!walkIn} invalid={Boolean(errorFor("name"))} />
               </Field>
-              <div className="flex gap-3 pb-1.5">
+              <div className="flex h-8 items-center gap-4">
                 {(["customer", "supplier"] as const).map((k) => (
-                  <label key={k} className="flex items-center gap-1.5 text-[13px] text-ink">
-                    <input
-                      type="checkbox"
-                      checked={kinds.includes(k)}
-                      onChange={(e) => setKinds((ks) => (e.target.checked ? [...ks, k] : ks.filter((x) => x !== k)))}
-                      className="size-3.5 accent-brand-orange"
-                    />
-                    {k === "customer" ? "Customer" : "Supplier"}
-                  </label>
+                  <Checkbox
+                    key={k}
+                    checked={kinds.includes(k)}
+                    onChange={(e) => setKinds((ks) => (e.target.checked ? [...ks, k] : ks.filter((x) => x !== k)))}
+                    label={k === "customer" ? "Customer" : "Supplier"}
+                  />
                 ))}
               </div>
             </div>
-            {errorFor("kinds") ? <p className="-mt-2 text-[12px] text-danger">{errorFor("kinds")}</p> : null}
-            {sameName.length > 0 ? (
-              <p className="-mt-2 flex items-center gap-1.5 text-[12px] text-warning">
-                <AlertTriangle className="size-3.5" /> Looks like {sameName.slice(0, 3).join(", ")}
-                {sameName.length > 3 ? ` and ${sameName.length - 3} more` : ""} — check it isn't already here.
+            {errorFor("kinds") ? (
+              <p role="alert" className="-mt-2 text-caption text-danger">
+                {errorFor("kinds")}
               </p>
             ) : null}
+            {sameName.length > 0 ? (
+              <Banner tone="warning">
+                Looks like {sameName.slice(0, 3).join(", ")}
+                {sameName.length > 3 ? ` and ${sameName.length - 3} more` : ""} — check it isn't already here.
+              </Banner>
+            ) : null}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <Field label="Phone" htmlFor="en-phone-0" error={errorFor("phones")}>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {phones.map((p, i) => (
-                    <div key={i} className="flex gap-1.5">
+                    <div key={i} className="flex gap-1">
                       <Input
                         id={`en-phone-${i}`}
                         value={p}
@@ -218,30 +217,26 @@ export function EntityForm({
                         className="flex-1"
                       />
                       {phones.length > 1 ? (
-                        <Button variant="ghost" size="sm" className="px-1.5" aria-label="Remove phone" onClick={() => setPhones((ps) => ps.filter((_, j) => j !== i))}>
-                          <X className="size-3.5" />
-                        </Button>
+                        <IconButton label="Remove phone" onClick={() => setPhones((ps) => ps.filter((_, j) => j !== i))}>
+                          <X />
+                        </IconButton>
                       ) : null}
                     </div>
                   ))}
                   {phones.length < 3 ? (
-                    <button type="button" className="text-[12px] font-medium text-info hover:underline" onClick={() => setPhones((ps) => [...ps, ""])}>
-                      + Another phone
-                    </button>
+                    <Button variant="ghost" size="sm" icon={<Plus />} className="-ml-2.5" onClick={() => setPhones((ps) => [...ps, ""])}>
+                      Another phone
+                    </Button>
                   ) : null}
                 </div>
               </Field>
-              <Field label="Email" htmlFor="en-email" error={errorFor("email")}>
-                <Input id="en-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Optional" />
+              <Field label="Email" htmlFor="en-email" error={errorFor("email")} optional>
+                <Input id="en-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} invalid={Boolean(errorFor("email"))} />
               </Field>
             </div>
-            {samePhone.length > 0 ? (
-              <p className="-mt-2 flex items-center gap-1.5 text-[12px] text-warning">
-                <AlertTriangle className="size-3.5" /> Same phone as {samePhone.join(", ")} — fine if it's right.
-              </p>
-            ) : null}
+            {samePhone.length > 0 ? <Banner tone="warning">Same phone as {samePhone.join(", ")} — fine if it's right.</Banner> : null}
 
-            <Field label="GSTIN" htmlFor="en-gstin" error={errorFor("gstin")} help={gstNote ?? "Optional. A valid GSTIN sets the state."}>
+            <Field label="GSTIN" htmlFor="en-gstin" error={errorFor("gstin")} help={gstNote ?? "A valid GSTIN sets the state."} optional>
               <div className="flex gap-2">
                 <Input
                   id="en-gstin"
@@ -254,19 +249,20 @@ export function EntityForm({
                   placeholder="06AABCT1234F1ZU"
                   className="flex-1 font-mono"
                   maxLength={15}
+                  invalid={Boolean(errorFor("gstin"))}
                 />
-                <Button onClick={() => void fillFromGst()} loading={gstBusy} icon={<Search className="size-3.5" />}>
+                <Button onClick={() => void fillFromGst()} loading={gstBusy} icon={<Search />}>
                   Fill from GST
                 </Button>
               </div>
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <Field label="Address" htmlFor="en-line1">
                 <Input id="en-line1" value={line1} onChange={(e) => setLine1(e.target.value)} placeholder="Shop / street" />
               </Field>
-              <Field label="Area" htmlFor="en-line2">
-                <Input id="en-line2" value={line2} onChange={(e) => setLine2(e.target.value)} placeholder="Optional" />
+              <Field label="Area" htmlFor="en-line2" optional>
+                <Input id="en-line2" value={line2} onChange={(e) => setLine2(e.target.value)} />
               </Field>
               <Field label="City" htmlFor="en-city">
                 <Input id="en-city" value={city} onChange={(e) => setCity(e.target.value)} />
@@ -275,10 +271,10 @@ export function EntityForm({
                 <Input id="en-district" value={district} onChange={(e) => setDistrict(e.target.value)} />
               </Field>
               <Field label="PIN code" htmlFor="en-pin" error={errorFor("address.pincode")}>
-                <Input id="en-pin" value={pincode} onChange={(e) => setPincode(e.target.value)} inputMode="numeric" maxLength={6} />
+                <Input id="en-pin" value={pincode} onChange={(e) => setPincode(e.target.value)} inputMode="numeric" maxLength={6} invalid={Boolean(errorFor("address.pincode"))} />
               </Field>
               <Field label="State (GST place of supply)" htmlFor="en-state" error={errorFor("address.stateCode")} help={gstCheck?.valid ? "Set by the GSTIN." : undefined}>
-                <Select id="en-state" value={stateCode ?? ""} onChange={(e) => setStateCode(e.target.value)} disabled={Boolean(gstCheck?.valid)}>
+                <Select id="en-state" value={stateCode ?? ""} onChange={(e) => setStateCode(e.target.value)} disabled={Boolean(gstCheck?.valid)} invalid={Boolean(errorFor("address.stateCode"))}>
                   <option value="">Choose a state…</option>
                   {STATES.map(([code, label]) => (
                     <option key={code} value={code}>
@@ -289,7 +285,7 @@ export function EntityForm({
               </Field>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {kinds.includes("customer") ? (
                 <Field label="Price list" htmlFor="en-tier" error={errorFor("priceTier")} help={!priceTier ? "Sales can't bill this customer until it's chosen." : undefined}>
                   <div id="en-tier">
@@ -307,68 +303,63 @@ export function EntityForm({
               ) : (
                 <div />
               )}
-              <Field label="Credit limit (₹)" htmlFor="en-credit" error={errorFor("creditLimitPaise")} help="A warning only — never blocks a sale.">
-                <Input id="en-credit" value={credit} onChange={(e) => setCredit(e.target.value)} inputMode="decimal" placeholder="No limit" className="num" />
+              <Field label="Credit limit" htmlFor="en-credit" error={errorFor("creditLimitPaise")} help="A warning only — never blocks a sale.">
+                <MoneyInput id="en-credit" value={credit} onChange={(e) => setCredit(e.target.value)} placeholder="No limit" invalid={Boolean(errorFor("creditLimitPaise"))} />
               </Field>
             </div>
           </fieldset>
 
-          <Field label="Notes" htmlFor="en-notes" error={errorFor("notes")}>
-            <Input id="en-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" maxLength={1000} />
+          <Field label="Notes" htmlFor="en-notes" error={errorFor("notes")} optional>
+            <Input id="en-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} invalid={Boolean(errorFor("notes"))} />
           </Field>
 
           {!entity ? (
-            <div className="space-y-2 rounded-lg bg-canvas px-4 py-3">
-              <label className="flex items-center gap-2 text-[13px] font-medium text-ink">
-                <input type="checkbox" checked={hasOpening} onChange={(e) => setHasOpening(e.target.checked)} className="size-3.5 accent-brand-orange" />
-                Opening balance
-                <span className="font-normal text-ink-muted">— can't be changed later</span>
-              </label>
+            <div className="space-y-4 border-t border-line-row pt-4">
+              <Checkbox
+                checked={hasOpening}
+                onChange={(e) => setHasOpening(e.target.checked)}
+                label={
+                  <>
+                    <span className="font-medium">Opening balance</span>
+                    <span className="text-ink-muted">— can't be changed later</span>
+                  </>
+                }
+              />
               {hasOpening ? (
-                <div className="grid grid-cols-[auto_1fr_auto] items-start gap-3">
-                  <Segmented
-                    value={openDir}
-                    onChange={setOpenDir}
-                    options={[
-                      ["receivable", "They owe us"],
-                      ["payable", "We owe them"],
-                    ]}
-                  />
-                  <Field label="Amount (₹)" htmlFor="en-open-amt" error={errorFor("opening.amountPaise")}>
-                    <Input id="en-open-amt" value={openAmount} onChange={(e) => setOpenAmount(e.target.value)} inputMode="decimal" placeholder="12500.50" className="num" />
+                <div className="grid grid-cols-[auto_1fr_auto] items-start gap-4">
+                  <Field label="Who owes" htmlFor="en-open-dir">
+                    <div id="en-open-dir">
+                      <Segmented
+                        value={openDir}
+                        onChange={setOpenDir}
+                        options={[
+                          ["receivable", "They owe us"],
+                          ["payable", "We owe them"],
+                        ]}
+                      />
+                    </div>
+                  </Field>
+                  <Field label="Amount" htmlFor="en-open-amt" error={errorFor("opening.amountPaise")}>
+                    <MoneyInput id="en-open-amt" value={openAmount} onChange={(e) => setOpenAmount(e.target.value)} placeholder="12500.50" invalid={Boolean(errorFor("opening.amountPaise"))} />
                   </Field>
                   <Field label="As of" htmlFor="en-open-date" error={errorFor("opening.asOf")}>
-                    <Input id="en-open-date" type="date" value={openAsOf} onChange={(e) => setOpenAsOf(e.target.value)} />
+                    <Input id="en-open-date" type="date" value={openAsOf} onChange={(e) => setOpenAsOf(e.target.value)} invalid={Boolean(errorFor("opening.asOf"))} />
                   </Field>
                 </div>
               ) : null}
             </div>
           ) : entity.opening ? (
-            <p className="text-[12px] text-ink-muted">The opening balance can't be changed after it's added.</p>
+            <p className="text-label text-ink-muted">The opening balance can't be changed after it's added.</p>
           ) : null}
 
           {sameGstin && isAdmin ? (
-            <label className="flex items-center gap-2 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-              <input type="checkbox" checked={allowSameGstin} onChange={(e) => setAllowSameGstin(e.target.checked)} className="size-3.5 accent-brand-orange" />
-              It's a branch of the same firm — allow the same GSTIN (Admin)
-            </label>
+            <Banner tone="warning">
+              <Checkbox checked={allowSameGstin} onChange={(e) => setAllowSameGstin(e.target.checked)} label="It's a branch of the same firm — allow the same GSTIN (Admin)" />
+            </Banner>
           ) : null}
-          {message ? (
-            <p role="alert" className={clsx("rounded-md px-3 py-2 text-[12px]", "bg-danger-soft text-danger")}>
-              {message}
-            </p>
-          ) : null}
+          {message ? <Banner tone="danger">{message}</Banner> : null}
         </fieldset>
-
-        <footer className="flex justify-end gap-2 border-t border-line px-5 py-3">
-          <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="primary" loading={busy}>
-            {entity ? "Save" : "Add"}
-          </Button>
-        </footer>
       </form>
-    </div>
+    </Dialog>
   );
 }

@@ -1,7 +1,7 @@
 import { AlertTriangle, Lock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { formatINR, packPricePaise, piecesPerPackFromLabel, priceBasisFromLabel, toMilli } from "@technofluid/core";
-import { Button, Field, Input, Select, Switch, modKey } from "@/components/ui";
+import { Banner, Button, Checkbox, Field, Input, MoneyInput, Select, Switch, modKey } from "@/components/ui";
 import { addProduct, editProduct, GST_SLABS } from "@/services/productEditService";
 import { PRICE_PER_OPTIONS } from "@/services/priceService";
 import type { Product } from "@/services/productService";
@@ -163,13 +163,13 @@ export function ProductEditor({
         }
       }}
     >
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6">
         <Field label="Name" htmlFor="pf-name" error={errors.name}>
           {input("name", { autoFocus: true })}
         </Field>
 
         {isNew ? (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <Field label="Grade" htmlFor="pf-grade" error={errors.grade}>
               {input("grade", { placeholder: "e.g. 68" })}
             </Field>
@@ -189,7 +189,7 @@ export function ProductEditor({
 
         {isNew ? (
           <>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <Field label="Pack size" htmlFor="pf-packQty" error={errors.packQty}>
                 {input("packQty", { inputMode: "decimal", placeholder: "26", className: "num" })}
               </Field>
@@ -216,37 +216,49 @@ export function ProductEditor({
           </>
         ) : null}
 
-        <div className="grid grid-cols-3 gap-2 pt-2">
-          <Field label="Price" htmlFor="pf-pricePer" error={errors.pricePer}>
-            <Select
-              id="pf-pricePer"
-              value={values.pricePer}
-              onChange={(e) => set("pricePer", e.target.value)}
-              invalid={Boolean(errors.pricePer)}
-            >
-              {values.pricePer ? null : <option value="">—</option>}
-              {PRICE_PER_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Select>
+        <Field label="Price" htmlFor="pf-pricePer" error={errors.pricePer}>
+          <Select
+            id="pf-pricePer"
+            value={values.pricePer}
+            onChange={(e) => set("pricePer", e.target.value)}
+            invalid={Boolean(errors.pricePer)}
+          >
+            {values.pricePer ? null : <option value="">—</option>}
+            {PRICE_PER_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={`Dealer, per ${unitWord}`} htmlFor="pf-dealerPrice" error={errors.dealerPrice}>
+            <MoneyInput
+              id="pf-dealerPrice"
+              value={values.dealerPrice}
+              onChange={(e) => set("dealerPrice", e.target.value)}
+              invalid={Boolean(errors.dealerPrice)}
+              placeholder="No price"
+            />
           </Field>
-          <Field label={`Dealer ₹/${unitWord}`} htmlFor="pf-dealerPrice" error={errors.dealerPrice}>
-            {input("dealerPrice", { inputMode: "decimal", placeholder: "No price", className: "num" })}
-          </Field>
-          <Field label={`Distrib. ₹/${unitWord}`} htmlFor="pf-distributorPrice" error={errors.distributorPrice}>
-            {input("distributorPrice", { inputMode: "decimal", placeholder: "No price", className: "num" })}
+          <Field label={`Distributor, per ${unitWord}`} htmlFor="pf-distributorPrice" error={errors.distributorPrice}>
+            <MoneyInput
+              id="pf-distributorPrice"
+              value={values.distributorPrice}
+              onChange={(e) => set("distributorPrice", e.target.value)}
+              invalid={Boolean(errors.distributorPrice)}
+              placeholder="No price"
+            />
           </Field>
         </div>
-        {packPreview ? <p className="num -mt-1 text-[12px] text-ink-muted">{packPreview}</p> : null}
+        {packPreview ? <p className="num -mt-2 text-caption text-ink-muted">{packPreview}</p> : null}
         {distributorAboveDealer ? (
-          <p className="-mt-1 flex items-center gap-1.5 text-[12px] text-warning">
+          <p className="-mt-2 flex items-center gap-1.5 text-caption text-warning">
             <AlertTriangle className="size-3.5 shrink-0" /> Distributor price is higher than dealer — check it.
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-2 pt-2">
+        <div className="grid grid-cols-2 gap-3">
           <Field label="GST" htmlFor="pf-gstPct" error={errors.gstPct}>
             <Select id="pf-gstPct" value={values.gstPct} onChange={(e) => set("gstPct", e.target.value)}>
               {gstOptions.map((rate) => (
@@ -282,46 +294,36 @@ export function ProductEditor({
 
         {mode.kind === "edit" ? (
           <>
-            <label htmlFor="pf-active" className="flex items-center justify-between pt-2 text-[13px] text-ink">
+            <label htmlFor="pf-active" className="flex items-center justify-between text-body text-ink">
               Selling
               <Switch id="pf-active" checked={values.active} onChange={(on) => set("active", on)} label="Selling" />
             </label>
-            <p className="flex items-center gap-1.5 text-[12px] text-ink-faint">
-              <Lock className="size-3" /> SKU, grade and pack size are fixed. Use Copy to change them.
+            <p className="flex items-center gap-1.5 text-caption text-ink-subtle">
+              <Lock className="size-3.5 shrink-0" /> SKU, grade and pack size are fixed. Use Copy to change them.
             </p>
           </>
         ) : mode.from ? (
-          <label className="flex items-center gap-2 pt-2 text-[13px] text-ink">
-            <input
-              type="checkbox"
-              checked={switchOff}
-              onChange={(e) => setSwitchOff(e.target.checked)}
-              className="size-3.5 accent-brand-orange"
-            />
-            Stop selling <span className="font-mono text-[12px]">{mode.from.sku}</span>
-          </label>
+          <Checkbox
+            checked={switchOff}
+            onChange={(e) => setSwitchOff(e.target.checked)}
+            label={
+              <span>
+                Stop selling <span className="font-mono text-label">{mode.from.sku}</span>
+              </span>
+            }
+          />
         ) : null}
 
-        {saveError ? (
-          <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
-            {saveError}
-          </p>
-        ) : null}
+        {saveError ? <Banner tone="danger">{saveError}</Banner> : null}
       </div>
 
-      <div className="flex items-center justify-end gap-2 border-t border-line px-4 py-2.5">
-        <Button variant="ghost" size="sm" onClick={cancel} disabled={saving}>
+      <div className="flex shrink-0 items-center justify-end gap-2 border-t border-line px-6 py-4">
+        {!isNew && !dirty ? <span className="mr-auto text-caption text-ink-subtle">No changes yet</span> : null}
+        <Button variant="ghost" onClick={cancel} disabled={saving}>
           Cancel
         </Button>
-        <Button
-          type="submit"
-          variant="primary"
-          size="sm"
-          loading={saving}
-          disabled={!isNew && !dirty}
-          title={`${modKey()} Enter`}
-        >
-          {isNew ? "Add product" : changeCount > 1 ? `Save ${changeCount} changes` : "Save"}
+        <Button type="submit" variant="primary" loading={saving} disabled={!isNew && !dirty} title={`${modKey()} Enter`}>
+          {saving ? "Saving…" : isNew ? "Add product" : changeCount > 1 ? `Save ${changeCount} changes` : "Save"}
         </Button>
       </div>
     </form>
