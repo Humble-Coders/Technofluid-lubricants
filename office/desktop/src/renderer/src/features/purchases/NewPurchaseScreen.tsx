@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
@@ -22,7 +22,7 @@ import {
   type PurchaseItem,
   type PurchaseLineInput,
 } from "@technofluid/core";
-import { Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Select, Spinner, tableClass, Tabs, Workspace, WorkspacePanel } from "@/components/ui";
+import { Banner, Button, Checkbox, Field, IconButton, Input, MoneyInput, PageHeader, Select, Spinner, tableClass, Workspace, WorkspacePanel } from "@/components/ui";
 import { EntityForm } from "@/features/entities/EntityForm";
 import { SearchPicker } from "@/features/sales/SearchPicker";
 import { KIND_LABEL, unitWord } from "@/features/stock/stockFormat";
@@ -233,12 +233,12 @@ export function NewPurchaseScreen() {
               </>
             }
           >
-            <Tabs<PanelTab>
+            <StepTabs
               value={tab}
               onChange={setTab}
-              options={[
-                ["bill", "Bill details"],
-                ["payment", "Totals & payment"],
+              steps={[
+                { key: "bill", label: "Bill details", done: Boolean(supplier && billNo.trim()) },
+                { key: "payment", label: "Totals & payment", done: Boolean(matches) },
               ]}
             />
             {tab === "bill" ? (
@@ -280,16 +280,21 @@ export function NewPurchaseScreen() {
                     <Input id="np-date" type="date" value={billDate} max={today} onChange={(e) => e.target.value && setBillDate(e.target.value)} />
                   </Field>
                 </div>
-                <Field label="Freight on the bill (before GST)" htmlFor="np-freight">
-                  <MoneyInput id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
-                </Field>
-                <Field label="Note" htmlFor="np-note">
-                  <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional, e.g. vehicle no., challan" />
-                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Freight (before GST)" htmlFor="np-freight">
+                    <MoneyInput id="np-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
+                  </Field>
+                  <Field label="Note" htmlFor="np-note">
+                    <Input id="np-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Vehicle no., challan" />
+                  </Field>
+                </div>
                 <label className="flex items-center gap-2 text-body text-ink">
                   <Checkbox checked={alreadyCounted} onChange={(e) => setAlreadyCounted(e.target.checked)} />
-                  <span className="min-w-0 truncate">Goods already added to stock, don't add again</span>
+                  <span className="min-w-0 truncate">Already added to stock, don't add again</span>
                 </label>
+                <Button className="w-full" icon={<ArrowRight />} onClick={() => setTab("payment")}>
+                  Next: Totals & payment
+                </Button>
               </>
             ) : (
               <>
@@ -473,6 +478,42 @@ export function NewPurchaseScreen() {
         />
       ) : null}
     </>
+  );
+}
+
+/** The panel's two parts as big, numbered steps: the one you're on is filled orange, a finished one shows a tick. */
+function StepTabs({ value, onChange, steps }: { value: PanelTab; onChange: (t: PanelTab) => void; steps: Array<{ key: PanelTab; label: string; done: boolean }> }) {
+  return (
+    <div role="tablist" aria-label="Bill parts" className="grid grid-cols-2 gap-1 rounded-control bg-surface-alt p-1 ring-1 ring-line ring-inset">
+      {steps.map((st, i) => {
+        const on = value === st.key;
+        return (
+          <button
+            key={st.key}
+            type="button"
+            role="tab"
+            aria-selected={on}
+            onClick={() => onChange(st.key)}
+            className={clsx(
+              "flex h-10 min-w-0 items-center justify-center gap-2 rounded-[6px] px-2 text-label font-semibold transition-colors",
+              on ? "bg-accent text-white shadow-control" : "text-ink-muted hover:bg-surface hover:text-ink",
+            )}
+          >
+            <span
+              className={clsx(
+                "flex size-5 shrink-0 items-center justify-center rounded-full text-caption",
+                on ? "bg-white/25 text-white" : st.done ? "bg-success text-white" : "bg-surface text-ink-muted ring-1 ring-line",
+              )}
+              aria-hidden
+            >
+              {st.done && !on ? <Check className="size-3.5" /> : i + 1}
+            </span>
+            <span className="truncate">{st.label}</span>
+            {st.done ? <span className="sr-only">(done)</span> : null}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
