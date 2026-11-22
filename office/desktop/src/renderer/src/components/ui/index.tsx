@@ -112,10 +112,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input({ i
  * A money field: ₹ in front, digits right-aligned in tabular figures, everything selected on
  * focus so typing replaces the amount. It is still a plain text input — parsing stays with the caller.
  */
-export const MoneyInput = forwardRef<HTMLInputElement, Omit<InputProps, "leading">>(function MoneyInput({ invalid, className, onFocus, inputMode = "decimal", ...rest }, ref) {
+export const MoneyInput = forwardRef<HTMLInputElement, Omit<InputProps, "leading" | "size"> & { size?: "md" | "lg" }>(function MoneyInput(
+  { invalid, className, onFocus, inputMode = "decimal", size = "md", ...rest },
+  ref,
+) {
+  const lg = size === "lg";
   return (
     <div className={clsx("relative flex items-center", className)}>
-      <span className="pointer-events-none absolute left-2.5 text-body text-ink-subtle">₹</span>
+      <span className={clsx("pointer-events-none absolute text-ink-subtle", lg ? "left-3.5 text-title" : "left-2.5 text-body")}>₹</span>
       <input
         ref={ref}
         inputMode={inputMode}
@@ -124,7 +128,7 @@ export const MoneyInput = forwardRef<HTMLInputElement, Omit<InputProps, "leading
           e.currentTarget.select();
           onFocus?.(e);
         }}
-        className={clsx(controlBase, controlEdge(invalid), "num h-8 pr-2.5 pl-7 text-right")}
+        className={clsx(controlBase, controlEdge(invalid), "num text-right", lg ? "h-12 pr-3.5 pl-9 text-page font-semibold" : "h-8 pr-2.5 pl-7")}
         {...rest}
       />
     </div>
@@ -578,12 +582,16 @@ export const SheetOverlayContext = createContext<HTMLElement | null>(null);
  * A record's details, opened from a list: slides in OVER the right side of the sheet (the list
  * underneath keeps its full width and doesn't move). Give it the same `aside` content as before;
  * it brings the surface, edge and shadow. Width: "md" 384px (default) or "lg" 640px; on a small
- * window it never covers more than the sheet minus 48px. Closing (Esc, ×) stays with the screen.
+ * window it never covers more than the sheet minus 48px. The sheet behind it dims; pass `onClose`
+ * so a click on the dimmed part closes it. Esc and × stay with the screen.
  */
-export function SidePanel({ children, size = "md", label, className }: { children: ReactNode; size?: "md" | "lg"; label?: string; className?: string }) {
+export function SidePanel({ children, size = "md", label, className, onClose }: { children: ReactNode; size?: "md" | "lg"; label?: string; className?: string; onClose?: () => void }) {
   const host = useContext(SheetOverlayContext);
   const panel = (
-    <aside
+    <>
+      {/* The screen underneath dims; clicking it closes the panel (the screen's own close, so unsaved-change checks still run). */}
+      <div aria-hidden className="pointer-events-auto absolute inset-0 bg-ink/35" onMouseDown={onClose} />
+      <aside
       aria-label={label}
       className={clsx(
         "pointer-events-auto absolute inset-y-0 right-0 flex max-w-[calc(100%-3rem)] flex-col border-l border-line bg-surface shadow-[-16px_0_32px_-16px_rgb(26_31_43/0.25)]",
@@ -592,7 +600,8 @@ export function SidePanel({ children, size = "md", label, className }: { childre
       )}
     >
       {children}
-    </aside>
+      </aside>
+    </>
   );
   return host ? createPortal(panel, host) : panel;
 }
@@ -617,6 +626,43 @@ export function WorkspacePanel({ title, subtitle, children, footer, onClose }: {
       <div className={clsx("min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6", !title && "pt-6")}>{children}</div>
       {footer ? <div className="shrink-0 space-y-3 border-t border-line px-6 py-4">{footer}</div> : null}
     </aside>
+  );
+}
+
+/**
+ * The always-open form of a workspace screen (Money in & out): sections divided by hairlines in a
+ * body that scrolls only if it must, and a `footer` (the live total and the main button) pinned
+ * at the foot. 384px wide; put it as the `panel` of a <Workspace>.
+ */
+export function FormPanel({ children, footer, className, ...rest }: HTMLAttributes<HTMLElement> & { footer?: ReactNode }) {
+  return (
+    <aside className={clsx("flex w-96 shrink-0 flex-col border-l border-line bg-surface", className)} {...rest}>
+      <div className="min-h-0 flex-1 divide-y divide-line-row overflow-y-auto px-6">{children}</div>
+      {footer ? <footer className="shrink-0 border-t border-line bg-surface px-6 pt-4 pb-6">{footer}</footer> : null}
+    </aside>
+  );
+}
+
+/** One part of a <FormPanel>: a 15px title (with an optional control at its right), then the fields. */
+export function FormSection({ title, aside, children, className }: { title: ReactNode; aside?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <section className={clsx("py-6", className)}>
+      <h3 className="mb-4 flex min-h-7 items-center gap-2 text-title font-semibold text-ink">
+        {title}
+        {aside ? <span className="ml-auto flex items-center">{aside}</span> : null}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+/** What stops a form from saving, in a line of red text with an icon (above its main button). */
+export function FormError({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <p role="alert" className={clsx("mt-2 flex items-start gap-1.5 text-label text-danger", className)}>
+      <CircleAlert className="mt-px size-4 shrink-0" aria-hidden />
+      <span className="min-w-0">{children}</span>
+    </p>
   );
 }
 

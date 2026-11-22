@@ -256,7 +256,7 @@ function Panel({ title, subtitle, onClose, actions, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <SidePanel label={title}>
+    <SidePanel label={title} onClose={onClose}>
       <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
           <h2 className="text-title font-semibold break-words text-ink">{title}</h2>

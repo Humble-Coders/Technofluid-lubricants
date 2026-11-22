@@ -98,7 +98,7 @@ export function EntityDetail({
   const newPurchase = () => navigate(`/purchases/new?supplier=${encodeURIComponent(e.id)}`);
 
   return (
-    <SidePanel size="lg" label={e.name}>
+    <SidePanel size="lg" label={e.name} onClose={onClose}>
       <header className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-title font-semibold text-ink">{e.name}</h2>

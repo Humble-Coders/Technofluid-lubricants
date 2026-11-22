@@ -23,7 +23,7 @@ export function ExpenseDetail({ entry: e, isAdmin, original, onClose }: { entry:
   const reversible = canReverse(e) && (!e.isCorrection || isAdmin);
 
   return (
-    <SidePanel label="Expense details">
+    <SidePanel label="Expense details" onClose={onClose}>
       <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-title font-semibold text-ink">{accountName(category)}</h2>

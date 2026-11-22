@@ -28,8 +28,11 @@ export function EntityForm({
   entity,
   all,
   onClose,
+  defaults,
 }: {
   entity: EntityRow | null;
+  /** For a new one: start with this name / these kinds (e.g. typed in a supplier picker). */
+  defaults?: { name?: string; kinds?: EntityKind[] };
   /** Everyone else — for the "same phone" warning. */
   all: EntityRow[];
   onClose: (savedId: string | null) => void;
@@ -37,8 +40,8 @@ export function EntityForm({
   const { role } = useStaff();
   const isAdmin = role === "admin";
   const walkIn = entity?.isWalkIn === true;
-  const [name, setName] = useState(entity?.name ?? "");
-  const [kinds, setKinds] = useState<EntityKind[]>(entity?.kinds ?? ["customer"]);
+  const [name, setName] = useState(entity?.name ?? defaults?.name ?? "");
+  const [kinds, setKinds] = useState<EntityKind[]>(entity?.kinds ?? defaults?.kinds ?? ["customer"]);
   const [phones, setPhones] = useState<string[]>(entity?.phones.length ? [...entity.phones] : [""]);
   const [email, setEmail] = useState(entity?.email ?? "");
   const [gstin, setGstin] = useState(entity?.gstin ?? "");

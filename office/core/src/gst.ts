@@ -80,7 +80,7 @@ export function checkGstin(input: string): GstinCheck {
   const stateCode = gstin.slice(0, 2);
   if (!isValidStateCode(stateCode)) return { valid: false, gstin, reason: `Unknown state code ${stateCode}` };
   if (gstinCheckChar(gstin.slice(0, 14)) !== gstin[14]) {
-    return { valid: false, gstin, reason: "Check digit does not match — probably a typo" };
+    return { valid: false, gstin, reason: "Check digit does not match. Probably a typo" };
   }
   return { valid: true, gstin, stateCode, stateName: GST_STATES[stateCode]!, pan: gstin.slice(2, 12) };
 }

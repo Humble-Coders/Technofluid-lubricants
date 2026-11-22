@@ -354,13 +354,13 @@ export function moneyOwedFromRecords(input: {
       const paid = documentDue({ totalPaise: d.totalPaise, paidAtCreationPaise: d.paidAtCreation.reduce((s, p) => s + p.amountPaise, 0), linked: later }).paidPaise;
       openDocs.push({ kind: d.kind, id: d.id, ref: d.ref, partyRef: d.partyRef, entityId: d.entityId, partyName: d.partyName, date: d.date, totalPaise: d.totalPaise, paidPaise: paid });
       if (!d.inBooks) {
-        add(d.entityId, { kind: "NOT_IN_BOOKS", date: d.date, label: `${docLabel(d)} isn't in the books yet`, detail: "Still being saved — the balance doesn't include it", amountPaise: -sign * Math.max(d.totalPaise - paid, 0), document: ref });
+        add(d.entityId, { kind: "NOT_IN_BOOKS", date: d.date, label: `${docLabel(d)} isn't in the books yet`, detail: "Still being saved, so the balance doesn't include it", amountPaise: -sign * Math.max(d.totalPaise - paid, 0), document: ref });
         continue;
       }
       for (const p of d.paidAtCreation) if (!p.inBooks) add(d.entityId, { kind: "PAYMENT_NOT_IN_BOOKS", date: d.date, label: `Payment with ${d.ref} isn't in the books yet`, detail: p.name, amountPaise: sign * p.amountPaise, document: ref });
       for (const e of later) if (!e.inBooks) add(d.entityId, { kind: "PAYMENT_NOT_IN_BOOKS", date: e.businessDay, label: `Payment on ${d.ref} isn't in the books yet`, detail: e.note, amountPaise: -effectOn(e, d.entityId), document: ref });
     } else {
-      if (d.inBooks && !d.cancelInBooks) add(d.entityId, { kind: "CANCEL_NOT_IN_BOOKS", date: d.date, label: `${docLabel(d)} was cancelled — not in the books yet`, detail: "The books still count it until the cancellation is saved", amountPaise: sign * d.totalPaise, document: ref });
+      if (d.inBooks && !d.cancelInBooks) add(d.entityId, { kind: "CANCEL_NOT_IN_BOOKS", date: d.date, label: `${docLabel(d)} was cancelled, not in the books yet`, detail: "The books still count it until the cancellation is saved", amountPaise: sign * d.totalPaise, document: ref });
       const credit = d.kind === "INVOICE" ? "Paid on cancelled invoice" : "Paid on cancelled bill";
       for (const p of d.paidAtCreation) if (p.inBooks) add(d.entityId, { kind: "CANCELLED_CREDIT", date: d.date, label: `${credit} ${docLabel(d)}`, detail: `${p.name} · kept as ${d.kind === "INVOICE" ? "their credit" : "money they owe back"}`, amountPaise: -sign * p.amountPaise, document: ref });
       for (const e of later) if (e.inBooks) add(d.entityId, { kind: "CANCELLED_CREDIT", date: e.businessDay, label: `${credit} ${docLabel(d)}`, detail: [e.note, d.kind === "INVOICE" ? "kept as their credit" : "money they owe back"].filter(Boolean).join(" · "), amountPaise: effectOn(e, d.entityId), document: ref });
