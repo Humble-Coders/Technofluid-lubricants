@@ -21,7 +21,7 @@ const FIELD_LABEL: Record<string, string> = {
 
 function show(field: string, value: unknown): string {
   if (value === null || value === undefined || value === "") {
-    return field === "dealerPrice" || field === "distributorPrice" ? "No price" : "—";
+    return field === "dealerPrice" || field === "distributorPrice" ? "No price" : "-";
   }
   if (field === "recipeAlternates" && Array.isArray(value)) {
     // ["w150>w150n/46"] → "w150n 46% for w150"

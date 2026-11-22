@@ -85,7 +85,7 @@ function createWindow(): void {
     // Native-feeling chrome: traffic lights inset on Mac, overlay buttons on Windows.
     titleBarStyle: isMac ? "hiddenInset" : "hidden",
     trafficLightPosition: isMac ? { x: 16, y: 14 } : undefined,
-    titleBarOverlay: isMac ? undefined : { color: "#f4f4f5", symbolColor: "#2B2B2B", height: 40 },
+    titleBarOverlay: isMac ? undefined : { color: "#f39a5f", symbolColor: "#ffffff", height: 44 }, // matches the right end of the orange top bar
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,

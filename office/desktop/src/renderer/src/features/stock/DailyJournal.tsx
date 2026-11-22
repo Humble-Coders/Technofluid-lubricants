@@ -86,7 +86,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
         continue;
       }
       if (!l.item.unitSet) {
-        found[l.key] = `${l.item.name} has no unit yet — an Admin must set it first (Live stock → Edit).`;
+        found[l.key] = `${l.item.name} has no unit yet. An Admin must set it first (Live stock → Edit).`;
         continue;
       }
       let milli: number;
@@ -109,7 +109,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
     }
     setErrors(found);
     if (Object.keys(found).length > 0) {
-      return setSaveError("Some lines need fixing first — see the red notes under them.");
+      return setSaveError("Some lines need fixing first. See the red notes under them.");
     }
     if (out.length === 0) return setSaveError("Add at least one line.");
     setProblems([]);
@@ -243,7 +243,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
                           aria-label="Quantity"
                         />
                         <span className="inline-flex h-8 min-w-10 items-center justify-center rounded-r-control border border-l-0 border-line-strong bg-surface-alt px-2.5 text-label text-ink-muted">
-                          {l.item?.unitSet ? unitWord(l.item.baseUnit) : "—"}
+                          {l.item?.unitSet ? unitWord(l.item.baseUnit) : "-"}
                         </span>
                       </div>
                       <Input
@@ -305,7 +305,7 @@ function ResultNote({ result }: { result: RecordResult & { sentForApproval?: boo
   if (result.sentForApproval) {
     return (
       <Banner tone="info" className="mt-4">
-        Sent to the Admin for approval — stock changes once the new recipe is approved.
+        Sent to the Admin for approval. Stock changes once the new recipe is approved.
       </Banner>
     );
   }
@@ -319,7 +319,7 @@ function ResultNote({ result }: { result: RecordResult & { sentForApproval?: boo
       </Banner>
       {result.belowZero.map((b) => (
         <Banner key={b.itemId} tone="warning">
-          {b.name} is now below zero — count it and correct.
+          {b.name} is now below zero. Count it and correct.
         </Banner>
       ))}
     </div>

@@ -20,7 +20,7 @@ export async function friendlyError(error: unknown): Promise<string> {
   // In development the "server" is the local emulator — the usual cause of a failed
   // save is that it isn't running (or was started without Cloud Functions).
   if (usingEmulators && !(await functionsEmulatorAnswers())) {
-    return "Can't save — the Firebase emulator isn't running. Start it with \"npm run emulators\" in the office folder, then try again.";
+    return "Can't save: the Firebase emulator isn't running. Start it with \"npm run emulators\" in the office folder, then try again.";
   }
   if (!navigator.onLine) return "You're offline. Changes can only be saved when the internet is back.";
   if (

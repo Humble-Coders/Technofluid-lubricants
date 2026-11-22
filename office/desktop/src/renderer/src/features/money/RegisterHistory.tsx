@@ -2,7 +2,7 @@ import { RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { formatINR, indiaDate } from "@technofluid/core";
-import { Banner, Button, ErrorState, FilterSelect, Input, LoadingState, Page, PageHeader, StatTile, StatTiles, Table, Td, Th, Tr } from "@/components/ui";
+import { Banner, Button, ErrorState, FilterSelect, Input, LoadingState, Page, PageHeader, StatTile, Table, Td, Th, Tr } from "@/components/ui";
 import { useRegisters, useRegisterStatement } from "@/hooks/useMoney";
 import type { RegisterStatementRow } from "@/services/moneyService";
 
@@ -69,12 +69,13 @@ export function RegisterHistory() {
         </ErrorState>
       ) : (
         <>
-          <StatTiles>
+          {/* Wraps on a narrow window (StatTiles keeps every tile on one row). */}
+          <div className="mb-8 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
             <StatTile label="Money in" value={formatINR(state.data.inPaise)} />
             <StatTile label="Money out" value={formatINR(state.data.outPaise)} />
             <StatTile label="Net" value={formatINR(state.data.inPaise - state.data.outPaise)} />
             <StatTile label={`Balance as at ${state.data.to}`} value={formatINR(state.data.closingPaise)} tone={state.data.closingPaise < 0 ? "danger" : undefined} />
-          </StatTiles>
+          </div>
           <Table>
             <thead>
               <tr>
@@ -115,7 +116,7 @@ export function RegisterHistory() {
           </Table>
           {state.data.hasMore ? (
             <Banner tone="warning" className="mt-4">
-              More rows than shown — narrow the dates.
+              There are more rows than shown. Narrow the dates.
             </Banner>
           ) : null}
         </>

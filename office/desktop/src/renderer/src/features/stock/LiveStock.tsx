@@ -19,6 +19,7 @@ import {
   Menu,
   SearchInput,
   Section,
+  SidePanel,
 } from "@/components/ui";
 import { useMovements } from "@/hooks/useStock";
 import type { LoadState } from "@/hooks/useProducts";
@@ -69,8 +70,8 @@ export function LiveStock({
   const selected = list.find((i) => i.id === selectedId) ?? null;
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <section className="flex min-w-0 flex-1 flex-col">
+    <>
+      <section className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2">
           <SearchInput
             value={search}
@@ -154,7 +155,7 @@ export function LiveStock({
           onClose={() => setSelectedId(null)}
         />
       ) : null}
-    </div>
+    </>
   );
 }
 
@@ -176,7 +177,7 @@ function StockTable({
     estimateSize: () => ROW_HEIGHT,
     overscan: 12,
   });
-  // Narrow (side panel open): keep item and on-hand, drop kind and packs.
+  // Narrow window: keep item and on-hand, drop kind and packs.
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const el = scrollRef.current;
@@ -237,7 +238,7 @@ function StockTable({
                 )}
               </span>
               {compact ? null : (
-                <span className="truncate text-label text-ink-muted">{packsSummary(item, products).join(" · ") || "—"}</span>
+                <span className="truncate text-label text-ink-muted">{packsSummary(item, products).join(" · ") || "-"}</span>
               )}
             </div>
           );
@@ -255,19 +256,19 @@ function Panel({ title, subtitle, onClose, actions, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <aside className="ml-6 flex w-96 shrink-0 flex-col border-l border-line pl-6">
-      <div className="flex shrink-0 items-start gap-2 pb-4">
+    <SidePanel label={title}>
+      <div className="flex shrink-0 items-start gap-2 px-6 pt-6 pb-4">
         <div className="min-w-0 flex-1">
-          <h2 className="text-title font-semibold text-ink">{title}</h2>
-          {subtitle ? <p className="mt-0.5 text-label text-ink-muted">{subtitle}</p> : null}
+          <h2 className="text-title font-semibold break-words text-ink">{title}</h2>
+          {subtitle ? <p className="mt-0.5 text-label break-words text-ink-muted">{subtitle}</p> : null}
         </div>
         {actions}
         <IconButton label="Close" size="sm" onClick={onClose}>
           <X />
         </IconButton>
       </div>
-      {children}
-    </aside>
+      <div className="flex min-h-0 flex-1 flex-col px-6 pb-6">{children}</div>
+    </SidePanel>
   );
 }
 
@@ -313,7 +314,7 @@ function ItemPanel({ item, products, canEdit, onClose }: {
           <OnHandCount item={item} canEdit={canEdit} />
           {item.onHandMilli < 0 ? (
             <p className="mt-1 flex items-center gap-1.5 text-label text-danger">
-              <AlertTriangle className="size-4 shrink-0" /> Below zero — count it and correct.
+              <AlertTriangle className="size-4 shrink-0" /> Below zero. Count it and correct.
             </p>
           ) : null}
           {packs.length ? (
@@ -380,8 +381,8 @@ function OnHandCount({ item, canEdit }: { item: StockItem; canEdit: boolean }) {
       const below = result.belowZero.some((b) => b.itemId === item.id);
       setMessage(
         below
-          ? { tone: "warn", text: "Saved — it's below zero. Count it and correct." }
-          : { tone: "ok", text: result.recorded === 0 ? "Already matches — nothing to change." : opening ? "Opening stock saved." : "Count saved." },
+          ? { tone: "warn", text: "Saved, but it's below zero. Count it and correct." }
+          : { tone: "ok", text: result.recorded === 0 ? "Already matches. Nothing to change." : opening ? "Opening stock saved." : "Count saved." },
       );
     } catch (err) {
       setMessage({ tone: "error", text: err instanceof Error ? err.message : String(err) });

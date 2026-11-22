@@ -56,7 +56,7 @@ export function StockValueReportView() {
         <>
           <StatTiles>
             <Stat label="Stock value (ex-GST)" value={formatINR(r.totalPaise)} hint="Average purchase price × on hand" />
-            <Stat label="In stock, no cost yet" value={String(noCostInStock)} tone={noCostInStock ? "warning" : undefined} hint="Not in the total — never bought on a bill" />
+            <Stat label="In stock, no cost yet" value={String(noCostInStock)} tone={noCostInStock ? "warning" : undefined} hint="Not in the total (never bought on a bill)" />
             <Stat label="Below zero" value={String(r.belowZeroCount)} tone={r.belowZeroCount ? "warning" : undefined} hint="Not in the total" />
           </StatTiles>
 
@@ -84,7 +84,7 @@ export function StockValueReportView() {
                       {formatQuantity(x.onHandMilli, x.baseUnit)}
                     </Td>
                     <Td num className="whitespace-nowrap">
-                      {x.avgPricePaise === null ? "—" : `${formatINR(x.avgPricePaise)}${PER_UNIT[x.baseUnit]}`}
+                      {x.avgPricePaise === null ? "-" : `${formatINR(x.avgPricePaise)}${PER_UNIT[x.baseUnit]}`}
                     </Td>
                     <Td num className="whitespace-nowrap">
                       {x.state === "valued" ? formatINR(x.valuePaise ?? 0) : <Badge tone={x.state === "belowZero" ? "danger" : "warning"}>{STATE_TEXT[x.state]}</Badge>}
@@ -103,7 +103,7 @@ export function StockValueReportView() {
             </Table>
           )}
           <p className="mt-4 max-w-4xl text-caption text-ink-subtle">
-            Cost is the bill's value before GST; freight isn't spread over items yet. Items made in-house get a value once production costing exists. As of now only — not as of a past date.
+            Cost is the bill's value before GST; freight isn't spread over items yet. Items made in-house get a value once production costing exists. As of now only, not as of a past date.
           </p>
         </>
       ) : null}

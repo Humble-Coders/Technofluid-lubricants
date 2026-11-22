@@ -87,7 +87,7 @@ export function PurchaseDetail() {
               Cancelled on {p.cancel.day} by {p.cancel.by}: {p.cancel.reason}. {p.stockAlreadyCounted ? "" : "The stock went back out; "}the books were reversed.
             </Banner>
           ) : null}
-          {p.stockAlreadyCounted ? <Banner tone="info">The goods were already counted in stock — this bill changed the books only.</Banner> : null}
+          {p.stockAlreadyCounted ? <Banner tone="info">The goods were already counted in stock, so this bill changed the books only.</Banner> : null}
         </div>
       ) : null}
 
@@ -96,7 +96,7 @@ export function PurchaseDetail() {
           <Detail label="Supplier">
             <span className="font-medium">{p.supplier.name}</span>
           </Detail>
-          <Detail label="GSTIN">{p.supplier.gstin ? <span className="num">{p.supplier.gstin}</span> : "Unregistered (no GSTIN) — no GST"}</Detail>
+          <Detail label="GSTIN">{p.supplier.gstin ? <span className="num">{p.supplier.gstin}</span> : "Unregistered (no GSTIN), no GST"}</Detail>
           {p.supplier.stateCode ? <Detail label="State">{GST_STATES[p.supplier.stateCode] ?? p.supplier.stateCode}</Detail> : null}
           <Detail label="Bill no.">{p.billNo}</Detail>
           <Detail label="Bill date">
@@ -176,7 +176,7 @@ export function PurchaseDetail() {
 
       <Section title="Payments">
         {nothingPaid ? (
-          <p className="text-body text-ink-muted">Nothing paid yet — on credit.</p>
+          <p className="text-body text-ink-muted">Nothing paid yet (on credit).</p>
         ) : (
           <Table>
             <thead>
@@ -201,7 +201,7 @@ export function PurchaseDetail() {
                 return (
                   <Tr key={e.id}>
                     <Td className={clsx("num whitespace-nowrap", off)}>{e.businessDay}</Td>
-                    <Td className={off}>{e.from.kind === "ADJUSTMENT" ? "—" : e.from.name}</Td>
+                    <Td className={off}>{e.from.kind === "ADJUSTMENT" ? "-" : e.from.name}</Td>
                     <Td muted>
                       <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
                         {e.note}
@@ -263,7 +263,7 @@ function PayDialog({ purchase: p, duePaise, onClose }: { purchase: PurchaseRow; 
   } catch {
     paise = NaN;
   }
-  const problem = !reg ? "Choose where the money came from." : !Number.isInteger(paise) || paise <= 0 ? "Give the amount." : paise > duePaise ? `Only ${formatINR(duePaise)} is still to pay — record any extra separately in Money in & out.` : null;
+  const problem = !reg ? "Choose where the money came from." : !Number.isInteger(paise) || paise <= 0 ? "Give the amount." : paise > duePaise ? `Only ${formatINR(duePaise)} is still to pay. Record any extra separately in Money in & out.` : null;
   return (
     <Dialog
       title={`Payment for ${p.ref}`}
@@ -373,7 +373,7 @@ function CancelDialog({ purchase: p, onClose }: { purchase: PurchaseRow; onClose
     >
       <ul className="list-disc space-y-1 pl-5 text-body text-ink-muted">
         {p.stockAlreadyCounted ? <li>Stock isn't touched (the goods were counted separately).</li> : <li>The stock goes back out today.</li>}
-        <li>The books reverse the bill. Anything already paid stays — the supplier then owes it back (record a refund as money received).</li>
+        <li>The books reverse the bill. Anything already paid stays, and the supplier then owes it back (record a refund as money received).</li>
         <li>Enter the bill again with New purchase if it was a mistake in the details.</li>
       </ul>
       <Field label="Reason" htmlFor="pc-reason">

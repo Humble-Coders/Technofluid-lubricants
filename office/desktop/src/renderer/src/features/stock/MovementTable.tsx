@@ -9,7 +9,7 @@ import { UndoForm } from "./MovementList";
 import { EDITABLE_TYPES, isDocumentLine, KIND_LABEL, signedQuantity, TYPE_LABEL } from "./stockFormat";
 
 const businessDate = (d: string) =>
-  d ? new Date(`${d}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
+  d ? new Date(`${d}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "-";
 const time = (m: StockMovement) =>
   m.createdAt ? m.createdAt.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "Saving…";
 
@@ -84,7 +84,7 @@ export function MovementTable({
                 </Td>
                 <Td className="max-w-80 min-w-44">
                   <span className="line-clamp-2" title={m.note ?? undefined}>
-                    {m.note ?? "—"}
+                    {m.note ?? "-"}
                   </span>
                   {m.type === "PRODUCTION_CONSUME" && m.producedItemName ? (
                     <span className="block text-caption text-ink-subtle">for {m.producedItemName}</span>

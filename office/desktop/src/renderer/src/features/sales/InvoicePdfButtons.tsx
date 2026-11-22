@@ -36,7 +36,7 @@ export function InvoicePdfButtons({ sale, copy, onCopy, ready }: { sale: SaleRow
         buyerPhones: sale.customer.isWalkIn ? [] : (entity?.phones ?? []),
       });
       if (!r.ok) setMessage({ tone: "error", text: pdfProblemText(r) });
-      else if (!r.cancelled) setMessage({ tone: "ok", text: action === "save" ? `Saved — ${r.pages} page${r.pages === 1 ? "" : "s"}.` : "Opened in your PDF app — print from there." });
+      else if (!r.cancelled) setMessage({ tone: "ok", text: action === "save" ? `Saved: ${r.pages} page${r.pages === 1 ? "" : "s"}.` : "Opened in your PDF app. Print from there." });
     } catch (e) {
       setMessage({ tone: "error", text: e instanceof Error ? e.message : String(e) });
     } finally {

@@ -109,7 +109,7 @@ export function ProductEditor({
       const piecesPerPack = piecesPerPackFromLabel(values.packLabel) ?? undefined;
       const one = (paise: number | null) =>
         paise === null
-          ? "—"
+          ? "-"
           : formatINR(packPricePaise({ basis, pricePaise: paise, packQtyMilli: toMilli(qty), piecesPerPack }));
       return `1 pack: ${one(dealer.paise)} / ${one(distributor.paise)}`;
     } catch {
@@ -223,7 +223,7 @@ export function ProductEditor({
             onChange={(e) => set("pricePer", e.target.value)}
             invalid={Boolean(errors.pricePer)}
           >
-            {values.pricePer ? null : <option value="">—</option>}
+            {values.pricePer ? null : <option value="">-</option>}
             {PRICE_PER_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {option}
@@ -254,7 +254,7 @@ export function ProductEditor({
         {packPreview ? <p className="num -mt-2 text-caption text-ink-muted">{packPreview}</p> : null}
         {distributorAboveDealer ? (
           <p className="-mt-2 flex items-center gap-1.5 text-caption text-warning">
-            <AlertTriangle className="size-3.5 shrink-0" /> Distributor price is higher than dealer — check it.
+            <AlertTriangle className="size-3.5 shrink-0" /> Distributor price is higher than dealer. Check it.
           </p>
         ) : null}
 
@@ -281,7 +281,7 @@ export function ProductEditor({
           </Field>
           <Field label="Sold to" htmlFor="pf-segment" error={errors.segment}>
             <Select id="pf-segment" value={values.segment} onChange={(e) => set("segment", e.target.value)}>
-              {values.segment ? null : <option value="">—</option>}
+              {values.segment ? null : <option value="">-</option>}
               <option value="Both">All buyers</option>
               <option value="Automotive">Automotive</option>
               <option value="Industrial">Industrial</option>

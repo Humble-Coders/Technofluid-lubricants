@@ -106,7 +106,7 @@ export function RecipeChangeDialog({
       recipe.push({ code: r.code.trim(), percent: p });
     }
     const sum = recipe.reduce((t, r) => t + Math.round((r.percent ?? 0) * 100), 0);
-    if (sum !== 10_000) return setError(`The percents add up to ${sum / 100}% — they must make exactly 100%.`);
+    if (sum !== 10_000) return setError(`The percents add up to ${sum / 100}%. They must make exactly 100%.`);
     let alternates: AlternateInput[] | undefined;
     if (isAdmin) {
       alternates = [];
@@ -246,7 +246,7 @@ export function RecipeChangeDialog({
               title={totalOk ? undefined : "The percents must add up to exactly 100%."}
             >
               {totalOk ? null : <AlertTriangle className="size-3.5" />}
-              Total {Math.round(total * 100) / 100}%{totalOk ? "" : " — must be 100%"}
+              Total {Math.round(total * 100) / 100}%{totalOk ? "" : " (must be 100%)"}
             </span>
           </div>
         </div>
@@ -254,7 +254,7 @@ export function RecipeChangeDialog({
         {isAdmin ? (
           <div className="space-y-2 border-t border-line-row pt-4">
             <p className="text-label font-medium text-ink">
-              Alternates <span className="font-normal text-ink-muted">— other materials that can be used instead, with their own %</span>
+              Alternates <span className="font-normal text-ink-muted">(other materials that can be used instead, with their own %)</span>
             </p>
             {alts.map((a) => (
               <div key={a.key} className="grid grid-cols-[1fr_1fr_88px_32px] items-center gap-2">

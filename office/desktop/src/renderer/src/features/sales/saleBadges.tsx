@@ -6,10 +6,19 @@ import type { SalePaid } from "@/hooks/useSales";
 import { retrySaleSync, type SaleRow } from "@/services/saleService";
 
 /** Unpaid / Part paid (₹ due) / Cancelled as a badge; fully paid is plain text — from our own records. */
-export function PaidBadge({ paid }: { paid: SalePaid }) {
+/** `stacked` (list tables): "Part paid" with the amount due on a line under it, so the column stays narrow. */
+export function PaidBadge({ paid, stacked }: { paid: SalePaid; stacked?: boolean }) {
   if (paid.state === "CANCELLED") return <Badge tone="danger">Cancelled</Badge>;
   if (paid.state === "PAID") return <span className="text-label font-normal whitespace-nowrap text-ink-muted">Paid</span>;
-  if (paid.state === "PART_PAID") return <Badge tone="warning">Part paid · {formatINR(paid.duePaise)} due</Badge>;
+  if (paid.state === "PART_PAID")
+    return stacked ? (
+      <span className="inline-flex flex-col items-start gap-0.5">
+        <Badge tone="warning">Part paid</Badge>
+        <span className="num text-caption whitespace-nowrap text-warning">{formatINR(paid.duePaise)} due</span>
+      </span>
+    ) : (
+      <Badge tone="warning">Part paid · {formatINR(paid.duePaise)} due</Badge>
+    );
   return <Badge tone="warning">Unpaid</Badge>;
 }
 

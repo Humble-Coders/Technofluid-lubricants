@@ -95,13 +95,13 @@ function RegisterRowEditor({ register: r, balance, busy, run }: { register: Regi
         <Button disabled={!changed || busy} onClick={() => void run(() => saveRegister({ registerId: r.id, name: name.trim(), displayOrder: Number(order) }))}>
           Save
         </Button>
-        <span className="num w-28 shrink-0 text-right text-ink">{balance === null ? "—" : formatINR(balance)}</span>
+        <span className="num w-28 shrink-0 text-right text-ink">{balance === null ? "-" : formatINR(balance)}</span>
         {!r.isActive ? <Badge>Archived</Badge> : null}
       </div>
       {r.opening ? (
         <p className="pl-12 text-label text-ink-muted">
           Opening {formatINR(r.opening.amountPaise)} on {r.opening.asOf}
-          {r.opening.posted ? "" : " — saving to books…"}
+          {r.opening.posted ? "" : " (saving to books…)"}
         </p>
       ) : (
         <div className="flex items-center gap-2 pl-12">

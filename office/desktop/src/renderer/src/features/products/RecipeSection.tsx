@@ -82,7 +82,7 @@ export function RecipeSection({ product: p }: { product: Product }) {
           )}
           <span>
             asked by {latest.requestedBy}
-            {latest.status === "rejected" && latest.decisionNote ? ` — “${latest.decisionNote}”` : ""}
+            {latest.status === "rejected" && latest.decisionNote ? `: “${latest.decisionNote}”` : ""}
           </span>
         </p>
       ) : null}

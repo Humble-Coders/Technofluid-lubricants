@@ -65,7 +65,7 @@ export function ImportDistributorsDialog({ onClose }: { onClose: () => void }) {
       {shown ? (
         <div className="space-y-4">
           <p className="font-medium text-ink">
-            {done ? `Added ${done.created.length}.` : `Will add ${shown.created.length} — nothing has been saved yet.`}
+            {done ? `Added ${done.created.length}.` : `Will add ${shown.created.length}. Nothing has been saved yet.`}
             {shown.skipped.length ? ` ${shown.skipped.length} skipped.` : ""}
           </p>
           {shown.created.length ? (
@@ -84,7 +84,7 @@ export function ImportDistributorsDialog({ onClose }: { onClose: () => void }) {
           {shown.skipped.length ? (
             <details className="text-label text-ink-muted">
               <summary className="cursor-default">Skipped ({shown.skipped.length})</summary>
-              <ul className="mt-1 space-y-0.5">
+              <ul className="mt-1 max-h-40 space-y-0.5 overflow-y-auto">
                 {shown.skipped.map((s) => (
                   <li key={s.distributorId}>
                     {s.name || s.distributorId}: {s.reason}
@@ -94,7 +94,7 @@ export function ImportDistributorsDialog({ onClose }: { onClose: () => void }) {
             </details>
           ) : null}
           <p className="text-label text-ink-muted">
-            Price lists start empty — choose one for each before billing. Those marked "State needed" need a state too.
+            Price lists start empty. Choose one for each before billing. Those marked "State needed" need a state too.
           </p>
         </div>
       ) : null}

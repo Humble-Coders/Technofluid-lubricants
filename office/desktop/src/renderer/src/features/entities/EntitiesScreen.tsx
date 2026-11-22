@@ -87,129 +87,127 @@ export function EntitiesScreen() {
   const selected = list.find((e) => e.id === selectedId) ?? null;
 
   return (
-    <div className="flex h-full min-h-0">
-      <div className="min-w-0 flex-1">
-        <Page fill>
-          <PageHeader
-            title="Customers & suppliers"
-            actions={
-              <>
-                <Button variant={selected ? "secondary" : "primary"} icon={<Plus />} onClick={() => setForm({ entity: null })}>
-                  Add
-                </Button>
-                <Menu items={[isAdmin && { label: "Import website distributors", icon: <Download />, onSelect: () => setImporting(true) }]} />
-              </>
-            }
-            toolbar={
-              <>
-                <SearchInput
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Escape" && setSearch("")}
-                  onClear={() => setSearch("")}
-                  placeholder="Search name, phone or GSTIN"
-                  className="w-64"
-                  aria-label="Search customers and suppliers"
-                />
-                <Segmented<Filter>
-                  value={filter}
-                  onChange={setFilter}
-                  options={[
-                    ["all", "All"],
-                    ["customer", "Customers"],
-                    ["supplier", "Suppliers"],
-                    ["archived", "Archived"],
-                  ]}
-                />
-                <FilterSelect
-                  label="Sort by"
-                  value={sort}
-                  onChange={(v) => setSort(v as Sort)}
-                  options={[
-                    ["name", "Name"],
-                    ["balance", "Balance"],
-                  ]}
-                />
-              </>
-            }
-          />
-
-          {books.error ? (
-            <Banner
-              tone="warning"
-              className="mb-6 shrink-0"
-              action={
-                <Button size="sm" onClick={() => void books.retry()} loading={books.loading} icon={<RefreshCw />}>
-                  Retry
-                </Button>
-              }
-            >
-              Books unreachable — balances can't be shown right now. {books.error}
-            </Banner>
-          ) : null}
-
-          <StatTiles className="shrink-0">
-            <div className="grid" title="Show only these">
-              <StatTile
-                label="They owe us"
-                value={books.balances ? formatINR(totals.owed) : "—"}
-                loading={books.balances === null && books.loading}
-                active={filter === "receivable"}
-                onClick={() => setFilter(filter === "receivable" ? "all" : "receivable")}
+    <>
+      <Page fill>
+        <PageHeader
+          title="Customers & suppliers"
+          actions={
+            <>
+              <Button variant={selected ? "secondary" : "primary"} icon={<Plus />} onClick={() => setForm({ entity: null })}>
+                Add
+              </Button>
+              <Menu items={[isAdmin && { label: "Import website distributors", icon: <Download />, onSelect: () => setImporting(true) }]} />
+            </>
+          }
+          toolbar={
+            <>
+              <SearchInput
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Escape" && setSearch("")}
+                onClear={() => setSearch("")}
+                placeholder="Search name, phone or GSTIN"
+                className="w-64"
+                aria-label="Search customers and suppliers"
               />
-            </div>
-            <div className="grid" title="Show only these">
-              <StatTile
-                label="We owe them"
-                value={books.balances ? formatINR(totals.owe) : "—"}
-                loading={books.balances === null && books.loading}
-                active={filter === "payable"}
-                onClick={() => setFilter(filter === "payable" ? "all" : "payable")}
+              <Segmented<Filter>
+                value={filter}
+                onChange={setFilter}
+                options={[
+                  ["all", "All"],
+                  ["customer", "Customers"],
+                  ["supplier", "Suppliers"],
+                  ["archived", "Archived"],
+                ]}
               />
-            </div>
-          </StatTiles>
+              <FilterSelect
+                label="Sort by"
+                value={sort}
+                onChange={(v) => setSort(v as Sort)}
+                options={[
+                  ["name", "Name"],
+                  ["balance", "Balance"],
+                ]}
+              />
+            </>
+          }
+        />
 
-          <div className="@container min-h-0 flex-1 overflow-auto">
-            {entities.status === "loading" ? (
-              <LoadingState />
-            ) : entities.status === "error" ? (
-              <ErrorState title="Customers couldn't be loaded">{entities.message}</ErrorState>
-            ) : rows.length === 0 ? (
-              <EmptyState
-                icon={<Users />}
-                title={list.length === 0 ? "No customers or suppliers yet" : "Nothing matches"}
-                action={list.length === 0 ? <Button onClick={() => setForm({ entity: null })}>Add</Button> : undefined}
-              >
-                {list.length === 0 ? "Add one, or (Admin) import the website's distributors." : "Try fewer words, or another filter."}
-              </EmptyState>
-            ) : (
-              <Table>
-                <thead>
-                  <tr>
-                    <Th>Name</Th>
-                    <Th className="hidden @2xl:table-cell">Kind</Th>
-                    <Th className="hidden @2xl:table-cell">Place</Th>
-                    <Th align="right">Balance</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((e) => (
-                    <EntityListRow
-                      key={e.id}
-                      entity={e}
-                      balance={balanceOf(e.id)}
-                      booksDown={Boolean(books.error) || books.balances === null}
-                      selected={e.id === selectedId}
-                      onSelect={() => setSelectedId(e.id === selectedId ? null : e.id)}
-                    />
-                  ))}
-                </tbody>
-              </Table>
-            )}
+        {books.error ? (
+          <Banner
+            tone="warning"
+            className="mb-6 shrink-0"
+            action={
+              <Button size="sm" onClick={() => void books.retry()} loading={books.loading} icon={<RefreshCw />}>
+                Retry
+              </Button>
+            }
+          >
+            Books unreachable, so balances can't be shown right now. {books.error}
+          </Banner>
+        ) : null}
+
+        <StatTiles className="shrink-0">
+          <div className="grid" title="Show only these">
+            <StatTile
+              label="They owe us"
+              value={books.balances ? formatINR(totals.owed) : "-"}
+              loading={books.balances === null && books.loading}
+              active={filter === "receivable"}
+              onClick={() => setFilter(filter === "receivable" ? "all" : "receivable")}
+            />
           </div>
-          {entities.status === "ready" && rows.length > 0 ? <TableFooter shown={rows.length} total={list.length} noun={list.length === 1 ? "name" : "names"} /> : null}
-        </Page>
-      </div>
+          <div className="grid" title="Show only these">
+            <StatTile
+              label="We owe them"
+              value={books.balances ? formatINR(totals.owe) : "-"}
+              loading={books.balances === null && books.loading}
+              active={filter === "payable"}
+              onClick={() => setFilter(filter === "payable" ? "all" : "payable")}
+            />
+          </div>
+        </StatTiles>
+
+        <div className="@container min-h-0 flex-1 overflow-auto">
+          {entities.status === "loading" ? (
+            <LoadingState />
+          ) : entities.status === "error" ? (
+            <ErrorState title="Customers couldn't be loaded">{entities.message}</ErrorState>
+          ) : rows.length === 0 ? (
+            <EmptyState
+              icon={<Users />}
+              title={list.length === 0 ? "No customers or suppliers yet" : "Nothing matches"}
+              action={list.length === 0 ? <Button onClick={() => setForm({ entity: null })}>Add</Button> : undefined}
+            >
+              {list.length === 0 ? "Add one, or (Admin) import the website's distributors." : "Try fewer words, or another filter."}
+            </EmptyState>
+          ) : (
+            <Table>
+              <thead>
+                <tr>
+                  <Th>Name</Th>
+                  <Th className="hidden @2xl:table-cell">Kind</Th>
+                  <Th className="hidden @2xl:table-cell">Place</Th>
+                  <Th align="right">Balance</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((e) => (
+                  <EntityListRow
+                    key={e.id}
+                    entity={e}
+                    balance={balanceOf(e.id)}
+                    booksDown={Boolean(books.error) || books.balances === null}
+                    selected={e.id === selectedId}
+                    onSelect={() => setSelectedId(e.id === selectedId ? null : e.id)}
+                  />
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </div>
+        {entities.status === "ready" && rows.length > 0 ? <TableFooter shown={rows.length} total={list.length} noun={list.length === 1 ? "name" : "names"} /> : null}
+      </Page>
 
       {selected ? (
         <EntityDetail
@@ -233,12 +231,12 @@ export function EntitiesScreen() {
         />
       ) : null}
       {importing ? <ImportDistributorsDialog onClose={() => setImporting(false)} /> : null}
-    </div>
+    </>
   );
 }
 
 export function BalanceText({ balance, className }: { balance: EntityBalance | null; className?: string }) {
-  if (!balance) return <span className={clsx("num text-ink-faint", className)}>—</span>;
+  if (!balance) return <span className={clsx("num text-ink-faint", className)}>-</span>;
   const tone: Record<BalanceDirection, string> = { receivable: "font-semibold text-ink", payable: "font-semibold text-danger", settled: "text-ink-subtle" };
   return (
     <span className={clsx("num", tone[balance.direction], className)}>
@@ -307,7 +305,7 @@ function EntityListRow({
       </Td>
       <Td num className="whitespace-nowrap">
         {booksDown ? (
-          <span className="text-ink-faint">—</span>
+          <span className="text-ink-faint">-</span>
         ) : (
           <>
             {shown?.direction === "payable" ? <span className="mr-2 text-caption text-danger">We owe</span> : null}

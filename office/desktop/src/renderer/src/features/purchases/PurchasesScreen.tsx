@@ -133,7 +133,7 @@ export function PurchasesScreen() {
                     <Td num className={off}>
                       {formatINR(p.billTotalPaise)}
                     </Td>
-                    <Td>{pp ? <PaidBadge paid={pp} /> : null}</Td>
+                    <Td>{pp ? <PaidBadge paid={pp} stacked /> : null}</Td>
                     <Td>
                       <PurchaseBooksStatus purchase={p} />
                     </Td>

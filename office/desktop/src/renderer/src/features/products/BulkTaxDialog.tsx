@@ -38,7 +38,7 @@ export function BulkTaxDialog({ products, onClose }: { products: Product[]; onCl
       : hsnBad
         ? "HSN code must be 4, 6 or 8 digits."
         : preview.any === 0
-          ? "Nothing would change — every product shown already has these values."
+          ? "Nothing would change. Every product shown already has these values."
           : null;
 
   const save = async () => {
@@ -99,7 +99,7 @@ export function BulkTaxDialog({ products, onClose }: { products: Product[]; onCl
     >
       <p className="text-label text-ink-muted">
         This changes every product shown on the screen now
-        {preview.rates.length ? ` (now: ${preview.rates.map(([r, n]) => `${n} at ${r}%`).join(", ")})` : ""}. Filter the list first — for example one category — to change only those. HSN codes usually differ by product type, so set them one group at a time.
+        {preview.rates.length ? ` (now: ${preview.rates.map(([r, n]) => `${n} at ${r}%`).join(", ")})` : ""}. Filter the list first (for example, one category) to change only those. HSN codes usually differ by product type, so set them one group at a time.
       </p>
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <Field label="GST %" htmlFor="bt-gst">

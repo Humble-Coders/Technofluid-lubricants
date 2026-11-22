@@ -87,7 +87,14 @@ const paiseOf = (t: string) => {
 };
 
 const lineTh = "sticky top-0 z-10 h-10 border-b border-line bg-surface px-2 text-label font-medium whitespace-nowrap text-ink-muted first:pl-0 last:pr-0";
-const lineTd = "border-b border-line-row px-2 py-1.5 align-top first:pl-0 last:pr-0";
+const lineTd = "border-b border-line-row px-2 py-1.5 align-top first:pl-0 last:pr-0 @max-xl:border-b-0 @max-xl:px-0 @max-xl:py-0";
+// Below a 576px-wide lines area (the smallest window, next to the form panel) each line stacks:
+// the picker on its own row, the figures under it with a small label each, so nothing scrolls sideways.
+const stackTable = "@max-xl:block";
+const stackHead = "@max-xl:hidden";
+const stackBody = "@max-xl:block";
+const stackRow = "@max-xl:grid @max-xl:items-start @max-xl:gap-x-2 @max-xl:gap-y-1.5 @max-xl:border-b @max-xl:border-line-row @max-xl:py-2";
+const stackLabel = "mb-1 block text-caption text-ink-subtle @xl:hidden";
 
 const WALK_IN_STAND_IN = (stateCode: string): EntityRow => ({
   id: WALK_IN_ENTITY_ID,
@@ -201,7 +208,7 @@ export function NewSaleScreen() {
     if (!l.product || !priced || priced.ok) return null;
     const i = filled.indexOf(l);
     const e = priced.errors.find((x) => x.line === i);
-    if (e?.code === "NO_PRICE") return isAdmin ? "No price on this price list — type a price for one pack (this sale only)." : "No price on this price list — an Admin can set one for this sale.";
+    if (e?.code === "NO_PRICE") return isAdmin ? "No price on this price list. Type a price for one pack (this sale only)." : "No price on this price list. An Admin can set one for this sale.";
     return e ? SALE_LINE_ERROR_TEXT[e.code] : null;
   };
   const pricedLine = (l: Line) => (priced?.ok ? priced.lines[filled.indexOf(l)] : undefined);
@@ -222,11 +229,11 @@ export function NewSaleScreen() {
   }, [filled, stock]);
 
   const problem = (() => {
-    if (company.status === "ready" && !seller) return "The company details aren't set up yet — an Admin must fill them in under Settings.";
+    if (company.status === "ready" && !seller) return "The company details aren't set up yet. An Admin must fill them in under Settings.";
     if (!customer) return "Choose a customer.";
     const head = saleError({ customerEntityId: customer.id, priceTier: tier, placeOfSupplyStateCode: placeOfSupply, invoiceDate, lineCount: filled.length, freightPaise, payments, note: note.trim() || null }, today);
     if (head) return SALE_ERROR_TEXT[head];
-    if (lines.some((l) => !l.product && (l.packs !== "1" || l.discount))) return "A line has no product — pick one or remove the line.";
+    if (lines.some((l) => !l.product && (l.packs !== "1" || l.discount))) return "A line has no product. Pick one or remove the line.";
     if (!priced) return "Working it out…";
     if (!priced.ok) {
       const e = priced.errors[0]!;
@@ -280,10 +287,10 @@ export function NewSaleScreen() {
           footer={
             <>
               <div className="space-y-1 text-label">
-                <Row label="Value before discount" value={t ? formatINR(t.grossPaise) : "—"} />
+                <Row label="Value before discount" value={t ? formatINR(t.grossPaise) : "-"} />
                 {t && t.discountPaise > 0 ? <Row label="Discount" value={`−${formatINR(t.discountPaise)}`} /> : null}
                 {priced?.ok && priced.freight ? <Row label="Freight" value={formatINR(priced.freight.taxablePaise)} /> : null}
-                <Row label="Taxable value" value={t ? formatINR(t.taxablePaise) : "—"} strong />
+                <Row label="Taxable value" value={t ? formatINR(t.taxablePaise) : "-"} strong />
                 {t && t.supplyType === "INTRA_STATE" ? (
                   <>
                     <Row label="CGST" value={formatINR(t.cgstPaise)} />
@@ -297,7 +304,7 @@ export function NewSaleScreen() {
               <div className="border-t border-line pt-3">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="font-semibold text-ink">Invoice total</span>
-                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.grandTotalPaise) : "—"}</span>
+                  <span className="num text-page font-semibold text-ink">{t ? formatINR(t.grandTotalPaise) : "-"}</span>
                 </div>
                 {t ? <p className="mt-0.5 text-caption text-ink-muted">{amountInWords(t.grandTotalPaise)}</p> : null}
               </div>
@@ -348,7 +355,7 @@ export function NewSaleScreen() {
                   {placeOfSupply && GST_STATES[placeOfSupply] ? <span>{placeOfSupply === seller?.stateCode ? "CGST + SGST" : "IGST"}</span> : <Badge tone="danger">No state</Badge>}
                 </p>
                 <p className="text-ink-muted">
-                  {placeOfSupply ? GST_STATES[placeOfSupply] ?? placeOfSupply : "—"}
+                  {placeOfSupply ? GST_STATES[placeOfSupply] ?? placeOfSupply : "-"}
                   {customer.gstin ? ` · ${customer.gstin}` : customer.isWalkIn ? "" : " · no GSTIN"}
                 </p>
               </>
@@ -391,7 +398,7 @@ export function NewSaleScreen() {
             <MoneyInput id="ns-freight" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="0" />
           </Field>
           <Field label="Note on the invoice" htmlFor="ns-note">
-            <Input id="ns-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional — e.g. vehicle no., order ref." />
+            <Input id="ns-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="Optional, e.g. vehicle no., order ref." />
           </Field>
           <div className="space-y-2">
             <div>
@@ -438,15 +445,15 @@ export function NewSaleScreen() {
           badge={loading ? <Spinner /> : null}
           subtitle={
             nextInvoiceNo ? (
-              <span title="The number is given when the invoice is saved — if someone else saves one first, this one takes the next number.">
+              <span title="The number is given when the invoice is saved. If someone else saves one first, this one takes the next number.">
                 Invoice no. <span className="num font-medium text-ink">{nextInvoiceNo}</span> (given on save)
               </span>
             ) : undefined
           }
         />
 
-        <table className={clsx(tableClass.table, "min-w-[36rem]")}>
-          <thead>
+        <table className={clsx(tableClass.table, stackTable)}>
+          <thead className={stackHead}>
             <tr>
               <th scope="col" className={clsx(lineTh, "text-left")}>
                 Product
@@ -472,7 +479,7 @@ export function NewSaleScreen() {
               <th scope="col" className={clsx(lineTh, "w-9")} />
             </tr>
           </thead>
-          <tbody>
+          <tbody className={stackBody}>
             {lines.map((l, idx) => {
               const pl = pricedLine(l);
               const err = lineError(l);
@@ -481,8 +488,8 @@ export function NewSaleScreen() {
               const left = pool && packQtyMilli > 0 ? packsAvailable(Math.max(shortPools.onHand.get(pool) ?? 0, 0), packQtyMilli) : null;
               const listPrice = l.product && tier ? tierPrice(toSaleProduct(l.product), tier) : null;
               return (
-                <tr key={l.key}>
-                  <td className={lineTd}>
+                <tr key={l.key} className={clsx(stackRow, "@max-xl:grid-cols-[4.5rem_minmax(0,1fr)_4.5rem_minmax(0,1fr)_2rem]")}>
+                  <td className={clsx(lineTd, "@max-xl:col-span-full @max-xl:[&_[role=listbox]]:max-w-full")}>
                     <SearchPicker
                       items={productList}
                       value={l.product}
@@ -505,14 +512,20 @@ export function NewSaleScreen() {
                         </span>
                       ) : null}
                       {l.product && !l.product.hsnCode ? <span className="text-warning">No HSN code</span> : null}
-                      {pool && shortPools.short.has(pool) ? <span className="text-warning">Stock short — {left} pack{left === 1 ? "" : "s"} in stock</span> : null}
+                      {pool && shortPools.short.has(pool) ? <span className="text-warning">Stock short: {left} pack{left === 1 ? "" : "s"} in stock</span> : null}
                       {err ? <span className="text-danger">{err}</span> : null}
                     </div>
                   </td>
                   <td className={lineTd}>
+                    <span className={stackLabel} aria-hidden>
+                      Packs
+                    </span>
                     <Input value={l.packs} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, packs: e.target.value } : x)))} inputMode="numeric" className="num" aria-label={`Line ${idx + 1} packs`} />
                   </td>
                   <td className={clsx(lineTd, "num text-right leading-8")}>
+                    <span className={stackLabel} aria-hidden>
+                      Price / pack
+                    </span>
                     {isAdmin && l.product && noListPrice(l.product) ? (
                       <>
                         <MoneyInput
@@ -526,16 +539,27 @@ export function NewSaleScreen() {
                     ) : pl ? (
                       formatINR(pl.packPricePaise)
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </td>
                   <td className={lineTd}>
+                    <span className={stackLabel} aria-hidden>
+                      Disc. %
+                    </span>
                     <Input value={l.discount} onChange={(e) => setLines((ls) => ls.map((x) => (x.key === l.key ? { ...x, discount: e.target.value } : x)))} inputMode="decimal" placeholder="0" className="num" aria-label={`Line ${idx + 1} discount percent`} />
                   </td>
-                  <td className={clsx(lineTd, "num hidden text-right leading-8 @4xl:table-cell")}>{pl ? formatINR(pl.taxablePaise) : "—"}</td>
+                  <td className={clsx(lineTd, "num hidden text-right leading-8 @4xl:table-cell")}>{pl ? formatINR(pl.taxablePaise) : "-"}</td>
                   <td className={clsx(lineTd, "num hidden text-right leading-8 text-ink-muted @4xl:table-cell")}>{pl ? formatRate(pl.gstRateBp) : ""}</td>
-                  <td className={clsx(lineTd, "num text-right leading-8 font-medium")}>{pl ? formatINR(pl.totalPaise) : "—"}</td>
+                  <td className={clsx(lineTd, "num text-right leading-8 font-medium")}>
+                    <span className={stackLabel} aria-hidden>
+                      Amount
+                    </span>
+                    {pl ? formatINR(pl.totalPaise) : "-"}
+                  </td>
                   <td className={lineTd}>
+                    <span className={clsx(stackLabel, "invisible")} aria-hidden>
+                      &nbsp;
+                    </span>
                     {lines.length > 1 ? (
                       <div className="flex h-8 items-center justify-end">
                         <IconButton size="sm" label={`Remove line ${idx + 1}`} onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}>
@@ -564,12 +588,12 @@ export function NewSaleScreen() {
 
         {priced?.ok && priced.missingHsn.length > 0 ? (
           <Banner tone="warning" className="mt-4">
-            {priced.missingHsn.length} product{priced.missingHsn.length === 1 ? " has" : "s have"} no HSN code yet — the invoice can still go out (codes are awaited from the CA; GST is 18% for now).
+            {priced.missingHsn.length} product{priced.missingHsn.length === 1 ? " has" : "s have"} no HSN code yet. The invoice can still go out (codes are awaited from the CA; GST is 18% for now).
           </Banner>
         ) : null}
         {shortPools.short.size > 0 ? (
           <Banner tone="warning" className="mt-4">
-            Some products are short in stock — the sale is still recorded and stock goes below zero.
+            Some products are short in stock. The sale is still recorded and stock goes below zero.
           </Banner>
         ) : null}
 

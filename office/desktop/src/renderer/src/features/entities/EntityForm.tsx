@@ -152,7 +152,7 @@ export function EntityForm({
   return (
     <Dialog
       title={entity ? `Edit ${entity.name}` : "Add customer or supplier"}
-      subtitle={walkIn ? "The walk-in customer — only its notes can change." : "Saved here and in the books (Humble Ledger)."}
+      subtitle={walkIn ? "The walk-in customer. Only its notes can change." : "Saved here and in the books (Humble Ledger)."}
       size="lg"
       onClose={() => onClose(null)}
       busy={busy}
@@ -199,7 +199,7 @@ export function EntityForm({
             {sameName.length > 0 ? (
               <Banner tone="warning">
                 Looks like {sameName.slice(0, 3).join(", ")}
-                {sameName.length > 3 ? ` and ${sameName.length - 3} more` : ""} — check it isn't already here.
+                {sameName.length > 3 ? ` and ${sameName.length - 3} more` : ""}. Check it isn't already here.
               </Banner>
             ) : null}
 
@@ -234,7 +234,7 @@ export function EntityForm({
                 <Input id="en-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} invalid={Boolean(errorFor("email"))} />
               </Field>
             </div>
-            {samePhone.length > 0 ? <Banner tone="warning">Same phone as {samePhone.join(", ")} — fine if it's right.</Banner> : null}
+            {samePhone.length > 0 ? <Banner tone="warning">Same phone as {samePhone.join(", ")}. Fine if it's right.</Banner> : null}
 
             <Field label="GSTIN" htmlFor="en-gstin" error={errorFor("gstin")} help={gstNote ?? "A valid GSTIN sets the state."} optional>
               <div className="flex gap-2">
@@ -303,7 +303,7 @@ export function EntityForm({
               ) : (
                 <div />
               )}
-              <Field label="Credit limit" htmlFor="en-credit" error={errorFor("creditLimitPaise")} help="A warning only — never blocks a sale.">
+              <Field label="Credit limit" htmlFor="en-credit" error={errorFor("creditLimitPaise")} help="A warning only. It never blocks a sale.">
                 <MoneyInput id="en-credit" value={credit} onChange={(e) => setCredit(e.target.value)} placeholder="No limit" invalid={Boolean(errorFor("creditLimitPaise"))} />
               </Field>
             </div>
@@ -321,7 +321,7 @@ export function EntityForm({
                 label={
                   <>
                     <span className="font-medium">Opening balance</span>
-                    <span className="text-ink-muted">— can't be changed later</span>
+                    <span className="text-ink-muted">(can't be changed later)</span>
                   </>
                 }
               />
@@ -354,7 +354,7 @@ export function EntityForm({
 
           {sameGstin && isAdmin ? (
             <Banner tone="warning">
-              <Checkbox checked={allowSameGstin} onChange={(e) => setAllowSameGstin(e.target.checked)} label="It's a branch of the same firm — allow the same GSTIN (Admin)" />
+              <Checkbox checked={allowSameGstin} onChange={(e) => setAllowSameGstin(e.target.checked)} label="It's a branch of the same firm: allow the same GSTIN (Admin)" />
             </Banner>
           ) : null}
           {message ? <Banner tone="danger">{message}</Banner> : null}

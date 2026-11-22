@@ -67,7 +67,7 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
             {m.replacesId ? <Badge tone="neutral">Edited</Badge> : null}
             {undone ? <Badge tone="neutral">Undone</Badge> : null}
           </p>
-          {m.note ? <p className="mt-0.5 text-ink-muted">{m.note}</p> : null}
+          {m.note ? <p className="mt-0.5 break-words text-ink-muted">{m.note}</p> : null}
           <p className="mt-0.5 flex flex-wrap gap-x-2 text-caption text-ink-subtle">
             <span>{meta(m)}</span>
             {undone ? null : (
