@@ -81,11 +81,11 @@ function createWindow(): void {
     minHeight: 680,
     show: false,
     title: "Technofluid Office",
-    backgroundColor: "#f6f7f9",
+    backgroundColor: "#f4f4f5",
     // Native-feeling chrome: traffic lights inset on Mac, overlay buttons on Windows.
     titleBarStyle: isMac ? "hiddenInset" : "hidden",
     trafficLightPosition: isMac ? { x: 16, y: 14 } : undefined,
-    titleBarOverlay: isMac ? undefined : { color: "#ffffff", symbolColor: "#2B2B2B", height: 44 },
+    titleBarOverlay: isMac ? undefined : { color: "#f4f4f5", symbolColor: "#2B2B2B", height: 40 },
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,

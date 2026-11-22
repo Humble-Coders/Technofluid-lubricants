@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Check, CheckCircle2, ClipboardPen, FileText, Flag, Plus, Trash2 } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Check, Flag, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { indiaDate, parseQuantityToMilli } from "@technofluid/core";
-import { Button, Input, Select } from "@/components/ui";
+import { Banner, Button, IconButton, Input, Section, Select } from "@/components/ui";
 import { useMovements } from "@/hooks/useStock";
 import type { Product } from "@/services/productService";
 import {
@@ -32,9 +32,8 @@ interface Draft {
 const shortDate = (ymd: string) =>
   new Date(`${ymd}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
-/** One journal line: item · type · quantity (+unit) · reason · remove. Fits the card at any width. */
-const LINE_GRID = "grid grid-cols-[minmax(150px,2fr)_minmax(130px,1.3fr)_minmax(110px,1fr)_minmax(120px,2fr)_28px] gap-3";
-const TALL = "[&_input]:h-9 [&_select]:h-9";
+/** One journal line: item · type · quantity (+unit) · reason · remove. Fits the page at any width. */
+const LINE_GRID = "grid grid-cols-[minmax(150px,2fr)_minmax(130px,1.3fr)_minmax(110px,1fr)_minmax(120px,2fr)_32px] gap-3";
 
 const KIND_OPTIONS: Array<[LineKind, string]> = [
   ["IN", "In"],
@@ -149,7 +148,7 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
   const recordedCount = recorded.status === "ready" ? recorded.data.length : null;
 
   return (
-    <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+    <div className="-m-1 min-h-0 flex-1 overflow-x-hidden overflow-y-auto p-1">
       {canEdit && review ? (
         <JournalReview
           groups={review}
@@ -170,149 +169,134 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
         />
       ) : null}
 
-      <div className="px-5 pt-3 pb-2">
-        <form
-          className="space-y-3 rounded-xl border border-line bg-surface px-5 py-3.5 shadow-sm"
-          onSubmit={(e) => {
-            e.preventDefault();
-            startReview();
-          }}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          startReview();
+        }}
+      >
+        <Section
+          title={canEdit ? "Add to stock journal" : "Stock journal"}
+          description={canEdit ? "Stock in, out or production" : "What was recorded each day"}
+          action={
+            <>
+              {date !== today ? (
+                <Button variant="ghost" onClick={() => setDate(today)}>
+                  Back to today
+                </Button>
+              ) : null}
+              <Input
+                aria-label="Journal date"
+                type="date"
+                value={date}
+                max={today}
+                onChange={(e) => e.target.value && setDate(e.target.value)}
+                className="w-40"
+              />
+            </>
+          }
         >
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-orange text-white">
-              <ClipboardPen className="size-4.5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-[15px] font-semibold text-ink">{canEdit ? "Add to stock journal" : "Stock journal"}</h2>
-              <p className="text-[12px] text-ink-muted">{canEdit ? "Stock in, out or production" : "What was recorded each day"}</p>
-            </div>
-            {date !== today ? (
-              <Button size="sm" variant="ghost" onClick={() => setDate(today)}>
-                Back to today
-              </Button>
-            ) : null}
-            <Input
-              aria-label="Journal date"
-              type="date"
-              value={date}
-              max={today}
-              onChange={(e) => e.target.value && setDate(e.target.value)}
-              className={clsx(
-                "w-44 [&_input]:border-brand-orange [&_input]:bg-brand-orange/8 [&_input]:font-semibold [&_input]:text-brand-orange-dark [&_input]:hover:border-brand-orange-dark",
-                TALL,
-              )}
-            />
-          </div>
-
           {canEdit ? (
             <>
-              <div>
-                <div className={clsx(LINE_GRID, "mb-1.5 text-[12px] font-medium text-ink")}>
-                  <span>Item</span>
-                  <span>Type</span>
-                  <span>Quantity</span>
-                  <span>Reason</span>
-                  <span />
-                </div>
-                <div className="space-y-3">
-                  {lines.map((l, i) => {
-                    const KindIcon = KIND_ICON[l.kind];
-                    const optional = l.kind === "OPENING" || (l.kind === "IN" && l.item !== null && isMade(l.item));
-                    return (
-                      <div key={l.key}>
-                        <div className={clsx(LINE_GRID, "items-center")}>
-                          <ItemPicker
-                            items={items}
-                            value={l.item}
-                            onChange={(item) => update(l.key, { item })}
-                            autoFocus={i > 0 && i === lines.length - 1}
-                            className={TALL}
-                            chevron
-                          />
-                          <div className="relative">
-                            <Select
-                              value={l.kind}
-                              onChange={(e) => update(l.key, { kind: e.target.value as LineKind })}
-                              aria-label="Type"
-                              className={clsx(TALL, "[&_select]:pl-9")}
-                            >
-                              {KIND_OPTIONS.map(([k, label]) => (
-                                <option key={k} value={k}>
-                                  {label}
-                                </option>
-                              ))}
-                            </Select>
-                            <KindIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-muted" aria-hidden />
-                          </div>
-                          <div className="flex">
-                            <Input
-                              value={l.qty}
-                              onChange={(e) => update(l.key, { qty: e.target.value })}
-                              inputMode="decimal"
-                              placeholder="0"
-                              className={clsx("num min-w-0 flex-1 [&_input]:rounded-r-none", TALL)}
-                              aria-label="Quantity"
-                            />
-                            <span className="inline-flex h-9 min-w-11 items-center justify-center rounded-r-md border border-l-0 border-line-strong bg-canvas px-3 text-[13px] text-ink-muted">
-                              {l.item?.unitSet ? unitWord(l.item.baseUnit) : "—"}
-                            </span>
-                          </div>
-                          <Input
-                            value={l.note}
-                            onChange={(e) => update(l.key, { note: e.target.value })}
-                            placeholder={optional ? "Optional" : "Add a reason…"}
-                            maxLength={200}
-                            aria-label="Reason"
-                            leading={<FileText className="size-4" />}
-                            className={TALL}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-label="Remove line"
-                            className="px-1.5"
-                            disabled={lines.length === 1}
-                            onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
-                        {errors[l.key] ? <p className="mt-1 text-[12px] text-danger">{errors[l.key]}</p> : null}
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className={clsx(LINE_GRID, "h-10 items-center border-b border-line text-label font-medium text-ink-muted")}>
+                <span>Item</span>
+                <span>Type</span>
+                <span>Quantity</span>
+                <span>Reason</span>
+                <span />
               </div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-md border border-info/15 bg-info-soft px-4 text-[13px] font-medium text-info transition-colors hover:border-info/30"
-                  onClick={() => setLines((ls) => [...ls, emptyLine()])}
-                >
-                  <Plus className="size-4" />
+              {lines.map((l, i) => {
+                const KindIcon = KIND_ICON[l.kind];
+                const optional = l.kind === "OPENING" || (l.kind === "IN" && l.item !== null && isMade(l.item));
+                return (
+                  <div key={l.key} className="border-b border-line-row py-1.5">
+                    <div className={clsx(LINE_GRID, "items-center")}>
+                      <ItemPicker
+                        items={items}
+                        value={l.item}
+                        onChange={(item) => update(l.key, { item })}
+                        autoFocus={i > 0 && i === lines.length - 1}
+                        chevron
+                      />
+                      <div className="relative">
+                        <Select
+                          value={l.kind}
+                          onChange={(e) => update(l.key, { kind: e.target.value as LineKind })}
+                          aria-label="Type"
+                          className="[&_select]:pl-8"
+                        >
+                          {KIND_OPTIONS.map(([k, label]) => (
+                            <option key={k} value={k}>
+                              {label}
+                            </option>
+                          ))}
+                        </Select>
+                        <KindIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-subtle" aria-hidden />
+                      </div>
+                      <div className="flex">
+                        <Input
+                          value={l.qty}
+                          onChange={(e) => update(l.key, { qty: e.target.value })}
+                          inputMode="decimal"
+                          placeholder="0"
+                          className="num min-w-0 flex-1 [&_input]:rounded-r-none"
+                          aria-label="Quantity"
+                        />
+                        <span className="inline-flex h-8 min-w-10 items-center justify-center rounded-r-control border border-l-0 border-line-strong bg-surface-alt px-2.5 text-label text-ink-muted">
+                          {l.item?.unitSet ? unitWord(l.item.baseUnit) : "—"}
+                        </span>
+                      </div>
+                      <Input
+                        value={l.note}
+                        onChange={(e) => update(l.key, { note: e.target.value })}
+                        placeholder={optional ? "Optional" : "Add a reason…"}
+                        maxLength={200}
+                        aria-label="Reason"
+                      />
+                      <IconButton
+                        label="Remove line"
+                        disabled={lines.length === 1}
+                        onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}
+                      >
+                        <Trash2 />
+                      </IconButton>
+                    </div>
+                    {errors[l.key] ? <p className="mt-1 text-caption text-danger">{errors[l.key]}</p> : null}
+                  </div>
+                );
+              })}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Button icon={<Plus />} onClick={() => setLines((ls) => [...ls, emptyLine()])}>
                   Add another line
-                </button>
+                </Button>
                 <div className="flex-1" />
-                {saveError ? <p role="alert" className="text-[12px] font-medium text-danger">{saveError}</p> : null}
-                <Button type="submit" variant="primary" className="h-9 px-6" loading={busy} icon={<Check className="size-4" />}>
+                {saveError ? (
+                  <p role="alert" className="text-label text-danger">
+                    {saveError}
+                  </p>
+                ) : null}
+                <Button type="submit" variant="primary" loading={busy} icon={<Check />}>
                   Review
                 </Button>
               </div>
               {result ? <ResultNote result={result} /> : null}
             </>
           ) : null}
-        </form>
-      </div>
+        </Section>
+      </form>
 
-      <section>
-        <h3 className="px-5 pt-3 pb-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-          {date === today ? "Today" : shortDate(date)}
-          {recordedCount ? ` · ${recordedCount.toLocaleString("en-IN")}` : ""}
-        </h3>
+      <Section
+        title={
+          <>
+            {date === today ? "Today" : shortDate(date)}
+            {recordedCount ? <span className="num font-normal text-ink-muted">{` · ${recordedCount.toLocaleString("en-IN")}`}</span> : null}
+          </>
+        }
+      >
         <div className="overflow-x-auto">
           <MovementTable state={recorded} canEdit={canEdit} showDate={false} emptyText="Nothing recorded yet." />
         </div>
-      </section>
+      </Section>
     </div>
   );
 }
@@ -320,24 +304,23 @@ export function DailyJournal({ items, products, canEdit }: { items: StockItem[];
 function ResultNote({ result }: { result: RecordResult & { sentForApproval?: boolean } }) {
   if (result.sentForApproval) {
     return (
-      <p className="flex items-center gap-1.5 text-[12px] text-brand-orange-dark">
-        <CheckCircle2 className="size-3.5" /> Sent to the Admin for approval — stock changes once the new recipe is approved.
-      </p>
+      <Banner tone="info" className="mt-4">
+        Sent to the Admin for approval — stock changes once the new recipe is approved.
+      </Banner>
     );
   }
   return (
-    <div className="space-y-1 text-[12px]">
-      <p className={clsx("flex items-center gap-1.5", result.recorded > 0 ? "text-success" : "text-ink-muted")}>
-        <CheckCircle2 className="size-3.5" />
+    <div className="mt-4 space-y-2">
+      <Banner tone={result.recorded > 0 ? "success" : "info"}>
         {result.alreadyRecorded
           ? "Already saved."
           : `Saved ${result.recorded} ${result.recorded === 1 ? "line" : "lines"}.`}
         {result.skipped.length > 0 ? ` ${result.skipped.length} unchanged (count already matched).` : ""}
-      </p>
+      </Banner>
       {result.belowZero.map((b) => (
-        <p key={b.itemId} className="flex items-center gap-1.5 text-warning">
-          <AlertTriangle className="size-3.5" /> {b.name} is now below zero — count it and correct.
-        </p>
+        <Banner key={b.itemId} tone="warning">
+          {b.name} is now below zero — count it and correct.
+        </Banner>
       ))}
     </div>
   );

@@ -119,12 +119,12 @@ export function ItemPicker({
         }}
       />
       {chevron ? (
-        <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-ink-faint" aria-hidden />
+        <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-ink-subtle" aria-hidden />
       ) : null}
       {open && matches.length > 0 ? (
         <ul
           role="listbox"
-          className="absolute top-full left-0 z-30 mt-1 max-h-64 w-max max-w-[min(440px,80vw)] min-w-full overflow-y-auto rounded-md border border-line bg-surface p-1 shadow-pop"
+          className="absolute top-full left-0 z-30 mt-1 max-h-64 w-max max-w-[min(440px,80vw)] min-w-full overflow-y-auto rounded-control border border-line bg-surface p-1 shadow-pop"
         >
           {matches.map((item, i) => (
             <li
@@ -137,15 +137,15 @@ export function ItemPicker({
               }}
               onMouseEnter={() => setActive(i)}
               className={clsx(
-                "flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-[13px]",
-                i === active ? "bg-hover" : null,
+                "flex min-h-8 cursor-default items-center gap-2 rounded-[6px] px-2.5 py-1 text-body",
+                i === active ? "bg-surface-alt" : null,
               )}
             >
               <span className="min-w-0 flex-1 truncate text-ink" title={item.name}>
                 {item.name}
               </span>
-              {item.code ? <span className="font-mono text-[11px] text-ink-faint">{item.code}</span> : null}
-              <span className="text-2xs text-ink-faint">{KIND_LABEL[item.kind]}</span>
+              {item.code ? <span className="font-mono text-caption text-ink-subtle">{item.code}</span> : null}
+              <span className="text-caption text-ink-subtle">{KIND_LABEL[item.kind]}</span>
             </li>
           ))}
         </ul>

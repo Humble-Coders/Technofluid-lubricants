@@ -1,10 +1,9 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowLeft, Ban, IndianRupee } from "lucide-react";
+import { Ban, IndianRupee } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link, useLocation, useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 import { amountInWords, formatINR, formatQuantity, formatRate, GST_STATES, indiaDate, INVOICE_COPIES, rupeesToPaise } from "@technofluid/core";
-import { Badge, Button, EmptyState, Field, Input, Select, Spinner } from "@/components/ui";
-import { Modal } from "@/features/entities/EntityDetail";
+import { Badge, Banner, Button, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Menu, MoneyInput, Page, PageHeader, Section, Select, Spinner, Table, Td, Th, Tr } from "@/components/ui";
 import { useInvoicePreview, usePdfReady } from "@/hooks/useInvoicePreview";
 import { useRegisters } from "@/hooks/useMoney";
 import { useSale, useSalesPaid } from "@/hooks/useSales";
@@ -36,56 +35,81 @@ export function SaleDetail() {
   const pdfReady = usePdfReady();
   const preview = useInvoicePreview(s, copy, pdfReady);
 
-  if (sale.status === "loading") return <Spinner className="m-6" />;
-  if (sale.status === "error") return <p className="m-6 text-[12px] text-danger">{sale.message}</p>;
-  if (!s) return <EmptyState title="That invoice doesn't exist" />;
+  if (sale.status === "loading") {
+    return (
+      <Page>
+        <LoadingState />
+      </Page>
+    );
+  }
+  if (sale.status === "error") {
+    return (
+      <Page>
+        <PageHeader back={{ to: "/sales", label: "Sales" }} title="Invoice" />
+        <ErrorState>{sale.message}</ErrorState>
+      </Page>
+    );
+  }
+  if (!s) {
+    return (
+      <Page>
+        <PageHeader back={{ to: "/sales", label: "Sales" }} title="Invoice" />
+        <EmptyState title="That invoice doesn't exist" />
+      </Page>
+    );
+  }
 
   const intra = s.totals.supplyType === "INTRA_STATE";
   const cancelled = s.status === "CANCELLED";
+  const nothingPaid = s.payments.length === 0 && (paid?.later.length ?? 0) === 0;
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-5xl space-y-4 px-5 py-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Link to="/sales" className="inline-flex items-center gap-1 text-[12px] text-ink-muted hover:text-ink">
-            <ArrowLeft className="size-3.5" /> Sales
-          </Link>
-          <h2 className="text-[16px] font-semibold text-ink">{s.invoiceNo}</h2>
-          {paid ? <PaidBadge paid={paid} /> : null}
-          <BooksStatus sale={s} />
-          <span className="flex-1" />
-          {!cancelled && paid && paid.duePaise > 0 && !s.customer.isWalkIn ? (
-            <Button icon={<IndianRupee className="size-3.5" />} onClick={() => setReceiving(true)}>
-              Receive payment
-            </Button>
-          ) : null}
-          {!cancelled ? (
-            <Button variant="ghost" icon={<Ban className="size-3.5" />} onClick={() => setCancelling(true)}>
-              Cancel invoice
-            </Button>
-          ) : null}
-        </div>
+    <Page>
+      <PageHeader
+        back={{ to: "/sales", label: "Sales" }}
+        title={s.invoiceNo}
+        subtitle={`${s.customer.buyer?.name ? `${s.customer.buyer.name} (walk-in)` : s.customer.name} · ${s.invoiceDate} · ${formatINR(s.totals.grandTotalPaise)}`}
+        badge={
+          <>
+            {paid ? <PaidBadge paid={paid} /> : null}
+            <BooksStatus sale={s} />
+          </>
+        }
+        actions={
+          <>
+            {!cancelled && paid && paid.duePaise > 0 && !s.customer.isWalkIn ? (
+              <Button variant="primary" icon={<IndianRupee />} onClick={() => setReceiving(true)}>
+                Receive payment
+              </Button>
+            ) : null}
+            <Menu items={[!cancelled && { label: "Cancel invoice", icon: <Ban />, danger: true, onSelect: () => setCancelling(true) }]} />
+          </>
+        }
+      />
 
-        {!cancelled ? <InvoicePdfButtons sale={s} copy={copy} onCopy={setCopy} ready={pdfReady} /> : null}
-
+      <div className="mb-6 flex flex-col gap-2 empty:hidden">
         {justCreated && justCreated.belowZero.length > 0 && !cancelled ? (
-          <p className="flex items-center gap-2 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-            <AlertTriangle className="size-3.5" /> Stock is now below zero for {justCreated.belowZero.map((b) => b.name).join(", ")} — record what came in or was made.
-          </p>
+          <Banner tone="warning">
+            Stock is now below zero for {justCreated.belowZero.map((b) => b.name).join(", ")} — record what came in or was made.
+          </Banner>
         ) : null}
         {s.lines.some((l) => l.manualPrice) ? (
-          <p className="rounded-md bg-info-soft px-3 py-2 text-[12px] text-info">
+          <Banner tone="info">
             The price of {s.lines.filter((l) => l.manualPrice).map((l) => `${l.productName} · ${l.packLabel}`).join(", ")} was typed by an Admin for this sale (no price on the price list).
-          </p>
+          </Banner>
         ) : null}
         {cancelled && s.cancel ? (
-          <p className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
+          <Banner tone="danger">
             Cancelled on {s.cancel.day} by {s.cancel.by}: {s.cancel.reason}. The stock came back; the number stays used.
-          </p>
+          </Banner>
         ) : null}
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {!cancelled ? <InvoicePdfButtons sale={s} copy={copy} onCopy={setCopy} ready={pdfReady} /> : null}
 
         {preview.status === "loading" ? (
-          <div className="flex aspect-[210/297] w-full items-center justify-center gap-2 rounded-lg border border-line bg-surface text-[12px] text-ink-muted">
+          <div className="flex aspect-[210/297] w-full max-w-[832px] items-center justify-center gap-2 rounded-control border border-line bg-surface text-label text-ink-muted">
             <Spinner /> Preparing the invoice…
           </div>
         ) : preview.status === "ready" ? (
@@ -93,237 +117,242 @@ export function SaleDetail() {
             key={preview.url}
             src={`${preview.url}#toolbar=0&navpanes=0&view=FitH`}
             title={`${s.invoiceNo} ${copy} — as it prints`}
-            className="aspect-[210/297] w-full rounded-lg border border-line bg-white"
+            className="aspect-[210/297] w-full max-w-[832px] rounded-control border border-line bg-white"
           />
         ) : null}
-        {preview.status === "error" ? <p className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{preview.message} Showing the invoice details instead.</p> : null}
+        {preview.status === "error" ? <Banner tone="danger">{preview.message} Showing the invoice details instead.</Banner> : null}
 
         {preview.status === "off" || preview.status === "error" ? (
-        <article className={clsx("rounded-lg border border-line bg-surface p-6 text-[12px]", cancelled && "opacity-70")} aria-label="Tax invoice">
-          <header className="flex items-start justify-between gap-6 border-b border-line pb-4">
-            <div>
-              <p className="text-[16px] font-semibold text-ink">{s.seller.tradeName ?? s.seller.legalName}</p>
-              {s.seller.tradeName ? <p className="text-ink">{s.seller.legalName}</p> : null}
-              <p className="text-ink-muted">
-                {[s.seller.address.line1, s.seller.address.line2, s.seller.address.city, s.seller.address.pincode].filter(Boolean).join(", ")}
-              </p>
-              <p className="text-ink-muted">
-                GSTIN {s.seller.gstin} · {GST_STATES[s.seller.stateCode]} ({s.seller.stateCode})
-                {s.seller.phone ? ` · ${s.seller.phone}` : ""}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[14px] font-semibold tracking-wide text-ink uppercase">Tax invoice</p>
-              <p className="text-ink">
-                No. <span className="num font-medium">{s.invoiceNo}</span>
-              </p>
-              <p className="text-ink">Date {s.invoiceDate}</p>
-            </div>
-          </header>
-
-          <section className="grid grid-cols-2 gap-6 border-b border-line py-4">
-            <div>
-              <p className="text-2xs tracking-wide text-ink-muted uppercase">Billed to</p>
-              {s.customer.buyer?.name ? (
-                <>
-                  <p className="font-medium text-ink">{s.customer.buyer.name}</p>
-                  <p className="text-ink-muted">Walk-in / cash customer</p>
-                </>
-              ) : (
-                <p className="font-medium text-ink">{s.customer.name}</p>
-              )}
-              {s.customer.buyer?.address ? <p className="text-ink-muted">{s.customer.buyer.address}</p> : null}
-              {s.customer.buyer?.phone ? <p className="text-ink-muted">Phone {s.customer.buyer.phone}</p> : null}
-              {s.customer.address && !s.customer.buyer?.address ? (
-                <p className="text-ink-muted">{[s.customer.address.line1, s.customer.address.line2, s.customer.address.city, s.customer.address.pincode].filter(Boolean).join(", ")}</p>
-              ) : null}
-              <p className="text-ink-muted">{s.customer.gstin ? `GSTIN ${s.customer.gstin}` : "Unregistered (no GSTIN)"}</p>
-            </div>
-            <div>
-              {s.shipTo ? (
-                <div className="mb-2">
-                  <p className="text-2xs tracking-wide text-ink-muted uppercase">Shipped to</p>
-                  <p className="font-medium text-ink">{s.shipTo.name}</p>
-                  <p className="text-ink-muted">{[s.shipTo.address, s.shipTo.city, s.shipTo.pincode].filter(Boolean).join(", ")}</p>
-                  <p className="text-ink-muted">
-                    {GST_STATES[s.shipTo.stateCode] ?? s.shipTo.stateCode} ({s.shipTo.stateCode}){s.shipTo.gstin ? ` · GSTIN ${s.shipTo.gstin}` : ""}
-                  </p>
-                </div>
-              ) : null}
-              <p className="text-2xs tracking-wide text-ink-muted uppercase">Place of supply</p>
-              <p className="text-ink">
-                {GST_STATES[s.placeOfSupply] ?? s.placeOfSupply} ({s.placeOfSupply})
-              </p>
-              <p className="text-ink-muted">{s.customer.priceTier} price list</p>
-              {s.dispatch ? (
-                <p className="mt-1 text-ink-muted">
-                  {[
-                    s.dispatch.transport ? `Transport: ${s.dispatch.transport}` : "",
-                    s.dispatch.vehicleNo ? `Vehicle: ${s.dispatch.vehicleNo}` : "",
-                    s.dispatch.station ? `Station: ${s.dispatch.station}` : "",
-                    s.dispatch.ewayBillNo ? `E-way bill: ${s.dispatch.ewayBillNo}` : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
+          <article className={clsx("rounded-control border border-line p-6 text-label", cancelled && "opacity-70")} aria-label="Tax invoice">
+            <header className="flex items-start justify-between gap-6 border-b border-line-row pb-4">
+              <div>
+                <p className="text-title font-semibold text-ink">{s.seller.tradeName ?? s.seller.legalName}</p>
+                {s.seller.tradeName ? <p className="text-ink">{s.seller.legalName}</p> : null}
+                <p className="text-ink-muted">
+                  {[s.seller.address.line1, s.seller.address.line2, s.seller.address.city, s.seller.address.pincode].filter(Boolean).join(", ")}
                 </p>
-              ) : null}
-            </div>
-          </section>
+                <p className="text-ink-muted">
+                  GSTIN {s.seller.gstin} · {GST_STATES[s.seller.stateCode]} ({s.seller.stateCode})
+                  {s.seller.phone ? ` · ${s.seller.phone}` : ""}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-title font-semibold text-ink">Tax invoice</p>
+                <p className="text-ink">
+                  No. <span className="num font-medium">{s.invoiceNo}</span>
+                </p>
+                <p className="text-ink">Date {s.invoiceDate}</p>
+              </div>
+            </header>
 
-          <table className="mt-3 w-full border-collapse">
-            <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-              <tr className="border-b border-line">
-                <th className="py-1.5 pr-2 font-medium">#</th>
-                <th className="py-1.5 pr-2 font-medium">Product</th>
-                <th className="py-1.5 pr-2 font-medium">HSN</th>
-                <th className="py-1.5 pr-2 text-right font-medium">Qty</th>
-                <th className="py-1.5 pr-2 text-right font-medium">Rate</th>
-                <th className="py-1.5 pr-2 text-right font-medium">Disc.</th>
-                <th className="py-1.5 pr-2 text-right font-medium">Taxable</th>
-                <th className="py-1.5 pr-2 text-right font-medium">GST</th>
-                <th className="py-1.5 text-right font-medium">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {s.lines.map((l, i) => (
-                <tr key={i} className="border-b border-line/60 align-top">
-                  <td className="py-1.5 pr-2 text-ink-muted">{i + 1}</td>
-                  <td className="py-1.5 pr-2">
-                    <span className="text-ink">{l.productName}</span>
-                    <span className="block text-2xs text-ink-muted">
-                      {l.packLabel} · {formatQuantity(l.qtyMilli, l.baseUnit)}
-                    </span>
-                  </td>
-                  <td className="py-1.5 pr-2">{l.hsnCode ?? <span className="text-warning">—</span>}</td>
-                  <td className="num py-1.5 pr-2 text-right">{l.packs}</td>
-                  <td className="num py-1.5 pr-2 text-right">
-                    {formatINR(l.packPricePaise)}
-                    <span className="block text-2xs text-ink-muted">
-                      {formatINR(l.listPricePaise)}
-                      {PRICE_PER_SHORT[l.pricePer] ?? ` ${l.pricePer}`}
-                    </span>
-                  </td>
-                  <td className="num py-1.5 pr-2 text-right">{l.discountBp ? `${formatRate(l.discountBp)} · ${formatINR(l.discountPaise)}` : "—"}</td>
-                  <td className="num py-1.5 pr-2 text-right">{formatINR(l.taxablePaise)}</td>
-                  <td className="num py-1.5 pr-2 text-right">{formatRate(l.gstRateBp)}</td>
-                  <td className="num py-1.5 text-right">{formatINR(l.totalPaise)}</td>
-                </tr>
-              ))}
-              {s.freight ? (
-                <tr className="border-b border-line/60">
-                  <td />
-                  <td className="py-1.5 pr-2 text-ink" colSpan={5}>
-                    Freight
-                  </td>
-                  <td className="num py-1.5 pr-2 text-right">{formatINR(s.freight.taxablePaise)}</td>
-                  <td className="num py-1.5 pr-2 text-right">{formatRate(s.freight.gstRateBp)}</td>
-                  <td className="num py-1.5 text-right">{formatINR(s.freight.totalPaise)}</td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
+            <section className="grid grid-cols-2 gap-6 border-b border-line-row py-4">
+              <div>
+                <p className="text-caption text-ink-muted">Billed to</p>
+                {s.customer.buyer?.name ? (
+                  <>
+                    <p className="font-medium text-ink">{s.customer.buyer.name}</p>
+                    <p className="text-ink-muted">Walk-in / cash customer</p>
+                  </>
+                ) : (
+                  <p className="font-medium text-ink">{s.customer.name}</p>
+                )}
+                {s.customer.buyer?.address ? <p className="text-ink-muted">{s.customer.buyer.address}</p> : null}
+                {s.customer.buyer?.phone ? <p className="text-ink-muted">Phone {s.customer.buyer.phone}</p> : null}
+                {s.customer.address && !s.customer.buyer?.address ? (
+                  <p className="text-ink-muted">{[s.customer.address.line1, s.customer.address.line2, s.customer.address.city, s.customer.address.pincode].filter(Boolean).join(", ")}</p>
+                ) : null}
+                <p className="text-ink-muted">{s.customer.gstin ? `GSTIN ${s.customer.gstin}` : "Unregistered (no GSTIN)"}</p>
+              </div>
+              <div>
+                {s.shipTo ? (
+                  <div className="mb-3">
+                    <p className="text-caption text-ink-muted">Shipped to</p>
+                    <p className="font-medium text-ink">{s.shipTo.name}</p>
+                    <p className="text-ink-muted">{[s.shipTo.address, s.shipTo.city, s.shipTo.pincode].filter(Boolean).join(", ")}</p>
+                    <p className="text-ink-muted">
+                      {GST_STATES[s.shipTo.stateCode] ?? s.shipTo.stateCode} ({s.shipTo.stateCode}){s.shipTo.gstin ? ` · GSTIN ${s.shipTo.gstin}` : ""}
+                    </p>
+                  </div>
+                ) : null}
+                <p className="text-caption text-ink-muted">Place of supply</p>
+                <p className="text-ink">
+                  {GST_STATES[s.placeOfSupply] ?? s.placeOfSupply} ({s.placeOfSupply})
+                </p>
+                <p className="text-ink-muted">{s.customer.priceTier} price list</p>
+                {s.dispatch ? (
+                  <p className="mt-1 text-ink-muted">
+                    {[
+                      s.dispatch.transport ? `Transport: ${s.dispatch.transport}` : "",
+                      s.dispatch.vehicleNo ? `Vehicle: ${s.dispatch.vehicleNo}` : "",
+                      s.dispatch.station ? `Station: ${s.dispatch.station}` : "",
+                      s.dispatch.ewayBillNo ? `E-way bill: ${s.dispatch.ewayBillNo}` : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                ) : null}
+              </div>
+            </section>
 
-          <section className="mt-4 grid grid-cols-[1fr_280px] gap-6">
-            <div className="space-y-2">
-              <table className="w-full border-collapse text-2xs">
-                <thead className="text-left tracking-wide text-ink-muted uppercase">
-                  <tr className="border-b border-line">
-                    <th className="py-1 pr-2 font-medium">GST rate</th>
-                    <th className="py-1 pr-2 text-right font-medium">Taxable</th>
-                    {intra ? (
-                      <>
-                        <th className="py-1 pr-2 text-right font-medium">CGST</th>
-                        <th className="py-1 text-right font-medium">SGST</th>
-                      </>
-                    ) : (
-                      <th className="py-1 text-right font-medium">IGST</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {s.totals.byRate.map((r) => (
-                    <tr key={r.gstRateBp} className="border-b border-line/60">
-                      <td className="py-1 pr-2">{formatRate(r.gstRateBp)}</td>
-                      <td className="num py-1 pr-2 text-right">{formatINR(r.taxablePaise)}</td>
+            <Table className="mt-2">
+              <thead>
+                <tr>
+                  <Th>#</Th>
+                  <Th>Product</Th>
+                  <Th>HSN</Th>
+                  <Th align="right">Qty</Th>
+                  <Th align="right">Rate</Th>
+                  <Th align="right">Disc.</Th>
+                  <Th align="right">Taxable</Th>
+                  <Th align="right">GST</Th>
+                  <Th align="right">Amount</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {s.lines.map((l, i) => (
+                  <Tr key={i}>
+                    <Td muted>{i + 1}</Td>
+                    <Td>
+                      {l.productName}
+                      <span className="block text-caption text-ink-muted">
+                        {l.packLabel} · {formatQuantity(l.qtyMilli, l.baseUnit)}
+                      </span>
+                    </Td>
+                    <Td>
+                      {l.hsnCode ?? (
+                        <span className="text-warning" title="No HSN code">
+                          —
+                        </span>
+                      )}
+                    </Td>
+                    <Td num>{l.packs}</Td>
+                    <Td num>
+                      {formatINR(l.packPricePaise)}
+                      <span className="block text-caption text-ink-muted">
+                        {formatINR(l.listPricePaise)}
+                        {PRICE_PER_SHORT[l.pricePer] ?? ` ${l.pricePer}`}
+                      </span>
+                    </Td>
+                    <Td num>{l.discountBp ? `${formatRate(l.discountBp)} · ${formatINR(l.discountPaise)}` : "—"}</Td>
+                    <Td num>{formatINR(l.taxablePaise)}</Td>
+                    <Td num>{formatRate(l.gstRateBp)}</Td>
+                    <Td num>{formatINR(l.totalPaise)}</Td>
+                  </Tr>
+                ))}
+                {s.freight ? (
+                  <Tr>
+                    <Td />
+                    <Td colSpan={5}>Freight</Td>
+                    <Td num>{formatINR(s.freight.taxablePaise)}</Td>
+                    <Td num>{formatRate(s.freight.gstRateBp)}</Td>
+                    <Td num>{formatINR(s.freight.totalPaise)}</Td>
+                  </Tr>
+                ) : null}
+              </tbody>
+            </Table>
+
+            <section className="mt-6 grid grid-cols-[minmax(0,1fr)_280px] gap-8">
+              <div className="space-y-3">
+                <table className="w-full border-collapse text-caption">
+                  <thead>
+                    <tr className="border-b border-line text-left text-ink-muted">
+                      <th className="h-8 pr-3 font-medium">GST rate</th>
+                      <th className="h-8 pr-3 text-right font-medium">Taxable</th>
                       {intra ? (
                         <>
-                          <td className="num py-1 pr-2 text-right">{formatINR(r.cgstPaise)}</td>
-                          <td className="num py-1 text-right">{formatINR(r.sgstPaise)}</td>
+                          <th className="h-8 pr-3 text-right font-medium">CGST</th>
+                          <th className="h-8 text-right font-medium">SGST</th>
                         </>
                       ) : (
-                        <td className="num py-1 text-right">{formatINR(r.igstPaise)}</td>
+                        <th className="h-8 text-right font-medium">IGST</th>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <p className="text-ink">{amountInWords(s.totals.grandTotalPaise)}</p>
-              {s.note ? <p className="text-ink-muted">Note: {s.note}</p> : null}
-            </div>
-            <div className="space-y-1 text-[12px]">
-              <Line label="Taxable value" value={formatINR(s.totals.taxablePaise)} />
-              {intra ? (
-                <>
-                  <Line label="CGST" value={formatINR(s.totals.cgstPaise)} />
-                  <Line label="SGST" value={formatINR(s.totals.sgstPaise)} />
-                </>
-              ) : (
-                <Line label="IGST" value={formatINR(s.totals.igstPaise)} />
-              )}
-              {s.totals.roundOffPaise ? <Line label="Round off" value={`${s.totals.roundOffPaise > 0 ? "+" : "−"}${formatINR(Math.abs(s.totals.roundOffPaise))}`} /> : null}
-              <div className="flex items-baseline justify-between border-t border-line pt-1.5">
-                <span className="font-semibold text-ink">Total</span>
-                <span className="num text-[16px] font-semibold text-ink">{formatINR(s.totals.grandTotalPaise)}</span>
+                  </thead>
+                  <tbody>
+                    {s.totals.byRate.map((r) => (
+                      <tr key={r.gstRateBp} className="border-b border-line-row">
+                        <td className="py-1.5 pr-3">{formatRate(r.gstRateBp)}</td>
+                        <td className="num py-1.5 pr-3 text-right">{formatINR(r.taxablePaise)}</td>
+                        {intra ? (
+                          <>
+                            <td className="num py-1.5 pr-3 text-right">{formatINR(r.cgstPaise)}</td>
+                            <td className="num py-1.5 text-right">{formatINR(r.sgstPaise)}</td>
+                          </>
+                        ) : (
+                          <td className="num py-1.5 text-right">{formatINR(r.igstPaise)}</td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="text-ink">{amountInWords(s.totals.grandTotalPaise)}</p>
+                {s.note ? <p className="text-ink-muted">Note: {s.note}</p> : null}
               </div>
-            </div>
-          </section>
-        </article>
+              <div className="space-y-1.5">
+                <Line label="Taxable value" value={formatINR(s.totals.taxablePaise)} />
+                {intra ? (
+                  <>
+                    <Line label="CGST" value={formatINR(s.totals.cgstPaise)} />
+                    <Line label="SGST" value={formatINR(s.totals.sgstPaise)} />
+                  </>
+                ) : (
+                  <Line label="IGST" value={formatINR(s.totals.igstPaise)} />
+                )}
+                {s.totals.roundOffPaise ? <Line label="Round off" value={`${s.totals.roundOffPaise > 0 ? "+" : "−"}${formatINR(Math.abs(s.totals.roundOffPaise))}`} /> : null}
+                <div className="flex items-baseline justify-between border-t border-line pt-2">
+                  <span className="font-semibold text-ink">Total</span>
+                  <span className="num text-title font-semibold text-ink">{formatINR(s.totals.grandTotalPaise)}</span>
+                </div>
+              </div>
+            </section>
+          </article>
         ) : null}
 
-        {s.missingHsn.length > 0 ? (
-          <p className="text-[12px] text-warning">Billed without an HSN code for {s.missingHsn.length} product(s) — codes are awaited from the CA.</p>
-        ) : null}
+        {s.missingHsn.length > 0 ? <Banner tone="warning">Billed without an HSN code for {s.missingHsn.length} product(s) — codes are awaited from the CA.</Banner> : null}
+      </div>
 
-        <section className="space-y-2">
-          <h3 className="text-[13px] font-semibold text-ink">Payments</h3>
-          {s.payments.length === 0 && (paid?.later.length ?? 0) === 0 ? <p className="text-[12px] text-ink-muted">Nothing paid yet — on credit.</p> : null}
-          <ul className="space-y-1 text-[12px]">
+      <Section
+        title="Payments"
+        description={
+          paid && !cancelled
+            ? `Paid ${formatINR(paid.paidPaise)} of ${formatINR(s.totals.grandTotalPaise)}${paid.duePaise > 0 ? ` · ${formatINR(paid.duePaise)} still due` : ""}`
+            : undefined
+        }
+      >
+        {nothingPaid ? (
+          <p className="text-body text-ink-muted">Nothing paid yet — on credit.</p>
+        ) : (
+          <ul className="border-t border-line-row">
             {s.payments.map((p, i) => (
-              <li key={i} className="flex items-center gap-2">
-                <span className="num w-28 text-right">{formatINR(p.amountPaise)}</span>
-                <span className="text-ink">
-                  into {p.name}, at billing ({s.invoiceDate})
+              <li key={i} className="flex min-h-11 items-center gap-3 border-b border-line-row py-1.5">
+                <span className="selectable min-w-0 flex-1 text-ink">
+                  Into {p.name}, at billing ({s.invoiceDate})
                 </span>
+                <span className="selectable num shrink-0 text-right text-ink">{formatINR(p.amountPaise)}</span>
               </li>
             ))}
             {paid?.later.map((e) => (
-              <li key={e.id} className={clsx("flex items-center gap-2", e.reversedByEntryId && "text-ink-faint")}>
-                <span className={clsx("num w-28 text-right", e.reversedByEntryId && "line-through")}>{formatINR(e.amountPaise)}</span>
-                <span>
-                  into {e.to.kind === "ADJUSTMENT" ? "—" : e.to.name}, {e.businessDay}
+              <li key={e.id} className={clsx("flex min-h-11 items-center gap-3 border-b border-line-row py-1.5", e.reversedByEntryId ? "text-ink-subtle" : "text-ink")}>
+                <span className="selectable min-w-0 flex-1">
+                  Into {e.to.kind === "ADJUSTMENT" ? "—" : e.to.name}, {e.businessDay}
                   {e.note ? ` · ${e.note}` : ""}
                 </span>
                 {e.reversedByEntryId ? <Badge>Reversed</Badge> : e.syncStatus !== "SYNCED" ? <Badge tone={e.syncStatus === "FAILED" ? "danger" : "neutral"}>{e.syncStatus === "FAILED" ? "Not posted" : "Saving to books…"}</Badge> : null}
+                <span className={clsx("selectable num shrink-0 text-right", e.reversedByEntryId && "line-through")}>{formatINR(e.amountPaise)}</span>
               </li>
             ))}
           </ul>
-          {paid && !cancelled ? (
-            <p className="text-[12px] text-ink">
-              Paid {formatINR(paid.paidPaise)} of {formatINR(s.totals.grandTotalPaise)}
-              {paid.duePaise > 0 ? ` · ${formatINR(paid.duePaise)} still due` : ""}
-            </p>
-          ) : null}
-        </section>
+        )}
+      </Section>
 
-        <p className="text-2xs text-ink-faint">
-          Billed by {s.createdBy}
-          {s.createdAt ? ` on ${s.createdAt.toLocaleString("en-IN")}` : ""}.
-        </p>
-      </div>
+      <p className="mt-10 text-caption text-ink-subtle">
+        Billed by {s.createdBy}
+        {s.createdAt ? ` on ${s.createdAt.toLocaleString("en-IN")}` : ""}.
+      </p>
 
       {receiving && paid ? <ReceivePaymentDialog sale={s} duePaise={paid.duePaise} onClose={() => setReceiving(false)} /> : null}
       {cancelling ? <CancelDialog sale={s} onClose={() => setCancelling(false)} /> : null}
-    </div>
+    </Page>
   );
 }
 
@@ -354,11 +383,48 @@ function ReceivePaymentDialog({ sale: s, duePaise, onClose }: { sale: SaleRow; d
   }
   const problem = !reg ? "Choose where the money went." : !Number.isInteger(paise) || paise <= 0 ? "Give the amount." : paise > duePaise ? `Only ${formatINR(duePaise)} is due — record any extra separately in Money in & out.` : null;
   return (
-    <Modal title={`Payment for ${s.invoiceNo}`} onClose={onClose} busy={busy}>
-      <p className="text-[12px] text-ink-muted">
-        From {s.customer.name} · {formatINR(duePaise)} still due
-      </p>
-      <div className="grid grid-cols-2 gap-3">
+    <Dialog
+      title={`Payment for ${s.invoiceNo}`}
+      subtitle={`From ${s.customer.name} · ${formatINR(duePaise)} still due`}
+      size="md"
+      onClose={onClose}
+      busy={busy}
+      footer={
+        <>
+          {problem ? <span className="mr-auto min-w-0 text-label text-ink-muted">{problem}</span> : null}
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            loading={busy}
+            disabled={Boolean(problem)}
+            onClick={async () => {
+              if (!reg) return;
+              setBusy(true);
+              setError(null);
+              try {
+                await recordMoneyEntry({
+                  from: { kind: "PARTY", entityId: s.customer.entityId, name: s.customer.name },
+                  to: { kind: reg.kind, registerId: reg.id, name: reg.name },
+                  amountPaise: paise,
+                  businessDay: day,
+                  note: note.trim() || null,
+                  saleId: s.id,
+                });
+                onClose();
+              } catch (e) {
+                setError(e instanceof Error ? e.message : String(e));
+                setBusy(false);
+              }
+            }}
+          >
+            {busy ? "Saving…" : "Save payment"}
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-2 gap-4">
         <Field label="Into" htmlFor="rp-into">
           <Select id="rp-into" value={reg?.id ?? ""} onChange={(e) => setRegisterId(e.target.value)}>
             {regs.map((r) => (
@@ -368,50 +434,18 @@ function ReceivePaymentDialog({ sale: s, duePaise, onClose }: { sale: SaleRow; d
             ))}
           </Select>
         </Field>
-        <Field label="Amount (₹)" htmlFor="rp-amount">
-          <Input id="rp-amount" value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className="num" autoFocus />
+        <Field label="Amount" htmlFor="rp-amount">
+          <MoneyInput id="rp-amount" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
         </Field>
         <Field label="Day" htmlFor="rp-day">
           <Input id="rp-day" type="date" value={day} max={indiaDate()} min={s.invoiceDate} onChange={(e) => e.target.value && setDay(e.target.value)} />
         </Field>
-        <Field label="Note" htmlFor="rp-note">
+        <Field label="Note" htmlFor="rp-note" optional>
           <Input id="rp-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. cheque no." maxLength={500} />
         </Field>
       </div>
-      {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-      <div className="flex items-center justify-end gap-2">
-        {problem ? <span className="mr-auto text-[12px] text-ink-muted">{problem}</span> : null}
-        <Button variant="ghost" onClick={onClose} disabled={busy}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          loading={busy}
-          disabled={Boolean(problem)}
-          onClick={async () => {
-            if (!reg) return;
-            setBusy(true);
-            setError(null);
-            try {
-              await recordMoneyEntry({
-                from: { kind: "PARTY", entityId: s.customer.entityId, name: s.customer.name },
-                to: { kind: reg.kind, registerId: reg.id, name: reg.name },
-                amountPaise: paise,
-                businessDay: day,
-                note: note.trim() || null,
-                saleId: s.id,
-              });
-              onClose();
-            } catch (e) {
-              setError(e instanceof Error ? e.message : String(e));
-              setBusy(false);
-            }
-          }}
-        >
-          Save payment
-        </Button>
-      </div>
-    </Modal>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }
 
@@ -420,40 +454,51 @@ function CancelDialog({ sale: s, onClose }: { sale: SaleRow; onClose: () => void
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
-    <Modal title={`Cancel ${s.invoiceNo}`} onClose={onClose} busy={busy}>
-      <p className="text-[13px] text-ink">
+    <Dialog
+      title={`Cancel ${s.invoiceNo}`}
+      size="md"
+      danger
+      onClose={onClose}
+      busy={busy}
+      footer={
+        <>
+          {!reason.trim() ? <span className="mr-auto min-w-0 text-label text-ink-muted">Give a reason.</span> : null}
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
+            Keep it
+          </Button>
+          <Button
+            variant="danger"
+            loading={busy}
+            disabled={!reason.trim()}
+            onClick={async () => {
+              setBusy(true);
+              setError(null);
+              try {
+                await cancelSale(s.id, reason);
+                onClose();
+              } catch (e) {
+                setError(e instanceof Error ? e.message : String(e));
+                setBusy(false);
+              }
+            }}
+          >
+            {busy ? "Cancelling…" : "Cancel invoice"}
+          </Button>
+        </>
+      }
+    >
+      <p className="text-body text-ink">
         {s.customer.name} · {formatINR(s.totals.grandTotalPaise)} · {s.invoiceDate}
       </p>
-      <ul className="list-disc space-y-0.5 pl-5 text-[12px] text-ink-muted">
+      <ul className="list-disc space-y-1 pl-5 text-label text-ink-muted">
         <li>The stock comes back today.</li>
         <li>The books reverse the sale. Anything already paid stays as the customer's credit (pay it back from Money in & out if needed).</li>
         <li>The number {s.invoiceNo} stays used and shows as cancelled. Bill again with a new sale if needed.</li>
       </ul>
-      <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (required)" autoFocus maxLength={300} aria-label="Reason" />
-      {error ? <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{error}</p> : null}
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={onClose} disabled={busy}>
-          Keep it
-        </Button>
-        <Button
-          variant="danger"
-          loading={busy}
-          disabled={!reason.trim()}
-          onClick={async () => {
-            setBusy(true);
-            setError(null);
-            try {
-              await cancelSale(s.id, reason);
-              onClose();
-            } catch (e) {
-              setError(e instanceof Error ? e.message : String(e));
-              setBusy(false);
-            }
-          }}
-        >
-          Cancel invoice
-        </Button>
-      </div>
-    </Modal>
+      <Field label="Reason" htmlFor="cancel-reason">
+        <Input id="cancel-reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why is it being cancelled?" autoFocus maxLength={300} />
+      </Field>
+      {error ? <Banner tone="danger">{error}</Banner> : null}
+    </Dialog>
   );
 }

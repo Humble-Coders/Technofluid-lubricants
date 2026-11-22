@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { AlertTriangle, Clock, Plus, X } from "lucide-react";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { parseAlternates, parseRecipe } from "@technofluid/core";
-import { Button, Input, Select } from "@/components/ui";
+import { Banner, Button, Dialog, Field, IconButton, Input, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useStockItems } from "@/hooks/useStock";
@@ -80,12 +80,6 @@ export function RecipeChangeDialog({
     [items],
   );
 
-  useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && !busy && onClose(null);
-    window.addEventListener("keydown", esc);
-    return () => window.removeEventListener("keydown", esc);
-  }, [busy, onClose]);
-
   const total = rows.reduce((sum, r) => sum + (Number(r.percent) || 0), 0);
   const totalOk = Math.abs(total - 100) < 0.005;
   const mains = [...new Set(rows.map((r) => r.code.trim().toLowerCase()).filter(Boolean))];
@@ -143,199 +137,182 @@ export function RecipeChangeDialog({
     }
   };
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Change recipe of ${productName}`}
-    >
-      <div className="w-full max-w-xl rounded-lg border border-line bg-surface shadow-pop">
-        <div className="flex items-start gap-2 border-b border-line px-4 py-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold text-ink">Change recipe</p>
-            <p className="text-[12px] text-ink-muted">{productName}{"productKey" in target ? " · all pack sizes" : ""}</p>
-          </div>
-          <Button variant="ghost" size="sm" className="px-1.5" aria-label="Close" onClick={() => onClose(null)} disabled={busy}>
-            <X className="size-4" />
+  const formId = `${listId}-form`;
+  const reasonId = `${listId}-reason`;
+
+  if (sent) {
+    return (
+      <Dialog
+        title="Change recipe"
+        subtitle={`${productName}${"productKey" in target ? " · all pack sizes" : ""}`}
+        size="md"
+        onClose={() => onClose(null)}
+        busy={busy}
+        footer={
+          <Button variant="primary" onClick={() => onClose(null)}>
+            Done
           </Button>
+        }
+      >
+        <p className="flex items-center gap-2 text-body font-medium text-ink">
+          <Clock className="size-4 shrink-0 text-ink-subtle" aria-hidden /> Sent to the Admin for approval.
+        </p>
+        <p className="text-label text-ink-muted">
+          Production keeps using the current recipe until it's approved. You'll see the result on the product.
+        </p>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog
+      title="Change recipe"
+      subtitle={`${productName}${"productKey" in target ? " · all pack sizes" : ""}`}
+      size="md"
+      onClose={() => onClose(null)}
+      busy={busy}
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => onClose(null)} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit" form={formId} loading={busy} disabled={!isAdmin && Boolean(waiting)}>
+            {busy ? (isAdmin ? "Saving…" : "Sending…") : isAdmin ? "Save recipe" : "Send for approval"}
+          </Button>
+        </>
+      }
+    >
+      <form
+        id={formId}
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit();
+        }}
+      >
+        {waiting ? (
+          <Banner tone="warning">
+            {waiting.requestedBy}'s change is waiting for approval.{isAdmin ? " Saving yours replaces it." : ""}
+          </Banner>
+        ) : null}
+
+        <datalist id={listId}>
+          {codes.map((i) => (
+            <option key={i.id} value={i.code ?? ""}>
+              {i.name}
+            </option>
+          ))}
+        </datalist>
+
+        <div className="space-y-2">
+          <div className="grid grid-cols-[1fr_112px_32px] gap-2 text-label font-medium text-ink">
+            <span>Ingredient</span>
+            <span title="Leave empty for an ingredient without a percent.">Percent</span>
+            <span />
+          </div>
+          {rows.map((r) => (
+            <div key={r.key} className="grid grid-cols-[1fr_112px_32px] items-center gap-2">
+              <Input
+                aria-label="Ingredient code"
+                value={r.code}
+                onChange={(e) => update(r.key, { code: e.target.value })}
+                list={listId}
+                placeholder="e.g. w150"
+                className="font-mono"
+              />
+              <div className="relative">
+                <Input
+                  aria-label="Percent"
+                  value={r.percent}
+                  onChange={(e) => update(r.key, { percent: e.target.value })}
+                  inputMode="decimal"
+                  placeholder="no %"
+                  className="num [&_input]:pr-7 [&_input]:text-right"
+                />
+                <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-label text-ink-subtle">%</span>
+              </div>
+              <IconButton label="Remove ingredient" onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))} disabled={rows.length === 1}>
+                <X />
+              </IconButton>
+            </div>
+          ))}
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" icon={<Plus />} className="-ml-2.5" onClick={() => setRows((rs) => [...rs, { key: nextKey++, code: "", percent: "" }])}>
+              Add ingredient
+            </Button>
+            <div className="flex-1" />
+            <span
+              className={clsx("num flex items-center gap-1 text-label", totalOk ? "text-ink-muted" : "text-danger")}
+              title={totalOk ? undefined : "The percents must add up to exactly 100%."}
+            >
+              {totalOk ? null : <AlertTriangle className="size-3.5" />}
+              Total {Math.round(total * 100) / 100}%{totalOk ? "" : " — must be 100%"}
+            </span>
+          </div>
         </div>
 
-        {sent ? (
-          <div className="space-y-3 px-4 py-5">
-            <p className="flex items-center gap-2 text-[13px] font-medium text-ink">
-              <Clock className="size-4 text-brand-orange" /> Sent to the Admin for approval.
+        {isAdmin ? (
+          <div className="space-y-2 border-t border-line-row pt-4">
+            <p className="text-label font-medium text-ink">
+              Alternates <span className="font-normal text-ink-muted">— other materials that can be used instead, with their own %</span>
             </p>
-            <p className="text-[12px] text-ink-muted">
-              Production keeps using the current recipe until it's approved. You'll see the result on the product.
-            </p>
-            <div className="flex justify-end">
-              <Button size="sm" variant="primary" onClick={() => onClose(null)}>
-                Done
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <form
-            className="space-y-3 px-4 py-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void submit();
-            }}
-          >
-            {waiting ? (
-              <p className="flex items-center gap-1.5 rounded-md bg-warning-soft px-3 py-2 text-[12px] text-warning">
-                <Clock className="size-3.5 shrink-0" />
-                {waiting.requestedBy}'s change is waiting for approval.{isAdmin ? " Saving yours replaces it." : ""}
-              </p>
-            ) : null}
-
-            <datalist id={listId}>
-              {codes.map((i) => (
-                <option key={i.id} value={i.code ?? ""}>
-                  {i.name}
-                </option>
-              ))}
-            </datalist>
-
-            <div className="grid grid-cols-[1fr_110px_32px] gap-2 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-              <span>Ingredient</span>
-              <span className="text-center" title="Leave empty for an ingredient without a percent.">%</span>
-              <span />
-            </div>
-            {rows.map((r) => (
-              <div key={r.key} className="grid grid-cols-[1fr_110px_32px] items-center gap-2">
+            {alts.map((a) => (
+              <div key={a.key} className="grid grid-cols-[1fr_1fr_88px_32px] items-center gap-2">
+                <Select aria-label="Replaces" value={a.main} onChange={(e) => updateAlt(a.key, { main: e.target.value })}>
+                  <option value="">Replaces…</option>
+                  {mains.map((m) => (
+                    <option key={m} value={m}>
+                      Instead of {m}
+                    </option>
+                  ))}
+                </Select>
                 <Input
-                  aria-label="Ingredient code"
-                  value={r.code}
-                  onChange={(e) => update(r.key, { code: e.target.value })}
+                  aria-label="Alternate material code"
+                  value={a.code}
+                  onChange={(e) => updateAlt(a.key, { code: e.target.value })}
                   list={listId}
-                  placeholder="e.g. w150"
+                  placeholder="e.g. w150n"
                   className="font-mono"
                 />
                 <div className="relative">
                   <Input
-                    aria-label="Percent"
-                    value={r.percent}
-                    onChange={(e) => update(r.key, { percent: e.target.value })}
+                    aria-label="Alternate percent"
+                    value={a.percent}
+                    onChange={(e) => updateAlt(a.key, { percent: e.target.value })}
                     inputMode="decimal"
-                    placeholder="no %"
-                    className="num [&_input]:pr-7"
+                    className="num [&_input]:pr-7 [&_input]:text-right"
                   />
-                  <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] text-ink-muted">%</span>
+                  <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-label text-ink-subtle">%</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="px-1.5"
-                  aria-label="Remove ingredient"
-                  onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}
-                  disabled={rows.length === 1}
-                >
-                  <X className="size-3.5" />
-                </Button>
+                <IconButton label="Remove alternate" onClick={() => setAlts((as) => as.filter((x) => x.key !== a.key))}>
+                  <X />
+                </IconButton>
               </div>
             ))}
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" icon={<Plus className="size-3.5" />} onClick={() => setRows((rs) => [...rs, { key: nextKey++, code: "", percent: "" }])}>
-                Add ingredient
-              </Button>
-              <div className="flex-1" />
-              <span
-                className={clsx("num flex items-center gap-1 text-[12px]", totalOk ? "text-success" : "text-danger")}
-                title={totalOk ? undefined : "The percents must add up to exactly 100%."}
-              >
-                {totalOk ? null : <AlertTriangle className="size-3.5" />}
-                Total {Math.round(total * 100) / 100}%{totalOk ? "" : " — must be 100%"}
-              </span>
-            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={<Plus />}
+              className="-ml-2.5"
+              onClick={() => setAlts((as) => [...as, { key: nextKey++, main: mains[0] ?? "", code: "", percent: "" }])}
+            >
+              Add alternate
+            </Button>
+          </div>
+        ) : null}
 
-            {isAdmin ? (
-              <div className="space-y-2 rounded-md bg-canvas px-3 py-2.5">
-                <p className="text-[12px] font-medium text-ink">
-                  Alternates <span className="font-normal text-ink-muted">— other materials that can be used instead, with their own %</span>
-                </p>
-                {alts.map((a) => (
-                  <div key={a.key} className="grid grid-cols-[1fr_1fr_90px_32px] items-center gap-2">
-                    <Select aria-label="Replaces" value={a.main} onChange={(e) => updateAlt(a.key, { main: e.target.value })}>
-                      <option value="">Replaces…</option>
-                      {mains.map((m) => (
-                        <option key={m} value={m}>
-                          Instead of {m}
-                        </option>
-                      ))}
-                    </Select>
-                    <Input
-                      aria-label="Alternate material code"
-                      value={a.code}
-                      onChange={(e) => updateAlt(a.key, { code: e.target.value })}
-                      list={listId}
-                      placeholder="e.g. w150n"
-                      className="font-mono"
-                    />
-                    <div className="relative">
-                      <Input
-                        aria-label="Alternate percent"
-                        value={a.percent}
-                        onChange={(e) => updateAlt(a.key, { percent: e.target.value })}
-                        inputMode="decimal"
-                        placeholder="%"
-                        className="num [&_input]:pr-6"
-                      />
-                      <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-[12px] text-ink-muted">%</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="px-1.5"
-                      aria-label="Remove alternate"
-                      onClick={() => setAlts((as) => as.filter((x) => x.key !== a.key))}
-                    >
-                      <X className="size-3.5" />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  icon={<Plus className="size-3.5" />}
-                  onClick={() => setAlts((as) => [...as, { key: nextKey++, main: mains[0] ?? "", code: "", percent: "" }])}
-                >
-                  Add alternate
-                </Button>
-              </div>
-            ) : null}
+        <Field label="Reason" htmlFor={reasonId} optional={isAdmin}>
+          <Input
+            id={reasonId}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            maxLength={300}
+            placeholder={isAdmin ? undefined : "e.g. more W150 flows better in winter"}
+          />
+        </Field>
 
-            <Input
-              aria-label="Reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              maxLength={300}
-              placeholder={isAdmin ? "Reason (optional)" : "Reason, e.g. more W150 flows better in winter"}
-            />
-
-            {error ? (
-              <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
-                {error}
-              </p>
-            ) : null}
-            <div className="flex justify-end gap-2">
-              <Button size="sm" variant="ghost" onClick={() => onClose(null)} disabled={busy}>
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                variant="primary"
-                type="submit"
-                loading={busy}
-                disabled={!isAdmin && Boolean(waiting)}
-              >
-                {isAdmin ? "Save recipe" : "Send for approval"}
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+        {error ? <Banner tone="danger">{error}</Banner> : null}
+      </form>
+    </Dialog>
   );
 }

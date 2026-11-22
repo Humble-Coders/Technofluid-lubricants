@@ -113,7 +113,7 @@ export function SearchPicker<T>({
         }}
       />
       {open && matches.length > 0 ? (
-        <ul role="listbox" className="absolute top-full left-0 z-30 mt-1 max-h-72 w-max max-w-[min(560px,85vw)] min-w-full overflow-y-auto rounded-md border border-line bg-surface p-1 shadow-pop">
+        <ul role="listbox" className="absolute top-full left-0 z-30 mt-1 max-h-72 w-max max-w-[min(560px,85vw)] min-w-full overflow-y-auto rounded-control border border-line bg-surface p-1 shadow-pop">
           {matches.map((item, i) => (
             <li
               key={keyOf(item)}
@@ -124,12 +124,12 @@ export function SearchPicker<T>({
                 pick(item);
               }}
               onMouseEnter={() => setActive(i)}
-              className={clsx("flex cursor-default items-center gap-3 rounded px-2 py-1.5 text-[13px]", i === active ? "bg-hover" : null)}
+              className={clsx("flex min-h-8 cursor-default items-center gap-3 rounded-[6px] px-2.5 py-1 text-body", i === active ? "bg-surface-alt" : null)}
             >
               <span className="min-w-0 flex-1 truncate text-ink" title={labelOf(item)}>
                 {labelOf(item)}
               </span>
-              {meta ? <span className="shrink-0 text-2xs text-ink-faint">{meta(item)}</span> : null}
+              {meta ? <span className="shrink-0 text-caption text-ink-subtle">{meta(item)}</span> : null}
             </li>
           ))}
         </ul>

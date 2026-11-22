@@ -1,7 +1,7 @@
 import { Download, Printer } from "lucide-react";
 import { useState } from "react";
 import { INVOICE_COPIES } from "@technofluid/core";
-import { Button, Select } from "@/components/ui";
+import { Button, FilterSelect } from "@/components/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { useCompany } from "@/hooks/useSales";
 import { invoicePdf, needsLiveCompany, pdfAvailable, pdfProblemText } from "@/services/invoicePdfService";
@@ -19,7 +19,7 @@ export function InvoicePdfButtons({ sale, copy, onCopy, ready }: { sale: SaleRow
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
 
   if (!pdfAvailable()) return null;
-  if (ready && !ready.ready) return <span className="text-[12px] text-ink-muted">Print / Save PDF: {ready.reason}</span>;
+  if (ready && !ready.ready) return <p className="text-label text-ink-muted">Print / Save PDF: {ready.reason}</p>;
   // An older sale prints today's bank details and terms, so wait until Settings have loaded.
   const waitingForCompany = needsLiveCompany(sale) && company.status === "loading";
   const disabled = busy !== null || ready === null || waitingForCompany;
@@ -46,20 +46,18 @@ export function InvoicePdfButtons({ sale, copy, onCopy, ready }: { sale: SaleRow
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select value={copy} onChange={(e) => onCopy(e.target.value)} aria-label="Which copy" className="w-40">
-        {INVOICE_COPIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </Select>
-      <Button icon={<Printer className="size-3.5" />} onClick={() => void run("open")} loading={busy === "open"} disabled={disabled}>
+      <FilterSelect label="Copy" value={copy} onChange={onCopy} options={INVOICE_COPIES.map((c) => [c, c.replace(/ Copy$/, "")])} active={false} />
+      <Button icon={<Printer />} onClick={() => void run("open")} loading={busy === "open"} disabled={disabled}>
         Print
       </Button>
-      <Button variant="ghost" icon={<Download className="size-3.5" />} onClick={() => void run("save")} loading={busy === "save"} disabled={disabled}>
+      <Button variant="ghost" icon={<Download />} onClick={() => void run("save")} loading={busy === "save"} disabled={disabled}>
         Save PDF
       </Button>
-      {message ? <span className={message.tone === "error" ? "text-[12px] text-danger" : "text-[12px] text-success"}>{message.text}</span> : null}
+      {message ? (
+        <span role={message.tone === "error" ? "alert" : "status"} className={message.tone === "error" ? "text-label text-danger" : "text-label text-ink-muted"}>
+          {message.text}
+        </span>
+      ) : null}
     </div>
   );
 }

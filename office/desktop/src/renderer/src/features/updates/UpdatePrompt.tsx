@@ -1,7 +1,6 @@
 import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui";
-import { Modal } from "@/features/entities/EntityDetail";
+import { Banner, Button, Dialog } from "@/components/ui";
 import type { UpdateEvent } from "../../../../shared/ipc";
 
 type State =
@@ -42,75 +41,92 @@ export function UpdatePrompt() {
 
   if (state.kind === "downloading")
     return (
-      <div role="status" className="fixed right-4 bottom-4 z-50 w-72 space-y-2 rounded-xl border border-line bg-surface p-4 shadow-pop">
-        <p className="flex items-center gap-2 text-[13px] font-medium text-ink">
-          <Download className="size-4 text-brand-orange" /> Downloading the update{state.version ? ` (${state.version})` : ""}…
+      <div role="status" className="fixed right-4 bottom-4 z-50 w-72 space-y-2 rounded-sheet border border-line bg-surface p-4 shadow-pop">
+        <p className="flex items-center gap-2 text-label font-medium text-ink">
+          <Download className="size-4 shrink-0 text-ink-subtle" aria-hidden /> Downloading the update{state.version ? ` (${state.version})` : ""}…
         </p>
-        <div className="h-1.5 overflow-hidden rounded-full bg-canvas" aria-label={`${state.percent}% downloaded`}>
-          <div className="h-full rounded-full bg-brand-orange transition-[width]" style={{ width: `${Math.max(2, state.percent)}%` }} />
+        <div className="h-1.5 overflow-hidden rounded-full bg-surface-alt" aria-label={`${state.percent}% downloaded`}>
+          <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${Math.max(2, state.percent)}%` }} />
         </div>
-        <p className="text-[12px] text-ink-muted">{state.percent}% — keep working, we'll tell you when it's ready.</p>
+        <p className="text-caption text-ink-muted">{state.percent}% — keep working, we'll tell you when it's ready.</p>
       </div>
     );
 
   if (state.kind === "available")
     return (
-      <Modal title={`A new version of Technofluid Office is available (${state.version})`} onClose={hide} busy={false}>
+      <Dialog
+        title="A new version is available"
+        subtitle={`Technofluid Office ${state.version}`}
+        size="md"
+        onClose={hide}
+        footer={
+          <>
+            <Button variant="ghost" onClick={hide}>
+              Later
+            </Button>
+            <Button
+              variant="primary"
+              icon={<Download />}
+              onClick={() => {
+                setState({ kind: "downloading", version: state.version, percent: 0 });
+                act("download");
+              }}
+            >
+              Update now
+            </Button>
+          </>
+        }
+      >
         {state.notes ? (
           <div>
-            <p className="mb-1 text-[12px] font-medium tracking-wide text-ink-muted uppercase">What's new</p>
-            <p className="max-h-60 overflow-y-auto rounded-md bg-canvas px-3 py-2 text-[13px] whitespace-pre-line text-ink">{state.notes}</p>
+            <p className="mb-1.5 text-label font-medium text-ink-muted">What's new</p>
+            <p className="selectable max-h-60 overflow-y-auto rounded-control bg-surface-alt px-3 py-2 text-body whitespace-pre-line text-ink">{state.notes}</p>
           </div>
         ) : (
-          <p className="text-[13px] text-ink-muted">Fixes and improvements.</p>
+          <p className="text-body text-ink-muted">Fixes and improvements.</p>
         )}
-        <p className="text-[12px] text-ink-muted">It downloads in the background; you can keep working.</p>
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={hide}>
-            Later
-          </Button>
-          <Button
-            variant="primary"
-            icon={<Download className="size-3.5" />}
-            onClick={() => {
-              setState({ kind: "downloading", version: state.version, percent: 0 });
-              act("download");
-            }}
-          >
-            Update now
-          </Button>
-        </div>
-      </Modal>
+        <p className="text-label text-ink-muted">It downloads in the background; you can keep working.</p>
+      </Dialog>
     );
 
   if (state.kind === "downloaded")
     return (
-      <Modal title={`Technofluid Office ${state.version} is ready`} onClose={hide} busy={false}>
-        <p className="text-[13px] text-ink">Restart to finish updating. The app closes, installs the new version and opens again — you stay signed in.</p>
-        <p className="text-[12px] text-ink-muted">Save anything you're typing first. Or keep working: it installs by itself when you close the app.</p>
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={hide}>
-            When I close the app
-          </Button>
-          <Button variant="primary" onClick={() => act("install")}>
-            Restart now
-          </Button>
-        </div>
-      </Modal>
+      <Dialog
+        title={`Technofluid Office ${state.version} is ready`}
+        onClose={hide}
+        footer={
+          <>
+            <Button variant="ghost" onClick={hide}>
+              When I close the app
+            </Button>
+            <Button variant="primary" onClick={() => act("install")}>
+              Restart now
+            </Button>
+          </>
+        }
+      >
+        <p className="text-body text-ink">Restart to finish updating. The app closes, installs the new version and opens again — you stay signed in.</p>
+        <p className="text-label text-ink-muted">Save anything you're typing first. Or keep working: it installs by itself when you close the app.</p>
+      </Dialog>
     );
 
   return (
-    <Modal title="The update couldn't be downloaded" onClose={hide} busy={false}>
-      <p className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">{state.message}</p>
-      <p className="text-[13px] text-ink-muted">You can download the new version from its page and run the installer by hand. Nothing you've saved is affected.</p>
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={hide}>
-          Close
-        </Button>
-        <Button variant="primary" onClick={() => act("openPage")}>
-          Open download page
-        </Button>
-      </div>
-    </Modal>
+    <Dialog
+      title="The update couldn't be downloaded"
+      onClose={hide}
+      footer={
+        <>
+          <Button variant="ghost" onClick={hide}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => act("openPage")}>
+            Open download page
+          </Button>
+        </>
+      }
+    >
+      <Banner tone="danger">{state.message}</Banner>
+      <p className="text-body text-ink-muted">You can download the new version from its page and run the installer by hand. Nothing you've saved is affected.</p>
+    </Dialog>
   );
 }

@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpFromLine, Check, Factory, Flag, FlaskConical, Pencil, PlusCircle, X } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Check, Factory, Flag, FlaskConical, Pencil, Plus, X } from "lucide-react";
 import { Fragment, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { formatQuantity, parseQuantityToMilli, parseRecipe, recipeTotalBp } from "@technofluid/core";
-import { Button, Input, Select } from "@/components/ui";
+import { Badge, Banner, Button, Field, IconButton, Input, Section, Select, Table, Td, Th, Tr } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
 import { canChangeRecipe } from "@/lib/access";
@@ -49,8 +49,6 @@ const STATUS: Record<UseLine["status"], { tag: string; help: string; warn: boole
   no_unit: { tag: "Unit not set", help: "This material has no unit yet — an Admin sets it on Live stock (Edit). Until then it can't be deducted.", warn: true },
 };
 
-const CHIP = "inline-flex h-6 items-center rounded-md px-2 text-[12px] font-medium whitespace-nowrap";
-
 /** Sent with "Send for review" / "Save recipe and confirm" when a recipe was changed. */
 export interface RecipeConfirm {
   recipeChanges: RecipeChangeInput[];
@@ -60,12 +58,7 @@ export interface RecipeConfirm {
 const pctText = (bp: number | null | undefined) => (bp == null ? "no %" : `${bp / 100}%`);
 
 type Tone = "ok" | "warn" | "danger" | "info";
-const TONE: Record<Tone, string> = {
-  ok: "bg-success-soft text-success",
-  warn: "bg-warning-soft text-warning",
-  danger: "bg-danger-soft text-danger",
-  info: "bg-info-soft text-info",
-};
+const TONE: Record<Tone, "success" | "warning" | "danger" | "info"> = { ok: "success", warn: "warning", danger: "danger", info: "info" };
 
 /** The Status chip of a material line. */
 function statusOf(u: UseLine, after: number | null): { tag: string; tone: Tone } {
@@ -128,6 +121,7 @@ export function JournalReview({
   const afterOf = useMemo(() => new Map(summary.map((c) => [c.item.id, c.afterMilli])), [summary]);
   const updateGroup = (key: string, next: ReviewGroup) => onChange(groups.map((g) => (g.key === key ? next : g)));
   const [recipeOpen, setRecipeOpen] = useState(false);
+  const reasonId = useId();
 
   // Materials already shown (with what's left) in a recipe table aren't repeated below.
   const inTables = new Set(groups.flatMap((g) => (g.type === "production" ? leafLines(g.uses).map((l) => l.use.item?.id) : [])));
@@ -140,19 +134,25 @@ export function JournalReview({
   }, [busy, recipeOpen, onBack]);
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30 p-6" role="dialog" aria-modal="true" aria-label="Review and confirm">
-      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-surface shadow-pop">
-        <header className="flex items-start gap-2 px-6 pt-5 pb-3">
-          <div className="flex-1">
-            <h2 className="text-[20px] font-semibold text-ink">Review and confirm</h2>
-            <p className="text-[13px] text-ink-muted">Check the stock used and what's left after this entry.</p>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-ink/35 p-6" role="dialog" aria-modal="true" aria-label="Review and confirm">
+      <div className="flex max-h-[90vh] w-full max-w-[1024px] flex-col overflow-hidden rounded-dialog bg-surface shadow-modal">
+        <header className="flex shrink-0 items-start gap-3 bg-linear-to-r from-band-from to-band-to py-3.5 pr-3 pl-6 text-white">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-title font-semibold">Review and confirm</h2>
+            <p className="mt-0.5 text-label text-white/85">Check the stock used and what's left after this entry.</p>
           </div>
-          <Button variant="ghost" size="sm" className="px-1.5" aria-label="Close" onClick={onBack} disabled={busy}>
-            <X className="size-5" />
-          </Button>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onBack}
+            disabled={busy}
+            className="flex size-7 shrink-0 items-center justify-center rounded-control text-white/85 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-40"
+          >
+            <X className="size-4" />
+          </button>
         </header>
 
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
           {groups.map((g) =>
             g.type === "production" ? (
               <ProductionCard
@@ -167,68 +167,87 @@ export function JournalReview({
                 onRecipeDialog={setRecipeOpen}
               />
             ) : (
-              <ItemHeader
-                key={g.key}
-                icon={KIND_ICON[g.kind] ?? Flag}
-                name={g.line.item?.name ?? ""}
-                sub={KIND_TEXT[g.kind] ?? g.kind}
-                label="Quantity"
-                problem={problemFor(g.line.key)}
-              >
-                <QtyInput line={g.line} unit={g.line.item?.baseUnit ?? "L"} onChange={(line) => updateGroup(g.key, { ...g, line })} big />
-              </ItemHeader>
+              <Section key={g.key}>
+                <ItemHeader
+                  icon={KIND_ICON[g.kind] ?? Flag}
+                  name={g.line.item?.name ?? ""}
+                  sub={KIND_TEXT[g.kind] ?? g.kind}
+                  label="Quantity"
+                  htmlFor={`review-qty-${g.key}`}
+                  problem={problemFor(g.line.key)}
+                >
+                  <QtyInput
+                    id={`review-qty-${g.key}`}
+                    line={g.line}
+                    unit={g.line.item?.baseUnit ?? "L"}
+                    onChange={(line) => updateGroup(g.key, { ...g, line })}
+                    big
+                  />
+                </ItemHeader>
+              </Section>
             ),
           )}
 
           {totals.length > 0 ? (
-            <section className="rounded-lg bg-canvas px-5 py-4">
-              <h3 className="mb-2 text-[14px] font-semibold text-ink">Stock after saving</h3>
-              <div className="space-y-3">
-                {totals.map((c) => (
-                  <StockAfterRow key={c.item.id} change={c} />
-                ))}
-              </div>
-            </section>
+            <Section title="Stock after saving">
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>Item</Th>
+                    <Th align="right">Current stock</Th>
+                    <Th align="right">To be added or removed</Th>
+                    <Th align="right">Stock after</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {totals.map((c) => (
+                    <StockAfterRow key={c.item.id} change={c} />
+                  ))}
+                </tbody>
+              </Table>
+            </Section>
           ) : null}
           {summary.some((c) => c.afterMilli < 0) ? (
-            <p className="flex items-center gap-1.5 text-[12px] text-warning">
-              <AlertTriangle className="size-3.5" /> Some items will go below zero — you can still save.
-            </p>
+            <Banner tone="warning" className="mt-6">
+              Some items will go below zero — you can still save.
+            </Banner>
           ) : null}
         </div>
 
-        <footer className="space-y-2 px-6 pt-2 pb-5">
+        <footer className="shrink-0 space-y-3 border-t border-line px-6 py-4">
           {changed ? (
-            <div className="flex flex-wrap items-center gap-3 rounded-lg bg-brand-orange/8 px-4 py-2.5">
-              <p className="text-[13px] text-ink">
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+              <Banner tone="info" className="min-w-60 flex-1">
                 {isAdmin ? "The new recipe is saved with this entry." : "Recipe changed — the Admin approves it before anything is saved."}
-              </p>
-              <Input
-                aria-label="Why change the recipe"
-                value={reason}
-                onChange={(e) => {
-                  setReason(e.target.value);
-                  setReasonError(null);
-                }}
-                maxLength={300}
-                invalid={Boolean(reasonError)}
-                placeholder={isAdmin ? "Reason (optional)" : "Why change the recipe?"}
-                className="min-w-60 flex-1 [&_input]:h-9"
-              />
+              </Banner>
+              <Field label="Why change the recipe?" htmlFor={reasonId} optional={isAdmin} error={reasonError ?? undefined} className="w-96">
+                <Input
+                  id={reasonId}
+                  aria-label="Why change the recipe"
+                  value={reason}
+                  onChange={(e) => {
+                    setReason(e.target.value);
+                    setReasonError(null);
+                  }}
+                  maxLength={300}
+                  invalid={Boolean(reasonError)}
+                  placeholder={isAdmin ? "Reason (optional)" : "Why change the recipe?"}
+                />
+              </Field>
             </div>
           ) : null}
-          <div className="flex items-center gap-3">
-            {error || reasonError ? (
-              <p role="alert" className="flex-1 text-[12px] text-danger">
-                {reasonError ?? error}
-              </p>
+          <div className="flex items-center gap-2">
+            {error && !reasonError ? (
+              <Banner tone="danger" className="min-w-0 flex-1">
+                {error}
+              </Banner>
             ) : (
               <span className="flex-1" />
             )}
-            <Button className="h-10 px-6" onClick={onBack} disabled={busy}>
+            <Button variant="ghost" onClick={onBack} disabled={busy}>
               {backLabel}
             </Button>
-            <Button variant="primary" className="h-10 px-7" onClick={confirm} loading={busy}>
+            <Button variant="primary" onClick={confirm} loading={busy}>
               {!changed ? "Confirm and save" : isAdmin ? "Save recipe and confirm" : "Send for review"}
             </Button>
           </div>
@@ -238,12 +257,13 @@ export function JournalReview({
   );
 }
 
-/** Icon + item name on the left, a labelled quantity box (and extras) on the right. */
+/** The item's name on the left, its labelled quantity box (and extras) on the right. */
 function ItemHeader({
   icon: Icon,
   name,
   sub,
   label,
+  htmlFor,
   problem,
   note,
   children,
@@ -253,27 +273,30 @@ function ItemHeader({
   name: string;
   sub: string;
   label: string;
+  /** The id of the quantity box in `children`. */
+  htmlFor: string;
   problem?: string;
   note?: string | null;
   children: ReactNode;
   extra?: ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-line px-4 py-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand-orange/12 text-brand-orange">
-          <Icon className="size-5" />
-        </span>
+    <div>
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-semibold text-ink">{name}</p>
-          <p className="text-[12px] text-ink-muted">{sub}</p>
+          <h3 className="flex items-center gap-2 text-title font-semibold text-ink">
+            <Icon className="size-4 shrink-0 text-ink-subtle" aria-hidden />
+            <span className="truncate">{name}</span>
+          </h3>
+          <p className="mt-0.5 text-label text-ink-muted">{sub}</p>
         </div>
-        <span className="text-[13px] text-ink-muted">{label}</span>
-        <div className="w-40">{children}</div>
-        {extra}
+        {extra ? <div className="flex h-8 items-center gap-2">{extra}</div> : null}
+        <Field label={label} htmlFor={htmlFor} className="w-44">
+          {children}
+        </Field>
       </div>
-      {problem ? <p className="mt-1.5 text-[12px] text-danger">{problem}</p> : null}
-      {note ? <p className="mt-1.5 text-[12px] text-ink-muted">{note}</p> : null}
+      {problem ? <p className="mt-2 text-caption text-danger">{problem}</p> : null}
+      {note ? <p className="mt-2 text-caption text-ink-muted">{note}</p> : null}
     </div>
   );
 }
@@ -283,33 +306,19 @@ function StockAfterRow({ change: c }: { change: NetChange }) {
   const before = c.afterMilli - c.changeMilli;
   const unit = c.item.baseUnit;
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-orange/12 text-brand-orange">
-        <Factory className="size-4" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] font-semibold text-ink">{c.item.name}</p>
-        <p className="text-[12px] text-ink-muted">{c.item.kind === "product_pool" ? "Output product" : KIND_LABEL[c.item.kind]}</p>
-      </div>
-      <div className="w-28 text-center">
-        <p className="text-[12px] text-ink-muted">Current stock</p>
-        <p className="num text-[15px] font-semibold text-ink">{formatQuantity(before, unit)}</p>
-      </div>
-      <div className="h-8 w-px bg-line" />
-      <div className="w-28 text-center">
-        <p className="text-[12px] text-ink-muted">{c.changeMilli < 0 ? "To be removed" : "To be added"}</p>
-        <p className={clsx("num text-[15px] font-semibold", c.changeMilli < 0 ? "text-danger" : "text-success")}>
-          {c.changeMilli === 0 ? "—" : signedQuantity(c.changeMilli, unit)}
-        </p>
-      </div>
-      <ArrowRight className="size-4 text-ink-muted" />
-      <div className={clsx("w-36 rounded-lg px-3 py-2 text-center", c.afterMilli < 0 ? "bg-danger-soft" : "bg-success-soft")}>
-        <p className={clsx("text-[12px]", c.afterMilli < 0 ? "text-danger" : "text-success")}>Stock after</p>
-        <p className={clsx("num text-[20px] font-semibold", c.afterMilli < 0 ? "text-danger" : "text-success")}>
-          {formatQuantity(c.afterMilli, unit)}
-        </p>
-      </div>
-    </div>
+    <Tr>
+      <Td>
+        <p className="font-medium">{c.item.name}</p>
+        <p className="text-caption text-ink-muted">{c.item.kind === "product_pool" ? "Output product" : KIND_LABEL[c.item.kind]}</p>
+      </Td>
+      <Td num muted>
+        {formatQuantity(before, unit)}
+      </Td>
+      <Td num>{c.changeMilli === 0 ? "—" : signedQuantity(c.changeMilli, unit)}</Td>
+      <Td num>
+        <span className={clsx("font-semibold", c.afterMilli < 0 && "text-danger")}>{formatQuantity(c.afterMilli, unit)}</span>
+      </Td>
+    </Tr>
   );
 }
 
@@ -404,43 +413,37 @@ function ProductionCard({
   };
   const focusAmount = (key: string) => tableRef.current?.querySelector<HTMLInputElement>(`[data-use="${key}"] input`)?.focus();
 
-  const chip = changed ? (
-    <span className={clsx(CHIP, "bg-brand-orange text-white")}>
-      <FlaskConical className="mr-1 size-3.5" />
-      Recipe changed
-    </span>
-  ) : (
-    <span className={clsx(CHIP, g.hasRecipe ? "bg-brand-orange/12 text-brand-orange-dark" : "bg-warning-soft text-warning")}>
-      <FlaskConical className="mr-1 size-3.5" />
-      {g.hasRecipe ? "Uses recipe" : "No recipe"}
-    </span>
-  );
+  const recipeBadge = changed ? <Badge tone="brand">Recipe changed</Badge> : g.hasRecipe ? null : <Badge tone="warning">No recipe</Badge>;
 
   return (
-    <div className="space-y-4">
+    <Section>
       <ItemHeader
         icon={Factory}
         name={pool.name}
         sub={MADE_LABEL[pool.kind] ?? "Output product"}
         label="Quantity to make"
+        htmlFor={`review-made-${g.key}`}
         problem={problemFor(g.made.key)}
         note={recipeNote}
         extra={
           canChange && !changed ? (
-            <button type="button" onClick={() => openRecipe(true)} title="Change the recipe" className="rounded-md hover:opacity-80">
-              {chip}
-            </button>
+            <>
+              {recipeBadge}
+              <Button size="sm" icon={<FlaskConical />} onClick={() => openRecipe(true)} title="Change the recipe">
+                Change recipe
+              </Button>
+            </>
           ) : (
-            chip
+            recipeBadge
           )
         }
       >
-        <QtyInput line={g.made} unit={pool.baseUnit} onChange={setMade} label="Quantity made" big />
+        <QtyInput id={`review-made-${g.key}`} line={g.made} unit={pool.baseUnit} onChange={setMade} label="Quantity made" big />
       </ItemHeader>
 
-      <section className="rounded-lg border border-line px-4 py-4">
-        <h3 className="text-[15px] font-semibold text-ink">Recipe materials</h3>
-        <p className="mb-3 text-[12px] text-ink-muted">
+      <div className="mt-6">
+        <h4 className="text-body font-semibold text-ink">Recipe materials</h4>
+        <p className="mt-0.5 mb-2 text-label text-ink-muted">
           {g.hasRecipe || g.uses.length > 0
             ? "Used from stock by the recipe. Change any amount, or use ✎ to change the recipe."
             : "No recipe — nothing is deducted. Add the materials it's made of."}
@@ -450,52 +453,51 @@ function ProductionCard({
             <option key={c} value={c} />
           ))}
         </datalist>
-        <div className="overflow-hidden rounded-lg border border-line">
-          <table className="w-full table-fixed border-collapse text-[13px]">
-            <colgroup>
-              <col className="w-[28%]" />
-              <col className="w-[9%]" />
-              <col className="w-[17%]" />
-              <col className="w-[12%]" />
-              <col className="w-[13%]" />
-              <col className="w-[13%]" />
-              <col className="w-[8%]" />
-            </colgroup>
-            <thead className="bg-canvas text-left text-[12px] text-ink-muted">
-              <tr>
-                <th className="px-4 py-2.5 font-medium">Material</th>
-                <th className="px-3 py-2.5 font-medium">Recipe %</th>
-                <th className="px-3 py-2.5 font-medium">
-                  Required for {g.made.qty.trim() || "0"} {unitWord(pool.baseUnit)}
-                </th>
-                <th className="px-3 py-2.5 font-medium">Current stock</th>
-                <th className="px-3 py-2.5 font-medium">Remaining after</th>
-                <th className="px-3 py-2.5 font-medium">Status</th>
-                <th className="px-4 py-2.5 text-center font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody ref={tableRef}>
-              {g.uses.map((u) => {
-                const s = STATUS[u.status];
-                const ing = effectiveIngredient(u);
-                const isEditing = editing === u.key;
-                const pickable = Boolean(ing?.code) && (!u.item || u.status === "not_in_stock");
-                const after = u.item && !u.parts ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
-                const status = statusOf(u, after);
-                const problem = problemFor(u.key);
-                const keys = (e: React.KeyboardEvent) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    saveEdit(u);
-                  } else if (e.key === "Escape") {
-                    e.stopPropagation();
-                    cancelEdit(u);
-                  }
-                };
-                return (
-                  <Fragment key={u.key}>
-                  <tr className={clsx("border-t border-line align-middle", isEditing && "bg-brand-orange/[0.04]")}>
-                    <td className="px-4 py-2.5">
+        <Table className="table-fixed">
+          <colgroup>
+            <col className="w-[25%]" />
+            <col className="w-[9%]" />
+            <col className="w-[17%]" />
+            <col className="w-[12%]" />
+            <col className="w-[14%]" />
+            <col className="w-[15%]" />
+            <col className="w-[8%]" />
+          </colgroup>
+          <thead>
+            <tr>
+              <Th>Material</Th>
+              <Th align="right">Recipe %</Th>
+              <Th className="whitespace-normal!">
+                Required for {g.made.qty.trim() || "0"} {unitWord(pool.baseUnit)}
+              </Th>
+              <Th align="right">Current stock</Th>
+              <Th align="right">Remaining after</Th>
+              <Th>Status</Th>
+              <Th className="text-center!">Action</Th>
+            </tr>
+          </thead>
+          <tbody ref={tableRef}>
+            {g.uses.map((u) => {
+              const s = STATUS[u.status];
+              const ing = effectiveIngredient(u);
+              const isEditing = editing === u.key;
+              const pickable = Boolean(ing?.code) && (!u.item || u.status === "not_in_stock");
+              const after = u.item && !u.parts ? (afterOf.get(u.item.id) ?? u.item.onHandMilli) : null;
+              const status = statusOf(u, after);
+              const problem = problemFor(u.key);
+              const keys = (e: React.KeyboardEvent) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  saveEdit(u);
+                } else if (e.key === "Escape") {
+                  e.stopPropagation();
+                  cancelEdit(u);
+                }
+              };
+              return (
+                <Fragment key={u.key}>
+                  <Tr className={clsx(isEditing && "bg-accent-50")}>
+                    <Td>
                       {isEditing ? (
                         <Input
                           aria-label="Material code"
@@ -504,18 +506,18 @@ function ProductionCard({
                           onKeyDown={keys}
                           list={listId}
                           placeholder="Code, e.g. w150"
-                          className="font-mono [&_input]:h-9"
+                          className="font-mono"
                           autoFocus
                         />
                       ) : (
                         <>
-                          <p className="font-mono text-[13px] font-semibold text-ink">{u.ingredient?.code || "—"}</p>
+                          <p className="font-mono text-label font-semibold text-ink">{u.ingredient?.code || "—"}</p>
                           {u.alternates.length > 0 ? (
                             <Select
                               aria-label={`Material used for ${u.ingredient?.code}`}
                               value={u.useCode ?? ""}
                               onChange={(e) => replaceUse(u.key, changeUse(pool, madeMilli, u, { useCode: e.target.value || null }, items, g.alternates))}
-                              className="mt-1 [&_select]:h-8 [&_select]:text-[12px]"
+                              className="mt-1 [&_select]:text-label"
                             >
                               <option value="">
                                 {u.ingredient?.code} ({pctText(u.ingredient?.percentBp)})
@@ -532,14 +534,14 @@ function ProductionCard({
                               <ItemPicker items={materials} value={u.item} onChange={(item) => setUse(u.key, { item })} />
                             </div>
                           ) : u.item && u.item.name.toLowerCase() !== ing?.code ? (
-                            <p className="truncate text-[12px] text-ink-muted">{u.item.name}</p>
+                            <p className="truncate text-caption text-ink-muted">{u.item.name}</p>
                           ) : null}
                         </>
                       )}
-                      {isEditing && editError ? <p className="mt-1 text-[12px] text-danger">{editError}</p> : null}
-                      {problem ? <p className="mt-1 text-[12px] text-danger">{problem}</p> : null}
-                    </td>
-                    <td className="num px-3 py-2.5 text-ink-muted">
+                      {isEditing && editError ? <p className="mt-1 text-caption text-danger">{editError}</p> : null}
+                      {problem ? <p className="mt-1 text-caption text-danger">{problem}</p> : null}
+                    </Td>
+                    <Td num muted>
                       {isEditing ? (
                         <div className="relative">
                           <Input
@@ -549,17 +551,17 @@ function ProductionCard({
                             onKeyDown={keys}
                             inputMode="decimal"
                             placeholder="%"
-                            className="num [&_input]:h-9 [&_input]:pr-6"
+                            className="num [&_input]:pr-6"
                           />
-                          <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-[12px] text-ink-muted">%</span>
+                          <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-caption text-ink-subtle">%</span>
                         </div>
                       ) : ing?.code ? (
                         pctText(ing.percentBp)
                       ) : (
                         "—"
                       )}
-                    </td>
-                    <td className="px-3 py-2.5">
+                    </Td>
+                    <Td>
                       {u.parts ? (
                         <span className="num text-ink-muted" title="Made from its own recipe — the lines below are deducted instead">
                           {u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "—"}
@@ -576,81 +578,69 @@ function ProductionCard({
                           />
                         </div>
                       )}
-                    </td>
-                    <td className="num px-3 py-2.5 text-ink-muted">{u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}</td>
-                    <td className={clsx("num px-3 py-2.5 font-semibold", after === null ? "text-ink-faint" : after < 0 ? "text-danger" : "text-success")}>
-                      {u.item && after !== null ? formatQuantity(after, u.item.baseUnit) : "—"}
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <span
-                        title={u.parts ? "Not taken from stock — its recipe's materials are, below." : s.help}
-                        className={clsx(CHIP, "h-auto min-h-6 py-0.5 whitespace-normal", TONE[status.tone])}
-                      >
-                        {status.tag}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex justify-center gap-1.5">
+                    </Td>
+                    <Td num muted>
+                      {u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}
+                    </Td>
+                    <Td num>
+                      <RemainingAfter item={u.item} after={after} />
+                    </Td>
+                    <Td>
+                      <StatusTag status={status} title={u.parts ? "Not taken from stock — its recipe's materials are, below." : s.help} />
+                    </Td>
+                    <Td>
+                      <div className="flex justify-center gap-1">
                         {isEditing ? (
                           <>
-                            <IconButton label="Save this line" onClick={() => saveEdit(u)} tone="ok">
-                              <Check className="size-3.5" />
+                            <IconButton size="sm" variant="secondary" label="Save this line" onClick={() => saveEdit(u)}>
+                              <Check />
                             </IconButton>
-                            <IconButton label="Cancel" onClick={() => cancelEdit(u)}>
-                              <X className="size-3.5" />
+                            <IconButton size="sm" label="Cancel" onClick={() => cancelEdit(u)}>
+                              <X />
                             </IconButton>
                           </>
                         ) : canChange ? (
-                          <IconButton label="Change this recipe line (material and %)" onClick={() => startEdit(u)} disabled={editing !== null}>
-                            <Pencil className="size-3.5" />
+                          <IconButton size="sm" label="Change this recipe line (material and %)" onClick={() => startEdit(u)} disabled={editing !== null}>
+                            <Pencil />
                           </IconButton>
                         ) : (
-                          <IconButton label="Change the amount" onClick={() => focusAmount(u.key)}>
-                            <Pencil className="size-3.5" />
+                          <IconButton size="sm" label="Change the amount" onClick={() => focusAmount(u.key)}>
+                            <Pencil />
                           </IconButton>
                         )}
                       </div>
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                   {u.parts ? (
                     <PartRows parts={u.parts} depth={1} via={u.ingredient?.code ?? ""} materials={materials} afterOf={afterOf} problemFor={problemFor} setUse={setUse} />
                   ) : null}
-                  </Fragment>
-                );
-              })}
-              <tr className="border-t border-line">
-                <td colSpan={7} className="px-4 py-2.5">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {canChange ? (
-                      <button
-                        type="button"
-                        onClick={addUse}
-                        disabled={editing !== null}
-                        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-info hover:underline disabled:opacity-50"
-                      >
-                        <PlusCircle className="size-4" /> Add material
-                      </button>
-                    ) : null}
-                    <span className="flex-1" />
-                    <span
-                      className={clsx(
-                        "num text-[12px] font-medium",
-                        total === 10_000 ? "text-success" : changed ? "text-danger" : "text-ink-muted",
-                      )}
-                      title="A changed recipe's percents must add up to exactly 100%."
-                    >
-                      Recipe total {total / 100}%{changed && total !== 10_000 ? " — must be 100%" : ""}
-                    </span>
-                  </div>
-                  {problemFor(recipeProblemKey(g.key)) ? (
-                    <p className="mt-1 text-[12px] text-danger">{problemFor(recipeProblemKey(g.key))}</p>
+                </Fragment>
+              );
+            })}
+            <tr>
+              <td colSpan={7} className="py-2">
+                <div className="flex min-h-7 flex-wrap items-center gap-3">
+                  {canChange ? (
+                    <Button variant="ghost" size="sm" className="-ml-2.5" icon={<Plus />} onClick={addUse} disabled={editing !== null}>
+                      Add material
+                    </Button>
                   ) : null}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+                  <span className="flex-1" />
+                  <span
+                    className={clsx("num text-label font-medium", changed && total !== 10_000 ? "text-danger" : "text-ink-muted")}
+                    title="A changed recipe's percents must add up to exactly 100%."
+                  >
+                    Recipe total {total / 100}%{changed && total !== 10_000 ? " — must be 100%" : ""}
+                  </span>
+                </div>
+                {problemFor(recipeProblemKey(g.key)) ? (
+                  <p className="mt-1 text-caption text-danger">{problemFor(recipeProblemKey(g.key))}</p>
+                ) : null}
+              </td>
+            </tr>
+          </tbody>
+        </Table>
+      </div>
 
       {changing ? (
         <RecipeChangeDialog
@@ -677,7 +667,7 @@ function ProductionCard({
           }}
         />
       ) : null}
-    </div>
+    </Section>
   );
 }
 
@@ -710,24 +700,28 @@ function PartRows({
         const problem = problemFor(u.key);
         return (
           <Fragment key={u.key}>
-            <tr className="border-t border-line/60 bg-canvas/50 align-middle text-[12px]">
-              <td className="py-2 pr-4" style={{ paddingLeft: 16 + depth * 18 }}>
+            <Tr className="text-label">
+              <Td style={{ paddingLeft: depth * 20 }}>
                 <p className="flex items-baseline gap-1.5">
-                  <span className="text-ink-faint">↳</span>
+                  <span className="text-ink-faint" aria-hidden>
+                    ↳
+                  </span>
                   <span className="font-mono font-semibold text-ink">{code}</span>
-                  <span className="truncate text-2xs text-ink-faint">via {via}</span>
+                  <span className="truncate text-caption text-ink-subtle">via {via}</span>
                 </p>
                 {pickable ? (
                   <div className="mt-1">
                     <ItemPicker items={materials} value={u.item} onChange={(item) => setUse(u.key, { item })} />
                   </div>
                 ) : u.item && u.item.name.toLowerCase() !== code ? (
-                  <p className="truncate pl-4 text-2xs text-ink-muted">{u.item.name}</p>
+                  <p className="truncate pl-4 text-caption text-ink-muted">{u.item.name}</p>
                 ) : null}
-                {problem ? <p className="mt-1 text-danger">{problem}</p> : null}
-              </td>
-              <td className="num px-3 py-2 text-ink-muted">{pctText(u.ingredient?.percentBp)}</td>
-              <td className="px-3 py-2">
+                {problem ? <p className="mt-1 text-caption text-danger">{problem}</p> : null}
+              </Td>
+              <Td num muted>
+                {pctText(u.ingredient?.percentBp)}
+              </Td>
+              <Td>
                 {u.parts ? (
                   <span className="num text-ink-muted">{u.qty ? `${u.qty} ${unitWord(u.item?.baseUnit ?? "L")}` : "—"}</span>
                 ) : (
@@ -740,18 +734,18 @@ function PartRows({
                     label={`Amount of ${code} used (via ${via})`}
                   />
                 )}
-              </td>
-              <td className="num px-3 py-2 text-ink-muted">{u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}</td>
-              <td className={clsx("num px-3 py-2 font-semibold", after === null ? "text-ink-faint" : after < 0 ? "text-danger" : "text-success")}>
-                {u.item && after !== null ? formatQuantity(after, u.item.baseUnit) : "—"}
-              </td>
-              <td className="px-3 py-2">
-                <span title={s.help} className={clsx(CHIP, "h-auto min-h-6 py-0.5 whitespace-normal", TONE[status.tone])}>
-                  {status.tag}
-                </span>
-              </td>
-              <td />
-            </tr>
+              </Td>
+              <Td num muted>
+                {u.item ? formatQuantity(u.item.onHandMilli, u.item.baseUnit) : "—"}
+              </Td>
+              <Td num>
+                <RemainingAfter item={u.item} after={after} />
+              </Td>
+              <Td>
+                <StatusTag status={status} title={s.help} />
+              </Td>
+              <Td />
+            </Tr>
             {u.parts ? (
               <PartRows parts={u.parts} depth={depth + 1} via={`${via} → ${code}`} materials={materials} afterOf={afterOf} problemFor={problemFor} setUse={setUse} />
             ) : null}
@@ -762,40 +756,31 @@ function PartRows({
   );
 }
 
-function IconButton({
-  label,
-  onClick,
-  children,
-  disabled,
-  tone,
-}: {
-  label: string;
-  onClick: () => void;
-  children: ReactNode;
-  disabled?: boolean;
-  tone?: "ok";
-}) {
+/** What's left of a material after this entry — red only when it goes below zero. */
+function RemainingAfter({ item, after }: { item: StockItem | null; after: number | null }) {
+  if (!item || after === null) return <span className="text-ink-faint">—</span>;
+  return <span className={clsx("font-semibold", after < 0 && "text-danger")}>{formatQuantity(after, item.baseUnit)}</span>;
+}
+
+/** A material line's status: plain words when all is well, a badge for anything that needs a look. */
+function StatusTag({ status, title }: { status: { tag: string; tone: Tone }; title: string }) {
+  if (status.tone === "ok") {
+    return (
+      <span title={title} className="text-label text-ink-muted">
+        {status.tag}
+      </span>
+    );
+  }
   return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={onClick}
-      disabled={disabled}
-      className={clsx(
-        "inline-flex size-8 items-center justify-center rounded-md border transition-colors disabled:opacity-40",
-        tone === "ok"
-          ? "border-success/40 bg-success-soft text-success hover:bg-success-soft/70"
-          : "border-line-strong text-ink-muted hover:bg-hover hover:text-ink",
-      )}
-    >
-      {children}
-    </button>
+    <Badge tone={TONE[status.tone]} title={title} className="h-auto! min-h-[22px] py-0.5 whitespace-normal!">
+      {status.tag}
+    </Badge>
   );
 }
 
 /** A quantity box with its unit in a separate box on the right. */
 function QtyInput({
+  id,
   line,
   unit,
   onChange,
@@ -804,36 +789,29 @@ function QtyInput({
   showUnit = true,
   big = false,
 }: {
+  id?: string;
   line: ReviewLine;
   unit: StockItem["baseUnit"];
   onChange: (line: ReviewLine) => void;
   label?: string;
   placeholder?: string;
   showUnit?: boolean;
-  /** The larger, shaded box used for the amount made. */
+  /** The bolder figure used for the amount made. */
   big?: boolean;
 }) {
   return (
     <div className="flex">
       <Input
+        id={id}
         aria-label={label}
         value={line.qty}
         onChange={(e) => onChange({ ...line, qty: e.target.value })}
         inputMode="decimal"
         placeholder={placeholder}
-        className={clsx(
-          "num min-w-0 flex-1",
-          showUnit && "[&_input]:rounded-r-none",
-          big ? "[&_input]:h-10 [&_input]:bg-canvas [&_input]:text-[16px] [&_input]:font-semibold" : "[&_input]:h-9",
-        )}
+        className={clsx("num min-w-0 flex-1", showUnit && "[&_input]:rounded-r-none", big && "[&_input]:font-semibold")}
       />
       {showUnit ? (
-        <span
-          className={clsx(
-            "inline-flex min-w-10 items-center justify-center rounded-r-md border border-l-0 border-line-strong bg-canvas px-2.5 text-[13px] text-ink-muted",
-            big ? "h-10" : "h-9",
-          )}
-        >
+        <span className="inline-flex h-8 min-w-10 items-center justify-center rounded-r-control border border-l-0 border-line-strong bg-surface-alt px-2.5 text-label text-ink-muted">
           {unitWord(unit)}
         </span>
       ) : null}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Field, Input, Select } from "@/components/ui";
+import { Banner, Button, Field, Input, Select } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { saveStockItem, type StockItem } from "@/services/stockService";
 
@@ -69,7 +69,7 @@ export function StockItemForm({
         if (e.key === "Escape") onDone(null);
       }}
     >
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <div className="-mx-1 min-h-0 flex-1 space-y-4 overflow-y-auto px-1 pb-4">
         {item ? null : (
           <Field label="Kind" htmlFor="si-kind">
             <Select id="si-kind" value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
@@ -88,7 +88,7 @@ export function StockItemForm({
             <Input id="si-code" value={code} onChange={(e) => setCode(e.target.value)} className="font-mono" maxLength={24} />
           </Field>
         ) : null}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <Field
             label="Counted in"
             htmlFor="si-unit"
@@ -121,18 +121,14 @@ export function StockItemForm({
         <Field label="Other names" htmlFor="si-aliases" help="Comma-separated, e.g. W 150, 150N.">
           <Input id="si-aliases" value={aliases} onChange={(e) => setAliases(e.target.value)} />
         </Field>
-        {error ? (
-          <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-[12px] text-danger">
-            {error}
-          </p>
-        ) : null}
+        {error ? <Banner tone="danger">{error}</Banner> : null}
       </div>
-      <div className="flex justify-end gap-2 border-t border-line px-4 py-2.5">
-        <Button variant="ghost" size="sm" onClick={() => onDone(null)} disabled={busy}>
+      <div className="flex shrink-0 justify-end gap-2 border-t border-line pt-4">
+        <Button variant="ghost" onClick={() => onDone(null)} disabled={busy}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" size="sm" loading={busy}>
-          {item ? "Save" : "Add item"}
+        <Button type="submit" variant="primary" loading={busy}>
+          {busy ? "Saving…" : item ? "Save" : "Add item"}
         </Button>
       </div>
     </form>

@@ -1,7 +1,7 @@
-import { Boxes, Search } from "lucide-react";
+import { Boxes } from "lucide-react";
 import { useMemo, useState } from "react";
 import { formatINR, formatQuantity, milliCsv, paiseCsv, toCsv } from "@technofluid/core";
-import { Badge, EmptyState, Input, Select, Switch } from "@/components/ui";
+import { Badge, EmptyState, FilterPill, FilterSelect, SearchInput, StatTiles, Table, Td, Th, Tr } from "@/components/ui";
 import { KIND_LABEL } from "@/features/stock/stockFormat";
 import { useStockValueReport } from "@/hooks/useReports";
 import type { ItemKind } from "@/services/stockService";
@@ -39,74 +39,74 @@ export function StockValueReportView() {
     : null;
 
   return (
-    <div className="space-y-4 px-5 py-4">
-      <ReportBar asOf={state.status === "ready" ? state.asOf : null} loading={state.status === "loading"} onRefresh={refresh} csv={csv} />
+    <>
+      <ReportBar asOf={state.status === "ready" ? state.asOf : null} loading={state.status === "loading"} onRefresh={refresh} csv={csv}>
+        {r ? (
+          <>
+            <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch("")} placeholder="Item name" className="w-64" aria-label="Search" />
+            <FilterSelect label="Kind" value={kind} onChange={(v) => setKind(v as ItemKind | "")} options={[["", "All kinds"], ...(Object.keys(KIND_LABEL) as ItemKind[]).map((k): [string, string] => [k, KIND_LABEL[k]])]} />
+            <FilterPill active={showEmpty} onClick={() => setShowEmpty(!showEmpty)}>
+              Show items with nothing in stock ({emptyCount})
+            </FilterPill>
+          </>
+        ) : null}
+      </ReportBar>
       <NotReady state={state} onRetry={refresh} />
       {r ? (
         <>
-          <div className="flex flex-wrap gap-3">
+          <StatTiles>
             <Stat label="Stock value (ex-GST)" value={formatINR(r.totalPaise)} hint="Average purchase price × on hand" />
             <Stat label="In stock, no cost yet" value={String(noCostInStock)} tone={noCostInStock ? "warning" : undefined} hint="Not in the total — never bought on a bill" />
             <Stat label="Below zero" value={String(r.belowZeroCount)} tone={r.belowZeroCount ? "warning" : undefined} hint="Not in the total" />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Item name" leading={<Search className="size-3.5" />} className="w-64" aria-label="Search" />
-            <Select value={kind} onChange={(e) => setKind(e.target.value as ItemKind | "")} aria-label="Kind" className="w-44">
-              <option value="">All kinds</option>
-              {(Object.keys(KIND_LABEL) as ItemKind[]).map((k) => (
-                <option key={k} value={k}>
-                  {KIND_LABEL[k]}
-                </option>
-              ))}
-            </Select>
-            <label className="flex items-center gap-2 text-[12px] text-ink-muted">
-              <Switch checked={showEmpty} onChange={setShowEmpty} label="Show items with nothing in stock" />
-              Show items with nothing in stock ({emptyCount})
-            </label>
-          </div>
+          </StatTiles>
 
           {rows.length === 0 ? (
-            <EmptyState icon={<Boxes className="size-6" />} title="No item matches">
+            <EmptyState icon={<Boxes />} title="No item matches">
               Try other words, another kind, or show items with nothing in stock.
             </EmptyState>
           ) : (
-            <table className="w-full border-collapse text-[13px]">
-              <thead className="text-left text-2xs tracking-wide text-ink-muted uppercase">
-                <tr className="border-b border-line">
-                  <th className="py-2 pr-3 font-medium">Item</th>
-                  <th className="py-2 pr-3 font-medium">Kind</th>
-                  <th className="py-2 pr-3 text-right font-medium">On hand</th>
-                  <th className="py-2 pr-3 text-right font-medium">Average price</th>
-                  <th className="py-2 text-right font-medium">Value</th>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>Item</Th>
+                  <Th>Kind</Th>
+                  <Th align="right">On hand</Th>
+                  <Th align="right">Average price</Th>
+                  <Th align="right">Value</Th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((x) => (
-                  <tr key={x.id} className="border-b border-line/70">
-                    <td className="py-1.5 pr-3">{x.name}</td>
-                    <td className="py-1.5 pr-3 text-ink-muted">{KIND_LABEL[x.kind as ItemKind] ?? x.kind}</td>
-                    <td className="num py-1.5 pr-3 text-right whitespace-nowrap">{formatQuantity(x.onHandMilli, x.baseUnit)}</td>
-                    <td className="num py-1.5 pr-3 text-right whitespace-nowrap">{x.avgPricePaise === null ? "—" : `${formatINR(x.avgPricePaise)}${PER_UNIT[x.baseUnit]}`}</td>
-                    <td className="num py-1.5 text-right whitespace-nowrap">
+                  <Tr key={x.id}>
+                    <Td>{x.name}</Td>
+                    <Td muted>{KIND_LABEL[x.kind as ItemKind] ?? x.kind}</Td>
+                    <Td num className="whitespace-nowrap">
+                      {formatQuantity(x.onHandMilli, x.baseUnit)}
+                    </Td>
+                    <Td num className="whitespace-nowrap">
+                      {x.avgPricePaise === null ? "—" : `${formatINR(x.avgPricePaise)}${PER_UNIT[x.baseUnit]}`}
+                    </Td>
+                    <Td num className="whitespace-nowrap">
                       {x.state === "valued" ? formatINR(x.valuePaise ?? 0) : <Badge tone={x.state === "belowZero" ? "danger" : "warning"}>{STATE_TEXT[x.state]}</Badge>}
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 ))}
-                <tr className="font-semibold">
-                  <td className="py-2 pr-3" colSpan={4}>
+                <Tr>
+                  <Td colSpan={4} className="border-b-0 font-semibold">
                     {search || kind ? "Total of these items" : "Total"}
-                  </td>
-                  <td className="num py-2 text-right">{formatINR(rows.reduce((sum, x) => sum + (x.valuePaise ?? 0), 0))}</td>
-                </tr>
+                  </Td>
+                  <Td num className="border-b-0 font-semibold">
+                    {formatINR(rows.reduce((sum, x) => sum + (x.valuePaise ?? 0), 0))}
+                  </Td>
+                </Tr>
               </tbody>
-            </table>
+            </Table>
           )}
-          <p className="text-[12px] text-ink-faint">
+          <p className="mt-4 max-w-4xl text-caption text-ink-subtle">
             Cost is the bill's value before GST; freight isn't spread over items yet. Items made in-house get a value once production costing exists. As of now only — not as of a past date.
           </p>
         </>
       ) : null}
-    </div>
+    </>
   );
 }

@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { Pencil, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { formatQuantity, indiaDate, parseQuantityToMilli } from "@technofluid/core";
-import { Badge, Button, Input, Spinner } from "@/components/ui";
+import { Badge, Banner, Button, Input, Menu, Spinner } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import { reverseStockMovement, type StockMovement } from "@/services/stockService";
 import { EDITABLE_TYPES, isDocumentLine, signedQuantity, TYPE_LABEL, unitWord } from "./stockFormat";
@@ -38,10 +38,10 @@ export function MovementList({
   emptyText?: string;
 }) {
   if (state.status === "loading") return <Spinner />;
-  if (state.status === "error") return <p className="text-[12px] text-danger">Couldn't load the history: {state.message}</p>;
-  if (state.data.length === 0) return <p className="text-[12px] text-ink-muted">{emptyText}</p>;
+  if (state.status === "error") return <Banner tone="danger">Couldn't load the history: {state.message}</Banner>;
+  if (state.data.length === 0) return <p className="text-label text-ink-muted">{emptyText}</p>;
   return (
-    <ol className="space-y-1.5">
+    <ol className="border-t border-line-row">
       {state.data.map((m) => (
         <MovementRow key={m.id} m={m} canEdit={canEdit} showItem={showItem} />
       ))}
@@ -55,22 +55,20 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
   const editable = canEdit && !undone && m.type !== "REVERSAL" && !isDocumentLine(m.type);
 
   return (
-    <li className="rounded-md bg-canvas px-3 py-2 text-[12px]">
+    <li className="border-b border-line-row py-2.5 text-label">
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className={clsx("flex flex-wrap items-center gap-x-2 gap-y-0.5", undone && "text-ink-faint line-through")}>
-            <span className={clsx("num font-semibold", m.qtyMilli < 0 ? "text-danger" : "text-success")}>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className={clsx("num text-body font-medium", undone ? "text-ink-subtle line-through" : "text-ink")}>
               {signedQuantity(m.qtyMilli, m.baseUnit)}
             </span>
-            {showItem ? <span className="font-medium text-ink">{m.itemName}</span> : null}
-            <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : m.type.startsWith("PRODUCTION") ? "brand" : "info"}>
-              {TYPE_LABEL[m.type] ?? m.type}
-            </Badge>
-            {m.replacesId ? <Badge tone="brand">Edited</Badge> : null}
+            {showItem ? <span className={clsx("font-medium", undone ? "text-ink-subtle line-through" : "text-ink")}>{m.itemName}</span> : null}
+            <span className={clsx(undone ? "text-ink-subtle line-through" : "text-ink-muted")}>{TYPE_LABEL[m.type] ?? m.type}</span>
+            {m.replacesId ? <Badge tone="neutral">Edited</Badge> : null}
             {undone ? <Badge tone="neutral">Undone</Badge> : null}
           </p>
           {m.note ? <p className="mt-0.5 text-ink-muted">{m.note}</p> : null}
-          <p className="mt-0.5 flex flex-wrap gap-x-2 text-2xs text-ink-faint">
+          <p className="mt-0.5 flex flex-wrap gap-x-2 text-caption text-ink-subtle">
             <span>{meta(m)}</span>
             {undone ? null : (
               <span className="num" title="On hand after this line">
@@ -81,19 +79,23 @@ function MovementRow({ m, canEdit, showItem }: { m: StockMovement; canEdit: bool
           </p>
         </div>
         {editable && !mode ? (
-          <div className="flex shrink-0 gap-1">
-            {EDITABLE_TYPES.includes(m.type) ? (
-              <Button size="sm" variant="ghost" onClick={() => setMode("edit")} icon={<Pencil className="size-3" />}>
-                Edit
-              </Button>
-            ) : null}
-            <Button size="sm" variant="ghost" onClick={() => setMode("undo")} icon={<Undo2 className="size-3" />}>
-              Undo
-            </Button>
+          <div className="shrink-0">
+            <Menu
+              size="sm"
+              label="Line actions"
+              items={[
+                EDITABLE_TYPES.includes(m.type) ? { label: "Edit", icon: <Pencil />, onSelect: () => setMode("edit") } : null,
+                { label: "Undo", icon: <Undo2 />, onSelect: () => setMode("undo") },
+              ]}
+            />
           </div>
         ) : null}
       </div>
-      {mode ? <UndoForm m={m} edit={mode === "edit"} onDone={() => setMode(null)} /> : null}
+      {mode ? (
+        <div className="mt-2">
+          <UndoForm m={m} edit={mode === "edit"} onDone={() => setMode(null)} />
+        </div>
+      ) : null}
     </li>
   );
 }
@@ -128,7 +130,7 @@ export function UndoForm({ m, edit, onDone }: { m: StockMovement; edit: boolean;
 
   return (
     <form
-      className="mt-2 flex flex-wrap items-center gap-2 border-t border-line pt-2"
+      className="flex flex-wrap items-center gap-2"
       onSubmit={(e) => {
         e.preventDefault();
         void submit();
@@ -136,7 +138,7 @@ export function UndoForm({ m, edit, onDone }: { m: StockMovement; edit: boolean;
       onKeyDown={(e) => e.key === "Escape" && onDone()}
     >
       {edit ? (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <Input
             aria-label="Correct quantity"
             value={qty}
@@ -145,7 +147,7 @@ export function UndoForm({ m, edit, onDone }: { m: StockMovement; edit: boolean;
             className="num w-24"
             autoFocus
           />
-          <span className="text-ink-muted">{unitWord(m.baseUnit)}</span>
+          <span className="text-label text-ink-muted">{unitWord(m.baseUnit)}</span>
         </div>
       ) : null}
       <Input
@@ -157,13 +159,17 @@ export function UndoForm({ m, edit, onDone }: { m: StockMovement; edit: boolean;
         autoFocus={!edit}
         maxLength={200}
       />
-      <Button size="sm" variant="ghost" onClick={onDone} disabled={busy}>
+      <Button variant="ghost" onClick={onDone} disabled={busy}>
         Cancel
       </Button>
-      <Button size="sm" variant="primary" type="submit" loading={busy}>
+      <Button variant="primary" type="submit" loading={busy}>
         {edit ? "Save change" : "Undo line"}
       </Button>
-      {error ? <p className="w-full text-danger">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="w-full text-caption text-danger">
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }

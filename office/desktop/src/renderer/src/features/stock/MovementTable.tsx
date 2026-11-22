@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { Pencil, Undo2 } from "lucide-react";
 import { Fragment, useState } from "react";
 import { formatQuantity } from "@technofluid/core";
-import { Badge, Button, Spinner } from "@/components/ui";
+import { Badge, ErrorState, LoadingState, Menu, Table, Td, Th, Tr } from "@/components/ui";
 import type { LoadState } from "@/hooks/useProducts";
 import type { StockMovement } from "@/services/stockService";
 import { UndoForm } from "./MovementList";
@@ -31,22 +31,26 @@ export function MovementTable({
 }) {
   const [open, setOpen] = useState<{ id: string; mode: "undo" | "edit" } | null>(null);
 
-  if (state.status === "loading") return <div className="p-5"><Spinner /></div>;
-  if (state.status === "error") return <p className="p-5 text-[12px] text-danger">Couldn't load the history: {state.message}</p>;
-  if (state.data.length === 0) return <p className="p-5 text-[12px] text-ink-muted">{emptyText}</p>;
+  if (state.status === "loading") return <LoadingState />;
+  if (state.status === "error") return <ErrorState title="Couldn't load the history">{state.message}</ErrorState>;
+  if (state.data.length === 0) return <p className="py-3 text-label text-ink-muted">{emptyText}</p>;
 
   return (
-    <table className="w-full border-collapse text-[13px]">
-      <thead className="sticky top-0 z-10 bg-canvas">
-        <tr className="border-b border-line text-center text-2xs font-medium tracking-wide text-ink-muted uppercase">
-          {showDate ? <th className="px-3 py-2 pl-5 font-medium whitespace-nowrap">Date</th> : null}
-          <th className={clsx("px-3 py-2 text-left font-medium", !showDate && "pl-5")}>Item</th>
-          <th className="px-3 py-2 font-medium whitespace-nowrap">What happened</th>
-          <th className="px-3 py-2 font-medium">Quantity</th>
-          <th className="px-3 py-2 font-medium whitespace-nowrap">Balance after</th>
-          <th className="px-3 py-2 font-medium">Reason</th>
-          <th className="px-3 py-2 font-medium">By</th>
-          {canEdit ? <th className="px-3 py-2 pr-5 font-medium">Actions</th> : null}
+    <Table>
+      <thead>
+        <tr>
+          {showDate ? <Th>Date</Th> : null}
+          <Th>Item</Th>
+          <Th>What happened</Th>
+          <Th align="right">Quantity</Th>
+          <Th align="right">Balance after</Th>
+          <Th>Reason</Th>
+          <Th>By</Th>
+          {canEdit ? (
+            <Th className="w-8">
+              <span className="sr-only">Actions</span>
+            </Th>
+          ) : null}
         </tr>
       </thead>
       <tbody>
@@ -56,77 +60,68 @@ export function MovementTable({
           const isOpen = open?.id === m.id;
           return (
             <Fragment key={m.id}>
-              <tr className={clsx("border-b border-line/70 text-center align-top", undone ? "bg-canvas/60 text-ink-faint" : "bg-surface hover:bg-hover")}>
-                {showDate ? <td className="px-3 py-2 pl-5 whitespace-nowrap">{businessDate(m.journalDate)}</td> : null}
-                <td className={clsx("min-w-[200px] px-3 py-2 text-left", !showDate && "pl-5")}>
-                  <span className={clsx("font-medium", undone ? "line-through" : "text-ink")}>{m.itemName}</span>
-                  <span className="block text-2xs text-ink-faint">{KIND_LABEL[m.itemKind]}</span>
-                </td>
-                <td className="px-3 py-2">
-                  <span className="flex flex-wrap justify-center gap-1">
-                    <Badge tone={m.type === "REVERSAL" ? "neutral" : m.type === "COUNT_ADJUSTMENT" ? "warning" : m.type.startsWith("PRODUCTION") ? "brand" : "info"}>
-                      {TYPE_LABEL[m.type] ?? m.type}
-                    </Badge>
-                    {m.replacesId ? <Badge tone="brand">Edited</Badge> : null}
+              <Tr className={clsx(undone && "[&>td]:text-ink-subtle", isOpen && "[&>td]:border-b-transparent")}>
+                {showDate ? <Td className="whitespace-nowrap">{businessDate(m.journalDate)}</Td> : null}
+                <Td className="min-w-48">
+                  <span className={clsx("font-medium", undone && "line-through")}>{m.itemName}</span>
+                  <span className="block text-caption text-ink-subtle">{KIND_LABEL[m.itemKind]}</span>
+                </Td>
+                <Td>
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="whitespace-nowrap">{TYPE_LABEL[m.type] ?? m.type}</span>
+                    {m.replacesId ? <Badge tone="neutral">Edited</Badge> : null}
                     {undone ? <Badge tone="neutral">Undone</Badge> : null}
                   </span>
-                </td>
-                <td
-                  className={clsx(
-                    "num px-3 py-2 font-semibold whitespace-nowrap",
-                    undone ? "line-through" : m.qtyMilli < 0 ? "text-danger" : "text-success",
-                  )}
-                >
-                  {signedQuantity(m.qtyMilli, m.baseUnit)}
-                </td>
-                <td className={clsx("num px-3 py-2 whitespace-nowrap", m.onHandAfterMilli < 0 && !undone ? "text-danger" : null)}>
-                  {formatQuantity(m.onHandAfterMilli, m.baseUnit)}
+                </Td>
+                <Td num className="whitespace-nowrap">
+                  <span className={clsx("font-medium", undone && "line-through")}>{signedQuantity(m.qtyMilli, m.baseUnit)}</span>
+                </Td>
+                <Td num className="whitespace-nowrap">
+                  <span className={m.onHandAfterMilli < 0 && !undone ? "text-danger" : undefined}>{formatQuantity(m.onHandAfterMilli, m.baseUnit)}</span>
                   {m.countedMilli !== null ? (
-                    <span className="block text-2xs text-ink-faint">counted {formatQuantity(m.countedMilli, m.baseUnit)}</span>
+                    <span className="block text-caption text-ink-subtle">counted {formatQuantity(m.countedMilli, m.baseUnit)}</span>
                   ) : null}
-                </td>
-                <td className="min-w-[180px] max-w-[320px] px-3 py-2">
+                </Td>
+                <Td className="max-w-80 min-w-44">
                   <span className="line-clamp-2" title={m.note ?? undefined}>
                     {m.note ?? "—"}
                   </span>
                   {m.type === "PRODUCTION_CONSUME" && m.producedItemName ? (
-                    <span className="block text-2xs text-ink-faint">for {m.producedItemName}</span>
+                    <span className="block text-caption text-ink-subtle">for {m.producedItemName}</span>
                   ) : null}
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
+                </Td>
+                <Td className="whitespace-nowrap">
                   {m.byName}
-                  <span className="block text-2xs text-ink-faint">{time(m)}</span>
-                </td>
+                  <span className="block text-caption text-ink-subtle">{time(m)}</span>
+                </Td>
                 {canEdit ? (
-                  <td className="px-3 py-1.5 pr-5 whitespace-nowrap">
+                  <Td align="right">
                     {editable && !isOpen ? (
-                      <span className="inline-flex gap-1.5">
-                        {EDITABLE_TYPES.includes(m.type) ? (
-                          <Button size="sm" onClick={() => setOpen({ id: m.id, mode: "edit" })} icon={<Pencil className="size-3" />}>
-                            Edit
-                          </Button>
-                        ) : null}
-                        <Button size="sm" onClick={() => setOpen({ id: m.id, mode: "undo" })} icon={<Undo2 className="size-3" />}>
-                          Undo
-                        </Button>
-                      </span>
-                    ) : (
-                      <span className="text-2xs text-ink-faint">{undone ? "Undone" : m.type === "REVERSAL" ? "—" : ""}</span>
-                    )}
-                  </td>
+                      <Menu
+                        size="sm"
+                        label="Line actions"
+                        items={[
+                          EDITABLE_TYPES.includes(m.type) ? { label: "Edit", icon: <Pencil />, onSelect: () => setOpen({ id: m.id, mode: "edit" }) } : null,
+                          { label: "Undo", icon: <Undo2 />, onSelect: () => setOpen({ id: m.id, mode: "undo" }) },
+                        ]}
+                      />
+                    ) : null}
+                  </Td>
                 ) : null}
-              </tr>
+              </Tr>
               {isOpen ? (
-                <tr className="border-b border-line bg-canvas">
-                  <td colSpan={(showDate ? 8 : 7) - (canEdit ? 0 : 1)} className="px-5 pb-3">
-                    <UndoForm m={m} edit={open.mode === "edit"} onDone={() => setOpen(null)} />
-                  </td>
+                <tr>
+                  <Td colSpan={(showDate ? 8 : 7) - (canEdit ? 0 : 1)} className="pb-3">
+                    <div className="px-0.5">
+                      <UndoForm m={m} edit={open.mode === "edit"} onDone={() => setOpen(null)} />
+                    </div>
+                  </Td>
                 </tr>
               ) : null}
             </Fragment>
           );
         })}
       </tbody>
-    </table>
+    </Table>
   );
 }

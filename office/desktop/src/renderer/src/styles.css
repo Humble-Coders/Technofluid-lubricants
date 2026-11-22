@@ -1,45 +1,101 @@
 @import "tailwindcss";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
 
 /*
- * Technofluid Office design tokens.
- * Brand colours come from the client's logo, exactly as the website uses them
- * (frontend/content/brand.ts): red #E5342B, orange #F26F21, peach #F4C9A0, charcoal #2B2B2B.
- * Neutrals follow the website's greys. Sizing is desktop-dense (13px body).
+ * Technofluid Office design tokens (docs/office/ui-design-reference.md).
+ * The layout system is Aromex desktop's "clean" system; the colours are Technofluid's.
+ *
+ *  - accent   = deep Technofluid orange. The logo orange (#F26F21) is too light under white
+ *               text (2.9:1), so buttons, links and "where you are" use the deeper shade (5.4:1).
+ *  - brand-*  = the logo colours themselves: focus ring, the sidebar's active bar, the logo.
+ *  - success / warning / danger are TEXT-safe shades; "-fill" is the brighter icon/dot shade,
+ *    "-soft" the tint behind a badge or banner. Warning is amber so it never reads as the brand.
+ *  - Sizes: 14px body, 32px controls, 44px table rows, 4px spacing grid (root = 16px).
  */
 @theme {
+  /* Brand (logo) */
   --color-brand-red: #e5342b;
   --color-brand-orange: #f26f21;
-  --color-brand-orange-dark: #d9601c;
+  --color-brand-orange-dark: #b8460f; /* legacy name → the accent */
   --color-brand-peach: #f4c9a0;
   --color-brand-charcoal: #2b2b2b;
 
-  --color-ink: #131a24;
-  --color-ink-muted: #5a677c;
-  --color-ink-faint: #8a95a6;
-  --color-line: #e3e8ef;
-  --color-line-strong: #d0d8e3;
-  --color-canvas: #f6f7f9;
+  /* Accent: the one primary action, links, the selected/active rule */
+  --color-accent: #b8460f;
+  --color-accent-hover: #9c3a0b;
+  --color-accent-pressed: #82300a;
+  --color-accent-50: #fff3ea;
+  --color-accent-100: #ffe3cf;
+  --color-focus: #f26f21;
+  /* Dialog header band: orange → red, deep enough for white text */
+  --color-band-from: #cc4e12;
+  --color-band-to: #c8101e;
+
+  /* Text */
+  --color-ink: #1a1f2b;
+  --color-ink-muted: #5a6172;
+  --color-ink-subtle: #6e7586;
+  --color-ink-faint: #99a0b0;
+
+  /* Surfaces and lines */
+  --color-canvas: #f4f4f5;
   --color-surface: #ffffff;
-  --color-hover: #f1f3f6;
+  --color-surface-alt: #f6f5f4;
+  --color-hover: #f6f5f4;
+  --color-line: #e4e7ec;
+  --color-line-row: #eceef2;
+  --color-line-strong: #d5d9e1;
 
-  --color-success: #15803d;
-  --color-success-soft: #e9f7ee;
-  --color-warning: #b45309;
-  --color-warning-soft: #fdf3e5;
-  --color-danger: #b42318;
-  --color-danger-soft: #fdecea;
-  --color-info: #1d4ed8;
-  --color-info-soft: #eaf0fd;
+  /* Sidebar (dark charcoal) */
+  --color-sidebar: #2b2b2b;
+  --color-sidebar-active: #3a3a3a;
 
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Meaning — only for exceptions */
+  --color-success: #1e7a4e;
+  --color-success-fill: #2e9e66;
+  --color-success-soft: #e8f5ee;
+  --color-warning: #8a5a12;
+  --color-warning-fill: #b7791f;
+  --color-warning-soft: #fdf6e3;
+  --color-danger: #b83232;
+  --color-danger-fill: #d64545;
+  --color-danger-soft: #fdecec;
+  --color-info: #3b5b9a;
+  --color-info-soft: #eef2f9;
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --text-2xs: 0.6875rem;
-  --text-2xs--line-height: 1rem;
+  /* Type scale: caption · label/table head · body · section/dialog title · page title · headline · stat */
+  --text-2xs: 11px;
+  --text-2xs--line-height: 16px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-label: 13px;
+  --text-label--line-height: 18px;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-title: 15px;
+  --text-title--line-height: 22px;
+  --text-page: 20px;
+  --text-page--line-height: 28px;
+  --text-headline: 24px;
+  --text-headline--line-height: 32px;
+  --text-stat: 28px;
+  --text-stat--line-height: 34px;
 
-  --shadow-pop: 0 10px 30px -10px rgb(19 26 36 / 0.25), 0 2px 6px -2px rgb(19 26 36 / 0.12);
+  /* Radii: control 8 · sheet 12 · dialog 14 · badge 6 */
+  --radius-control: 8px;
+  --radius-sheet: 12px;
+  --radius-dialog: 14px;
+  --radius-badge: 6px;
+
+  /* Shadows — all very light */
+  --shadow-card: 0 1px 2px rgb(26 31 43 / 0.04);
+  --shadow-control: 0 1px 1px rgb(26 31 43 / 0.05);
+  --shadow-pop: 0 8px 24px -8px rgb(26 31 43 / 0.18), 0 2px 6px -2px rgb(26 31 43 / 0.08);
+  --shadow-modal: 0 24px 48px -16px rgb(26 31 43 / 0.28), 0 4px 12px -4px rgb(26 31 43 / 0.1);
 }
 
 @layer base {
@@ -49,8 +105,13 @@
     height: 100%;
   }
 
+  /* Table headers start left (browsers centre them); text-right / text-center still win. */
+  th {
+    text-align: left;
+  }
+
   html {
-    font-size: 13px;
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -60,6 +121,8 @@
     background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 20px;
     /* A desktop app, not a page: no rubber-band scrolling or accidental text selection of chrome. */
     overscroll-behavior: none;
     user-select: none;
@@ -75,7 +138,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-brand-orange);
+    outline: 2px solid var(--color-focus);
     outline-offset: 1px;
   }
 

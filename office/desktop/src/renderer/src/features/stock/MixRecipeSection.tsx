@@ -1,8 +1,8 @@
 import clsx from "clsx";
-import { Clock, FlaskConical, Pencil } from "lucide-react";
+import { Clock, Pencil } from "lucide-react";
 import { useState } from "react";
 import { parseAlternates, parseRecipe } from "@technofluid/core";
-import { Badge, Button, Segmented } from "@/components/ui";
+import { Banner, Button, Section, Segmented } from "@/components/ui";
 import { useStaff } from "@/features/auth/session";
 import { RecipeChangeDialog } from "@/features/recipes/RecipeChangeDialog";
 import { useRecipeRequests } from "@/hooks/useRecipeRequests";
@@ -53,9 +53,8 @@ export function MixRecipeSection({ item }: { item: StockItem }) {
   };
 
   return (
-    <section className="space-y-3">
-      <div>
-        <p className="mb-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">When a product uses it</p>
+    <>
+      <Section title="When a product uses it">
         {isAdmin ? (
           <div className={clsx(busy && "pointer-events-none opacity-60")}>
             <Segmented
@@ -68,39 +67,43 @@ export function MixRecipeSection({ item }: { item: StockItem }) {
             />
           </div>
         ) : (
-          <Badge tone="info">{mode === "stocked" ? "Kept in stock" : "Mixed on the spot"}</Badge>
+          <p className="text-body font-medium text-ink">{mode === "stocked" ? "Kept in stock" : "Mixed on the spot"}</p>
         )}
-        <p className="mt-1 text-[12px] text-ink-muted">
+        <p className="mt-2 text-label text-ink-muted">
           {MODE_HELP[mode]}
           {isAdmin ? "" : " Only an Admin changes this."}
         </p>
-        {error ? <p className="mt-1 text-[12px] text-danger">{error}</p> : null}
-      </div>
+        {error ? (
+          <Banner tone="danger" className="mt-2">
+            {error}
+          </Banner>
+        ) : null}
+      </Section>
 
-      <div>
-        <h3 className="mb-2 flex items-center gap-1.5 text-2xs font-medium tracking-wide text-ink-muted uppercase">
-          <FlaskConical className="size-3.5" /> Recipe
-          <span className="flex-1" />
-          {canChangeRecipe(role) ? (
-            <Button size="sm" variant="ghost" onClick={() => setOpen(true)} icon={<Pencil className="size-3" />} className="normal-case tracking-normal">
+      <Section
+        title="Recipe"
+        action={
+          canChangeRecipe(role) ? (
+            <Button size="sm" variant="ghost" onClick={() => setOpen(true)} icon={<Pencil />}>
               Change recipe
             </Button>
-          ) : null}
-        </h3>
+          ) : null
+        }
+      >
         {recipe.length === 0 ? (
-          <p className="text-[12px] text-ink-muted">No recipe yet.</p>
+          <p className="text-label text-ink-muted">No recipe yet.</p>
         ) : (
-          <ul className="space-y-1">
+          <ul className="border-t border-line-row">
             {recipe.map((r) => (
-              <li key={r.code} className="rounded bg-canvas px-2.5 py-1.5 text-[12px]">
-                <div className="flex items-center justify-between">
+              <li key={r.code} className="border-b border-line-row py-2 text-label">
+                <div className="flex items-center justify-between gap-3 text-ink">
                   <span className="font-mono">{r.code}</span>
-                  <span className="num text-ink-muted">{r.percentBp === null ? "no %" : `${r.percentBp / 100}%`}</span>
+                  <span className="num">{r.percentBp === null ? "no %" : `${r.percentBp / 100}%`}</span>
                 </div>
                 {alternates
                   .filter((a) => a.main === r.code)
                   .map((a) => (
-                    <div key={a.ingredient.code} className="flex items-center justify-between pl-3 text-ink-muted">
+                    <div key={a.ingredient.code} className="mt-0.5 flex items-center justify-between gap-3 pl-4 text-ink-muted">
                       <span>
                         or <span className="font-mono">{a.ingredient.code}</span>
                       </span>
@@ -112,11 +115,11 @@ export function MixRecipeSection({ item }: { item: StockItem }) {
           </ul>
         )}
         {waiting ? (
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-warning">
-            <Clock className="size-3.5" /> A change asked by {waiting.requestedBy} is waiting for approval.
+          <p className="mt-3 flex items-center gap-1.5 text-label text-warning">
+            <Clock className="size-4 shrink-0" /> A change asked by {waiting.requestedBy} is waiting for approval.
           </p>
         ) : null}
-      </div>
+      </Section>
 
       {open ? (
         <RecipeChangeDialog
@@ -127,6 +130,6 @@ export function MixRecipeSection({ item }: { item: StockItem }) {
           onClose={() => setOpen(false)}
         />
       ) : null}
-    </section>
+    </>
   );
 }

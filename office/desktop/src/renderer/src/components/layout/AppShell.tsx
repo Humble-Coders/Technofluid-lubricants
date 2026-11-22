@@ -1,7 +1,7 @@
 import clsx from "clsx";
-import { BellRing, ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Wifi, WifiOff } from "lucide-react";
+import { ChevronsUpDown, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, Search, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { NavLink, Outlet, useNavigate } from "react-router";
 import mark from "@/assets/logo-mark.png";
 import { modKey } from "@/components/ui";
 import { navFor, ROLE_LABEL, type NavItem } from "@/lib/access";
@@ -71,7 +71,7 @@ export function AppShell() {
   }, [items, navigate]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-canvas">
       <Sidebar
         items={items}
         collapsed={collapsed}
@@ -79,8 +79,10 @@ export function AppShell() {
         onSearch={() => setPaletteOpen(true)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar items={items} />
-        <main className="min-h-0 flex-1 overflow-auto">
+        {/* The strip above the sheet: drags the window; on Windows it sits under the minimise/maximise/close buttons. */}
+        <div className={clsx("app-drag shrink-0", inDesktopApp ? (isMac ? "h-6" : "h-10") : "h-2")} aria-hidden />
+        {/* ONE white sheet per screen, inset 8px. Every screen is a <Page> (or a <Workspace>) inside it. */}
+        <main className="mx-2 mb-2 min-h-0 flex-1 overflow-auto rounded-sheet border border-line bg-surface shadow-card">
           <Outlet />
         </main>
       </div>
@@ -108,26 +110,22 @@ function Sidebar({
     return [...map.entries()];
   }, [items]);
 
+  const waiting = useApprovalsWaiting();
+
   return (
     // Collapsed width still clears the Mac traffic lights (they end at ~68px).
-    <aside
-      className={clsx(
-        "flex shrink-0 flex-col bg-brand-charcoal text-white/80 transition-[width] duration-150 ease-out",
-        collapsed ? "w-[72px]" : "w-[232px]",
-      )}
-    >
+    <aside className={clsx("flex shrink-0 flex-col bg-sidebar text-white/70 transition-[width] duration-150 ease-out", collapsed ? "w-[72px]" : "w-[232px]")}>
       {/* Room for the Mac traffic lights; draggable. */}
-      <div
-        className={clsx(
-          "app-drag flex shrink-0 items-end pb-3",
-          collapsed ? "justify-center px-2" : "px-4",
-          isMac && inDesktopApp ? "h-[68px]" : "h-14",
-        )}
-      >
-        <div className="flex items-center gap-2.5">
-          <img src={mark} alt="" aria-hidden className="size-6" />
+      <div className={clsx("app-drag flex shrink-0 items-end pb-4", collapsed ? "justify-center px-2" : "px-4", isMac && inDesktopApp ? "h-[84px]" : "h-16")}>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-control bg-white/[0.08]">
+            <img src={mark} alt="" aria-hidden className="size-5" />
+          </span>
           {collapsed ? null : (
-            <span className="text-[13px] font-semibold tracking-wide whitespace-nowrap text-white">Technofluid Office</span>
+            <span className="min-w-0">
+              <span className="block truncate text-body font-semibold text-white">Technofluid Office</span>
+              <span className="block truncate text-caption text-white/45">Technofluid Lubricants</span>
+            </span>
           )}
         </div>
       </div>
@@ -138,68 +136,70 @@ function Sidebar({
         title={collapsed ? `Search or jump to… (${modKey()} K)` : undefined}
         aria-label="Search or jump to"
         className={clsx(
-          "mb-3 flex h-8 items-center gap-2 rounded-md bg-white/[0.07] text-[12px] text-white/50 transition-colors hover:bg-white/[0.12] hover:text-white/80",
+          "mb-2 flex h-8 shrink-0 items-center gap-2 rounded-control bg-white/[0.07] text-label text-white/50 transition-colors hover:bg-white/[0.12] hover:text-white/80",
           collapsed ? "mx-auto w-10 justify-center" : "mx-3 px-2.5",
         )}
       >
-        <Search className="size-3.5 shrink-0" />
+        <Search className="size-4 shrink-0 opacity-70" />
         {collapsed ? null : (
           <>
             <span className="flex-1 truncate text-left">Search or jump to…</span>
-            <span className="text-2xs text-white/40">{modKey()} K</span>
+            <span className="text-caption text-white/35">{modKey()} K</span>
           </>
         )}
       </button>
 
-      <nav className="flex-1 overflow-x-hidden overflow-y-auto px-2 pb-3" aria-label="Main">
+      <nav className="flex-1 overflow-x-hidden overflow-y-auto px-3 pb-3" aria-label="Main">
         {groups.map(([group, groupItems], index) => (
-          <div key={group} className="mb-3">
+          <div key={group} className="mb-2">
             {collapsed ? (
-              index > 0 ? <div className="mx-3 mb-2 h-px bg-white/[0.08]" aria-hidden /> : null
+              index > 0 ? <div className="mx-2 mb-2 h-px bg-white/[0.08]" aria-hidden /> : null
             ) : (
-              <p className="px-2.5 pt-2 pb-1 text-2xs font-medium tracking-wider whitespace-nowrap text-white/35 uppercase">
-                {group}
-              </p>
+              <p className="px-2.5 pt-3 pb-1 text-caption whitespace-nowrap text-white/40">{group}</p>
             )}
-            {groupItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === "/"}
-                title={collapsed ? (item.shortcut ? `${item.label} (${modKey()}${item.shortcut})` : item.label) : undefined}
-                aria-label={collapsed ? item.label : undefined}
-                className={({ isActive }) =>
-                  clsx(
-                    "group relative flex h-8 items-center gap-2.5 rounded-md text-[13px] transition-colors",
-                    collapsed ? "justify-center" : "px-2.5",
-                    isActive ? "bg-white/[0.1] font-medium text-white" : "hover:bg-white/[0.06] hover:text-white",
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive ? <span className="absolute left-0 h-4 w-[3px] rounded-r bg-brand-orange" aria-hidden /> : null}
-                    <item.icon
-                      className={clsx("size-4 shrink-0", isActive ? "text-brand-orange" : "text-white/50 group-hover:text-white/80")}
-                    />
-                    {collapsed ? null : (
-                      <>
-                        <span className="flex-1 truncate">{item.label}</span>
-                        {item.shortcut ? (
-                          <span className="text-2xs text-white/25 opacity-0 transition-opacity group-hover:opacity-100">
-                            {modKey()}
-                            {item.shortcut}
-                          </span>
-                        ) : null}
-                      </>
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
+            {groupItems.map((item) => {
+              const count = item.path === "/approvals" ? waiting : 0;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === "/"}
+                  title={item.shortcut ? `${item.label} (${modKey()}${item.shortcut})` : collapsed ? item.label : undefined}
+                  aria-label={collapsed ? (count ? `${item.label}, ${count} waiting` : item.label) : undefined}
+                  className={({ isActive }) =>
+                    clsx(
+                      "group relative flex h-8 items-center gap-2.5 rounded-control text-body font-medium transition-colors",
+                      collapsed ? "justify-center" : "px-2.5",
+                      isActive ? "bg-sidebar-active text-white" : "hover:bg-white/[0.06] hover:text-white",
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive ? <span className="absolute -left-3 h-5 w-[3px] rounded-r bg-brand-orange" aria-hidden /> : null}
+                      <item.icon className={clsx("size-4 shrink-0", isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100")} />
+                      {collapsed ? (
+                        count ? <span className="absolute top-1 right-2 size-2 rounded-full bg-brand-orange" aria-hidden /> : null
+                      ) : (
+                        <>
+                          <span className="flex-1 truncate">{item.label}</span>
+                          {count ? (
+                            <span className="num inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-orange px-1.5 text-caption font-semibold text-sidebar" title={`${count} waiting for your approval`}>
+                              {count}
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
           </div>
         ))}
       </nav>
+
+      <StatusNotes collapsed={collapsed} />
 
       <button
         type="button"
@@ -208,21 +208,62 @@ function Sidebar({
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         aria-expanded={!collapsed}
         className={clsx(
-          "group mb-1 flex h-8 items-center gap-2.5 rounded-md text-[12px] text-white/45 transition-colors hover:bg-white/[0.06] hover:text-white",
-          collapsed ? "mx-auto w-10 justify-center" : "mx-2 px-2.5",
+          "group mb-1 flex h-8 shrink-0 items-center gap-2.5 rounded-control text-label text-white/45 transition-colors hover:bg-white/[0.06] hover:text-white",
+          collapsed ? "mx-auto w-10 justify-center" : "mx-3 px-2.5",
         )}
       >
         {collapsed ? <PanelLeftOpen className="size-4 shrink-0" /> : <PanelLeftClose className="size-4 shrink-0" />}
         {collapsed ? null : (
           <>
             <span className="flex-1 truncate text-left">Collapse sidebar</span>
-            <span className="text-2xs text-white/25 opacity-0 transition-opacity group-hover:opacity-100">{modKey()}B</span>
+            <span className="text-caption text-white/30 opacity-0 transition-opacity group-hover:opacity-100">{modKey()}B</span>
           </>
         )}
       </button>
 
       <UserMenu collapsed={collapsed} />
     </aside>
+  );
+}
+
+/** Admin only: how many approvals are waiting (shown on the Approvals row). */
+function useApprovalsWaiting(): number {
+  const { role } = useStaff();
+  const pending = useRecipeRequests(role === "admin" ? { pending: true } : null);
+  const runs = useProductionRequests(role === "admin" ? { pending: true } : null);
+  if (role !== "admin") return 0;
+  return (pending.status === "ready" ? pending.data.length : 0) + (runs.status === "ready" ? runs.data.length : 0);
+}
+
+/**
+ * Exceptions only, above the user: working offline, and which data this is when it isn't the
+ * live company. When everything is normal (online, live data) nothing shows.
+ */
+function StatusNotes({ collapsed }: { collapsed: boolean }) {
+  const online = useOnline();
+  const realBooks = useRealBooks();
+  const notes: Array<{ key: string; icon: typeof WifiOff; label: string; title: string; tone: string }> = [];
+  if (!online)
+    notes.push({ key: "offline", icon: WifiOff, label: "Offline — will sync", title: "Offline — you can keep working; changes sync when the internet is back", tone: "bg-warning-soft text-warning" });
+  if (usingEmulators && realBooks)
+    notes.push({ key: "real", icon: FlaskConical, label: "Real books", title: "These test emulators post to Technofluid's real Humble Ledger company", tone: "bg-danger-fill text-white" });
+  else if (usingEmulators) notes.push({ key: "test", icon: FlaskConical, label: "Test data", title: "This is test data on this computer, not Technofluid's live company", tone: "bg-white/[0.1] text-white/80" });
+  if (notes.length === 0) return null;
+  return (
+    <div className={clsx("mb-2 flex shrink-0 flex-col gap-1", collapsed ? "items-center" : "px-3")}>
+      {notes.map((n) => (
+        <span
+          key={n.key}
+          role="status"
+          title={n.title}
+          aria-label={collapsed ? n.label : undefined}
+          className={clsx("inline-flex h-7 items-center gap-2 rounded-control text-label font-medium", collapsed ? "w-10 justify-center" : "px-2.5", n.tone)}
+        >
+          <n.icon className="size-4 shrink-0" />
+          {collapsed ? null : n.label}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -258,22 +299,22 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
       {open ? (
         <div
           className={clsx(
-            "absolute bottom-full left-2 z-20 mb-1 rounded-md border border-line bg-surface p-1 text-ink shadow-pop",
+            "absolute bottom-full left-2 z-20 mb-1 rounded-control border border-line bg-surface p-1 text-ink shadow-pop",
             // Collapsed sidebar is too narrow for the menu — let it spill over the page.
             collapsed ? "w-[220px]" : "right-2",
           )}
         >
           <div className="px-2.5 py-2">
-            <p className="truncate text-[13px] font-medium">{profile.name}</p>
-            <p className="truncate text-[12px] text-ink-muted">{profile.email || ROLE_LABEL[role]}</p>
+            <p className="truncate text-body font-medium">{profile.name}</p>
+            <p className="truncate text-caption text-ink-muted">{profile.email || ROLE_LABEL[role]}</p>
           </div>
           <div className="my-1 h-px bg-line" />
           <button
             type="button"
             onClick={() => void signOut()}
-            className="flex h-8 w-full items-center gap-2 rounded px-2.5 text-[13px] text-ink hover:bg-hover"
+            className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-body text-ink hover:bg-surface-alt"
           >
-            <LogOut className="size-3.5 text-ink-muted" />
+            <LogOut className="size-4 text-ink-muted" />
             Sign out
           </button>
         </div>
@@ -285,98 +326,23 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
         aria-label={collapsed ? `${profile.name}, ${ROLE_LABEL[role]}` : undefined}
         title={collapsed ? `${profile.name} · ${ROLE_LABEL[role]}` : undefined}
         className={clsx(
-          "flex w-full items-center gap-2.5 rounded-md py-1.5 text-left transition-colors hover:bg-white/[0.06]",
+          "flex w-full items-center gap-2.5 rounded-control py-1.5 text-left transition-colors hover:bg-white/[0.06]",
           collapsed ? "justify-center" : "px-2",
         )}
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-orange text-2xs font-semibold text-white">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/[0.12] text-caption font-semibold text-white">
           {initials || "?"}
         </span>
         {collapsed ? null : (
           <>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[13px] font-medium text-white">{profile.name}</span>
-              <span className="block truncate text-2xs text-white/45">{ROLE_LABEL[role]}</span>
+              <span className="block truncate text-label font-medium text-white">{profile.name}</span>
+              <span className="block truncate text-caption text-white/45">{ROLE_LABEL[role]}</span>
             </span>
-            <ChevronsUpDown className="size-3.5 text-white/40" />
+            <ChevronsUpDown className="size-4 text-white/40" />
           </>
         )}
       </button>
     </div>
-  );
-}
-
-/* ─── Top bar ─────────────────────────────────────────────────────────────────── */
-
-function TopBar({ items }: { items: NavItem[] }) {
-  const { pathname } = useLocation();
-  const online = useOnline();
-  const realBooks = useRealBooks();
-  const current = items.find((i) => (i.path === "/" ? pathname === "/" : pathname.startsWith(i.path)));
-
-  return (
-    <header
-      className={clsx(
-        "app-drag relative flex h-11 shrink-0 items-center gap-3 bg-gradient-to-r from-brand-orange to-[#f39a5f] px-5 text-white",
-        // Leave room for the Windows minimise/maximise/close overlay.
-        !isMac && inDesktopApp && "pr-[150px]",
-      )}
-    >
-      <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-white">
-        {current?.label ?? "Technofluid Office"}
-      </h1>
-      <div className="flex-1" />
-      {usingEmulators && realBooks ? (
-        <span className="inline-flex h-5 items-center rounded bg-danger px-1.5 text-2xs font-semibold tracking-wide text-white" title="These test emulators post to Technofluid's real Humble Ledger company">
-          REAL BOOKS
-        </span>
-      ) : usingEmulators ? (
-        <span className="inline-flex h-5 items-center rounded bg-white/20 px-1.5 text-2xs font-medium text-white">Test data</span>
-      ) : null}
-      <ApprovalsBell />
-      <span
-        className={clsx(
-          "app-no-drag inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-2xs font-medium",
-          online ? "bg-white/20 text-white" : "bg-white text-warning",
-        )}
-        title={online ? "Connected — changes save instantly" : "Offline — you can keep working; changes sync when the internet is back"}
-      >
-        {online ? <Wifi className="size-3" /> : <WifiOff className="size-3" />}
-        {online ? "Online" : "Offline — will sync"}
-      </span>
-      <span className="hidden items-center gap-1 text-2xs lg:flex" title="Search or jump to">
-        {[modKey(), "K"].map((k) => (
-          <kbd key={k} className="inline-flex h-5 min-w-5 items-center justify-center rounded bg-white/20 px-1 font-sans text-2xs text-white">
-            {k}
-          </kbd>
-        ))}
-      </span>
-    </header>
-  );
-}
-
-/** Admin only: how many approvals are waiting; click to open them. */
-function ApprovalsBell() {
-  const { role } = useStaff();
-  const navigate = useNavigate();
-  const pending = useRecipeRequests(role === "admin" ? { pending: true } : null);
-  const runs = useProductionRequests(role === "admin" ? { pending: true } : null);
-  if (role !== "admin") return null;
-  const count = (pending.status === "ready" ? pending.data.length : 0) + (runs.status === "ready" ? runs.data.length : 0);
-  return (
-    <button
-      type="button"
-      onClick={() => navigate("/approvals")}
-      title={count ? `${count} waiting for your approval` : "Approvals"}
-      aria-label={count ? `${count} ${count === 1 ? "approval" : "approvals"} waiting` : "Approvals"}
-      className="app-no-drag relative inline-flex size-7 items-center justify-center rounded-md text-white/90 transition-colors hover:bg-white/15 hover:text-white"
-    >
-      <BellRing className="size-4" />
-      {count > 0 ? (
-        <span className="num absolute -top-0.5 -right-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] leading-4 font-semibold text-brand-orange">
-          {count}
-        </span>
-      ) : null}
-    </button>
   );
 }
