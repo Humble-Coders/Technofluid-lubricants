@@ -141,3 +141,48 @@ describe("where a balance comes from (moneyOwedFromRecords)", () => {
     expect(all.find((x) => x.entityId === "p3")).toBeUndefined();
   });
 });
+
+describe("open ledger (money not against an invoice or bill)", () => {
+  const c = cases.fromRecords;
+  const r = moneyOwedFromRecords({ balances: c.balances, entities: c.entities as EntityForReport[], documents: c.documents as DocumentForReport[], entries: c.entries as MoneyEntryForReport[], today: c.today });
+  const all = [...r.owedToUs, ...r.weOwe, ...r.settled];
+  const sync = new Set(["NOT_IN_BOOKS", "PAYMENT_NOT_IN_BOOKS", "CANCEL_NOT_IN_BOOKS"]);
+  it("is what isn't matched to an open document, less what the books are still catching up on", () => {
+    for (const p of all) {
+      const want = p.balancePaise === null ? 0 : p.notMatchedPaise - p.items.filter((i) => sync.has(i.kind)).reduce((s, i) => s + i.amountPaise, 0);
+      expect(p.openLedgerPaise).toBe(want);
+      expect(p.openLedger.reduce((t, l) => t + l.amountPaise, 0)).toBe(want);
+    }
+  });
+  it("its ageing adds up to every party's open ledger", () => {
+    const total = Object.values(r.ledgerAgeing).reduce((s, v) => s + v, 0);
+    expect(total).toBe(all.reduce((s, p) => s + p.openLedgerPaise, 0));
+  });
+  it("a customer paying more, or paying without choosing an invoice, shows as their advance; a supplier's opening as what we owe", () => {
+    const today = "2026-11-25";
+    const party = (entityId: string, name: string) => ({ kind: "PARTY", entityId, name });
+    const bank = { kind: "BANK", name: "Bank" };
+    const entry = (id: string, from: MoneySideForReportLike, to: MoneySideForReportLike, amountPaise: number, businessDay: string, saleId: string | null = null): MoneyEntryForReport => ({ id, from, to, amountPaise, businessDay, note: null, isCorrection: false, saleId, purchaseId: null, reversesEntryId: null, reversedByEntryId: null, syncStatus: "SYNCED", inBooks: true });
+    type MoneySideForReportLike = { kind: string; entityId?: string; name?: string };
+    const invoice: DocumentForReport = { kind: "INVOICE", id: "s1", ref: "TF/2026-27/0001", partyRef: null, entityId: "c1", partyName: "Cust", date: "2026-11-01", status: "ACTIVE", totalPaise: 100_000, paidAtCreation: [], inBooks: true, cancelInBooks: false };
+    const x = moneyOwedFromRecords({
+      // c1: invoiced 1000, paid 600 on it and 500 more with no invoice → owes 1000 − 600 − 500 = −100 (advance).
+      // v1: opening 300 we owed them, dated long ago.
+      balances: { c1: -10_000, v1: -30_000 },
+      entities: [
+        { id: "c1", name: "Cust", opening: null },
+        { id: "v1", name: "Vend", opening: { amountPaise: 30_000, direction: "payable", asOf: "2025-04-01", posted: true } },
+      ],
+      documents: [invoice],
+      entries: [entry("e1", party("c1", "Cust"), bank, 60_000, "2026-11-10", "s1"), entry("e2", party("c1", "Cust"), bank, 50_000, "2026-11-20")],
+      today,
+    });
+    const c1 = [...x.owedToUs, ...x.weOwe, ...x.settled].find((p) => p.entityId === "c1")!;
+    expect(c1.documents.map((d) => [d.ref, d.duePaise])).toEqual([["TF/2026-27/0001", 40_000]]);
+    expect(c1.openLedgerPaise).toBe(-50_000);
+    expect(c1.openLedger.map((l) => [l.date, l.amountPaise, l.ageDays, l.bucket])).toEqual([["2026-11-20", -50_000, 5, "0-30"]]);
+    expect(c1.unexplainedPaise).toBe(0);
+    expect(x.invoiceAgeing["0-30"]).toBe(40_000);
+    expect(x.ledgerAgeing).toEqual({ "0-30": -50_000, "31-60": 0, "61-90": 0, "90+": -30_000 });
+  });
+});

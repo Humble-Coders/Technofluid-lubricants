@@ -2,12 +2,16 @@ import clsx from "clsx";
 import { Wallet } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 import { Link } from "react-router";
-import { AGE_BUCKET_LABEL, AGE_BUCKETS, formatINR, paiseCsv, toCsv, type PartyOwed } from "@technofluid/core";
+import { AGE_BUCKET_LABEL, AGE_BUCKETS, formatINR, paiseCsv, toCsv, type AgeBucket, type PartyOwed } from "@technofluid/core";
 import { Badge, EmptyState, FilterPill, SearchInput, Segmented, StatTiles, Table, Td, Th, Tr } from "@/components/ui";
 import { useMoneyOwedReport } from "@/hooks/useReports";
+import { OpenListPanel, type OpenListKind } from "./OpenListPanel";
 import { fileDay, NotReady, ReportBar, Stat } from "./reportParts";
 
 type Side = "owedToUs" | "weOwe";
+
+const OPEN_LEDGER_HELP =
+  "Money on a party's account that isn't against an open invoice or bill: payments more or less than an invoice kept on account, advances, opening balances, corrections, money moved between parties and credit left by cancellations. Plus means they owe us; minus means they've paid ahead or we owe them.";
 
 const UNEXPLAINED = "Not found in our records (older than our date range, or entered directly in the books)";
 
@@ -24,6 +28,7 @@ export function MoneyOwedReportView() {
   const [side, setSide] = useState<Side>("owedToUs");
   const [showZero, setShowZero] = useState(false);
   const [search, setSearch] = useState("");
+  const [drill, setDrill] = useState<{ kind: OpenListKind; bucket: AgeBucket | null } | null>(null);
   const r = state.status === "ready" ? state.data : null;
 
   const parties = useMemo(() => {
@@ -39,6 +44,7 @@ export function MoneyOwedReportView() {
         const add = (label: string, list: PartyOwed[]) => {
           for (const p of list) {
             const bal = p.balancePaise === null ? "" : paiseCsv(p.balancePaise);
+            if (p.openLedgerPaise !== 0) rows.push([label, p.name, bal, "Open ledger (not against an invoice or bill)", null, null, null, null, paiseCsv(p.openLedgerPaise), null, null]);
             for (const d of p.documents) rows.push([label, p.name, bal, d.ref, d.partyRef, d.date, paiseCsv(d.totalPaise), paiseCsv(d.paidPaise), paiseCsv(d.kind === "BILL" ? -d.duePaise : d.duePaise), d.ageDays, AGE_BUCKET_LABEL[d.bucket]]);
             for (const i of p.items) rows.push([label, p.name, bal, i.detail ? `${i.label} (${i.detail})` : i.label, null, i.date, null, null, paiseCsv(i.amountPaise), null, null]);
             if (p.unexplainedPaise !== 0) rows.push([label, p.name, bal, UNEXPLAINED, null, null, null, null, paiseCsv(p.unexplainedPaise), null, null]);
@@ -79,15 +85,33 @@ export function MoneyOwedReportView() {
             <tbody>
               {(
                 [
-                  ["Open invoices (owed to us)", r.invoiceAgeing],
-                  ["Open bills (we owe)", r.billAgeing],
+                  ["invoices", "Open invoices (owed to us)", r.invoiceAgeing, null],
+                  ["bills", "Open bills (we owe)", r.billAgeing, null],
+                  ["ledger", "Open ledger (not against an invoice or bill)", r.ledgerAgeing, OPEN_LEDGER_HELP],
                 ] as const
-              ).map(([label, ageing]) => (
-                <Tr key={label}>
-                  <Td>{label}</Td>
+              ).map(([kind, label, ageing, help]) => (
+                <Tr key={kind} onOpen={() => setDrill({ kind, bucket: null })} selected={drill?.kind === kind} title="Click to see each one">
+                  <Td title={help ?? undefined}>
+                    <span className="underline-offset-2 hover:underline">{label}</span>
+                    {help ? <div className="text-label text-ink-muted">+ owed to us · − advances and credit, or we owe</div> : null}
+                  </Td>
                   {AGE_BUCKETS.map((b) => (
                     <Td key={b} num>
-                      {b === "90+" && ageing[b] > 0 ? <span className="font-medium text-danger">{formatINR(ageing[b])}</span> : ageing[b] ? formatINR(ageing[b]) : "-"}
+                      {ageing[b] ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDrill({ kind, bucket: b });
+                          }}
+                          title={`See the ones ${AGE_BUCKET_LABEL[b].toLowerCase()} old`}
+                          className={clsx("rounded-[4px] px-1 underline-offset-2 hover:text-accent hover:underline", b === "90+" && ageing[b] > 0 && "font-medium text-danger")}
+                        >
+                          {formatINR(ageing[b])}
+                        </button>
+                      ) : (
+                        "-"
+                      )}
                     </Td>
                   ))}
                   <Td num className="font-medium">
@@ -163,6 +187,20 @@ export function MoneyOwedReportView() {
                         </Td>
                       </Tr>
                     ))}
+                    {p.openLedgerPaise !== 0 ? (
+                      <Tr>
+                        <Td colSpan={4} title={OPEN_LEDGER_HELP}>
+                          <div className="pl-4 font-medium text-ink">
+                            Open ledger
+                            <span className="ml-2 text-label font-normal text-ink-muted">{p.openLedgerPaise > 0 ? "on account, owed to us" : "on account, their advance or credit"}</span>
+                          </div>
+                        </Td>
+                        <Td num className="font-medium">
+                          {formatINR(p.openLedgerPaise)}
+                        </Td>
+                        <Td />
+                      </Tr>
+                    ) : null}
                     {p.items.map((i, n) => (
                       <Tr key={`i${n}`}>
                         <Td muted>
@@ -209,9 +247,10 @@ export function MoneyOwedReportView() {
             </Table>
           )}
           <p className="mt-4 max-w-4xl text-caption text-ink-subtle">
-            Balances are the books'. Under each party: the invoices and bills still open (ours, dated from 1 April of last financial year; a bill's due shows as “−”, we owe it), then everything else that makes up the balance: opening balance, money received or
+            Balances are the books'. Under each party: the invoices and bills still open (ours, dated from 1 April of last financial year; a bill's due shows as “−”, we owe it), then the open ledger: everything else that makes up the balance, not against any invoice or bill: opening balance, money received or
             paid without choosing an invoice or bill, corrections, money moved between parties, payments kept as credit after a cancellation, and anything still being saved to the books. “+” adds to what they owe us; “−” to what we owe them.
           </p>
+          {drill ? <OpenListPanel report={r} kind={drill.kind} bucket={drill.bucket} onClose={() => setDrill(null)} /> : null}
         </>
       ) : null}
     </>
