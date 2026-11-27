@@ -1,8 +1,8 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
-import { AlertTriangle, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, Archive, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import {
   formatINR,
   formatQuantity,
@@ -62,6 +62,8 @@ export function ProductsScreen() {
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [segment, setSegment] = useState<SegmentFilter>("all");
   const [missingPriceOnly, setMissingPriceOnly] = useState(false);
+  // Products from the old list (not in the cleaned master) are hidden unless asked for.
+  const [showOld, setShowOld] = useState(false);
   const [status, setStatus] = useState<StatusFilter>("selling");
   // Just-deleted product, for the "Undo" banner.
   const [deletedNote, setDeletedNote] = useState<{ sku: string; label: string; restored?: boolean } | null>(null);
@@ -101,6 +103,7 @@ export function ProductsScreen() {
       if (category !== "all" && p.category !== category) return false;
       // "Both" products are visible to every segment.
       if (segment !== "all" && p.segment !== segment && p.segment !== "Both") return false;
+      if (!showOld && !p.fromMaster) return false;
       if (status === "selling" && !p.active) return false;
       if (status === "off" && p.active) return false;
       if (missingPriceOnly && p.dealerPricePaise !== null) return false;
@@ -115,15 +118,17 @@ export function ProductsScreen() {
         /^\d+(\.\d+)?$/.test(w) ? [w, `${w}l`, `${w}kg`, `${w}ml`].some((t) => tokens.includes(t)) : hay.includes(w),
       );
     });
-  }, [products, search, category, segment, missingPriceOnly, status]);
+  }, [products, search, category, segment, missingPriceOnly, status, showOld]);
 
   const pools = useMemo(() => new Set(filtered.map((p) => p.productKey)).size, [filtered]);
   const missingCount = useMemo(
     () =>
       products.filter(
-        (p) => p.dealerPricePaise === null && (status === "all" || (status === "selling") === p.active),
+        (p) => (showOld || p.fromMaster) && p.dealerPricePaise === null && (status === "all" || (status === "selling") === p.active),
       ).length,
-    [products, status],
+    [products, status, showOld],
+  );
+  const oldCount = useMemo(() => products.filter((p) => !p.fromMaster).length, [products]
   );
 
   // The "Deleted … Undo" note fades after a while.
@@ -264,6 +269,11 @@ export function ProductsScreen() {
               {showPrices ? (
                 <FilterPill active={missingPriceOnly} onClick={() => setMissingPriceOnly((v) => !v)} icon={<AlertTriangle />}>
                   No price ({missingCount})
+                </FilterPill>
+              ) : null}
+              {oldCount > 0 ? (
+                <FilterPill active={showOld} onClick={() => setShowOld((v) => !v)} icon={<Archive />}>
+                  Show old products ({oldCount})
                 </FilterPill>
               ) : null}
             </>
@@ -445,6 +455,11 @@ function ProductTable({
                 <span className="min-w-0 truncate">
                   <span className="font-medium text-ink">{p.name}</span>
                   {p.grade ? <span className="text-ink-muted"> · {p.grade}</span> : null}
+                  {p.fromMaster ? null : (
+                    <Badge tone="warning" className="ml-1.5">
+                      Old product
+                    </Badge>
+                  )}
                   {p.active ? null : (
                     <Badge tone="neutral" className="ml-1.5">
                       Not selling
@@ -543,6 +558,11 @@ function ProductPanel({
           <p className="mt-0.5 text-label text-ink-muted">
             {p.grade || "Single grade"} · {p.packLabel}
           </p>
+          {p.fromMaster ? null : (
+            <Badge tone="warning" className="mt-1.5 mr-1.5">
+              Old product
+            </Badge>
+          )}
           {p.active ? null : (
             <Badge tone="neutral" className="mt-1.5">
               Not selling
@@ -591,6 +611,15 @@ function ProductPanel({
               Saved {savedCount} {savedCount === 1 ? "change" : "changes"}.
             </Banner>
           ) : null}
+          {p.fromMaster ? null : (
+            <Banner tone="warning" title="Old product">
+              From the old product list, not the cleaned product master, so it has no recipe, grade or density. Whether to keep or remove it is decided in{" "}
+              <Link to="/to-fill" className="font-medium underline underline-offset-2">
+                To fill in → Old products
+              </Link>
+              .
+            </Banner>
+          )}
           <Details columns={2}>
             <Detail label="SKU">
               <span className="font-mono text-label">{p.sku}</span>
