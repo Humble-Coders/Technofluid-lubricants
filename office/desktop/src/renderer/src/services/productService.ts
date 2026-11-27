@@ -33,6 +33,8 @@ export interface Product {
   recipeAlternates: string[];
   /** false = hidden from new sales (not deleted). */
   active: boolean;
+  /** From the cleaned product master (it carries a grade, even if blank); false = an older product. */
+  fromMaster: boolean;
 }
 
 function toProduct(id: string, d: Record<string, unknown>, priceDoc?: Record<string, unknown>): Product {
@@ -59,6 +61,7 @@ function toProduct(id: string, d: Record<string, unknown>, priceDoc?: Record<str
       ? d.recipeAlternates.filter((x): x is string => typeof x === "string")
       : [],
     active: d.active !== false,
+    fromMaster: typeof d.grade === "string",
   };
 }
 

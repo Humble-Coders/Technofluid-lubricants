@@ -2,6 +2,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
 import { AlertTriangle, Copy, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import {
   formatINR,
   formatQuantity,
@@ -55,6 +56,8 @@ export function ProductsScreen() {
   const state = useProducts({ withPrices: showPrices });
   const canEdit = canEditProducts(role);
 
+  // "To fill in" opens a product here with ?sku=…
+  const [params] = useSearchParams();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [segment, setSegment] = useState<SegmentFilter>("all");
@@ -63,7 +66,7 @@ export function ProductsScreen() {
   // Just-deleted product, for the "Undo" banner.
   const [deletedNote, setDeletedNote] = useState<{ sku: string; label: string; restored?: boolean } | null>(null);
   const [undoing, setUndoing] = useState(false);
-  const [selectedSku, setSelectedSku] = useState<string | null>(null);
+  const [selectedSku, setSelectedSku] = useState<string | null>(params.get("sku"));
   // Adding a product (from scratch, or as a copy of `from`) replaces the detail panel.
   const [adding, setAdding] = useState<{ from?: Product } | null>(null);
   const [bulkTax, setBulkTax] = useState(false);

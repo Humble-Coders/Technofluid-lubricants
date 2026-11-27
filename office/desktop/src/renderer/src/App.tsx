@@ -10,6 +10,7 @@ import { ComingNext, NoAccess } from "@/features/placeholder/ComingNext";
 import { ProductsScreen } from "@/features/products/ProductsScreen";
 import { StockScreen } from "@/features/stock/StockScreen";
 import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
+import { ToFillScreen } from "@/features/tofill/ToFillScreen";
 import { NewSaleScreen } from "@/features/sales/NewSaleScreen";
 import { SaleDetail } from "@/features/sales/SaleDetail";
 import { SalesScreen } from "@/features/sales/SalesScreen";
@@ -55,6 +56,7 @@ const router = createHashRouter([
           { path: "expenses", element: <ExpensesScreen /> },
           { path: "reports", element: <ReportsScreen /> },
           { path: "approvals", element: <ApprovalsScreen /> },
+          { path: "to-fill", element: <ToFillScreen /> },
           { path: "settings", element: <SettingsScreen /> },
           { path: "*", element: <NoAccess /> },
         ],

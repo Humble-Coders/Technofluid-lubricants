@@ -184,6 +184,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // "To fill in" decisions (not needed / answers / keep-remove for old products).
+    // Admin only; written only by the resolveDataGap Cloud Function.
+    match /dataGaps/{gapId} {
+      allow read:  if isAdmin();
+      allow write: if false;
+    }
+
     // Production entries that changed a recipe, waiting for an Admin (or decided).
     match /productionRequests/{requestId} {
       allow read:  if isAdmin() || isSupervisor();
