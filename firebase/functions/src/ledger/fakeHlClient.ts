@@ -128,6 +128,10 @@ export class FakeHlClient implements HlClient {
   constructor(private readonly db: admin.firestore.Firestore, readonly hlCompanyId: string | null = null) {
     this.books = hlCompanyId && hlCompanyId !== FAKE_HOME_COMPANY_ID ? `${ROOT}/books-${hlCompanyId}` : `${ROOT}/books`;
   }
+  forCompany(hlCompanyId: string | null): HlClient {
+    return new FakeHlClient(this.db, hlCompanyId);
+  }
+
   /** This client's company id in the registry. */
   private get companyId() {
     return this.hlCompanyId ?? FAKE_HOME_COMPANY_ID;

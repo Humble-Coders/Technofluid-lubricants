@@ -8,6 +8,9 @@ import {HL_MAX_PAGE, plainHlMessage} from "../ledger/hlClient";
 import {txnSources} from "../ledger/txnSources";
 import {indiaToday, realDay, text} from "./common";
 import {REGISTERS, moneyDirection, type MoneyAccountRef} from "./moneyModel";
+import {MAIN_LINE} from "../companies/companyModel";
+import {companyAccount, companyToRead} from "../companies/companyStore";
+import {registerAccountName} from "./hlAccounts";
 
 /**
  * Register balances and statements — from the books (Humble Ledger), never stored.
@@ -16,20 +19,24 @@ import {REGISTERS, moneyDirection, type MoneyAccountRef} from "./moneyModel";
  * Books unreachable → an error, never ₹0.
  */
 export const getRegisterBalances = onCall({region: "us-central1", secrets: HL_SECRETS}, async (request) => {
-  await requireRole(request, ["admin", "accounts"]);
-  const registers = (await admin.firestore().collection(REGISTERS).where("deleted", "==", false).get()).docs;
-  let sheet: Record<string, string>;
+  const caller = await requireRole(request, ["admin", "accounts"]);
+  const db = admin.firestore();
+  const {company, books, isMain} = await companyToRead(db, caller.role, request.data?.companyId, getHlClient());
+  // Only the cash / bank of this company's line; in another company each is found by its id.
+  const registers = (await db.collection(REGISTERS).where("deleted", "==", false).get()).docs.filter((r) => (r.data().line ?? MAIN_LINE) === company.line);
+  const balances: Record<string, number> = {};
   try {
-    sheet = await getHlClient().getBalanceSheet(indiaToday());
+    const sheet = await books.getBalanceSheet(indiaToday());
+    for (const r of registers) {
+      const d = r.data();
+      const acc = isMain ? d.hlAccountId : await companyAccount(db, books, company.id, r.id, "ASSET", registerAccountName(d.kind, String(d.name), r.id), false);
+      balances[r.id] = acc ? hlAmountToPaise(String(sheet[String(acc)] ?? "0")) : 0;
+    }
   } catch (e) {
+    if (e instanceof HttpsError) throw e;
     throw new HttpsError("unavailable", plainHlMessage(e));
   }
-  const balances: Record<string, number> = {};
-  for (const r of registers) {
-    const acc = r.data().hlAccountId;
-    balances[r.id] = acc ? hlAmountToPaise(String(sheet[String(acc)] ?? "0")) : 0;
-  }
-  return {balances, asOf: indiaToday()};
+  return {balances, asOf: indiaToday(), companyId: company.id};
 });
 
 export type RowKind = "received" | "paid" | "transfer" | "expense" | "correction" | "reversal" | "opening" | "other";
@@ -48,7 +55,7 @@ export function kindOf(e: {from: MoneyAccountRef; to: MoneyAccountRef; isCorrect
 
 /** One register's statement for a date range: HL's running/closing balances, as given. */
 export const getRegisterStatement = onCall({region: "us-central1", secrets: HL_SECRETS}, async (request) => {
-  await requireRole(request, ["admin", "accounts"]);
+  const caller = await requireRole(request, ["admin", "accounts"]);
   const data = request.data ?? {};
   const registerId = text(data.registerId, "registerId", 80);
   const from = realDay(data.from, "The start date");
@@ -58,11 +65,22 @@ export const getRegisterStatement = onCall({region: "us-central1", secrets: HL_S
   const db = admin.firestore();
   const r = (await db.collection(REGISTERS).doc(registerId).get()).data();
   if (!r || r.deleted === true) throw new HttpsError("not-found", "That register doesn't exist.");
-  if (!r.hlAccountId) throw new HttpsError("failed-precondition", "Not saved to the books yet — there's no history until it is.");
+  const {company, books, isMain} = await companyToRead(db, caller.role, data.companyId, getHlClient());
+  if ((r.line ?? MAIN_LINE) !== company.line) throw new HttpsError("failed-precondition", `${r.name} belongs to another company's books.`);
+  let accountId: string | null;
+  try {
+    accountId = isMain ? r.hlAccountId ?? null : await companyAccount(db, books, company.id, registerId, "ASSET", registerAccountName(r.kind, String(r.name), registerId), false);
+  } catch (e) {
+    throw new HttpsError("unavailable", plainHlMessage(e));
+  }
+  if (!accountId) {
+    if (isMain) throw new HttpsError("failed-precondition", "Not saved to the books yet — there's no history until it is.");
+    return {registerId, from, to, openingPaise: 0, rows: [], inPaise: 0, outPaise: 0, closingPaise: 0, hasMore: false, page};
+  }
 
   let res;
   try {
-    res = await getHlClient().getLedger({accountId: String(r.hlAccountId), from, to, page, limit: HL_MAX_PAGE});
+    res = await books.getLedger({accountId, from, to, page, limit: HL_MAX_PAGE});
   } catch (e) {
     throw new HttpsError("unavailable", plainHlMessage(e));
   }

@@ -274,3 +274,141 @@ describe("Create, close year, carry forward", () => {
     await control({});
   });
 });
+
+// ─── Money in another company ──────────────────────────────────────────────────
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
+async function waitFor(fn, what, ms = 20_000) {
+  const end = Date.now() + ms;
+  for (;;) {
+    const v = await fn();
+    if (v) return v;
+    if (Date.now() > end) throw new Error(`Timed out waiting for ${what}`);
+    await sleep(200);
+  }
+}
+const docOf = async (col, id) => (await adminDb.doc(`${col}/${id}`).get()).data();
+const synced = (col, id) => waitFor(async () => {
+  const d = await docOf(col, id);
+  if (d?.syncStatus === "FAILED") throw new Error(`${col}/${id} failed: ${d.hlSyncError}`);
+  return d?.syncStatus === "SYNCED" ? d : null;
+}, `${col}/${id} SYNCED`);
+const party = (e) => ({ kind: "PARTY", entityId: e, name: "x" });
+const cash = (id) => ({ kind: "CASH", registerId: id, name: "x" });
+const partyInput = (name) => ({
+  name, kinds: ["customer"], phones: [], email: null, gstin: null,
+  address: { line1: "", line2: "", city: "Karnal", district: "", pincode: "", stateCode: "06" },
+  priceTier: "Dealer", creditLimitPaise: null, notes: null,
+});
+
+describe("Money in another company", () => {
+  let priya; // a money-only company
+  let till; // its cash register
+  let customer;
+
+  before(async () => {
+    await admin.call("ensureDefaultRegisters", {});
+    priya = (await admin.call("createCompany", { name: "Priya Sharma", requestId: rid() })).companyId;
+    customer = (await admin.call("saveEntity", { requestId: rid(), input: partyInput("TEST CO Panipat Motors") })).entityId;
+    till = (await admin.call("saveRegister", { requestId: rid(), companyId: priya, name: `Priya cash ${rid()}`, kind: "CASH" })).registerId;
+  });
+
+  test("a register added in a company belongs to that company's books", async () => {
+    assert.equal((await docOf("registers", till)).line, priya);
+  });
+
+  test("its opening balance is posted into that company's books, not the main one", async () => {
+    await admin.call("setRegisterOpening", { requestId: rid(), registerId: till, amountPaise: 500000, asOf: today });
+    const r = await synced("registers", till);
+    assert.equal(r.opening.posted, true);
+    assert.equal(r.opening.companyId, priya);
+    assert.equal(await balanceByName(priya, `Cash · ${r.name} · ${till}`), 500000);
+  });
+
+  test("money received is entered once and posted into the company's books", async () => {
+    const { entryId } = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: priya, from: party(customer), to: cash(till), amountPaise: 120000, businessDay: today, note: "Rent share" });
+    const e = await synced("moneyEntries", entryId);
+    assert.equal(e.companyId, priya);
+    const txn = (await adminDb.doc(`_fakeHl/books-${priya}/txns/technofluid-office~money_${entryId}`).get()).data();
+    assert.ok(txn, "posted in Priya's books");
+    assert.equal((await adminDb.doc(`_fakeHl/books/txns/technofluid-office~money_${entryId}`).get()).exists, false, "not in the main books");
+    // The customer exists in Priya's books by its own id, linked for next time.
+    const link = (await adminDb.doc(`companies/${priya}/links/${customer}`).get()).data();
+    assert.ok(link.hlCustomerId);
+    const balances = await admin.call("getRegisterBalances", { companyId: priya });
+    assert.equal(balances.balances[till], 620000);
+    assert.equal(balances.balances["default-cash"], undefined, "the main company's cash isn't in this company");
+    const owed = await admin.call("getEntityBalances", { companyId: priya });
+    assert.equal(owed.balances[customer].balancePaise, -120000);
+    const st = await admin.call("getRegisterStatement", { companyId: priya, registerId: till, from: today, to: today });
+    assert.equal(st.closingPaise, 620000);
+  });
+
+  test("a reversal goes to the original's company", async () => {
+    const { entryId } = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: priya, from: cash(till), to: party(customer), amountPaise: 10000, businessDay: today });
+    await synced("moneyEntries", entryId);
+    const mirror = await admin.call("reverseMoneyEntry", { requestId: rid(), entryId, reason: "Wrong person" });
+    const m = await synced("moneyEntries", mirror.entryId);
+    assert.equal(m.companyId, priya);
+    assert.equal((await admin.call("getRegisterBalances", { companyId: priya })).balances[till], 620000);
+  });
+
+  test("only Admin works in another company; registers and invoices stay with their own books", async () => {
+    await rejectsWith(accounts.call("recordMoneyEntry", { requestId: rid(), companyId: priya, from: party(customer), to: cash(till), amountPaise: 100, businessDay: today }), "permission-denied", /Admin/);
+    await rejectsWith(accounts.call("getRegisterBalances", { companyId: priya }), "permission-denied");
+    await rejectsWith(
+      admin.call("recordMoneyEntry", { requestId: rid(), companyId: priya, from: party(customer), to: cash("default-cash"), amountPaise: 100, businessDay: today }),
+      "invalid-argument",
+      /another company's books/,
+    );
+    await rejectsWith(
+      admin.call("recordMoneyEntry", { requestId: rid(), from: party(customer), to: cash(till), amountPaise: 100, businessDay: today }),
+      "invalid-argument",
+      /another company's books/,
+    );
+    await rejectsWith(
+      admin.call("recordMoneyEntry", { requestId: rid(), companyId: priya, from: party(customer), to: cash(till), amountPaise: 100, businessDay: today, saleId: "any" }),
+      "invalid-argument",
+      /money only/,
+    );
+  });
+
+  test("an entry without a company still goes to the main company", async () => {
+    const { entryId } = await admin.call("recordMoneyEntry", { requestId: rid(), from: party(customer), to: cash("default-cash"), amountPaise: 2500, businessDay: today });
+    const e = await waitFor(async () => {
+      const d = await docOf("moneyEntries", entryId);
+      return d?.syncStatus && d.syncStatus !== "PENDING" ? d : null;
+    }, "main entry posted", 30_000).catch(() => null);
+    assert.equal((await docOf("moneyEntries", entryId)).companyId, "main");
+    if (e?.syncStatus === "SYNCED") assert.ok((await adminDb.doc(`_fakeHl/books/txns/technofluid-office~money_${entryId}`).get()).exists);
+  });
+});
+
+describe("Routing by date within a company's books", () => {
+  test("an entry dated in the new year goes to the new year's company", async () => {
+    // Two years of one person's books: the first from the start, the next from 1 Apr 2026.
+    const first = (await admin.call("createCompany", { name: "Karan Mehta", requestId: rid() })).companyId;
+    const box = (await admin.call("saveRegister", { requestId: rid(), companyId: first, name: `Karan cash ${rid()}`, kind: "CASH" })).registerId;
+    const someone = (await admin.call("saveEntity", { requestId: rid(), input: partyInput("TEST CO Karnal Traders") })).entityId;
+    const old = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: first, from: party(someone), to: cash(box), amountPaise: 1000, businessDay: "2026-02-01" });
+    await synced("moneyEntries", old.entryId);
+    await admin.call("closeCompanyYear", { companyId: first, lockedThrough: "2026-03-31" });
+    const next = (await admin.call("createCompany", {
+      name: "Karan Mehta", requestId: rid(), booksBeginFrom: "2026-04-01", joinsLine: "source",
+      copyFrom: { companyId: first, accounts: true, customers: true, carry: { asOf: "2026-03-31", pendingBills: "TOTAL" } },
+    })).companyId;
+    // Entered while "in" the old company, dated today: it belongs to the new year.
+    const { entryId } = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: first, from: party(someone), to: cash(box), amountPaise: 700, businessDay: today });
+    const e = await synced("moneyEntries", entryId);
+    assert.equal(e.companyId, next);
+    // The cash account came across with its closing balance and keeps going in the new books.
+    assert.equal((await admin.call("getRegisterBalances", { companyId: next })).balances[box], 1700);
+    // A date in the closed year is refused before anything is written.
+    await rejectsWith(
+      admin.call("recordMoneyEntry", { requestId: rid(), companyId: next, from: party(someone), to: cash(box), amountPaise: 5, businessDay: "2026-03-01" }),
+      "failed-precondition",
+      /closed year/,
+    );
+  });
+});

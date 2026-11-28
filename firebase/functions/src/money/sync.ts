@@ -11,6 +11,8 @@ import {cancelSaleInBooks, syncSale} from "../sales/sync";
 import {PURCHASES} from "../purchases/purchaseModel";
 import {cancelPurchaseInBooks, syncPurchase} from "../purchases/sync";
 import {accountCache, categoryAccountName, registerAccountName} from "./hlAccounts";
+import {MAIN_LINE, companyForDate} from "../companies/companyModel";
+import {booksFor, companyAccount, companyCustomer, isMainCompany, loadCompanies} from "../companies/companyStore";
 import {EXPENSE_CATEGORIES, MONEY_ENTRIES, REGISTERS, SYSTEM_ACCOUNTS, moneySourceIds, type MoneyAccountRef} from "./moneyModel";
 
 /**
@@ -64,28 +66,40 @@ export async function syncRegister(db: admin.firestore.Firestore, hl: HlClient, 
   if (!d || d.deleted === true || d.syncStatus === "SYNCED") return "skipped";
   const prior = Number(d.syncAttempts ?? 0);
   try {
+    // A register belongs to a line of companies (missing = the main business). Its own
+    // pinned account is the main company's; its opening goes to the company of its line
+    // that owns the opening date (companies, Ansh 28 Nov 2026).
+    const line: string = d.line ?? MAIN_LINE;
     const account = accountCache(hl);
-    const accountId: string = d.hlAccountId ?? (await account(registerAccountName(d.kind, d.name, id), "ASSET")).id;
+    const accountId: string | null = d.hlAccountId ?? (line === MAIN_LINE ? (await account(registerAccountName(d.kind, d.name, id), "ASSET")).id : null);
     let opening = d.opening ?? null;
     if (opening && opening.posted !== true) {
+      const owner = companyForDate(await loadCompanies(db), line, opening.asOf);
+      const ownerId = owner && !isMainCompany(owner.id) ? owner.id : null;
+      if (line !== MAIN_LINE && !owner) throw new Permanent(`No company of these books covers ${opening.asOf}.`);
+      const books = ownerId ? await booksFor(db, hl, ownerId) : hl;
+      const bookAccount = ownerId ? accountCache(books) : account;
+      const openingAccountId = ownerId ?
+        (await companyAccount(db, books, ownerId, id, "ASSET", registerAccountName(d.kind, d.name, id))) as string :
+        (accountId as string);
       if (opening.amountPaise === 0) {
         opening = {...opening, posted: true, hlTxnId: null};
       } else {
-        const equity = (await account(SYSTEM_ACCOUNTS.openingEquity.name, "EQUITY")).id;
+        const equity = (await bookAccount(SYSTEM_ACCOUNTS.openingEquity.name, "EQUITY")).id;
         const up = opening.amountPaise > 0;
         const amount = Math.abs(opening.amountPaise);
-        const r = await hl.postTransaction({
+        const r = await books.postTransaction({
           postingType: "JOURNAL",
           description: `Opening balance · ${d.name}`,
           date: opening.asOf,
           sourceId: moneySourceIds.registerOpening(id),
           actorRef: String(d.updatedBy?.uid ?? "system"),
           legs: [
-            {accountId, type: up ? "DEBIT" : "CREDIT", amountPaise: amount},
+            {accountId: openingAccountId, type: up ? "DEBIT" : "CREDIT", amountPaise: amount},
             {accountId: equity, type: up ? "CREDIT" : "DEBIT", amountPaise: amount},
           ],
         });
-        opening = {...opening, posted: true, hlTxnId: r.txnId};
+        opening = {...opening, posted: true, hlTxnId: r.txnId, companyId: ownerId};
       }
     }
     await db.runTransaction(async (tx) => {
@@ -141,11 +155,20 @@ interface Side {
   customerId: string | null;
 }
 
-async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef): Promise<Side> {
+/**
+ * One side of an entry, in the books of the entry's company: the main company uses the
+ * pinned ids; any other company finds (or makes) the same party / account in ITS books.
+ */
+async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef, company: {id: string | null; books: HlClient}): Promise<Side> {
   if (ref.kind === "ADJUSTMENT") return {ref, accountId: null, customerId: null};
+  const other = company.id && !isMainCompany(company.id) ? company.id : null;
   if (ref.kind === "PARTY") {
     const e = (await db.collection(ENTITIES).doc(ref.entityId).get()).data();
     if (!e || e.deleted === true) throw new Permanent(`${ref.name} no longer exists.`);
+    if (other) {
+      const c = await companyCustomer(db, company.books, other, ref.entityId, e);
+      return {ref, accountId: c.accountId, customerId: c.customerId};
+    }
     if (e.syncStatus !== "SYNCED" || !e.hlCustomerId || !e.hlAccountId) throw new Waiting(`${ref.name} isn't in the books yet`);
     return {ref, accountId: String(e.hlAccountId), customerId: String(e.hlCustomerId)};
   }
@@ -153,6 +176,7 @@ async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef):
     const c = (await db.collection(EXPENSE_CATEGORIES).doc(ref.categoryId).get()).data();
     if (!c || c.deleted === true) throw new Permanent(`The category ${ref.name} no longer exists.`);
     if (c.isActive === false) throw new Permanent(`The category ${ref.name} is archived.`);
+    if (other) return {ref, accountId: await companyAccount(db, company.books, other, ref.categoryId, "EXPENSE", categoryAccountName(String(c.name), ref.categoryId)), customerId: null};
     if (!c.hlAccountId) throw new Waiting(`${ref.name} isn't in the books yet`);
     return {ref, accountId: String(c.hlAccountId), customerId: null};
   }
@@ -160,6 +184,7 @@ async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef):
   if (!r || r.deleted === true) throw new Permanent(`${ref.name} no longer exists.`);
   if (r.isActive === false) throw new Permanent(`${r.name} is archived.`);
   if (r.kind !== ref.kind) throw new Permanent(`${r.name} isn't a ${ref.kind.toLowerCase()} account.`);
+  if (other) return {ref, accountId: await companyAccount(db, company.books, other, ref.registerId, "ASSET", registerAccountName(r.kind, String(r.name), ref.registerId)), customerId: null};
   if (!r.hlAccountId) throw new Waiting(`${r.name} isn't in the books yet`);
   return {ref, accountId: String(r.hlAccountId), customerId: null};
 }
@@ -167,12 +192,20 @@ async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef):
 const name = (r: MoneyAccountRef) => (r.kind === "ADJUSTMENT" ? "Adjustment" : r.name);
 const isReg = (r: MoneyAccountRef) => r.kind === "CASH" || r.kind === "BANK";
 
-export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient, id: string, opts: {fromTrigger?: boolean} = {}): Promise<SyncOutcome> {
-  if (hl.mode === "off") return "skipped";
+export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClient, id: string, opts: {fromTrigger?: boolean} = {}): Promise<SyncOutcome> {
+  if (home.mode === "off") return "skipped";
   const ref = db.collection(MONEY_ENTRIES).doc(id);
   const e = (await ref.get()).data();
   if (!e || e.deleted === true || e.syncStatus === "SYNCED") return "skipped";
   const prior = Number(e.syncAttempts ?? 0);
+  // The entry's own company's books (missing companyId = the main company, as before).
+  let hl: HlClient;
+  try {
+    hl = await booksFor(db, home, e.companyId);
+  } catch (err) {
+    return fail(ref, id, new Permanent(err instanceof Error ? err.message : String(err)), prior, opts.fromTrigger === true);
+  }
+  const company = {id: typeof e.companyId === "string" ? e.companyId : null, books: hl};
   const sourceId = moneySourceIds.entry(id);
   const actorRef = String(e.createdBy?.uid ?? "system");
   const note: string = e.note ?? "";
@@ -196,7 +229,7 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
       await journal("REVERSAL", note || "Reversal", flipped);
     } else {
       // Resolve every side before posting anything.
-      const [from, to] = await Promise.all([resolveSide(db, e.from), resolveSide(db, e.to)]);
+      const [from, to] = await Promise.all([resolveSide(db, e.from, company), resolveSide(db, e.to, company)]);
       const account = accountCache(hl);
 
       if (e.isCorrection) {

@@ -140,6 +140,10 @@ export class HttpHlClient implements HlClient {
 
   private readonly key: string;
 
+  forCompany(hlCompanyId: string | null): HlClient {
+    return new HttpHlClient(this.cfg, hlCompanyId);
+  }
+
   /**
    * POST /auth/login → 200 {data: {accessToken (15 min), refreshToken, token, user}}
    * (confirmed by Ansh HL, 27 Oct 2026). Each login stores a refresh token in HL, so we

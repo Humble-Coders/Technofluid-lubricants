@@ -3,8 +3,9 @@ import {FieldValue} from "firebase-admin/firestore";
 import {HttpsError} from "firebase-functions/v2/https";
 
 import {getHlClient} from "../ledger/getHlClient";
-import {type HlClient, type HlCompanySummary} from "../ledger/hlClient";
-import {COMPANIES, MAIN_COMPANY_ID, MAIN_LINE, kindOfLine, prettyDay, type CompanyRow} from "./companyModel";
+import {HL_MAX_PAGE, type HlAccountType, type HlClient, type HlCompanySummary} from "../ledger/hlClient";
+import {getOrCreateAccount} from "../money/hlAccounts";
+import {COMPANIES, MAIN_COMPANY_ID, MAIN_LINE, companyForDate, kindOfLine, prettyDay, type CompanyRow} from "./companyModel";
 
 /** Our record of a company, as the functions read it. */
 export interface CompanyDoc extends CompanyRow {
@@ -148,4 +149,100 @@ export function assertOpenDay(company: CompanyDoc, day: string, what = "The date
   if (company.booksBeginFrom && day < company.booksBeginFrom) {
     throw new HttpsError("failed-precondition", `${what} (${prettyDay(day)}) is before ${company.name || "this company"}'s books begin (${prettyDay(company.booksBeginFrom)}).`, {code: "BEFORE_BOOKS_BEGIN"});
   }
+}
+
+// ─── Posting into a company's books ──────────────────────────────────────────────
+//
+// The main company keeps today's pinned ids (entity.hlCustomerId, register.hlAccountId,
+// category.hlAccountId). In any other company the same party / register / category is
+// found by its OWN id — HL customers by externalId (= entity id, kept when HL copies
+// customers), accounts by the "· <doc id>" every account name we make ends with (kept when
+// HL copies accounts, and safe from renames) — and remembered in companies/{id}/links/{docId}.
+
+export const isMainCompany = (companyId: unknown) => !companyId || companyId === MAIN_COMPANY_ID;
+
+/** The client for one of our companies, made from the run's (home) client. */
+export async function booksFor(db: admin.firestore.Firestore, hl: HlClient, companyId: string | null | undefined): Promise<HlClient> {
+  if (isMainCompany(companyId)) return hl;
+  const c = await loadCompany(db, companyId);
+  if (!c.hlCompanyId) throw new HttpsError("failed-precondition", `${c.name || "That company"} isn't linked to Humble Ledger.`);
+  return hl.forCompany(c.hlCompanyId);
+}
+
+const linkRef = (db: admin.firestore.Firestore, companyId: string, docId: string) => db.collection(COMPANIES).doc(companyId).collection("links").doc(docId);
+
+/** An HL account of ours in a (non-main) company, found by its doc id; made only when `create`. */
+export async function companyAccount(
+  db: admin.firestore.Firestore,
+  books: HlClient,
+  companyId: string,
+  docId: string,
+  type: HlAccountType,
+  name: string,
+  create = true,
+): Promise<string | null> {
+  const ref = linkRef(db, companyId, docId);
+  const linked = (await ref.get()).data();
+  if (typeof linked?.hlAccountId === "string") return linked.hlAccountId;
+  const suffix = `· ${docId}`.toLowerCase();
+  let found: string | null = null;
+  for (let page = 1; page <= 50 && !found; page++) {
+    const res = await books.listAccounts({type, search: docId, page, limit: HL_MAX_PAGE});
+    found = res.data.find((a) => a.name.trim().toLowerCase().endsWith(suffix) || a.name.toLowerCase().includes(`${suffix} ·`))?.id ?? null;
+    if (!res.hasMore) break;
+  }
+  if (!found && create) found = (await getOrCreateAccount(books, name, type)).id;
+  if (found) await ref.set({hlAccountId: found, at: FieldValue.serverTimestamp()}, {merge: true});
+  return found;
+}
+
+/** A party's HL customer in a (non-main) company: created (idempotent on externalId) when missing. */
+export async function companyCustomer(
+  db: admin.firestore.Firestore,
+  books: HlClient,
+  companyId: string,
+  entityId: string,
+  entity: admin.firestore.DocumentData,
+): Promise<{customerId: string; accountId: string}> {
+  const ref = linkRef(db, companyId, entityId);
+  const linked = (await ref.get()).data();
+  if (typeof linked?.hlCustomerId === "string" && typeof linked?.hlAccountId === "string") return {customerId: linked.hlCustomerId, accountId: linked.hlAccountId};
+  const opt = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+  const {customer} = await books.createCustomer({
+    externalId: entityId,
+    name: String(entity.name ?? "Party"),
+    ...(opt(entity.phone) ? {phone: opt(entity.phone)} : {}),
+    ...(opt(entity.email) ? {email: opt(entity.email)} : {}),
+    ...(opt(entity.gstin) ? {gstin: opt(entity.gstin)} : {}),
+  });
+  await ref.set({hlCustomerId: customer.id, hlAccountId: customer.accountId, at: FieldValue.serverTimestamp()}, {merge: true});
+  return {customerId: customer.id, accountId: customer.accountId};
+}
+
+/**
+ * Where a record dated `day` goes, starting from the company it was entered in: the company
+ * of that company's line that owns the day (a late entry for last year goes to last year's
+ * company; one in the new year to the new year's). Refuses an archived company, one the app
+ * can't open, or a closed year.
+ */
+export async function routeToCompany(db: admin.firestore.Firestore, companyId: string | null | undefined, day: string, what = "The date"): Promise<CompanyDoc> {
+  const companies = await loadCompanies(db);
+  const start = companies.find((c) => c.id === (companyId || MAIN_COMPANY_ID)) ?? (isMainCompany(companyId) ? await loadCompany(db, MAIN_COMPANY_ID) : null);
+  if (!start) throw new HttpsError("not-found", "That company doesn't exist (or was removed).");
+  const routed = companyForDate(companies.length ? companies : [start], start.line, day) ?? start;
+  if (routed.archived) throw new HttpsError("failed-precondition", `${routed.name} is archived (read-only) — nothing can be added to it.`, {code: "COMPANY_ARCHIVED"});
+  if (routed.accessLost) throw new HttpsError("failed-precondition", `The app can no longer open ${routed.name} in Humble Ledger.`, {code: "COMPANY_ACCESS_REVOKED"});
+  assertOpenDay(routed, day, what);
+  return routed;
+}
+
+/**
+ * The company a READ is for (balances, statements): `raw` is the companyId the app sent;
+ * only Admin may read another company than main. Returns the company and its books.
+ */
+export async function companyToRead(db: admin.firestore.Firestore, role: string, raw: unknown, home: HlClient): Promise<{company: CompanyDoc; books: HlClient; isMain: boolean}> {
+  const asked = typeof raw === "string" && raw.trim() ? raw.trim() : MAIN_COMPANY_ID;
+  if (!isMainCompany(asked) && role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can open another company.");
+  const company = await loadCompany(db, asked);
+  return {company, books: await booksFor(db, home, company.id), isMain: isMainCompany(company.id)};
 }

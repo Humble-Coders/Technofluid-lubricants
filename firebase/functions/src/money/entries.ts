@@ -5,6 +5,9 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {requireRole} from "../auth/requireRole";
 import {ENTITIES, formatRupees, hlAmountToPaise} from "../entities/entityModel";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
+import {MAIN_COMPANY_ID, MAIN_LINE} from "../companies/companyModel";
+import {assertOpenDay, booksFor, companyAccount, companyCustomer, isMainCompany, loadCompany, routeToCompany, type CompanyDoc} from "../companies/companyStore";
+import {registerAccountName} from "./hlAccounts";
 import {plainHlMessage} from "../ledger/hlClient";
 import {SALES} from "../sales/saleModel";
 import {PURCHASES} from "../purchases/purchaseModel";
@@ -74,6 +77,23 @@ async function resolveRef(db: admin.firestore.Firestore, raw: unknown, label: st
 export const sideId = (r: MoneyAccountRef) =>
   r.kind === "PARTY" ? r.entityId : r.kind === "EXPENSE" ? r.categoryId : r.kind === "ADJUSTMENT" ? "ADJUSTMENT" : r.registerId;
 
+/**
+ * The company an entry goes to (companies: Admin picks one; Accounts always works in the
+ * main company), routed by its date within that company's line, and the check that its
+ * cash / bank accounts belong to that line.
+ */
+async function companyFor(db: admin.firestore.Firestore, caller: Caller, raw: unknown, input: MoneyEntryInput): Promise<CompanyDoc> {
+  const asked = typeof raw === "string" && raw.trim() ? raw.trim() : MAIN_COMPANY_ID;
+  if (!isMainCompany(asked) && caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
+  const company = await routeToCompany(db, asked, input.businessDay);
+  for (const side of [input.from, input.to]) {
+    if (side.kind !== "CASH" && side.kind !== "BANK") continue;
+    const r = (await db.collection(REGISTERS).doc(side.registerId).get()).data();
+    if ((r?.line ?? MAIN_LINE) !== company.line) bad(`${side.name} belongs to another company's books.`);
+  }
+  return company;
+}
+
 function check(input: MoneyEntryInput) {
   const code = moneyEntryError(input, indiaToday());
   if (code) bad(MONEY_ERROR_TEXT[code], code);
@@ -119,16 +139,18 @@ export const recordMoneyEntry = onCall({region: "us-central1"}, async (request) 
   if (from.kind === "EXPENSE" || to.kind === "EXPENSE") bad("Record expenses with the expense form.");
   const input: MoneyEntryInput = {from, to, amountPaise: data.amountPaise, businessDay: String(data.businessDay ?? ""), note: noteOf(data.note), isCorrection};
   check(input);
+  const company = await companyFor(db, caller, data.companyId, input);
   const saleId = typeof data.saleId === "string" && data.saleId.trim() ? data.saleId.trim() : null;
   const purchaseId = typeof data.purchaseId === "string" && data.purchaseId.trim() ? data.purchaseId.trim() : null;
   if (saleId && purchaseId) bad("A payment is for an invoice or a purchase, not both.");
+  if ((saleId || purchaseId) && company.line !== MAIN_LINE) bad("Invoices and purchases belong to the main business — this company keeps money only.");
   return onceInTx(db, reqId, "recordMoneyEntry", async (tx) => {
     // The invoice / bill and the payments already linked are read INSIDE the transaction, so two
     // payments at once can't both fit the same "still due", and a payment can't race a cancel.
     const link = saleId ? await saleLink(tx, db, saleId, input) : null;
     const bill = purchaseId ? await purchaseLink(tx, db, purchaseId, input) : null;
     const ref = db.collection(MONEY_ENTRIES).doc();
-    const doc = entryDoc(input, caller, link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : bill ? {purchaseId: bill.purchaseId, purchaseRef: bill.purchaseRef} : {});
+    const doc = entryDoc(input, caller, {companyId: company.id, ...(link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : bill ? {purchaseId: bill.purchaseId, purchaseRef: bill.purchaseRef} : {})});
     if (link) doc.sideIds = [...doc.sideIds, link.saleId];
     if (bill) doc.sideIds = [...doc.sideIds, bill.purchaseId];
     tx.create(ref, doc);
@@ -221,9 +243,10 @@ export const recordExpense = onCall({region: "us-central1"}, async (request) => 
   }
   const input: MoneyEntryInput = {from, to, amountPaise: data.amountPaise, businessDay: String(data.businessDay ?? ""), note: noteOf(data.note), isCorrection: false, gst};
   check(input);
+  const company = await companyFor(db, caller, data.companyId, input);
   return onceInTx(db, reqId, "recordExpense", async (tx) => {
     const ref = db.collection(MONEY_ENTRIES).doc();
-    tx.create(ref, entryDoc(input, caller));
+    tx.create(ref, entryDoc(input, caller, {companyId: company.id}));
     return {entryId: ref.id};
   });
 });
@@ -245,13 +268,27 @@ export const correctBalance = onCall({region: "us-central1", secrets: HL_SECRETS
   const target = await resolveRef(db, data.target, "Account");
   if (target.kind !== "PARTY" && target.kind !== "CASH" && target.kind !== "BANK") bad("A correction is for a customer / supplier or a cash / bank account.");
 
+  const businessDay = typeof data.businessDay === "string" ? data.businessDay : indiaToday();
+  const company = await companyFor(db, caller, data.companyId, {from: target, to: {kind: "ADJUSTMENT"}, amountPaise: 1, businessDay, note: reason, isCorrection: true});
   const waiting = await db.collection(MONEY_ENTRIES).where("sideIds", "array-contains", sideId(target)).where("syncStatus", "in", ["PENDING", "FAILED"]).limit(1).get();
   if (!waiting.empty) throw new HttpsError("failed-precondition", "Earlier entries for this account are still being saved to the books — try again once they show as saved.");
 
   let current: number;
   try {
     const hl = getHlClient();
-    if (target.kind === "PARTY") {
+    if (!isMainCompany(company.id)) {
+      // Another company: the same party / register, found in THAT company's books.
+      const books = await booksFor(db, hl, company.id);
+      if (target.kind === "PARTY") {
+        const e = (await db.collection(ENTITIES).doc(target.entityId).get()).data() ?? {};
+        const c = await books.getCustomer((await companyCustomer(db, books, company.id, target.entityId, e)).customerId);
+        current = hlAmountToPaise(String(c.balance ?? c.outstanding ?? "0"));
+      } else {
+        const accountId = await companyAccount(db, books, company.id, target.registerId, "ASSET", registerAccountName(target.kind, target.name, target.registerId));
+        const sheet = await books.getBalanceSheet(indiaToday());
+        current = hlAmountToPaise(String(sheet[String(accountId)] ?? "0"));
+      }
+    } else if (target.kind === "PARTY") {
       const e = (await db.collection(ENTITIES).doc(target.entityId).get()).data();
       if (!e?.hlCustomerId || e.syncStatus !== "SYNCED") throw new HttpsError("failed-precondition", `${target.name} isn't saved to the books yet.`);
       const c = await hl.getCustomer(String(e.hlCustomerId));
@@ -269,11 +306,11 @@ export const correctBalance = onCall({region: "us-central1", secrets: HL_SECRETS
 
   const draft = correctionFor(target, current, wanted);
   if (!draft) return {noChange: true, currentPaise: current};
-  const input: MoneyEntryInput = {...draft, businessDay: typeof data.businessDay === "string" ? data.businessDay : indiaToday(), note: reason};
+  const input: MoneyEntryInput = {...draft, businessDay, note: reason};
   check(input);
   return onceInTx(db, reqId, "correctBalance", async (tx) => {
     const ref = db.collection(MONEY_ENTRIES).doc();
-    tx.create(ref, entryDoc(input, caller, {correctedFromPaise: current, correctedToPaise: wanted}));
+    tx.create(ref, entryDoc(input, caller, {companyId: company.id, correctedFromPaise: current, correctedToPaise: wanted}));
     return {entryId: ref.id, noChange: false, currentPaise: current};
   });
 });
@@ -292,6 +329,13 @@ export const reverseMoneyEntry = onCall({region: "us-central1"}, async (request)
   const reason = text(data.reason, "Reason", 400);
   const db = admin.firestore();
   const origRef = db.collection(MONEY_ENTRIES).doc(entryId);
+  // The mirror goes to the original's company (it posts the original's own legs, flipped),
+  // dated today — refused if that company is archived or today is in its closed year.
+  const origCompanyId = String((await origRef.get()).data()?.companyId ?? MAIN_COMPANY_ID);
+  if (!isMainCompany(origCompanyId) && caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
+  const origCompany = await loadCompany(db, origCompanyId);
+  if (origCompany.archived) throw new HttpsError("failed-precondition", `${origCompany.name} is archived (read-only) — nothing can be added to it.`, {code: "COMPANY_ARCHIVED"});
+  assertOpenDay(origCompany, indiaToday(), "Today");
 
   return onceInTx(db, reqId, "reverseMoneyEntry", async (tx) => {
     const o = (await tx.get(origRef)).data();
@@ -303,7 +347,7 @@ export const reverseMoneyEntry = onCall({region: "us-central1"}, async (request)
     }
     const mirrorRef = db.collection(MONEY_ENTRIES).doc();
     const mirror: MoneyEntryInput = {from: o.to, to: o.from, amountPaise: o.amountPaise, businessDay: indiaToday(), note: `Reversal: ${reason}`, isCorrection: o.isCorrection === true, gst: o.gst ?? null};
-    tx.create(mirrorRef, entryDoc(mirror, caller, {reversesEntryId: entryId}));
+    tx.create(mirrorRef, entryDoc(mirror, caller, {companyId: origCompanyId, reversesEntryId: entryId}));
     tx.update(origRef, {reversedByEntryId: mirrorRef.id, updatedAt: FieldValue.serverTimestamp()});
     return {entryId: mirrorRef.id, reversesEntryId: entryId};
   });

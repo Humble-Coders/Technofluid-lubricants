@@ -198,6 +198,8 @@ export interface HlClient {
 
   /** The HL company this client posts into; null = the login's home company. */
   readonly hlCompanyId: string | null;
+  /** The same kind of client, posting into another HL company (null = home). */
+  forCompany(hlCompanyId: string | null): HlClient;
   /** Every company this login can open (GET /auth/companies). Not company-scoped. */
   listCompanies(): Promise<HlCompanySummary[]>;
   /**
@@ -367,6 +369,7 @@ export class NotConnectedHlClient implements HlClient {
   getBooksLock = () => this.fail();
   setBooksLock = () => this.fail();
   getGroupReport = () => this.fail();
+  forCompany = (hlCompanyId: string | null) => new NotConnectedHlClient(hlCompanyId);
 }
 
 /**
