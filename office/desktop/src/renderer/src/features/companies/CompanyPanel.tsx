@@ -1,8 +1,8 @@
-import { Archive, ArchiveRestore, CalendarPlus, Lock, Pencil, RefreshCw, X } from "lucide-react";
+import { Archive, ArchiveRestore, CalendarPlus, Lock, Pencil, RefreshCw, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { companyPeriod, companyPeriodIn, indiaDate, nextYearDates, prettyDay } from "@technofluid/core";
 import { Banner, Button, Detail, Details, Dialog, Field, FormError, IconButton, Input, Menu, SidePanel, Spinner, Textarea } from "@/components/ui";
-import { closeCompanyYear, getCompanyInfo, setCompanyArchived, updateCompany, type CompanyDetails, type CompanyInfo, type CompanyRow } from "@/services/companyService";
+import { closeCompanyYear, deleteCompany, getCompanyInfo, setCompanyArchived, updateCompany, type CompanyDetails, type CompanyInfo, type CompanyRow } from "@/services/companyService";
 import { CompanyKindBadge } from "./CompaniesScreen";
 
 const NOT_OWNER = "Only the owner can change this company, in Humble Ledger";
@@ -21,6 +21,7 @@ export function CompanyPanel({ company: c, companies, onClose, onNewYear }: { co
   const [closing, setClosing] = useState(false);
   const [editing, setEditing] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = async () => {
     setLoadingInfo(true);
@@ -59,6 +60,14 @@ export function CompanyPanel({ company: c, companies, onClose, onNewYear }: { co
           items={[
             { label: "Edit details", icon: <Pencil />, onSelect: () => setEditing(true), disabled: !owns, hint: owns ? undefined : NOT_OWNER },
             !c.isMain && { label: c.archived ? "Unarchive" : "Archive", icon: c.archived ? <ArchiveRestore /> : <Archive />, onSelect: () => setArchiving(true), danger: !c.archived, disabled: !owns, hint: owns ? undefined : NOT_OWNER },
+            !c.isMain && {
+              label: "Delete company…",
+              icon: <Trash2 />,
+              onSelect: () => setDeleting(true),
+              danger: true,
+              disabled: !owns || Boolean(info && info.transactionCount > 0),
+              hint: !owns ? NOT_OWNER : info && info.transactionCount > 0 ? "It has entries — archive it instead" : undefined,
+            },
           ]}
         />
         <IconButton label="Close" size="sm" onClick={onClose}>
@@ -135,6 +144,7 @@ export function CompanyPanel({ company: c, companies, onClose, onNewYear }: { co
       {closing ? <CloseYearDialog company={c} onClose={() => setClosing(false)} onDone={() => void load()} /> : null}
       {editing ? <EditCompanyDialog company={c} onClose={() => setEditing(false)} /> : null}
       {archiving ? <ArchiveDialog company={c} onClose={() => setArchiving(false)} /> : null}
+      {deleting ? <DeleteDialog company={c} onClose={() => setDeleting(false)} onDeleted={onClose} /> : null}
     </SidePanel>
   );
 }
@@ -297,6 +307,53 @@ function ArchiveDialog({ company: c, onClose }: { company: CompanyRow; onClose: 
       <p className="text-body text-ink">
         {archive ? "The company becomes read-only: its reports still work, but nothing new can be added. It's hidden from the list unless you show archived companies." : "The company can be used again."}
       </p>
+      {error ? <FormError>{error}</FormError> : null}
+    </Dialog>
+  );
+}
+
+/** Delete a company made by mistake — only one with no entries; can't be undone. */
+function DeleteDialog({ company: c, onClose, onDeleted }: { company: CompanyRow; onClose: () => void; onDeleted: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [typed, setTyped] = useState("");
+  const submit = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await deleteCompany(c.id);
+      onClose();
+      onDeleted();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setBusy(false);
+    }
+  };
+  return (
+    <Dialog
+      title={`Delete ${c.name}?`}
+      onClose={onClose}
+      busy={busy}
+      danger
+      size="md"
+      footer={
+        <>
+          <Button onClick={onClose} disabled={busy}>
+            Cancel
+          </Button>
+          <Button variant="danger" icon={<Trash2 />} loading={busy} disabled={typed.trim().toLowerCase() !== "delete"} onClick={() => void submit()}>
+            Delete for good
+          </Button>
+        </>
+      }
+    >
+      <p className="text-body text-ink">
+        This removes <strong>{c.name}</strong> ({companyPeriod(c)}) from Humble Ledger and the app, with its own cash and bank accounts. It can't be undone.
+      </p>
+      <p className="text-label text-ink-muted">Only a company with no entries can be deleted. One that has been used can be archived instead (hidden and read-only).</p>
+      <Field label='Type "delete" to confirm' htmlFor="co-del">
+        <Input id="co-del" value={typed} onChange={(e) => setTyped(e.target.value)} autoFocus />
+      </Field>
       {error ? <FormError>{error}</FormError> : null}
     </Dialog>
   );

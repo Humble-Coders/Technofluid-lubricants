@@ -584,6 +584,10 @@ export class HttpHlClient implements HlClient {
     return toCompanyInfo((await this.call("PATCH", "/company", body)).data);
   }
 
+  async deleteCompany(hlCompanyId: string) {
+    await this.call("DELETE", `/auth/companies/${encodeURIComponent(hlCompanyId)}`);
+  }
+
   async setCompanyArchived(archived: boolean) {
     await this.call("POST", archived ? "/company/archive" : "/company/unarchive", {});
   }

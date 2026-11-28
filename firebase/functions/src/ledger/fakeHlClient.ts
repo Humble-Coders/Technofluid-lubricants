@@ -838,6 +838,19 @@ export class FakeHlClient implements HlClient {
     return this.getCompany();
   }
 
+  async deleteCompany(hlCompanyId: string) {
+    await this.gate("deleteCompany", hlCompanyId);
+    if (hlCompanyId === FAKE_HOME_COMPANY_ID) throw new HlError("A home company can't be deleted", 409, false, "HOME_COMPANY");
+    if (hlCompanyId === this.companyId) throw new HlError("Switch to another company first", 409, false, "SWITCH_AWAY_FIRST");
+    const c = await this.companyOf(hlCompanyId);
+    const books = new FakeHlClient(this.db, hlCompanyId);
+    if (!(await books.txns().limit(1).get()).empty) throw new HlError(`${c.name} has entries — archive it instead`, 409, false, "COMPANY_HAS_ENTRIES");
+    if (c.appRole !== "OWNER" && (await this.db.doc(`${ROOT}/control`).get()).data()?.owner !== true) {
+      throw new HlError("Only the company's OWNER can do this", 403, false, "FORBIDDEN");
+    }
+    await this.db.collection(REGISTRY).doc(hlCompanyId).delete();
+  }
+
   async setCompanyArchived(archived: boolean) {
     await this.gate("setCompanyArchived", this.companyId);
     await this.asOwner();

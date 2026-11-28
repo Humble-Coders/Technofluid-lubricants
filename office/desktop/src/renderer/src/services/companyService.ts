@@ -147,6 +147,7 @@ export interface CompanyInfo {
 
 export const getCompanyInfo = (companyId: string) => call<CompanyInfo>("getCompanyInfo", { companyId });
 export const updateCompany = (companyId: string, name: string, details: CompanyDetails) => call<{ ok: true }>("updateCompany", { companyId, name, details });
+export const deleteCompany = (companyId: string) => call<{ ok: true }>("deleteCompany", { companyId });
 export const setCompanyArchived = (companyId: string, archived: boolean) => call<{ ok: true }>("setCompanyArchived", { companyId, archived });
 export const closeCompanyYear = (companyId: string, lockedThrough: string) => call<{ lockedThrough: string }>("closeCompanyYear", { companyId, lockedThrough });
 
