@@ -184,4 +184,4 @@ export const CREATE_COMPANY_ERROR_TEXT: Record<string, string> = {
 };
 
 /** Owner-only HL actions (alter, archive, reopen) — what to tell the admin when HL says 403. */
-export const OWNER_ONLY_TEXT = "Only the company's owner can do this in Humble Ledger (the app signs in as an accountant). Ask Ansh, or do it in the Humble Ledger dashboard.";
+export const OWNER_ONLY_TEXT = "Only the company's owner can do this in Humble Ledger, and the app isn't an owner of this company (it owns only the companies it creates). Ask Ansh, or do it in the Humble Ledger dashboard.";

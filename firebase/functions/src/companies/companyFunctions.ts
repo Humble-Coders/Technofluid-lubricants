@@ -110,6 +110,8 @@ export const createCompany = onCall(OPTS, async (request) => {
       ...(input.booksBeginFrom ? {booksBeginFrom: input.booksBeginFrom} : {}),
       details: input.details,
       requestId: input.requestId,
+      // The app owns the companies it creates, so it can alter / archive them (never reopen a year).
+      creatorIsOwner: true,
       ...(input.copyFrom && source ?
         {
           copyFrom: {

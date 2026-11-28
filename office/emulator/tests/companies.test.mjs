@@ -251,11 +251,11 @@ describe("Create, close year, carry forward", () => {
     assert.ok(tb.sections[0].lines.some((l) => l.name === "Cash · Ravi" && l.byCompany[personId] === 100000));
   });
 
-  test("alter and archive are the owner's: the app's accountant login gets a plain 'ask the owner'", async () => {
-    await rejectsWith(admin.call("updateCompany", { companyId: personId, name: "Ravi V." }), "permission-denied", /owner/);
-    await rejectsWith(admin.call("setCompanyArchived", { companyId: personId, archived: true }), "permission-denied", /owner/);
+  test("the app owns the companies it creates (alter, archive); in main it's an accountant and gets 'ask the owner'", async () => {
+    assert.equal((await company(personId)).hlRole, "OWNER");
+    assert.equal((await company("main")).hlRole, "ACCOUNTANT");
+    await rejectsWith(admin.call("updateCompany", { companyId: "main", name: "Renamed" }), "permission-denied", /owner/);
     await rejectsWith(admin.call("setCompanyArchived", { companyId: "main", archived: true }), "invalid-argument", /main company/);
-    await control({ owner: true });
     await admin.call("updateCompany", { companyId: personId, name: "Ravi V.", details: { state: "Punjab" } });
     assert.equal((await company(personId)).name, "Ravi V.");
     await admin.call("setCompanyArchived", { companyId: personId, archived: true });
@@ -271,7 +271,6 @@ describe("Create, close year, carry forward", () => {
       (e) => e.code === "COMPANY_ARCHIVED",
     );
     await admin.call("setCompanyArchived", { companyId: personId, archived: false });
-    await control({});
   });
 });
 

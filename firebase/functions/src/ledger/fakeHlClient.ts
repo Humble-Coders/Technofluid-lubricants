@@ -73,6 +73,8 @@ interface StoredCompany {
   details: Record<string, string>;
   /** The company it was carried forward from, and as of which day. */
   carriedFrom: {companyId: string; asOf: string} | null;
+  /** Our login's role in it: ACCOUNTANT (home, or made without creatorIsOwner) or OWNER. */
+  appRole?: "OWNER" | "ACCOUNTANT";
   createdAt: number;
 }
 
@@ -563,14 +565,15 @@ export class FakeHlClient implements HlClient {
       booksBeginFrom: c.booksBeginFrom,
       lockedThrough: c.lockedThrough,
       archived: c.archived,
-      role: "ACCOUNTANT",
+      role: c.appRole ?? "ACCOUNTANT",
       isHome: id === FAKE_HOME_COMPANY_ID,
     };
   }
 
   private async asOwner(): Promise<void> {
     const c = (await this.db.doc(`${ROOT}/control`).get()).data() ?? {};
-    if (c.owner !== true) throw new HlError("Only the company's OWNER can do this", 403, false, "FORBIDDEN");
+    if (c.owner === true || (await this.company()).appRole === "OWNER") return;
+    throw new HlError("Only the company's OWNER can do this", 403, false, "FORBIDDEN");
   }
 
   async listCompanies() {
@@ -610,6 +613,7 @@ export class FakeHlClient implements HlClient {
       archived: false,
       details: Object.fromEntries(Object.entries(p.details ?? {}).filter(([, v]) => typeof v === "string" && v)),
       carriedFrom: carry ? {companyId: sourceId, asOf: carry.asOf} : null,
+      appRole: p.creatorIsOwner ? "OWNER" : "ACCOUNTANT",
       createdAt: Date.now(),
     } satisfies StoredCompany);
     const copied = {...zero};

@@ -273,6 +273,12 @@ export interface HlCreateCompany {
   details?: HlCompanyDetails;
   /** Our own uuid — a retry with the same one returns the same company. */
   requestId: string;
+  /**
+   * The creating login becomes OWNER of the NEW company (Ansh, 28 Nov 2026 — option B), so
+   * the app can alter / archive it. Its role elsewhere is unchanged. The app never reopens
+   * a closed year even so — only Ansh does.
+   */
+  creatorIsOwner?: boolean;
   copyFrom?: {
     /** HL company id; default = this client's company. */
     companyId?: string;

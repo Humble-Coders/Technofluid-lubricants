@@ -37,6 +37,8 @@ export interface CompanyRow {
   archived: boolean;
   accessLost: boolean;
   madeInHl: boolean;
+  /** The app's role in it: OWNER for companies it created (it can alter / archive them), else ACCOUNTANT. */
+  hlRole: string | null;
   details: CompanyDetails;
   carriedFrom: { companyId: string; name: string; asOf: string; pendingBills: "ITEMIZED" | "TOTAL" } | null;
   copiedFrom: { companyId: string; name: string } | null;
@@ -62,6 +64,7 @@ function toRow(id: string, d: DocumentData): CompanyRow {
     archived: d.archived === true,
     accessLost: d.accessLost === true,
     madeInHl: d.madeInHl === true,
+    hlRole: str(d.hlRole),
     details: (d.details && typeof d.details === "object" ? d.details : {}) as CompanyDetails,
     carriedFrom: d.carriedFrom ?? null,
     copiedFrom: d.copiedFrom ?? null,

@@ -5,6 +5,7 @@ import { Banner, Button, Detail, Details, Dialog, Field, FormError, IconButton, 
 import { closeCompanyYear, getCompanyInfo, setCompanyArchived, updateCompany, type CompanyDetails, type CompanyInfo, type CompanyRow } from "@/services/companyService";
 import { CompanyKindBadge } from "./CompaniesScreen";
 
+const NOT_OWNER = "Only the owner can change this company, in Humble Ledger";
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 /**
@@ -38,6 +39,7 @@ export function CompanyPanel({ company: c, companies, onClose, onNewYear }: { co
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [c.id]);
 
+  const owns = c.hlRole === "OWNER";
   const continuedBy = companies.filter((x) => x.line === c.line && x.id !== c.id && (x.lineFrom ?? "") > (c.lineFrom ?? ""));
   const d = c.details;
   const address = [d.address, d.state, d.pincode, d.country].filter(Boolean).join(", ");
@@ -55,8 +57,8 @@ export function CompanyPanel({ company: c, companies, onClose, onNewYear }: { co
         <Menu
           size="sm"
           items={[
-            { label: "Edit details", icon: <Pencil />, onSelect: () => setEditing(true) },
-            !c.isMain && { label: c.archived ? "Unarchive" : "Archive", icon: c.archived ? <ArchiveRestore /> : <Archive />, onSelect: () => setArchiving(true), danger: !c.archived },
+            { label: "Edit details", icon: <Pencil />, onSelect: () => setEditing(true), disabled: !owns, hint: owns ? undefined : NOT_OWNER },
+            !c.isMain && { label: c.archived ? "Unarchive" : "Archive", icon: c.archived ? <ArchiveRestore /> : <Archive />, onSelect: () => setArchiving(true), danger: !c.archived, disabled: !owns, hint: owns ? undefined : NOT_OWNER },
           ]}
         />
         <IconButton label="Close" size="sm" onClick={onClose}>
@@ -118,7 +120,7 @@ export function CompanyPanel({ company: c, companies, onClose, onNewYear }: { co
 
         <section className="space-y-2 border-t border-line-row pt-4">
           <h3 className="text-body font-semibold text-ink">Year end</h3>
-          <p className="text-label text-ink-muted">Close a year once it's done, then start the next one. Only the owner can reopen a closed year.</p>
+          <p className="text-label text-ink-muted">Close a year once it's done, then start the next one. A closed year can only be reopened by Ansh, in Humble Ledger.</p>
           <div className="flex flex-wrap gap-2">
             <Button icon={<Lock />} onClick={() => setClosing(true)} disabled={c.archived || c.accessLost}>
               Close year…
@@ -180,7 +182,7 @@ export function CloseYearDialog({ company: c, defaultDate, onClose, onDone }: { 
       <Field label="Close up to and including" htmlFor="close-day" help={c.lockedThrough ? `Closed up to ${prettyDay(c.lockedThrough)} now.` : "Usually the last day of the financial year (31 March)."}>
         <Input id="close-day" type="date" value={day} max={today} onChange={(e) => setDay(e.target.value)} className="w-44" />
       </Field>
-      <Banner tone="warning">Only the owner can reopen a closed year, in Humble Ledger. If a year is reopened after its balances were carried forward, the new year's opening balances go out of date.</Banner>
+      <Banner tone="warning">The app can't reopen a closed year — only Ansh can, in Humble Ledger. If a year is reopened after its balances were carried forward, the new year's opening balances go out of date.</Banner>
       {error ? <FormError>{error}</FormError> : null}
     </Dialog>
   );
@@ -209,7 +211,6 @@ function EditCompanyDialog({ company: c, onClose }: { company: CompanyRow; onClo
   return (
     <Dialog
       title="Edit company details"
-      subtitle="Needs the company's owner in Humble Ledger"
       onClose={onClose}
       busy={busy}
       size="md"
@@ -296,7 +297,6 @@ function ArchiveDialog({ company: c, onClose }: { company: CompanyRow; onClose: 
       <p className="text-body text-ink">
         {archive ? "The company becomes read-only: its reports still work, but nothing new can be added. It's hidden from the list unless you show archived companies." : "The company can be used again."}
       </p>
-      <p className="text-label text-ink-muted">This needs the company's owner in Humble Ledger.</p>
       {error ? <FormError>{error}</FormError> : null}
     </Dialog>
   );

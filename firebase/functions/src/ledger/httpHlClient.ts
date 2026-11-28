@@ -521,7 +521,7 @@ export class HttpHlClient implements HlClient {
   }
 
   async createCompany(p: HlCreateCompany) {
-    const body: Body = {name: p.name, requestId: p.requestId};
+    const body: Body = {name: p.name, requestId: p.requestId, ...(p.creatorIsOwner ? {creatorIsOwner: true} : {})};
     if (p.fyStartMonth) body.fyStartMonth = p.fyStartMonth;
     if (p.booksBeginFrom) body.booksBeginFrom = p.booksBeginFrom;
     const details = cleanDetails(p.details);
