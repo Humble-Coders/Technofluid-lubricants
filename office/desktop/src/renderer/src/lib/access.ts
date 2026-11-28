@@ -3,6 +3,7 @@ import {
   BellRing,
   Boxes,
   Building2,
+  ClipboardCheck,
   Factory,
   LayoutDashboard,
   Package,
@@ -70,6 +71,7 @@ export const NAV: readonly NavItem[] = [
 
   { path: "/approvals", label: "Approvals", icon: BellRing, roles: ["admin"], group: "Admin" },
   { path: "/companies", label: "Companies", icon: Building2, roles: ["admin"], group: "Admin" },
+  { path: "/to-fill", label: "To fill in", icon: ClipboardCheck, roles: ["admin"], group: "Admin" },
   { path: "/settings", label: "Settings", icon: Settings, roles: ["admin"], group: "Admin" },
 ];
 

@@ -14,6 +14,7 @@ export { editProduct } from "./products/editProduct";
 export { addProduct } from "./products/addProduct";
 export { setProductDeleted } from "./products/setProductDeleted";
 export { setProductsTax } from "./products/setProductsTax";
+export { resolveDataGap } from "./dataGaps/resolveDataGap";
 export { recordStockMovements } from "./stock/recordStockMovements";
 export { reverseStockMovement } from "./stock/reverseStockMovement";
 export { saveStockItem } from "./stock/saveStockItem";
