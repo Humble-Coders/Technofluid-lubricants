@@ -17,6 +17,7 @@ import { CompanyProvider, useCompany } from "@/features/companies/CompanyContext
 import { Banner } from "@/components/ui";
 import { CompanySwitcher } from "@/features/companies/CompanySwitcher";
 import { useBusyCount } from "@/lib/screenLoading";
+import { checkInDevice } from "@/services/deviceService";
 import { Spinner } from "@/components/ui";
 
 const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
@@ -51,7 +52,14 @@ export function AppShell() {
 }
 
 function Shell() {
-  const { role } = useStaff();
+  const { role, user, profile } = useStaff();
+  // Our record of the computers using the app: on sign-in, then every 5 minutes while open.
+  useEffect(() => {
+    const who = { uid: user.uid, name: profile.name, role };
+    void checkInDevice(who);
+    const t = window.setInterval(() => void checkInDevice(who), 5 * 60_000);
+    return () => window.clearInterval(t);
+  }, [user.uid, profile.name, role]);
   const { companyId, company } = useCompany();
   const { pathname } = useLocation();
   const navigate = useNavigate();
