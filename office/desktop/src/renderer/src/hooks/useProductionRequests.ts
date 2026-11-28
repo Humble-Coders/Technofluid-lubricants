@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { watchProductionRequests, type ProductionFilter, type ProductionRequest } from "@/services/productionService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /** Live production entries waiting for (or decided by) an Admin. Pass null to skip. */
 export function useProductionRequests(filter: ProductionFilter | null): LoadState<ProductionRequest[]> {
@@ -15,5 +16,6 @@ export function useProductionRequests(filter: ProductionFilter | null): LoadStat
       (err) => setState({ status: "error", message: err.message }),
     );
   }, [key]);
+  useLoadingSignal(state.status === "loading" && key !== null);
   return state;
 }

@@ -4,6 +4,7 @@ import { watchMoneyEntryStatuses, watchSalePayments, type MoneyEntryRow, type Sy
 import { usingEmulators } from "@/lib/firebase";
 import { watchCompany, watchNextInvoiceNo, watchRealBooks, watchSale, watchSales, type SaleRow } from "@/services/saleService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 export function useCompany(): LoadState<CompanyProfile | null> {
   const [state, setState] = useState<LoadState<CompanyProfile | null>>({ status: "loading" });
@@ -15,6 +16,7 @@ export function useCompany(): LoadState<CompanyProfile | null> {
       ),
     [],
   );
+  useLoadingSignal(state.status === "loading");
   return state;
 }
 
@@ -48,6 +50,7 @@ export function useSales(from: string, to: string): LoadState<SaleRow[]> {
       (e) => setState({ status: "error", message: e.message }),
     );
   }, [from, to]);
+  useLoadingSignal(state.status === "loading");
   return state;
 }
 
@@ -62,6 +65,7 @@ export function useSale(saleId: string | undefined): LoadState<SaleRow | null> {
       (e) => setState({ status: "error", message: e.message }),
     );
   }, [saleId]);
+  useLoadingSignal(state.status === "loading" && Boolean(saleId));
   return state;
 }
 

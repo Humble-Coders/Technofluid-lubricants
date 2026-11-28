@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { watchProducts, type Product } from "@/services/productService";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 export type LoadState<T> =
   | { status: "loading" }
@@ -21,5 +22,6 @@ export function useProducts({ withPrices }: { withPrices: boolean }): LoadState<
       ),
     [withPrices],
   );
+  useLoadingSignal(state.status === "loading");
   return state;
 }

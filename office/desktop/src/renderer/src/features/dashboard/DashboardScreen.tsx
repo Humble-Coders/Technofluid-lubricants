@@ -6,6 +6,7 @@ import { ROLE_LABEL, canOpen, canSeePrices, navFor } from "@/lib/access";
 import { useStaff } from "@/features/auth/session";
 import { useProducts } from "@/hooks/useProducts";
 import { FinanceSections } from "./FinanceSections";
+import { CompanySwitcher } from "@/features/companies/CompanySwitcher";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -38,6 +39,7 @@ export function DashboardScreen() {
   return (
     <Page>
       <PageHeader title={`${greeting()}, ${profile.name.split(" ")[0]}`} subtitle={ROLE_LABEL[role]} />
+      <CompanySwitcher variant="page" />
 
       {/* Money first for Admin and Accounts; Stock & Production never sees money. */}
       {seesMoney ? <FinanceSections isAdmin={role === "admin"} /> : null}

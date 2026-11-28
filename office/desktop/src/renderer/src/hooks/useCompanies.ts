@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { refreshCompanies, watchCompanies, type CompanyRow } from "@/services/companyService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /**
  * The companies (admin), live from Firestore. On first use it also asks the server to
@@ -37,5 +38,6 @@ export function useCompanies(): LoadState<CompanyRow[]> & { refreshError: string
     void refresh();
   }, [refresh]);
 
+  useLoadingSignal(state.status === "loading");
   return { ...state, refreshError, refreshing, refresh };
 }

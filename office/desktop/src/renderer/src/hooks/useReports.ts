@@ -15,6 +15,7 @@ import { getEntityBalances } from "@/services/ledgerService";
 import { readActivePurchases, readEntitiesForReport, readPartyMoneyEntries, readPurchasesFrom, readSales, readStockItems } from "@/services/reportService";
 import type { SaleRow } from "@/services/saleService";
 import type { StockItem } from "@/services/stockService";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /** A report loaded once (no live updates): Refresh reloads it; `asOf` is when its figures were read. */
 export type ReportState<T> = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; data: T; asOf: Date };
@@ -34,6 +35,7 @@ function useOneShot<T>(load: () => Promise<T>, deps: readonly unknown[]): { stat
       alive = false;
     };
   }, [run, nonce]);
+  useLoadingSignal(state.status === "loading");
   return { state, refresh: () => setNonce((n) => n + 1) };
 }
 

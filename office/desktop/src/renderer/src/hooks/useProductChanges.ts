@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { watchProductChanges, type ProductChange } from "@/services/productEditService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /** Live change log for one product. Pass null to skip (e.g. roles that can't read it). */
 export function useProductChanges(sku: string | null): LoadState<ProductChange[]> {
@@ -14,5 +15,6 @@ export function useProductChanges(sku: string | null): LoadState<ProductChange[]
       (err) => setState({ status: "error", message: err.message }),
     );
   }, [sku]);
+  useLoadingSignal(state.status === "loading" && Boolean(sku));
   return state;
 }

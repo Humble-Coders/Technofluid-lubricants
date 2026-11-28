@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { watchEntities, watchEntityHistory, type EntityHistoryRow, type EntityRow } from "@/services/entityService";
 import { getEntityBalances, getEntityStatement, type EntityBalance, type Statement } from "@/services/ledgerService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /** Live list of customers & suppliers (profiles only — no money). */
 export function useEntities(): LoadState<EntityRow[]> {
@@ -14,6 +15,7 @@ export function useEntities(): LoadState<EntityRow[]> {
       ),
     [],
   );
+  useLoadingSignal(state.status === "loading");
   return state;
 }
 
@@ -28,6 +30,7 @@ export function useEntityHistory(entityId: string | null): LoadState<EntityHisto
       (err) => setState({ status: "error", message: err.message }),
     );
   }, [entityId]);
+  useLoadingSignal(state.status === "loading" && Boolean(entityId));
   return state;
 }
 
@@ -53,6 +56,7 @@ export function useEntityBalances(refreshKey: unknown) {
   useEffect(() => {
     void load();
   }, [load, refreshKey]);
+  useLoadingSignal(loading);
   return { balances, error, loading, retry: load };
 }
 
@@ -70,5 +74,6 @@ export function useEntityStatement(entityId: string | null, from: string, to: st
       alive = false;
     };
   }, [entityId, from, to, enabled, nonce]);
+  useLoadingSignal(state.status === "loading" && Boolean(entityId) && enabled);
   return { state, retry: () => setNonce((n) => n + 1) };
 }
