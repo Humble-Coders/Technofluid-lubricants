@@ -3,6 +3,7 @@ import { httpsCallable } from "firebase/functions";
 import type { BalanceDirection } from "@technofluid/core";
 import { functions } from "@/lib/firebase";
 import { friendlyError } from "./callErrors";
+import { currentCompanyId } from "./currentCompany";
 
 /**
  * Money from the books (Humble Ledger), always through Cloud Functions — the app never
@@ -50,10 +51,10 @@ async function call<Req, Res>(name: string, data: Req): Promise<Res> {
 }
 
 export async function getEntityBalances(): Promise<Record<string, EntityBalance>> {
-  const r = await call<Record<string, never>, { balances: Record<string, EntityBalance> }>("getEntityBalances", {});
+  const r = await call<Record<string, never>, { balances: Record<string, EntityBalance> }>("getEntityBalances", { companyId: currentCompanyId() } as never);
   return r.balances;
 }
 
 export function getEntityStatement(entityId: string, from: string, to: string, page = 1): Promise<Statement> {
-  return call("getEntityStatement", { entityId, from, to, page });
+  return call("getEntityStatement", { entityId, from, to, page, companyId: currentCompanyId() });
 }

@@ -191,6 +191,137 @@ export interface HlClient {
   cancelInvoice(id: string, p: {reason: string; date: string}): Promise<void>;
   /** Books a supplier's bill (POST /customer-purchases); idempotent on (appId, sourceId). */
   postCustomerPurchase(p: HlPurchase): Promise<{txnId: string; idempotent: boolean}>;
+
+  // ─── Companies (HL multi-company, Ansh HL 28 Nov 2026) ───────────────────────
+  // A client is scoped to ONE HL company (`hlCompanyId`; null = the login's home
+  // company). Everything above posts into that company's books.
+
+  /** The HL company this client posts into; null = the login's home company. */
+  readonly hlCompanyId: string | null;
+  /** The same kind of client, posting into another HL company (null = home). */
+  forCompany(hlCompanyId: string | null): HlClient;
+  /** Every company this login can open (GET /auth/companies). Not company-scoped. */
+  listCompanies(): Promise<HlCompanySummary[]>;
+  /**
+   * POST /auth/companies. Idempotent on requestId (a retry returns the same company).
+   * The copy source defaults to this client's company.
+   */
+  createCompany(p: HlCreateCompany): Promise<{company: HlCompanySummary; copied: HlCopied; idempotent: boolean}>;
+  /** This client's company, with its entry count and dates (GET /company). */
+  getCompany(): Promise<HlCompanyInfo>;
+  /** PATCH /company — OWNER only in HL (our ACCOUNTANT login gets 403). */
+  updateCompany(p: HlCompanyPatch): Promise<HlCompanyInfo>;
+  /** POST /company/archive | /unarchive — OWNER only in HL. */
+  setCompanyArchived(archived: boolean): Promise<void>;
+  /** The books lock: nothing dated on or before `lockedThrough` can be posted (GET /books-lock). */
+  getBooksLock(): Promise<HlBooksLock>;
+  /**
+   * Moves the books lock later (PUT /books-lock) — "Close year". Reopening (an earlier
+   * date) is OWNER only, so the app's ACCOUNTANT login gets 403. Not in the future.
+   */
+  setBooksLock(p: {lockedThrough: string}): Promise<HlBooksLock>;
+  /** A customer's money on account and open bills (GET /customers/{id}/credits — bill matching). */
+  getCustomerCredits(customerId: string): Promise<{availableCredit: string; openInvoices: {id: string; invoiceNumber: string | null; outstanding: string}[]}>;
+  /**
+   * Matches money already on a customer's account to their bills (POST
+   * /customers/{id}/allocations, Tally "Agst Ref"). No ledger posting. All-or-nothing;
+   * idempotent on (appId, sourceId).
+   */
+  allocateCustomerCredit(p: {customerId: string; sourceTransactionId: string; allocations: {invoiceId: string; amountPaise: number}[]; date: string; sourceId: string; actorRef: string; note?: string}): Promise<{batchId: string; idempotent: boolean}>;
+  /** Group reports over 2–20 companies (GET /group/reports/…), a column per company. */
+  getGroupReport(p: {kind: HlGroupReportKind; hlCompanyIds: string[]; from?: string; to?: string; date?: string}): Promise<HlGroupReport>;
+}
+
+export interface HlCompanySummary {
+  id: string;
+  name: string;
+  currency: string | null;
+  fyStartMonth: number | null;
+  booksBeginFrom: string | null;
+  lockedThrough: string | null;
+  archived: boolean;
+  /** This login's role in it (OWNER, ACCOUNTANT, …). */
+  role: string | null;
+  /** The login's home company (= our "main" company). */
+  isHome: boolean;
+}
+
+export interface HlCompanyDetails {
+  mailingName?: string;
+  address?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+}
+
+export interface HlCompanyInfo extends HlCompanySummary {
+  details: HlCompanyDetails;
+  transactionCount: number;
+  firstEntryDate: string | null;
+  lastEntryDate: string | null;
+  carriedForwardAsOf: string | null;
+}
+
+export interface HlCompanyPatch {
+  name?: string;
+  details?: HlCompanyDetails;
+  fyStartMonth?: number;
+  booksBeginFrom?: string;
+}
+
+export type HlPendingBills = "ITEMIZED" | "TOTAL";
+
+export interface HlCreateCompany {
+  name: string;
+  fyStartMonth?: number;
+  booksBeginFrom?: string;
+  details?: HlCompanyDetails;
+  /** Our own uuid — a retry with the same one returns the same company. */
+  requestId: string;
+  /**
+   * The creating login becomes OWNER of the NEW company (Ansh, 28 Nov 2026 — option B), so
+   * the app can alter / archive it. Its role elsewhere is unchanged. The app never reopens
+   * a closed year even so — only Ansh does.
+   */
+  creatorIsOwner?: boolean;
+  copyFrom?: {
+    /** HL company id; default = this client's company. */
+    companyId?: string;
+    accounts?: boolean;
+    customers?: boolean;
+    vendors?: boolean;
+    members?: boolean;
+    /** Carry forward: closing balances on asOf become openings on booksBeginFrom. */
+    openingBalances?: {asOf: string; pendingBills: HlPendingBills};
+  };
+}
+
+export interface HlCopied {
+  accounts: number;
+  customers: number;
+  vendors: number;
+  members: number;
+  openingBalanceLines: number;
+  pendingBills: number;
+  pendingSupplierBills: number;
+}
+
+/** HL's books lock. `history` = the latest changes, newest first. */
+export interface HlBooksLock {
+  lockedThrough: string | null;
+  history: {previousDate: string | null; newDate: string | null; changedByRole: string | null; reason: string | null; createdAt: string | null}[];
+}
+
+export type HlGroupReportKind = "pnl" | "balance-sheet" | "trial-balance";
+
+/** Lines merged by account name across companies; amounts are HL's decimal strings. */
+export interface HlGroupReport {
+  sections: {key: string; lines: {name: string; total: string; byCompany: Record<string, string>}[]}[];
+  /** Any top-level totals HL sends (e.g. netProfit), each with its byCompany split if given. */
+  totals: {key: string; total: string; byCompany: Record<string, string>}[];
 }
 
 /** An HL failure. `transient` = worth retrying (network, 5xx, 429); else the data is wrong. */
@@ -209,12 +340,20 @@ export class HlError extends Error {
 
 export const isNotFound = (e: unknown) => e instanceof HlError && e.status === 404;
 export const isNotConnected = (e: unknown) => e instanceof HlError && e.code === "NOT_CONNECTED";
+/**
+ * Refusals that retrying can never fix — show them, never queue them (Ansh HL guide §5):
+ * a closed year, a date before the company's books begin, an archived company, or a
+ * login that lost access to the company.
+ */
+export const PERMANENT_COMPANY_CODES = ["BOOKS_LOCKED", "BEFORE_BOOKS_BEGIN", "COMPANY_ARCHIVED", "COMPANY_ACCESS_REVOKED"] as const;
+export const isPermanentCompanyRefusal = (e: unknown) => e instanceof HlError && (PERMANENT_COMPANY_CODES as readonly string[]).includes(e.code ?? "");
 /** HL refuses to archive a customer who still has a balance (422 CUSTOMER_HAS_BALANCE). */
 export const hasBalanceError = (e: unknown) => e instanceof HlError && e.code === "CUSTOMER_HAS_BALANCE";
 
 /** A non-demo project with HL not switched on yet: fails every call, loudly and permanently. */
 export class NotConnectedHlClient implements HlClient {
   readonly mode = "off" as const;
+  constructor(readonly hlCompanyId: string | null = null) {}
   private async fail(): Promise<never> {
     throw new HlError("The books (Humble Ledger) aren't connected yet.", 503, false, "NOT_CONNECTED");
   }
@@ -236,6 +375,17 @@ export class NotConnectedHlClient implements HlClient {
   getInvoice = () => this.fail();
   cancelInvoice = () => this.fail();
   postCustomerPurchase = () => this.fail();
+  listCompanies = () => this.fail();
+  createCompany = () => this.fail();
+  getCompany = () => this.fail();
+  updateCompany = () => this.fail();
+  setCompanyArchived = () => this.fail();
+  getBooksLock = () => this.fail();
+  setBooksLock = () => this.fail();
+  getGroupReport = () => this.fail();
+  getCustomerCredits = () => this.fail();
+  allocateCustomerCredit = () => this.fail();
+  forCompany = (hlCompanyId: string | null) => new NotConnectedHlClient(hlCompanyId);
 }
 
 /**
@@ -245,6 +395,13 @@ export class NotConnectedHlClient implements HlClient {
 export function plainHlMessage(e: unknown): string {
   if (isNotConnected(e)) return "The books (Humble Ledger) aren't connected yet — nothing has been saved to them.";
   if (e instanceof HlError) {
+    const known: Record<string, string> = {
+      BOOKS_LOCKED: "That date is in a closed year — the books refused it. Use a date after the year was closed.",
+      BEFORE_BOOKS_BEGIN: "That date is before this company's books begin.",
+      COMPANY_ARCHIVED: "This company is archived (read-only) — nothing can be added to it.",
+      COMPANY_ACCESS_REVOKED: "The app no longer has access to this company in Humble Ledger. Ask the owner to give it back.",
+    };
+    if (e.code && known[e.code]) return known[e.code];
     if (e.transient) return "The books (Humble Ledger) couldn't be reached. Try again in a minute.";
     return `The books refused it: ${e.message.split("\n")[0].slice(0, 200)}`;
   }

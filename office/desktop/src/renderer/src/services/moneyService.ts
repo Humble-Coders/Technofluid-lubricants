@@ -5,6 +5,10 @@ import { DEFAULT_REGISTERS, type ExpenseGst, type MoneyAccountRef, type Register
 import { db, functions } from "@/lib/firebase";
 import { friendlyError } from "./callErrors";
 import { newRequestId } from "./stockService";
+import { currentCompanyId, currentLine, inMoneyView, lineOf, mainLineOnly } from "./currentCompany";
+
+/** Accounts may only ask for the main business's money records (the security rules). */
+const lineWhere = () => (mainLineOnly() ? [where("line", "==", "main")] : []);
 
 /**
  * Money in & out (registers, expense categories, entries). Read straight from Firestore
@@ -79,10 +83,12 @@ const toRegister = (id: string, d: DocumentData): RegisterRow => ({
 /** Cash first, then banks by their order. Defaults are stood in for until they exist. */
 export function watchRegisters(onChange: (rows: RegisterRow[]) => void, onError: (e: Error) => void): Unsubscribe {
   return onSnapshot(
-    query(collection(db, "registers"), where("deleted", "==", false)),
+    query(collection(db, "registers"), where("deleted", "==", false), ...lineWhere()),
     (snap) => {
-      const rows = snap.docs.map((d) => toRegister(d.id, d.data()));
-      for (const def of DEFAULT_REGISTERS) {
+      // Only the current company's cash & bank (registers belong to a line of companies).
+      const line = currentLine();
+      const rows = snap.docs.filter((d) => lineOf(d.data()) === line).map((d) => toRegister(d.id, d.data()));
+      for (const def of line === "main" ? DEFAULT_REGISTERS : []) {
         if (!rows.some((r) => r.id === def.id)) {
           rows.push({ id: def.id, name: def.name, kind: def.kind, isActive: true, displayOrder: def.displayOrder, opening: null, syncStatus: "PENDING", hlSyncError: null, placeholder: true });
         }
@@ -130,11 +136,11 @@ const toEntry = (id: string, d: DocumentData): MoneyEntryRow => ({
 /** Entries whose business day is in [from, to], newest first. */
 export function watchMoneyEntries(from: string, to: string, onChange: (rows: MoneyEntryRow[]) => void, onError: (e: Error) => void): Unsubscribe {
   return onSnapshot(
-    query(collection(db, "moneyEntries"), where("businessDay", ">=", from), where("businessDay", "<=", to), orderBy("businessDay", "desc")),
+    query(collection(db, "moneyEntries"), ...lineWhere(), where("businessDay", ">=", from), where("businessDay", "<=", to), orderBy("businessDay", "desc")),
     (snap) =>
       onChange(
         snap.docs
-          .filter((d) => d.data().deleted !== true)
+          .filter((d) => d.data().deleted !== true && inMoneyView(d.data()))
           .map((d) => toEntry(d.id, d.data({ serverTimestamps: "estimate" })))
           .sort((a, b) => b.businessDay.localeCompare(a.businessDay) || (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)),
       ),
@@ -148,7 +154,7 @@ export function watchMoneyEntryStatuses(ids: string[], onChange: (statuses: Reco
   const chunks: string[][] = [];
   for (let i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
   const stops = chunks.map((chunk) =>
-    onSnapshot(query(collection(db, "moneyEntries"), where(documentId(), "in", chunk)), (snap) => {
+    onSnapshot(query(collection(db, "moneyEntries"), ...lineWhere(), where(documentId(), "in", chunk)), (snap) => {
       for (const d of snap.docs) found[d.id] = status(d.data().syncStatus);
       onChange({ ...found });
     }),
@@ -175,7 +181,7 @@ function watchLinkedPayments(field: "saleId" | "purchaseId", ids: string[], onCh
     return () => {};
   }
   const stops = chunks.map((chunk, i) =>
-    onSnapshot(query(collection(db, "moneyEntries"), where(field, "in", chunk)), (snap) => {
+    onSnapshot(query(collection(db, "moneyEntries"), ...lineWhere(), where(field, "in", chunk)), (snap) => {
       found.set(String(i), snap.docs.filter((d) => d.data().deleted !== true).map((d) => toEntry(d.id, d.data({ serverTimestamps: "estimate" }))));
       onChange([...found.values()].flat());
     }),
@@ -204,15 +210,15 @@ const strip = (r: Ref) => (r.kind === "ADJUSTMENT" ? r : { ...r });
 
 /** `requestId`: pass one kept for the open form, so a retry after a timeout can't record it twice. */
 export function recordMoneyEntry(e: { from: Ref; to: Ref; amountPaise: number; businessDay: string; note: string | null; isCorrection?: boolean; saleId?: string | null; purchaseId?: string | null; requestId?: string }) {
-  return call<unknown, { entryId: string }>("recordMoneyEntry", { ...e, requestId: e.requestId ?? newRequestId(), from: strip(e.from), to: strip(e.to) });
+  return call<unknown, { entryId: string }>("recordMoneyEntry", { ...e, requestId: e.requestId ?? newRequestId(), from: strip(e.from), to: strip(e.to), companyId: currentCompanyId() });
 }
 
 export function recordExpense(e: { categoryId: string; registerId: string; registerKind: RegisterKind; amountPaise: number; businessDay: string; note: string | null; gst: ExpenseGst | null }) {
-  return call<unknown, { entryId: string }>("recordExpense", { requestId: newRequestId(), ...e });
+  return call<unknown, { entryId: string }>("recordExpense", { requestId: newRequestId(), ...e, companyId: currentCompanyId() });
 }
 
 export function correctBalance(target: Ref, wantedPaise: number, businessDay: string, reason: string) {
-  return call<unknown, { entryId?: string; noChange: boolean; currentPaise: number }>("correctBalance", { requestId: newRequestId(), target, wantedPaise, businessDay, reason });
+  return call<unknown, { entryId?: string; noChange: boolean; currentPaise: number }>("correctBalance", { requestId: newRequestId(), target, wantedPaise, businessDay, reason, companyId: currentCompanyId() });
 }
 
 export function reverseMoneyEntry(entryId: string, reason: string) {
@@ -224,7 +230,7 @@ export function retryMoneyEntrySync(entryId: string) {
 }
 
 export function saveRegister(r: { registerId?: string; name: string; kind?: RegisterKind; displayOrder?: number }) {
-  return call<unknown, { registerId: string }>("saveRegister", { requestId: newRequestId(), ...r });
+  return call<unknown, { registerId: string }>("saveRegister", { requestId: newRequestId(), ...r, companyId: currentCompanyId() });
 }
 
 export function setRegisterOpening(registerId: string, amountPaise: number, asOf: string) {
@@ -244,7 +250,7 @@ export function saveExpenseCategory(c: { categoryId?: string; name: string; isAc
 }
 
 export async function getRegisterBalances(): Promise<Record<string, number>> {
-  return (await call<unknown, { balances: Record<string, number> }>("getRegisterBalances", {})).balances;
+  return (await call<unknown, { balances: Record<string, number> }>("getRegisterBalances", { companyId: currentCompanyId() })).balances;
 }
 
 export interface RegisterStatementRow {
@@ -272,5 +278,29 @@ export interface RegisterStatement {
 }
 
 export function getRegisterStatement(registerId: string, from: string, to: string) {
-  return call<unknown, RegisterStatement>("getRegisterStatement", { registerId, from, to });
+  return call<unknown, RegisterStatement>("getRegisterStatement", { registerId, from, to, companyId: currentCompanyId() });
+}
+
+/**
+ * Money between companies (Admin): cash / bank of the current company into another
+ * company's cash / bank — one entry here, its pair in the other company's books.
+ */
+export function recordCompanyTransfer(t: { requestId: string; toCompanyId: string; fromRegisterId: string; toRegisterId: string; amountPaise: number; businessDay: string; note: string | null }) {
+  return call<unknown, { entryId: string; pairEntryId: string }>("recordCompanyTransfer", {
+    requestId: t.requestId,
+    from: { companyId: currentCompanyId(), registerId: t.fromRegisterId },
+    to: { companyId: t.toCompanyId, registerId: t.toRegisterId },
+    amountPaise: t.amountPaise,
+    businessDay: t.businessDay,
+    note: t.note,
+  });
+}
+
+/** Another company's cash & bank (Admin only — for money between companies). */
+export function watchRegistersOfLine(line: string, onChange: (rows: RegisterRow[]) => void, onError: (e: Error) => void): Unsubscribe {
+  return onSnapshot(
+    query(collection(db, "registers"), where("deleted", "==", false), where("line", "==", line)),
+    (snap) => onChange(snap.docs.map((d) => toRegister(d.id, d.data())).filter((r) => r.isActive).sort((a, b) => a.name.localeCompare(b.name))),
+    onError,
+  );
 }

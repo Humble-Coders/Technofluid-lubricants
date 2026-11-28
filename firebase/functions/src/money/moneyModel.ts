@@ -57,6 +57,8 @@ export type MoneyAccountRef =
   | { kind: "PARTY"; entityId: string; name: string }
   | { kind: "CASH" | "BANK"; registerId: string; name: string }
   | { kind: "EXPENSE"; categoryId: string; name: string }
+  /** Another company's books (money between companies — one entry in each company). */
+  | { kind: "COMPANY"; companyId: string; line: string; name: string }
   | { kind: "ADJUSTMENT" };
 
 export interface ExpenseGst {

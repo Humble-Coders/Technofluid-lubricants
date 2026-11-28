@@ -211,13 +211,39 @@ service cloud.firestore {
     // ─── Money in & out — office, with Humble Ledger ─────────────────────────
     // Admin + Accounts read; only Cloud Functions write. No balances are stored here.
 
+    // Companies (Tally-style separate books, one per Humble Ledger company). Only admin
+    // creates or switches companies; the Cloud Functions write them after HL accepts.
+    // Accounts and Stock & Production may read the main business's companies (its financial
+    // years) — never a person's separate books.
+    match /companies/{companyId} {
+      allow read:  if isAdmin() || ((isAccounts() || isSupervisor()) && resource.data.line == "main");
+      allow write: if false;
+      match /links/{docId} {
+        allow read, write: if false;
+      }
+    }
+    match /companyRequests/{requestId} {
+      allow read, write: if false;
+    }
+
+    // Accounts should see only the main business's money and cash/bank (line "main"); a
+    // person's separate books are Admin only. HELD BACK until Office 0.1.6 is out (Sharnya,
+    // 28 Nov 2026): the app people have now (0.1.5) asks for money records without the
+    // line filter, so the lock would empty its money screens for Accounts. Switch it on with
+    // the release — set accountsLocked() to true. Older records are stamped line "main" by the
+    // functions, so it is ready.
+    function accountsLocked() { return false; }
+    function accountsMayRead() {
+      return isAccounts() && (!accountsLocked() || resource.data.line == "main");
+    }
+
     match /moneyEntries/{entryId} {
-      allow read:  if isAdmin() || isAccounts();
+      allow read:  if isAdmin() || accountsMayRead();
       allow write: if false;
     }
 
     match /registers/{registerId} {
-      allow read:  if isAdmin() || isAccounts();
+      allow read:  if isAdmin() || accountsMayRead();
       allow write: if false;
     }
 

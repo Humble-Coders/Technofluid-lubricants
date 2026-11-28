@@ -5,6 +5,7 @@ import {logger} from "firebase-functions/v2";
 import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, isNotFound, plainHlMessage, type HlClient, type HlCustomer} from "../ledger/hlClient";
 import {ENTITIES, hlProfileChanged, sourceIds, type HlProfile} from "./entityModel";
+import {updatePartyInCompanies} from "../companies/companyStore";
 
 /**
  * Copies an entity to Humble Ledger (brief §4): create (idempotent on externalId =
@@ -99,6 +100,9 @@ export async function syncEntity(
       }
       opening = {...opening, posted: true, hlTxnId: posted.txnId};
     }
+
+    // Its copies in other companies get the same details (best effort; never fails the sync).
+    await updatePartyInCompanies(db, hl, entityId, d).catch((e) => logger.warn("Updating other companies failed", {entityId, error: String(e)}));
 
     if (d.isActive === false && customer.isActive !== false) {
       await hl.archiveCustomer(customer.id).catch((e) => logger.warn("HL archive after sync failed", {entityId, error: String(e)}));

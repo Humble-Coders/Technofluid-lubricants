@@ -55,11 +55,14 @@ export function createHlClient(opts: {
   mode: string;
   db: admin.firestore.Firestore;
   live?: () => {hlBaseUrl: string; email: string; password: string};
+  /** The HL company to post into; null/absent = the login's home company. */
+  hlCompanyId?: string | null;
 }): HlClient {
   const mode = hlModeFor(opts.projectId, opts.mode);
-  if (mode === "fake") return new FakeHlClient(opts.db);
-  if (mode === "live" && opts.live) return new HttpHlClient(opts.live());
-  return new NotConnectedHlClient();
+  const hlCompanyId = opts.hlCompanyId ?? null;
+  if (mode === "fake") return new FakeHlClient(opts.db, hlCompanyId);
+  if (mode === "live" && opts.live) return new HttpHlClient(opts.live(), hlCompanyId);
+  return new NotConnectedHlClient(hlCompanyId);
 }
 
 /**
@@ -87,14 +90,19 @@ export function refuseOpeningOnRealBooks(): void {
   }
 }
 
-/** The client for this function run. */
-export function getHlClient(): HlClient {
+/**
+ * The client for this function run, for one HL company (null = the home company, which
+ * is our "main" company — so every caller that doesn't know about companies keeps
+ * posting where it always did). Use getHlClientFor to go from OUR company id.
+ */
+export function getHlClient(hlCompanyId: string | null = null): HlClient {
   const real = currentProjectId().startsWith("demo-") ? realBooksFromEmulator() : null;
-  if (real) return new HttpHlClient(real);
+  if (real) return new HttpHlClient(real, hlCompanyId);
   return createHlClient({
     projectId: currentProjectId(),
     mode: HL_MODE.value(),
     db: admin.firestore(),
+    hlCompanyId,
     live: () => ({
       hlBaseUrl: HL_BASE_URL.value(),
       email: HL_LOGIN_EMAIL.value(),

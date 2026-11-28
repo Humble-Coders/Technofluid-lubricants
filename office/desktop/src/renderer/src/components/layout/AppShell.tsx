@@ -13,6 +13,9 @@ import { useRecipeRequests } from "@/hooks/useRecipeRequests";
 import { useRealBooks } from "@/hooks/useSales";
 import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
+import { CompanyProvider, useCompany } from "@/features/companies/CompanyContext";
+import { Banner } from "@/components/ui";
+import { companyPeriodIn } from "@technofluid/core";
 
 const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
 const inDesktopApp = Boolean(window.office);
@@ -38,7 +41,16 @@ function saveCollapsed(collapsed: boolean) {
 }
 
 export function AppShell() {
+  return (
+    <CompanyProvider>
+      <Shell />
+    </CompanyProvider>
+  );
+}
+
+function Shell() {
   const { role } = useStaff();
+  const { companyId, company } = useCompany();
   const navigate = useNavigate();
   const items = useMemo(() => navFor(role), [role]);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -87,7 +99,14 @@ export function AppShell() {
         <div className="relative m-2 min-h-0 flex-1">
           <main className="absolute inset-0 overflow-auto rounded-sheet border border-line bg-surface shadow-card">
             <SheetOverlayContext.Provider value={overlay}>
-              <Outlet />
+              {company && company.line !== "main" ? (
+                <Banner tone="info" className="mx-8 mt-4">
+                  You're working in <strong>{company.name}</strong> — separate, money-only books. Money in &amp; out, expenses, cash &amp; bank and balances show this company;
+                  sales, purchases and stock belong to the main business.
+                </Banner>
+              ) : null}
+              {/* A new key per company: every screen reloads its data when the company changes. */}
+              <Outlet key={companyId} />
             </SheetOverlayContext.Provider>
           </main>
           <div ref={setOverlay} className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-sheet" />
@@ -131,7 +150,7 @@ function Sidebar({
           {collapsed ? null : (
             <span className="min-w-0">
               <span className="block truncate text-body font-semibold text-white">Technofluid Office</span>
-              <span className="block truncate text-caption text-white/45">Technofluid Lubricants</span>
+              <CompanySwitcher />
             </span>
           )}
         </div>
@@ -406,5 +425,61 @@ function UpdateButton({ collapsed }: { collapsed: boolean }) {
         </>
       )}
     </button>
+  );
+}
+
+/** Under the app name: the current company — a list to switch, for Admin when there's more than one. */
+function CompanySwitcher() {
+  const { company, companies, companyId, switchTo, canSwitch } = useCompany();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !box.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", close);
+    };
+  }, [open]);
+  const label = company ? company.name : "Technofluid Lubricants";
+  const period = company && companies.length > 1 ? companyPeriodIn(company, companies) : null;
+  if (!canSwitch) return <span className="block truncate text-caption text-white/45">{label}</span>;
+  const shown = companies.filter((c) => (!c.archived || c.id === companyId) && !c.accessLost);
+  return (
+    <span ref={box} className="app-no-drag relative block">
+      <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)} title="Switch company" className="flex max-w-full min-w-0 items-center gap-1 rounded text-caption text-white/60 hover:text-white">
+        <span className="truncate">
+          {label}
+          {period ? ` · ${period}` : ""}
+        </span>
+        <ChevronsUpDown className="size-3 shrink-0" aria-hidden />
+      </button>
+      {open ? (
+        <span role="listbox" aria-label="Companies" className="absolute top-full left-0 z-40 mt-1 block max-h-80 min-w-64 overflow-y-auto rounded-control border border-line bg-surface p-1 shadow-pop">
+          {shown.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="option"
+              aria-selected={c.id === companyId}
+              onClick={() => {
+                setOpen(false);
+                switchTo(c.id);
+              }}
+              className={clsx("flex w-full flex-col rounded-[6px] px-2.5 py-1.5 text-left hover:bg-surface-alt", c.id === companyId && "bg-accent-50")}
+            >
+              <span className="text-body font-medium text-ink">{c.name}</span>
+              <span className="text-caption text-ink-muted">
+                {companyPeriodIn(c, companies)} · {c.line === "main" ? "Main business" : "Money only"}
+              </span>
+            </button>
+          ))}
+        </span>
+      ) : null}
+    </span>
   );
 }

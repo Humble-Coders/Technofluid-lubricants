@@ -3,6 +3,7 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 
 import {requireRole} from "../auth/requireRole";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
+import {companyCustomer, companyToRead} from "../companies/companyStore";
 import {HL_MAX_PAGE, plainHlMessage, type HlLedgerRow} from "../ledger/hlClient";
 import {txnSources, type TxnSource} from "../ledger/txnSources";
 import {ENTITIES, bad, hlAmountToPaise} from "./entityModel";
@@ -58,7 +59,7 @@ export function moneyLabel(m: FirebaseFirestore.DocumentData, entityId: string):
 }
 
 export const getEntityStatement = onCall({region: "us-central1", secrets: HL_SECRETS}, async (request) => {
-  await requireRole(request, ["admin", "accounts"]);
+  const caller = await requireRole(request, ["admin", "accounts"]);
   const data = request.data ?? {};
   const entityId = typeof data.entityId === "string" ? data.entityId.trim() : "";
   if (!entityId) bad("entityId is required.");
@@ -69,11 +70,13 @@ export const getEntityStatement = onCall({region: "us-central1", secrets: HL_SEC
 
   const d = (await admin.firestore().collection(ENTITIES).doc(entityId).get()).data();
   if (!d || d.deleted === true) throw new HttpsError("not-found", "That customer / supplier doesn't exist.");
-  if (!d.hlAccountId) throw new HttpsError("failed-precondition", "Not saved to the books yet — there's no statement until it is.");
+  const {company, books, isMain} = await companyToRead(admin.firestore(), caller.role, data.companyId, getHlClient());
+  if (isMain && !d.hlAccountId) throw new HttpsError("failed-precondition", "Not saved to the books yet — there's no statement until it is.");
 
   let res;
   try {
-    res = await getHlClient().getLedger({accountId: String(d.hlAccountId), from, to, page, limit: HL_MAX_PAGE});
+    const accountId = isMain ? String(d.hlAccountId) : (await companyCustomer(admin.firestore(), books, company.id, entityId, d)).accountId;
+    res = await books.getLedger({accountId, from, to, page, limit: HL_MAX_PAGE});
   } catch (e) {
     throw new HttpsError("unavailable", plainHlMessage(e));
   }
