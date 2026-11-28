@@ -226,6 +226,12 @@ export interface HlClient {
   getCompany(): Promise<HlCompanyInfo>;
   /** PATCH /company — OWNER only in HL (our ACCOUNTANT login gets 403). */
   updateCompany(p: HlCompanyPatch): Promise<HlCompanyInfo>;
+  /**
+   * DELETE /auth/companies/{id} — for a company made by mistake: OWNER of it, called while
+   * signed into ANOTHER company; refused for one with entries (409 COMPANY_HAS_ENTRIES), a
+   * home company (409 HOME_COMPANY) or the one the token is in (409 SWITCH_AWAY_FIRST).
+   */
+  deleteCompany(hlCompanyId: string): Promise<void>;
   /** POST /company/archive | /unarchive — OWNER only in HL. */
   setCompanyArchived(archived: boolean): Promise<void>;
   /** The books lock: nothing dated on or before `lockedThrough` can be posted (GET /books-lock). */
@@ -395,6 +401,7 @@ export class NotConnectedHlClient implements HlClient {
   getCompany = () => this.fail();
   updateCompany = () => this.fail();
   setCompanyArchived = () => this.fail();
+  deleteCompany = () => this.fail();
   getBooksLock = () => this.fail();
   setBooksLock = () => this.fail();
   getGroupReport = () => this.fail();

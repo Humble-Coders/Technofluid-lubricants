@@ -558,6 +558,29 @@ describe("A payment for last year's invoice is matched to the bill carried into 
   });
 });
 
+describe("Deleting a company made by mistake", () => {
+  test("only an unused company can be deleted; one with entries must be archived", async () => {
+    const oops = (await admin.call("createCompany", { name: "Testing company", requestId: rid() })).companyId;
+    const till = (await admin.call("saveRegister", { requestId: rid(), companyId: oops, name: `Testing till ${rid()}`, kind: "CASH" })).registerId;
+    await rejectsWith(accounts.call("deleteCompany", { companyId: oops }), "permission-denied");
+    await rejectsWith(admin.call("deleteCompany", { companyId: "main" }), "invalid-argument", /main company/);
+    await admin.call("deleteCompany", { companyId: oops });
+    assert.equal((await company(oops)).deleted, true);
+    assert.equal((await docOf("registers", till)).deleted, true, "its own cash account goes with it");
+    assert.equal((await adminDb.doc(`_fakeHl/registry/companies/${oops}`).get()).exists, false, "gone from the books");
+    await rejectsWith(admin.call("deleteCompany", { companyId: oops }), "not-found");
+
+    // A used one is refused, with the way out.
+    const used = (await admin.call("createCompany", { name: "Used company", requestId: rid() })).companyId;
+    const box = (await admin.call("saveRegister", { requestId: rid(), companyId: used, name: `Used till ${rid()}`, kind: "CASH" })).registerId;
+    const someone = (await admin.call("saveEntity", { requestId: rid(), input: partyInput("TEST CO Delete Check") })).entityId;
+    const e = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: used, from: party(someone), to: cash(box), amountPaise: 100, businessDay: today });
+    await synced("moneyEntries", e.entryId);
+    await rejectsWith(admin.call("deleteCompany", { companyId: used }), "invalid-argument", /archive it instead/);
+    assert.notEqual((await company(used)).deleted, true);
+  });
+});
+
 describe("Sales go to the main business's company for their date", () => {
   const SKU = "TEST-CO-HYD68-26L";
   let yearCo;

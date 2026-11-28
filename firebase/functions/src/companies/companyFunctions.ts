@@ -316,3 +316,45 @@ export const getGroupReport = onCall(OPTS, async (request) => {
     });
   }
 });
+
+/**
+ * Delete a company made by mistake (Admin). Only one with NO entries — in the books or
+ * waiting in our records — that no later year continues: Humble Ledger refuses anything
+ * else, and the app says to archive it instead. Its cash / bank accounts (if no other
+ * company keeps them) go with it. Can't be undone.
+ */
+export const deleteCompany = onCall(OPTS, async (request) => {
+  await requireRole(request, ["admin"]);
+  const db = admin.firestore();
+  const companyId = companyIdOf(request.data);
+  if (companyId === MAIN_COMPANY_ID) bad("The main company can't be deleted.");
+  try {
+    const companies = await loadCompanies(db);
+    const company = companies.find((c) => c.id === companyId);
+    if (!company) throw new HttpsError("not-found", "That company doesn't exist (or was already removed).");
+    const later = companies.filter((c) => c.id !== company.id && c.line === company.line && (c.lineFrom ?? "") > (company.lineFrom ?? ""));
+    if (later.length && company.line !== MAIN_LINE) {
+      bad(`${later.map((c) => c.name).join(", ")} continues this company's books — delete or archive that first.`);
+    }
+    for (const col of ["moneyEntries", "sales", "purchases"]) {
+      const used = await db.collection(col).where("companyId", "==", company.id).limit(1).get();
+      if (!used.empty) bad(`${company.name} already has entries — archive it instead (archived companies are hidden and read-only).`, "COMPANY_HAS_ENTRIES");
+    }
+    if (company.hlCompanyId) await getHlClient(null).deleteCompany(company.hlCompanyId);
+    const batch = db.batch();
+    batch.set(db.collection(COMPANIES).doc(company.id), {deleted: true, deletedAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp()}, {merge: true});
+    // Its own cash / bank (a separate line nobody else keeps) go too.
+    if (company.line === company.id && !companies.some((c) => c.id !== company.id && c.line === company.line)) {
+      const regs = await db.collection("registers").where("line", "==", company.line).get();
+      regs.docs.forEach((r) => batch.set(r.ref, {deleted: true, isActive: false, updatedAt: FieldValue.serverTimestamp()}, {merge: true}));
+    }
+    await batch.commit();
+    return {ok: true};
+  } catch (e) {
+    throw refusal(e, {
+      COMPANY_HAS_ENTRIES: "This company already has entries in the books — archive it instead (archived companies are hidden and read-only).",
+      HOME_COMPANY: "The main company can't be deleted.",
+      SWITCH_AWAY_FIRST: "The books couldn't delete it while it's open. Try again.",
+    });
+  }
+});
