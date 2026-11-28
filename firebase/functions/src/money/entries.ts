@@ -7,7 +7,7 @@ import {ENTITIES, formatRupees, hlAmountToPaise} from "../entities/entityModel";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {MAIN_COMPANY_ID, MAIN_LINE} from "../companies/companyModel";
 import {assertOpenDay, booksFor, companyAccount, companyCustomer, isMainCompany, loadCompany, routeToCompany, type CompanyDoc} from "../companies/companyStore";
-import {registerAccountName} from "./hlAccounts";
+import {companySideId, registerAccountName} from "./hlAccounts";
 import {plainHlMessage} from "../ledger/hlClient";
 import {SALES} from "../sales/saleModel";
 import {PURCHASES} from "../purchases/purchaseModel";
@@ -75,7 +75,7 @@ async function resolveRef(db: admin.firestore.Firestore, raw: unknown, label: st
 }
 
 export const sideId = (r: MoneyAccountRef) =>
-  r.kind === "PARTY" ? r.entityId : r.kind === "EXPENSE" ? r.categoryId : r.kind === "ADJUSTMENT" ? "ADJUSTMENT" : r.registerId;
+  r.kind === "PARTY" ? r.entityId : r.kind === "EXPENSE" ? r.categoryId : r.kind === "ADJUSTMENT" ? "ADJUSTMENT" : r.kind === "COMPANY" ? companySideId(r.line) : r.registerId;
 
 /**
  * The company an entry goes to (companies: Admin picks one; Accounts always works in the
@@ -337,6 +337,15 @@ export const reverseMoneyEntry = onCall({region: "us-central1"}, async (request)
   if (origCompany.line !== MAIN_LINE && caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
   if (origCompany.archived) throw new HttpsError("failed-precondition", `${origCompany.name} is archived (read-only) — nothing can be added to it.`, {code: "COMPANY_ARCHIVED"});
   assertOpenDay(origCompany, indiaToday(), "Today");
+  // Money between companies: the other half (in the other company) is reversed with it.
+  const pairId = (await origRef.get()).data()?.pairEntryId;
+  const pairRef = typeof pairId === "string" ? db.collection(MONEY_ENTRIES).doc(pairId) : null;
+  const pairCompany = pairRef ? await loadCompany(db, String((await pairRef.get()).data()?.companyId ?? MAIN_COMPANY_ID)) : null;
+  if (pairCompany) {
+    if (caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can reverse money between companies.");
+    if (pairCompany.archived) throw new HttpsError("failed-precondition", `${pairCompany.name} is archived (read-only) — the other half can't be reversed.`, {code: "COMPANY_ARCHIVED"});
+    assertOpenDay(pairCompany, indiaToday(), "Today");
+  }
 
   return onceInTx(db, reqId, "reverseMoneyEntry", async (tx) => {
     const o = (await tx.get(origRef)).data();
@@ -347,9 +356,20 @@ export const reverseMoneyEntry = onCall({region: "us-central1"}, async (request)
       throw new HttpsError("failed-precondition", why);
     }
     const mirrorRef = db.collection(MONEY_ENTRIES).doc();
+    const pairMirrorRef = pairRef ? db.collection(MONEY_ENTRIES).doc() : null;
+    const p = pairRef ? (await tx.get(pairRef)).data() : null;
+    if (pairRef && (!p || !canReverse({syncStatus: p.syncStatus, reversesEntryId: p.reversesEntryId ?? null, reversedByEntryId: p.reversedByEntryId ?? null}))) {
+      throw new HttpsError("failed-precondition", p?.reversedByEntryId ? "The other company's half is already reversed." : "The other company's half isn't saved to the books yet.");
+    }
     const mirror: MoneyEntryInput = {from: o.to, to: o.from, amountPaise: o.amountPaise, businessDay: indiaToday(), note: `Reversal: ${reason}`, isCorrection: o.isCorrection === true, gst: o.gst ?? null};
-    tx.create(mirrorRef, entryDoc(mirror, caller, {companyId: origCompanyId, line: origCompany.line, reversesEntryId: entryId}));
+    const pairLink = pairMirrorRef ? {transferId: o.transferId ?? null, pairEntryId: pairMirrorRef.id} : {};
+    tx.create(mirrorRef, entryDoc(mirror, caller, {companyId: origCompanyId, line: origCompany.line, reversesEntryId: entryId, ...pairLink}));
     tx.update(origRef, {reversedByEntryId: mirrorRef.id, updatedAt: FieldValue.serverTimestamp()});
+    if (pairRef && pairMirrorRef && p && pairCompany) {
+      const pm: MoneyEntryInput = {from: p.to, to: p.from, amountPaise: p.amountPaise, businessDay: indiaToday(), note: `Reversal: ${reason}`, isCorrection: false, gst: null};
+      tx.create(pairMirrorRef, entryDoc(pm, caller, {companyId: pairCompany.id, line: pairCompany.line, reversesEntryId: pairRef.id, transferId: o.transferId ?? null, pairEntryId: mirrorRef.id}));
+      tx.update(pairRef, {reversedByEntryId: pairMirrorRef.id, updatedAt: FieldValue.serverTimestamp()});
+    }
     return {entryId: mirrorRef.id, reversesEntryId: entryId};
   });
 });
@@ -366,5 +386,57 @@ export const retryMoneyEntrySync = onCall({region: "us-central1"}, async (reques
     if (d.syncStatus === "SYNCED") return {entryId, syncStatus: "SYNCED"};
     tx.update(ref, {syncStatus: "PENDING", syncAttempts: 0, hlSyncError: null, updatedAt: FieldValue.serverTimestamp()});
     return {entryId, syncStatus: "PENDING"};
+  });
+});
+
+/**
+ * Money between companies (Admin): cash / bank of one company into cash / bank of
+ * another, entered ONCE and written as TWO linked entries — one in each company's books,
+ * each against its "Account with <other company>" (Tally posts it in both companies the
+ * same way). Each half is routed by its date within its own company's line. Reversing
+ * either half reverses both.
+ */
+export const recordCompanyTransfer = onCall({region: "us-central1"}, async (request) => {
+  const caller = await requireRole(request, ["admin"]);
+  const data = request.data ?? {};
+  const reqId = parseRequestId(data.requestId);
+  const amountPaise = data.amountPaise;
+  if (typeof amountPaise !== "number" || !Number.isInteger(amountPaise) || amountPaise <= 0 || amountPaise > 1e13) bad("Enter an amount above ₹0.");
+  const businessDay = String(data.businessDay ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(businessDay)) bad("Pick the date.");
+  if (businessDay > indiaToday()) bad("The date can't be in the future.");
+  const note = noteOf(data.note);
+  if (note && note.length > 500) bad("The note must be 500 characters or fewer.");
+  const db = admin.firestore();
+  const side = (raw: unknown, label: string) => {
+    const r = (raw ?? {}) as Record<string, unknown>;
+    const companyId = typeof r.companyId === "string" && r.companyId.trim() ? r.companyId.trim() : MAIN_COMPANY_ID;
+    const registerId = typeof r.registerId === "string" && r.registerId.trim() ? r.registerId.trim() : bad(`${label}: which cash or bank account?`);
+    return {companyId, registerId};
+  };
+  const fromIn = side(data.from, "From");
+  const toIn = side(data.to, "To");
+  const fromCo = await routeToCompany(db, fromIn.companyId, businessDay);
+  const toCo = await routeToCompany(db, toIn.companyId, businessDay);
+  if (fromCo.line === toCo.line) bad("Both accounts are in the same company's books — use a transfer between its own cash & bank instead.");
+
+  const register = async (id: string, line: string, label: string): Promise<Extract<MoneyAccountRef, {kind: "CASH" | "BANK"}>> => {
+    const r = (await db.collection(REGISTERS).doc(id).get()).data();
+    if (!r || r.deleted === true) throw new HttpsError("not-found", `${label}: that cash / bank account doesn't exist.`);
+    if (r.isActive === false) bad(`${label}: ${r.name} is archived.`);
+    if ((r.line ?? MAIN_LINE) !== line) bad(`${label}: ${r.name} belongs to another company's books.`);
+    return {kind: r.kind === "BANK" ? "BANK" : "CASH", registerId: id, name: String(r.name)};
+  };
+  const fromReg = await register(fromIn.registerId, fromCo.line, "From");
+  const toReg = await register(toIn.registerId, toCo.line, "To");
+  const asSide = (c: CompanyDoc): MoneyAccountRef => ({kind: "COMPANY", companyId: c.id, line: c.line, name: c.name || "Main company"});
+
+  return onceInTx(db, reqId, "recordCompanyTransfer", async (tx) => {
+    const outRef = db.collection(MONEY_ENTRIES).doc();
+    const inRef = db.collection(MONEY_ENTRIES).doc();
+    const base = {amountPaise, businessDay, note, isCorrection: false};
+    tx.create(outRef, entryDoc({...base, from: fromReg, to: asSide(toCo)}, caller, {companyId: fromCo.id, line: fromCo.line, transferId: outRef.id, pairEntryId: inRef.id}));
+    tx.create(inRef, entryDoc({...base, from: asSide(fromCo), to: toReg}, caller, {companyId: toCo.id, line: toCo.line, transferId: outRef.id, pairEntryId: outRef.id}));
+    return {entryId: outRef.id, pairEntryId: inRef.id, fromCompanyId: fromCo.id, toCompanyId: toCo.id};
   });
 });

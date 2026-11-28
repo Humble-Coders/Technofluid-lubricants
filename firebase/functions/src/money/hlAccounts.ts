@@ -48,3 +48,8 @@ const testMark = () => (realBooksFromEmulator() ? " · TEST" : "");
 
 export const registerAccountName = (kind: "CASH" | "BANK", name: string, id: string) => `${kind === "CASH" ? "Cash" : "Bank"} · ${name} · ${id}${testMark()}`;
 export const categoryAccountName = (name: string, id: string) => `Expense · ${name} · ${id}${testMark()}`;
+
+/** The id an "account with another company" goes by: the other company's line (kept across its years). */
+export const companySideId = (line: string) => `co-${line}`;
+/** "Account with Ravi Verma · co-<line>" — this company's running account with another company. */
+export const companyAccountName = (otherName: string, line: string) => `Account with ${otherName} · ${companySideId(line)}${testMark()}`;

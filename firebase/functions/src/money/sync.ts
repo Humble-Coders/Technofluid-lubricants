@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import {FieldValue} from "firebase-admin/firestore";
 import {logger} from "firebase-functions/v2";
 
-import {ENTITIES} from "../entities/entityModel";
+import {ENTITIES, hlAmountToPaise} from "../entities/entityModel";
 import {backoffMinutes, reconcileOnce as reconcileEntities, TRIGGER_RETRIES, type SyncOutcome} from "../entities/sync";
 import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, plainHlMessage, type HlClient, type HlLeg, type HlPostingType} from "../ledger/hlClient";
@@ -10,7 +10,7 @@ import {SALES} from "../sales/saleModel";
 import {cancelSaleInBooks, syncSale} from "../sales/sync";
 import {PURCHASES} from "../purchases/purchaseModel";
 import {cancelPurchaseInBooks, syncPurchase} from "../purchases/sync";
-import {accountCache, categoryAccountName, registerAccountName} from "./hlAccounts";
+import {accountCache, categoryAccountName, companyAccountName, companySideId, registerAccountName} from "./hlAccounts";
 import {MAIN_LINE, companyForDate} from "../companies/companyModel";
 import {booksFor, companyAccount, companyCustomer, isMainCompany, loadCompanies, stampMainLine} from "../companies/companyStore";
 import {EXPENSE_CATEGORIES, MONEY_ENTRIES, REGISTERS, SYSTEM_ACCOUNTS, moneySourceIds, type MoneyAccountRef} from "./moneyModel";
@@ -180,6 +180,13 @@ async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef, 
     if (!c.hlAccountId) throw new Waiting(`${ref.name} isn't in the books yet`);
     return {ref, accountId: String(c.hlAccountId), customerId: null};
   }
+  if (ref.kind === "COMPANY") {
+    // "Account with <other company>" in THIS company's books — found by the other company's
+    // line (so it continues across that company's years), made on first use.
+    const here = company.id ?? "main";
+    const accountId = await companyAccount(db, company.books, here, companySideId(ref.line), "ASSET", companyAccountName(ref.name, ref.line));
+    return {ref, accountId, customerId: null};
+  }
   const r = (await db.collection(REGISTERS).doc(ref.registerId).get()).data();
   if (!r || r.deleted === true) throw new Permanent(`${ref.name} no longer exists.`);
   if (r.isActive === false) throw new Permanent(`${r.name} is archived.`);
@@ -213,6 +220,7 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClie
   try {
     let legs: HlLeg[];
     let txnId: string;
+    let carriedMatch: {invoiceId: string; amountPaise: number} | {error: string} | null = null;
 
     const journal = async (postingType: HlPostingType, description: string, l: HlLeg[]) => {
       legs = l;
@@ -289,6 +297,11 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClie
           {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
         ];
         txnId = r.txnId;
+        if (e.saleId && !invoiceId && e.invoiceNo) {
+          // An invoice from an earlier year's company: carried forward here under its own number.
+          // Match this payment to that carried bill (best effort — the money is in the books either way).
+          carriedMatch = await matchToCarriedBill(hl, {customerId: from.customerId!, txnId: r.txnId, invoiceNo: String(e.invoiceNo), amountPaise: e.amountPaise, date: e.businessDay, sourceId: `${sourceId}:match`, actorRef});
+        }
       } else if (isReg(from.ref) && to.ref.kind === "PARTY") {
         // 4. Money paid.
         const r = await hl.postPayout({
@@ -312,6 +325,13 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClie
           {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
           {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
         ]);
+      } else if ((isReg(from.ref) && to.ref.kind === "COMPANY") || (from.ref.kind === "COMPANY" && isReg(to.ref))) {
+        // 7. Money between companies: this company's half (the other half is its pair entry).
+        const out = to.ref.kind === "COMPANY";
+        await journal("JOURNAL", `${out ? `Money to ${name(to.ref)}` : `Money from ${name(from.ref)}`}${note ? `: ${note}` : ""}`, [
+          {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
+        ]);
       } else if (isReg(from.ref) && isReg(to.ref)) {
         // 6. Deposit / withdrawal / transfer.
         await journal("JOURNAL", `Transfer from ${name(from.ref)} to ${name(to.ref)}${note ? `: ${note}` : ""}`, [
@@ -324,7 +344,10 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClie
     }
 
     await ref.set(
-      {syncStatus: "SYNCED", hlTxnId: txnId!, hlLegs: legs!, hlSyncError: null, syncAttempts: 0, hlSyncedAt: FieldValue.serverTimestamp(), lastSyncAttemptAt: FieldValue.serverTimestamp()},
+      {
+        syncStatus: "SYNCED", hlTxnId: txnId!, hlLegs: legs!, hlSyncError: null, syncAttempts: 0, hlSyncedAt: FieldValue.serverTimestamp(), lastSyncAttemptAt: FieldValue.serverTimestamp(),
+        ...(carriedMatch ? {carriedBillMatch: carriedMatch} : {}),
+      },
       {merge: true},
     );
     return "synced";
@@ -403,4 +426,28 @@ export async function postWaitingFor(db: admin.firestore.Firestore, hl: HlClient
   for (const d of purchases.docs) await syncPurchase(db, hl, d.id);
   const waiting = await db.collection(MONEY_ENTRIES).where("sideIds", "array-contains", sideId).where("syncStatus", "==", "PENDING").limit(50).get();
   for (const d of waiting.docs) await syncMoneyEntry(db, hl, d.id);
+}
+
+/**
+ * A payment for an invoice that was carried into this company from an earlier year: the
+ * carried bill keeps its number, so find it among the customer's open bills and match the
+ * payment (already on account) to it — up to what it still owes. Never throws: the payment
+ * is in the books; a miss is recorded on the entry.
+ */
+export async function matchToCarriedBill(
+  hl: HlClient,
+  p: {customerId: string; txnId: string; invoiceNo: string; amountPaise: number; date: string; sourceId: string; actorRef: string},
+): Promise<{invoiceId: string; amountPaise: number} | {error: string}> {
+  try {
+    const credits = await hl.getCustomerCredits(p.customerId);
+    const bill = credits.openInvoices.find((i) => i.invoiceNumber === p.invoiceNo);
+    if (!bill) return {error: `${p.invoiceNo} isn't an open bill in these books — the payment stays on account.`};
+    const amount = Math.min(p.amountPaise, hlAmountToPaise(bill.outstanding));
+    if (amount <= 0) return {error: `${p.invoiceNo} is already settled here — the payment stays on account.`};
+    await hl.allocateCustomerCredit({customerId: p.customerId, sourceTransactionId: p.txnId, allocations: [{invoiceId: bill.id, amountPaise: amount}], date: p.date, sourceId: p.sourceId, actorRef: p.actorRef, note: `Payment for ${p.invoiceNo}`});
+    return {invoiceId: bill.id, amountPaise: amount};
+  } catch (e) {
+    logger.warn("Matching a payment to a carried bill failed", {invoiceNo: p.invoiceNo, error: e instanceof Error ? e.message : String(e)});
+    return {error: plainHlMessage(e)};
+  }
 }

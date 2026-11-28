@@ -477,6 +477,74 @@ describe("A party's details reach its copies in other companies", () => {
   });
 });
 
+describe("Money between companies", () => {
+  test("entered once, posted in both companies against an account with the other; reversing one half reverses both", async () => {
+    const pc = (await admin.call("createCompany", { name: "Vikram Singh", requestId: rid() })).companyId;
+    const vbank = (await admin.call("saveRegister", { requestId: rid(), companyId: pc, name: `Vikram bank ${rid()}`, kind: "BANK" })).registerId;
+    await rejectsWith(
+      accounts.call("recordCompanyTransfer", { requestId: rid(), from: { companyId: "main", registerId: "default-bank" }, to: { companyId: pc, registerId: vbank }, amountPaise: 100, businessDay: today }),
+      "permission-denied",
+    );
+    await rejectsWith(
+      admin.call("recordCompanyTransfer", { requestId: rid(), from: { companyId: "main", registerId: "default-bank" }, to: { companyId: "main", registerId: "default-cash" }, amountPaise: 100, businessDay: today }),
+      "invalid-argument",
+      /same company/,
+    );
+    await rejectsWith(
+      admin.call("recordCompanyTransfer", { requestId: rid(), from: { companyId: "main", registerId: vbank }, to: { companyId: pc, registerId: vbank }, amountPaise: 100, businessDay: today }),
+      "invalid-argument",
+      /another company's books/,
+    );
+    const r = await admin.call("recordCompanyTransfer", { requestId: rid(), from: { companyId: "main", registerId: "default-bank" }, to: { companyId: pc, registerId: vbank }, amountPaise: 5_000_000, businessDay: today, note: "Capital for Vikram" });
+    const out = await synced("moneyEntries", r.entryId);
+    const inn = await synced("moneyEntries", r.pairEntryId);
+    assert.equal(out.companyId, "main");
+    assert.equal(inn.companyId, pc);
+    assert.equal(out.to.kind, "COMPANY");
+    assert.equal(inn.from.kind, "COMPANY");
+    assert.equal(out.pairEntryId, r.pairEntryId);
+    // Vikram's bank is up; his books owe the main company the same.
+    assert.equal((await admin.call("getRegisterBalances", { companyId: pc })).balances[vbank], 5_000_000);
+    assert.equal(await balanceByName(pc, "Account with Technofluid Lubricants · co-main"), -5_000_000);
+    // Reverse from either side: both halves get their mirror.
+    const m = await admin.call("reverseMoneyEntry", { requestId: rid(), entryId: r.pairEntryId, reason: "Wrong amount" });
+    await synced("moneyEntries", m.entryId);
+    const outAfter = await waitFor(async () => ((await docOf("moneyEntries", r.entryId))?.reversedByEntryId ? docOf("moneyEntries", r.entryId) : null), "pair reversed");
+    await synced("moneyEntries", outAfter.reversedByEntryId);
+    assert.equal((await admin.call("getRegisterBalances", { companyId: pc })).balances[vbank], 0);
+    await rejectsWith(admin.call("reverseMoneyEntry", { requestId: rid(), entryId: r.entryId, reason: "Again" }), "failed-precondition", /already been reversed/);
+  });
+});
+
+describe("A payment for last year's invoice is matched to the bill carried into the new year", () => {
+  test("found by its number among the customer's open bills, matched up to what it owes", async () => {
+    const { matchToCarriedBill } = fnRequire("./lib/money/sync.js");
+    // Two years of one person's books, with an unpaid bill carried forward bill by bill.
+    const y1 = (await admin.call("createCompany", { name: "Sunil Kapoor", requestId: rid() })).companyId;
+    const b1 = new FakeHlClient(libDb, y1);
+    const cust = await b1.createCustomer({ name: "TEST CO Carry Buyer", externalId: `ent-${rid()}` });
+    const sales = await b1.createAccount({ name: "Sales · Sunil", type: "INCOME" });
+    await b1.postSale({ customerId: cust.customer.id, amountPaise: 80000, taxLines: [], revenueAccountId: sales.id, description: "Bill", date: "2026-01-10", sourceId: `t-${rid()}`, actorRef: "test", invoiceNumber: "SK/2025-26/0007" });
+    await admin.call("closeCompanyYear", { companyId: y1, lockedThrough: "2026-03-31" });
+    const y2 = (await admin.call("createCompany", {
+      name: "Sunil Kapoor", requestId: rid(), booksBeginFrom: "2026-04-01", joinsLine: "source",
+      copyFrom: { companyId: y1, accounts: true, customers: true, carry: { asOf: "2026-03-31", pendingBills: "ITEMIZED" } },
+    })).companyId;
+    const b2 = new FakeHlClient(libDb, y2);
+    const c2 = (await b2.createCustomer({ name: "TEST CO Carry Buyer", externalId: cust.customer.externalId })).customer;
+    const cashAcc = await b2.createAccount({ name: "Cash · Sunil", type: "ASSET" });
+    // Paid this year, on account (the old invoice id means nothing in these books)…
+    const pay = await b2.postPayment({ customerId: c2.id, amountPaise: 100000, method: "CASH", paymentAccountId: cashAcc.id, date: today, sourceId: `t-${rid()}`, actorRef: "test", description: "Payment" });
+    // …then matched to the carried bill: ₹800 of the ₹1,000 (all it owes); the rest stays on account.
+    const m = await matchToCarriedBill(b2, { customerId: c2.id, txnId: pay.txnId, invoiceNo: "SK/2025-26/0007", amountPaise: 100000, date: today, sourceId: `t-${rid()}:match`, actorRef: "test" });
+    assert.equal(m.amountPaise, 80000);
+    const bill = (await adminDb.doc(`_fakeHl/books-${y2}/invoices/${m.invoiceId}`).get()).data();
+    assert.equal(bill.status, "PAID");
+    const miss = await matchToCarriedBill(b2, { customerId: c2.id, txnId: pay.txnId, invoiceNo: "SK/2025-26/9999", amountPaise: 100, date: today, sourceId: `t-${rid()}:match`, actorRef: "test" });
+    assert.match(miss.error, /isn't an open bill/);
+  });
+});
+
 describe("Sales go to the main business's company for their date", () => {
   const SKU = "TEST-CO-HYD68-26L";
   let yearCo;

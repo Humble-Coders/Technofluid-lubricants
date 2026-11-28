@@ -528,6 +528,47 @@ export class FakeHlClient implements HlClient {
     await invRef.set({status: "CANCELLED"}, {merge: true});
   }
 
+  // ─── Bill matching (customer side) ────────────────────────────────────────────
+
+  async getCustomerCredits(customerId: string) {
+    await this.gate("getCustomerCredits", customerId);
+    const c = await this.load(customerId);
+    const invoices = (await this.invoices().where("customerId", "==", customerId).get()).docs
+      .map((d) => ({id: d.id, ...(d.data() as StoredInvoice)}))
+      .filter((i) => i.status !== "CANCELLED" && i.totalPaise > i.amountPaidPaise);
+    const owedByBills = invoices.reduce((s, i) => s + i.totalPaise - i.amountPaidPaise, 0);
+    const balance = await this.balanceOf(c.accountId);
+    return {
+      availableCredit: toAmount(Math.max(owedByBills - balance, 0)),
+      openInvoices: invoices.map((i) => ({id: i.id, invoiceNumber: i.invoiceNumber, outstanding: toAmount(i.totalPaise - i.amountPaidPaise)})),
+    };
+  }
+
+  async allocateCustomerCredit(p: {customerId: string; sourceTransactionId: string; allocations: {invoiceId: string; amountPaise: number}[]; date: string; sourceId: string; actorRef: string; note?: string}) {
+    await this.gate("allocateCustomerCredit", p.sourceId);
+    const ref = this.db.collection(`${this.books}/allocations`).doc(`${HL_APP_ID}~${p.sourceId}`.replace(/\//g, "_"));
+    if ((await ref.get()).exists) return {batchId: ref.id, idempotent: true};
+    const src = (await this.txns().doc(p.sourceTransactionId).get()).data() as StoredTxn | undefined;
+    const c = await this.load(p.customerId);
+    const credit = src?.legs.filter((l) => l.accountId === c.accountId && l.type === "CREDIT").reduce((s, l) => s + l.amountPaise, 0) ?? 0;
+    if (!credit) throw new HlError("That transaction puts no money on this customer's account", 422, false, "NOT_A_CREDIT");
+    const total = p.allocations.reduce((s, a) => s + a.amountPaise, 0);
+    if (total > credit) throw new HlError("More than that payment has left", 422, false, "EXCEEDS_PAYMENT");
+    const updates: [admin.firestore.DocumentReference, number, number][] = [];
+    for (const a of p.allocations) {
+      const invRef = this.invoices().doc(a.invoiceId);
+      const inv = (await invRef.get()).data() as StoredInvoice | undefined;
+      if (!inv) throw new HlError(`Invoice ${a.invoiceId} not found`, 404, false);
+      if (inv.customerId !== p.customerId) throw new HlError("That invoice belongs to another customer", 422, false, "INVOICE_CUSTOMER_MISMATCH");
+      if (inv.status === "CANCELLED") throw new HlError("That invoice is cancelled", 422, false, "INVOICE_CANCELLED");
+      if (inv.amountPaidPaise + a.amountPaise > inv.totalPaise) throw new HlError("More than the bill still owes", 422, false, "OVERPAYMENT");
+      updates.push([invRef, inv.amountPaidPaise + a.amountPaise, inv.totalPaise]);
+    }
+    for (const [invRef, paid, totalPaise] of updates) await invRef.set({amountPaidPaise: paid, status: paid >= totalPaise ? "PAID" : "PARTIAL"}, {merge: true});
+    await ref.set({customerId: p.customerId, sourceTransactionId: p.sourceTransactionId, allocations: p.allocations, date: p.date, at: Date.now()});
+    return {batchId: ref.id, idempotent: false};
+  }
+
   // ─── Companies ────────────────────────────────────────────────────────────────
 
   /** The registry entry of a company (the home one is made on first use). */

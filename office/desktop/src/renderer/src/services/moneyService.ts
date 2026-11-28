@@ -280,3 +280,27 @@ export interface RegisterStatement {
 export function getRegisterStatement(registerId: string, from: string, to: string) {
   return call<unknown, RegisterStatement>("getRegisterStatement", { registerId, from, to, companyId: currentCompanyId() });
 }
+
+/**
+ * Money between companies (Admin): cash / bank of the current company into another
+ * company's cash / bank — one entry here, its pair in the other company's books.
+ */
+export function recordCompanyTransfer(t: { requestId: string; toCompanyId: string; fromRegisterId: string; toRegisterId: string; amountPaise: number; businessDay: string; note: string | null }) {
+  return call<unknown, { entryId: string; pairEntryId: string }>("recordCompanyTransfer", {
+    requestId: t.requestId,
+    from: { companyId: currentCompanyId(), registerId: t.fromRegisterId },
+    to: { companyId: t.toCompanyId, registerId: t.toRegisterId },
+    amountPaise: t.amountPaise,
+    businessDay: t.businessDay,
+    note: t.note,
+  });
+}
+
+/** Another company's cash & bank (Admin only — for money between companies). */
+export function watchRegistersOfLine(line: string, onChange: (rows: RegisterRow[]) => void, onError: (e: Error) => void): Unsubscribe {
+  return onSnapshot(
+    query(collection(db, "registers"), where("deleted", "==", false), where("line", "==", line)),
+    (snap) => onChange(snap.docs.map((d) => toRegister(d.id, d.data())).filter((r) => r.isActive).sort((a, b) => a.name.localeCompare(b.name))),
+    onError,
+  );
+}

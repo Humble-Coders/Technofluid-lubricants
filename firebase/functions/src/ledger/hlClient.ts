@@ -220,6 +220,14 @@ export interface HlClient {
    * date) is OWNER only, so the app's ACCOUNTANT login gets 403. Not in the future.
    */
   setBooksLock(p: {lockedThrough: string}): Promise<HlBooksLock>;
+  /** A customer's money on account and open bills (GET /customers/{id}/credits — bill matching). */
+  getCustomerCredits(customerId: string): Promise<{availableCredit: string; openInvoices: {id: string; invoiceNumber: string | null; outstanding: string}[]}>;
+  /**
+   * Matches money already on a customer's account to their bills (POST
+   * /customers/{id}/allocations, Tally "Agst Ref"). No ledger posting. All-or-nothing;
+   * idempotent on (appId, sourceId).
+   */
+  allocateCustomerCredit(p: {customerId: string; sourceTransactionId: string; allocations: {invoiceId: string; amountPaise: number}[]; date: string; sourceId: string; actorRef: string; note?: string}): Promise<{batchId: string; idempotent: boolean}>;
   /** Group reports over 2–20 companies (GET /group/reports/…), a column per company. */
   getGroupReport(p: {kind: HlGroupReportKind; hlCompanyIds: string[]; from?: string; to?: string; date?: string}): Promise<HlGroupReport>;
 }
@@ -375,6 +383,8 @@ export class NotConnectedHlClient implements HlClient {
   getBooksLock = () => this.fail();
   setBooksLock = () => this.fail();
   getGroupReport = () => this.fail();
+  getCustomerCredits = () => this.fail();
+  allocateCustomerCredit = () => this.fail();
   forCompany = (hlCompanyId: string | null) => new NotConnectedHlClient(hlCompanyId);
 }
 

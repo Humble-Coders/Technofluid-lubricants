@@ -572,6 +572,34 @@ export class HttpHlClient implements HlClient {
     return toBooksLock((await this.call("PUT", "/books-lock", {lockedThrough: p.lockedThrough})).data);
   }
 
+  async getCustomerCredits(customerId: string) {
+    const res = await this.call("GET", `/customers/${encodeURIComponent(customerId)}/credits`);
+    const d = obj(res.data);
+    if (!d || !Array.isArray(d.openInvoices)) throw unexpected("customer-credits");
+    return {
+      availableCredit: strOrNull(d.availableCredit) ?? "0",
+      openInvoices: d.openInvoices.map((x) => {
+        const i = obj(x) ?? {};
+        if (typeof i.id !== "string") throw unexpected("customer-credits (invoice)");
+        return {id: i.id, invoiceNumber: strOrNull(i.invoiceNumber), outstanding: strOrNull(i.outstanding) ?? "0"};
+      }),
+    };
+  }
+
+  async allocateCustomerCredit(p: {customerId: string; sourceTransactionId: string; allocations: {invoiceId: string; amountPaise: number}[]; date: string; sourceId: string; actorRef: string; note?: string}) {
+    const res = await this.call("POST", `/customers/${encodeURIComponent(p.customerId)}/allocations`, {
+      sourceTransactionId: p.sourceTransactionId,
+      allocations: p.allocations.map((a) => ({invoiceId: a.invoiceId, amount: toHlAmount(a.amountPaise)})),
+      date: p.date,
+      appId: HL_APP_ID,
+      sourceId: p.sourceId,
+      actorRef: p.actorRef,
+      ...(p.note ? {note: p.note.slice(0, 200)} : {}),
+    });
+    const d = obj(res.data) ?? {};
+    return {batchId: strOrNull(d.batchId) ?? "", idempotent: res.idempotent === true || d.idempotent === true};
+  }
+
   async getGroupReport(p: {kind: HlGroupReportKind; hlCompanyIds: string[]; from?: string; to?: string; date?: string}) {
     const q = new URLSearchParams({companyIds: p.hlCompanyIds.join(",")});
     if (p.kind === "pnl") {

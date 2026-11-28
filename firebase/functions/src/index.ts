@@ -33,7 +33,7 @@ export { getEntityStatement } from "./entities/getEntityStatement";
 export { onEntityWritten } from "./entities/onEntityWritten";
 export { saveRegister, setRegisterOpening, setRegisterActive, ensureDefaultRegisters } from "./money/registers";
 export { saveExpenseCategory } from "./money/categories";
-export { recordMoneyEntry, recordExpense, correctBalance, reverseMoneyEntry, retryMoneyEntrySync } from "./money/entries";
+export { recordMoneyEntry, recordExpense, correctBalance, reverseMoneyEntry, retryMoneyEntrySync, recordCompanyTransfer } from "./money/entries";
 export { getRegisterBalances, getRegisterStatement } from "./money/reports";
 export { onRegisterWritten, onExpenseCategoryWritten, onMoneyEntryWritten, reconcileLedgerSync } from "./money/triggers";
 export { saveCompanyProfile } from "./sales/company";
