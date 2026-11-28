@@ -10,6 +10,7 @@
  */
 import { after, before, describe, test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -422,8 +423,13 @@ describe("Accounts sees only the main business", () => {
     const mainEntry = await admin.call("recordMoneyEntry", { requestId: rid(), from: party(someone), to: cash("default-cash"), amountPaise: 300, businessDay: today });
     assert.equal((await docOf("moneyEntries", mainEntry.entryId)).line, "main");
 
-    await denied(getDoc(doc(accounts.db, `moneyEntries/${entryId}`)));
-    await denied(getDoc(doc(accounts.db, `registers/${box}`)));
+    // The money lock is held back until Office 0.1.6 (accountsLocked() in the rules): until
+    // then Accounts can still read them; the company itself is Admin only already.
+    const locked = /function accountsLocked\(\) \{ return true; \}/.test(readFileSync(path.resolve(here, "../../../firebase/firestore.rules"), "utf8"));
+    if (locked) {
+      await denied(getDoc(doc(accounts.db, `moneyEntries/${entryId}`)));
+      await denied(getDoc(doc(accounts.db, `registers/${box}`)));
+    }
     await denied(getDoc(doc(accounts.db, `companies/${pc}`)));
     assert.equal((await getDoc(doc(accounts.db, `moneyEntries/${mainEntry.entryId}`))).exists(), true);
     assert.equal((await getDoc(doc(accounts.db, "registers/default-cash"))).exists(), true);
@@ -431,7 +437,7 @@ describe("Accounts sees only the main business", () => {
     // Accounts' lists ask for the main business only — and get it.
     const rows = await getDocs(query(collection(accounts.db, "moneyEntries"), where("line", "==", "main"), where("businessDay", "==", today)));
     assert.ok(rows.docs.every((d) => d.data().line === "main"));
-    await denied(getDocs(query(collection(accounts.db, "moneyEntries"), where("businessDay", "==", today))));
+    if (locked) await denied(getDocs(query(collection(accounts.db, "moneyEntries"), where("businessDay", "==", today))));
     const years = await getDocs(query(collection(accounts.db, "companies"), where("line", "==", "main")));
     assert.ok(years.docs.some((d) => d.id === "main"));
     await denied(getDocs(collection(stock.db, "moneyEntries")));
