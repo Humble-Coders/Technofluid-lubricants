@@ -531,11 +531,16 @@ describe("A payment for last year's invoice is matched to the bill carried into 
     const cust = await b1.createCustomer({ name: "TEST CO Carry Buyer", externalId: `ent-${rid()}` });
     const sales = await b1.createAccount({ name: "Sales · Sunil", type: "INCOME" });
     await b1.postSale({ customerId: cust.customer.id, amountPaise: 80000, taxLines: [], revenueAccountId: sales.id, description: "Bill", date: "2026-01-10", sourceId: `t-${rid()}`, actorRef: "test", invoiceNumber: "SK/2025-26/0007" });
+    // …and an unpaid supplier bill from the same party (we net: one party = one customer).
+    const stock = await b1.createAccount({ name: "Inventory · Sunil", type: "ASSET" });
+    await b1.postCustomerPurchase({ customerId: cust.customer.id, amountPaise: 30000, taxLines: [], expenseAccountId: stock.id, description: "Bought", date: "2026-02-01", sourceId: `t-${rid()}`, actorRef: "test", billNumber: "HB/88", reference: "PB/2025-26/0042" });
     await admin.call("closeCompanyYear", { companyId: y1, lockedThrough: "2026-03-31" });
-    const y2 = (await admin.call("createCompany", {
+    const made = await admin.call("createCompany", {
       name: "Sunil Kapoor", requestId: rid(), booksBeginFrom: "2026-04-01", joinsLine: "source",
       copyFrom: { companyId: y1, accounts: true, customers: true, carry: { asOf: "2026-03-31", pendingBills: "ITEMIZED" } },
-    })).companyId;
+    });
+    const y2 = made.companyId;
+    assert.equal(made.copied.pendingSupplierBills, 1, "the unpaid supplier bill comes across bill by bill too");
     const b2 = new FakeHlClient(libDb, y2);
     const c2 = (await b2.createCustomer({ name: "TEST CO Carry Buyer", externalId: cust.customer.externalId })).customer;
     const cashAcc = await b2.createAccount({ name: "Cash · Sunil", type: "ASSET" });
@@ -546,6 +551,8 @@ describe("A payment for last year's invoice is matched to the bill carried into 
     assert.equal(m.amountPaise, 80000);
     const bill = (await adminDb.doc(`_fakeHl/books-${y2}/invoices/${m.invoiceId}`).get()).data();
     assert.equal(bill.status, "PAID");
+    const carriedBills = await b2.getPayableBills(c2.id);
+    assert.deepEqual(carriedBills.map((b) => [b.billNumber, b.outstanding]), [["HB/88", "300.00"]]);
     const miss = await matchToCarriedBill(b2, { customerId: c2.id, txnId: pay.txnId, invoiceNo: "SK/2025-26/9999", amountPaise: 100, date: today, sourceId: `t-${rid()}:match`, actorRef: "test" });
     assert.match(miss.error, /isn't an open bill/);
   });

@@ -52,6 +52,11 @@ async function accountIdByName(name) {
   const s = await adminDb.collection("_fakeHl/books/accounts").where("nameLower", "==", name.toLowerCase()).get();
   return s.docs[0]?.id ?? null;
 }
+/** The txn that undid a cancelled purchase: HL's bill cancel when it was kept as a supplier bill, else our reversal. */
+const cancelTxn = async (purchaseId) => {
+  const p = (await adminDb.doc(`purchases/${purchaseId}`).get()).data();
+  return p?.hlBillId ? txn(`billcancel_${p.hlBillId}`) : txn(`purchase_${purchaseId}:cancel`);
+};
 const net = (legs) => legs.reduce((s, l) => s + (l.type === "DEBIT" ? l.amountPaise : -l.amountPaise), 0);
 
 // Made-up stock items: a raw material, a consumable, a bought-in product pool, a premix, one with no unit.
@@ -95,7 +100,7 @@ const oilBill = (supplierEntityId, over = {}) => ({
 const buy = (who, data) => who.call("createPurchase", data);
 
 async function wipe() {
-  for (const c of ["purchases", "purchaseRequests", "purchaseSync", "purchaseSeries", "moneyEntries", "moneyRequests", "registers", "_fakeHl/books/customers", "_fakeHl/books/accounts", "_fakeHl/books/txns", "_fakeHl/books/invoices", "_fakeHl/books/log"]) {
+  for (const c of ["purchases", "purchaseRequests", "purchaseSync", "purchaseSeries", "moneyEntries", "moneyRequests", "registers", "_fakeHl/books/customers", "_fakeHl/books/accounts", "_fakeHl/books/txns", "_fakeHl/books/invoices", "_fakeHl/books/bills", "_fakeHl/books/log"]) {
     const s = await adminDb.collection(c).get();
     await Promise.all(s.docs.map((d) => d.ref.delete()));
   }
@@ -309,16 +314,20 @@ describe("cancelling", () => {
 
     const done = await status("purchases", r.purchaseId, "SYNCED", "cancelSyncStatus");
     const bill = await txn(`purchase_${r.purchaseId}:bill`);
-    const rev = await txn(`purchase_${r.purchaseId}:cancel`);
+    // Kept as a supplier bill: HL's own cancel reverses the purchase and marks the bill CANCELLED.
+    assert.ok(done.hlBillId);
+    const hlBill = (await adminDb.doc(`_fakeHl/books/bills/${done.hlBillId}`).get()).data();
+    assert.equal(hlBill.status, "CANCELLED");
+    const rev = await txn(`billcancel_${done.hlBillId}`);
     assert.equal(rev.postingType, "REVERSAL");
-    assert.equal(done.cancelHlTxnId, `technofluid-office~purchase_${r.purchaseId}:cancel`);
     assert.equal(net([...bill.legs, ...rev.legs]), 0);
     for (const l of bill.legs) assert.ok(rev.legs.some((x) => x.accountId === l.accountId && x.amountPaise === l.amountPaise && x.type !== l.type));
 
     await rejectsWith(accounts.call("cancelPurchase", { requestId: rid(), purchaseId: r.purchaseId, reason: "again" }), "failed-precondition", /already cancelled/);
-    // A cancelled bill's number can be entered again.
+    // A cancelled bill's number can be entered again — in HL with our reference added (HL keeps numbers unique per party).
     const again = await buy(accounts, oilBill(haryana, { billNo: "TP-C1" }));
-    assert.ok(again.purchaseId);
+    const a = await status("purchases", again.purchaseId, "SYNCED");
+    assert.equal(a.hlBillNumber, `TP-C1 · ${again.ref}`);
   });
 
   test("cancelled before it reached the books: posted first, then reversed (via Retry)", async () => {
@@ -332,7 +341,7 @@ describe("cancelling", () => {
     const p = await status("purchases", r.purchaseId, "SYNCED", "cancelSyncStatus");
     assert.equal(p.syncStatus, "SYNCED");
     assert.ok(await txn(`purchase_${r.purchaseId}:payout_0`)); // the cash paid stays in the books
-    assert.equal(net([...(await txn(`purchase_${r.purchaseId}:bill`)).legs, ...(await txn(`purchase_${r.purchaseId}:cancel`)).legs]), 0);
+    assert.equal(net([...(await txn(`purchase_${r.purchaseId}:bill`)).legs, ...(await cancelTxn(r.purchaseId)).legs]), 0);
 
     // The supplier's statement labels all three from our own records (txnSources).
     const st = await accounts.call("getEntityStatement", { entityId: haryana, from: "2026-04-01", to: today });
@@ -416,7 +425,7 @@ describe("review fixes", () => {
     assert.ok(Array.isArray(failed.hlLegs) && failed.hlLegs.length >= 2);
     await accounts.call("cancelPurchase", { requestId: rid(), purchaseId: a.purchaseId, reason: "Wrong supplier" });
     await status("purchases", a.purchaseId, "SYNCED", "cancelSyncStatus");
-    assert.equal(net([...(await txn(`purchase_${a.purchaseId}:bill`)).legs, ...(await txn(`purchase_${a.purchaseId}:cancel`)).legs]), 0);
+    assert.equal(net([...(await txn(`purchase_${a.purchaseId}:bill`)).legs, ...(await cancelTxn(a.purchaseId)).legs]), 0);
 
     // b) Cancelled before the bill went in; then the bill posts and its payment fails.
     await control({ down: true });
@@ -427,7 +436,7 @@ describe("review fixes", () => {
     await control({});
     assert.equal(await syncPurchase(libDb, brokenPayout(), b.purchaseId), "failed");
     await status("purchases", b.purchaseId, "SYNCED", "cancelSyncStatus");
-    assert.equal(net([...(await txn(`purchase_${b.purchaseId}:bill`)).legs, ...(await txn(`purchase_${b.purchaseId}:cancel`)).legs]), 0);
+    assert.equal(net([...(await txn(`purchase_${b.purchaseId}:bill`)).legs, ...(await cancelTxn(b.purchaseId)).legs]), 0);
   });
 });
 
@@ -456,5 +465,27 @@ describe("books not connected, reconcile, rules", () => {
     assert.ok(lines.docs.some((d) => d.data().type === "PURCHASE"));
     await denied(setDoc(doc(admin.db, "purchases", "x"), { status: "ACTIVE" }));
     for (const c of ["purchaseSeries", "purchaseRequests", "purchaseSync"]) await denied(getDoc(doc(admin.db, c, "x")));
+  });
+});
+
+describe("Supplier bills in the books (bill by bill)", () => {
+  test("a purchase is kept as a supplier bill with its number; paid with the bill and later against it", async () => {
+    const r = await buy(accounts, oilBill(haryana, { billNo: "SB-101", payments: [{ registerId: "default-cash", amountPaise: 1_000_000 }] }));
+    const p = await status("purchases", r.purchaseId, "SYNCED");
+    assert.equal(p.hlBillNumber, "SB-101");
+    const b0 = (await adminDb.doc(`_fakeHl/books/bills/${p.hlBillId}`).get()).data();
+    assert.equal(b0.billNumber, "SB-101");
+    assert.equal(b0.reference, r.ref);
+    assert.equal(b0.totalPaise, 5_310_000);
+    assert.equal(b0.amountPaidPaise, 1_000_000, "the payment made with the bill is against it");
+    assert.equal(b0.status, "PARTIALLY_PAID");
+    const { entryId } = await accounts.call("recordMoneyEntry", {
+      requestId: rid(), from: { kind: "BANK", registerId: "default-bank" }, to: { kind: "PARTY", entityId: haryana },
+      amountPaise: 4_310_000, businessDay: today, note: null, purchaseId: r.purchaseId,
+    });
+    await status("moneyEntries", entryId, "SYNCED");
+    const b1 = (await adminDb.doc(`_fakeHl/books/bills/${p.hlBillId}`).get()).data();
+    assert.equal(b1.amountPaidPaise, 5_310_000);
+    assert.equal(b1.status, "PAID");
   });
 });

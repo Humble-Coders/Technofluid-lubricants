@@ -403,6 +403,7 @@ export class HttpHlClient implements HlClient {
       description: p.description,
       metadata: {description: p.description},
       ...(p.invoiceId ? {invoiceId: p.invoiceId} : {}),
+      ...(p.billId ? {billId: p.billId} : {}),
     });
     return {txnId: txnIdOf(res, path.slice(1)), idempotent: res.idempotent === true};
   }
@@ -502,8 +503,31 @@ export class HttpHlClient implements HlClient {
       sourceId: p.sourceId,
       actorRef: p.actorRef,
       metadata: {description: p.description},
+      ...(p.billNumber ? {billNumber: p.billNumber.slice(0, 50)} : {}),
+      ...(p.reference ? {reference: p.reference} : {}),
+      ...(p.dueDate ? {dueDate: p.dueDate} : {}),
     });
-    return {txnId: txnIdOf(res, "customer-purchase"), idempotent: res.idempotent === true};
+    const bill = obj(obj(res.data)?.bill);
+    return {txnId: txnIdOf(res, "customer-purchase"), idempotent: res.idempotent === true, billId: strOrNull(bill?.id)};
+  }
+
+  async getPayableBills(customerId: string) {
+    const res = await this.call("GET", `/customers/${encodeURIComponent(customerId)}/payable-credits`);
+    const d = obj(res.data);
+    if (!d || !Array.isArray(d.openBills)) throw unexpected("payable-credits");
+    return d.openBills.map((x) => {
+      const b = obj(x) ?? {};
+      if (typeof b.id !== "string") throw unexpected("payable-credits (bill)");
+      return {id: b.id, billNumber: strOrNull(b.billNumber), outstanding: strOrNull(b.outstanding) ?? "0"};
+    });
+  }
+
+  /** VERIFY ON FIRST LIVE CALL: where the reversal's txn id sits (kept for statements; null if absent). */
+  async cancelSupplierBill(id: string, p: {reason: string; date: string}) {
+    const res = await this.call("POST", `/supplier-bills/${encodeURIComponent(id)}/cancel`, {reason: p.reason.slice(0, 250), date: p.date});
+    const d = obj(res.data) ?? {};
+    const id2 = [obj(d.reversal)?.id, obj(d.transaction)?.id, d.reversalTransactionId, d.transactionId].map(strOrNull).find(Boolean) ?? null;
+    return {txnId: id2};
   }
 
   /** Not idempotent (HL takes no sourceId here) — the caller reads the invoice first. */

@@ -303,8 +303,23 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClie
           carriedMatch = await matchToCarriedBill(hl, {customerId: from.customerId!, txnId: r.txnId, invoiceNo: String(e.invoiceNo), amountPaise: e.amountPaise, date: e.businessDay, sourceId: `${sourceId}:match`, actorRef});
         }
       } else if (isReg(from.ref) && to.ref.kind === "PARTY") {
-        // 4. Money paid.
+        // 4. Money paid — against the supplier's bill when it's linked to a purchase kept as one
+        // (in this company's books; one carried forward from last year is found by its number).
+        let billId: string | null = null;
+        if (e.purchaseId) {
+          const pur = (await db.collection(PURCHASES).doc(String(e.purchaseId)).get()).data();
+          if (pur && pur.deleted !== true && pur.status !== "CANCELLED") {
+            const sameBooks = (pur.companyId ?? "main") === (e.companyId ?? "main");
+            if (sameBooks) {
+              if (pur.syncStatus !== "SYNCED") throw new Waiting(`${pur.ref} isn't in the books yet`);
+              billId = typeof pur.hlBillId === "string" ? pur.hlBillId : null;
+            } else if (typeof pur.hlBillNumber === "string") {
+              billId = await carriedBillId(hl, to.customerId!, pur.hlBillNumber, e.amountPaise);
+            }
+          }
+        }
         const r = await hl.postPayout({
+          billId,
           customerId: to.customerId!,
           amountPaise: e.amountPaise,
           method: from.ref.kind as "CASH" | "BANK",
@@ -449,5 +464,19 @@ export async function matchToCarriedBill(
   } catch (e) {
     logger.warn("Matching a payment to a carried bill failed", {invoiceNo: p.invoiceNo, error: e instanceof Error ? e.message : String(e)});
     return {error: plainHlMessage(e)};
+  }
+}
+
+/**
+ * A supplier's bill carried into this company from an earlier year keeps its number: its id
+ * here, when it still owes at least this much (else null — the payment goes on account).
+ */
+async function carriedBillId(hl: HlClient, customerId: string, billNumber: string, amountPaise: number): Promise<string | null> {
+  try {
+    const bill = (await hl.getPayableBills(customerId)).find((b) => b.billNumber === billNumber);
+    return bill && hlAmountToPaise(bill.outstanding) >= amountPaise ? bill.id : null;
+  } catch (e) {
+    logger.warn("Looking up a carried supplier bill failed", {billNumber, error: e instanceof Error ? e.message : String(e)});
+    return null;
   }
 }

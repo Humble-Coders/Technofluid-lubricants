@@ -90,6 +90,8 @@ export interface HlMoneyMove {
   description: string;
   /** /payments only: apply it to this invoice (HL then tracks the invoice's amountPaid). */
   invoiceId?: string | null;
+  /** /customer-payouts only: pay against this supplier bill of the party (HL tracks its amountPaid). */
+  billId?: string | null;
 }
 
 /** One GST leg of a sale (CGST 9 %, SGST 9 % or IGST 18 %), credited to an output-tax account. */
@@ -131,6 +133,15 @@ export interface HlPurchase {
   date: string;
   sourceId: string;
   actorRef: string;
+  /**
+   * The supplier's own bill number: HL also keeps the purchase as a supplier bill on the
+   * party (bill-by-bill payables, carried forward one by one). Unique per party (409
+   * DUPLICATE_BILL_NUMBER). Sent on every purchase (Ansh HL, 29 Nov 2026).
+   */
+  billNumber?: string;
+  /** Our own reference (PB/2026-27/0001). */
+  reference?: string;
+  dueDate?: string;
 }
 
 export type HlInvoiceStatus = "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED" | string;
@@ -189,8 +200,12 @@ export interface HlClient {
    * idempotent (no sourceId) — read the invoice first and skip one already cancelled.
    */
   cancelInvoice(id: string, p: {reason: string; date: string}): Promise<void>;
-  /** Books a supplier's bill (POST /customer-purchases); idempotent on (appId, sourceId). */
-  postCustomerPurchase(p: HlPurchase): Promise<{txnId: string; idempotent: boolean}>;
+  /** Books a supplier's bill (POST /customer-purchases); idempotent on (appId, sourceId). `billId` when a billNumber was sent. */
+  postCustomerPurchase(p: HlPurchase): Promise<{txnId: string; idempotent: boolean; billId: string | null}>;
+  /** A party's open supplier bills (GET /customers/{id}/payable-credits → openBills). */
+  getPayableBills(customerId: string): Promise<{id: string; billNumber: string | null; outstanding: string}[]>;
+  /** Cancels a supplier bill: reverses its purchase, keeps the bill as CANCELLED. Idempotent. */
+  cancelSupplierBill(id: string, p: {reason: string; date: string}): Promise<{txnId: string | null}>;
 
   // ─── Companies (HL multi-company, Ansh HL 28 Nov 2026) ───────────────────────
   // A client is scoped to ONE HL company (`hlCompanyId`; null = the login's home
@@ -384,6 +399,8 @@ export class NotConnectedHlClient implements HlClient {
   setBooksLock = () => this.fail();
   getGroupReport = () => this.fail();
   getCustomerCredits = () => this.fail();
+  getPayableBills = () => this.fail();
+  cancelSupplierBill = () => this.fail();
   allocateCustomerCredit = () => this.fail();
   forCompany = (hlCompanyId: string | null) => new NotConnectedHlClient(hlCompanyId);
 }
