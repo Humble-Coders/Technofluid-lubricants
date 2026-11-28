@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, Menu, screen, session, shell } from "electron";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import os from "node:os";
+import { dirname, join } from "node:path";
 import type { AppInfo } from "../shared/ipc";
 import { registerCsv } from "./csv";
 import { registerInvoicePdf, stopInvoicePdf } from "./hbe/invoices";
@@ -148,6 +150,30 @@ function buildMenu(): void {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+// ─── This copy of the app's id (our device record) ──────────────────────────────
+
+/**
+ * A random id for this installation, made the first time and kept in the app's data
+ * folder (it survives updates; a reinstall that clears the folder counts as a new device).
+ */
+function installId(): string {
+  const file = join(app.getPath("userData"), "install-id.txt");
+  try {
+    const saved = readFileSync(file, "utf8").trim();
+    if (/^[a-z0-9]{16,64}$/.test(saved)) return saved;
+  } catch {
+    // Not made yet.
+  }
+  const id = randomUUID().replace(/-/g, "");
+  try {
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, id);
+  } catch {
+    // Read-only folder: a fresh id each run is still better than none.
+  }
+  return id;
+}
+
 // ─── What the screens may ask for ────────────────────────────────────────────────
 
 function registerIpc(): void {
@@ -156,6 +182,9 @@ function registerIpc(): void {
     version: app.getVersion(),
     platform: process.platform,
     isPackaged: app.isPackaged,
+    installId: installId(),
+    computerName: os.hostname().slice(0, 100),
+    osVersion: `${os.type()} ${os.release()}`.slice(0, 100),
   }));
 }
 

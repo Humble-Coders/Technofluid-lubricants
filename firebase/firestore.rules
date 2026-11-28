@@ -229,6 +229,29 @@ service cloud.firestore {
         allow read, write: if false;
       }
     }
+    // Our record of the computers the office app runs on (Humble Solutions only — not shown
+    // in the app; read in the Firebase console). Each copy of the app writes its own doc:
+    // computer, OS, app version, who last signed in, first/last seen. No client reads.
+    function validInstall(installId) {
+      let d = request.resource.data;
+      return (isAdmin() || isAccounts() || isSupervisor())
+        && installId.matches('^[a-z0-9]{16,64}$')
+        && d.keys().hasOnly(['installId', 'computerName', 'platform', 'osVersion', 'appVersion', 'lastUser', 'lastSeenAt', 'firstSeenAt'])
+        && d.installId == installId
+        && d.computerName is string && d.computerName.size() <= 100
+        && d.platform is string && d.platform.size() <= 20
+        && d.osVersion is string && d.osVersion.size() <= 100
+        && d.appVersion is string && d.appVersion.size() <= 20
+        && d.lastUser.keys().hasOnly(['uid', 'name', 'role'])
+        && d.lastUser.uid == request.auth.uid
+        && d.lastSeenAt == request.time;
+    }
+    match /appInstalls/{installId} {
+      allow read, delete: if false;
+      allow create: if validInstall(installId) && request.resource.data.firstSeenAt == request.time;
+      allow update: if validInstall(installId) && request.resource.data.firstSeenAt == resource.data.firstSeenAt;
+    }
+
     match /companyRequests/{requestId} {
       allow read, write: if false;
     }

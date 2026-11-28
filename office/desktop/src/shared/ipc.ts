@@ -5,6 +5,12 @@ export interface AppInfo {
   version: string;
   platform: string;
   isPackaged: boolean;
+  /** This copy of the app's own id (made once, kept in the app's data folder) — for our device record. */
+  installId: string;
+  /** The computer's name, e.g. "ACCOUNTS-PC". */
+  computerName: string;
+  /** e.g. "Windows_NT 10.0.22631". */
+  osVersion: string;
 }
 
 /** One invoice PDF from the Humble Bill Engine (main/hbe/invoices.ts). */

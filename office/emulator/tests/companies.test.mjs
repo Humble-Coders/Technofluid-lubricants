@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { adminDb, as, closeClients, denied, PROJECT, rejectsWith, seedStaff } from "./helpers.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -578,6 +578,32 @@ describe("Deleting a company made by mistake", () => {
     await synced("moneyEntries", e.entryId);
     await rejectsWith(admin.call("deleteCompany", { companyId: used }), "invalid-argument", /archive it instead/);
     assert.notEqual((await company(used)).deleted, true);
+  });
+});
+
+describe("Our record of the computers using the app", () => {
+  test("each copy writes its own record; nobody reads it from the app", async () => {
+    const id = `dev${Date.now()}abcdef`;
+    const fields = (who) => ({
+      installId: id, computerName: "ACCOUNTS-PC", platform: "win32", osVersion: "Windows_NT 10.0.22631", appVersion: "0.1.7",
+      lastUser: { uid: who, name: "Someone", role: "accounts" }, lastSeenAt: serverTimestamp(),
+    });
+    // First time: created with firstSeenAt.
+    await setDoc(doc(accounts.db, `appInstalls/${id}`), { ...fields("t-accounts"), firstSeenAt: serverTimestamp() });
+    const first = (await adminDb.doc(`appInstalls/${id}`).get()).data();
+    assert.equal(first.computerName, "ACCOUNTS-PC");
+    assert.ok(first.firstSeenAt);
+    // Later: another staff member on the same computer updates it; firstSeenAt stays.
+    await updateDoc(doc(admin.db, `appInstalls/${id}`), fields("t-admin"));
+    const later = (await adminDb.doc(`appInstalls/${id}`).get()).data();
+    assert.equal(later.lastUser.uid, "t-admin");
+    assert.equal(later.firstSeenAt.toMillis(), first.firstSeenAt.toMillis());
+    // Not readable from the app; no pretending to be someone else; no changing firstSeenAt; no extra fields.
+    await denied(getDoc(doc(admin.db, `appInstalls/${id}`)));
+    await denied(updateDoc(doc(accounts.db, `appInstalls/${id}`), fields("t-admin")));
+    await denied(updateDoc(doc(admin.db, `appInstalls/${id}`), { ...fields("t-admin"), firstSeenAt: serverTimestamp() }));
+    await denied(updateDoc(doc(admin.db, `appInstalls/${id}`), { ...fields("t-admin"), extra: 1 }));
+    await denied(setDoc(doc(admin.db, "appInstalls/BAD ID"), { ...fields("t-admin"), installId: "BAD ID", firstSeenAt: serverTimestamp() }));
   });
 });
 
