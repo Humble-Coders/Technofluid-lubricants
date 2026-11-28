@@ -6,6 +6,7 @@ import { db, functions } from "@/lib/firebase";
 import { friendlyError } from "./callErrors";
 import type { SyncStatus } from "./moneyService";
 import { newRequestId } from "./stockService";
+import { inSalesView } from "./currentCompany";
 
 /**
  * Sales & invoices. Read straight from Firestore (Admin + Accounts, by the rules); every
@@ -84,7 +85,7 @@ export function watchSales(from: string, to: string, onChange: (rows: SaleRow[])
     (snap) =>
       onChange(
         snap.docs
-          .filter((d) => d.data().deleted !== true)
+          .filter((d) => d.data().deleted !== true && inSalesView(d.data()))
           .map((d) => toSale(d.id, d.data({ serverTimestamps: "estimate" })))
           .sort((a, b) => b.invoiceDate.localeCompare(a.invoiceDate) || b.invoiceNo.localeCompare(a.invoiceNo, undefined, { numeric: true })),
       ),

@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
-import {FieldValue} from "firebase-admin/firestore";
+import {FieldPath, FieldValue} from "firebase-admin/firestore";
+import {logger} from "firebase-functions/v2";
 import {HttpsError} from "firebase-functions/v2/https";
 
 import {getHlClient} from "../ledger/getHlClient";
@@ -207,15 +208,11 @@ export async function companyCustomer(
   const ref = linkRef(db, companyId, entityId);
   const linked = (await ref.get()).data();
   if (typeof linked?.hlCustomerId === "string" && typeof linked?.hlAccountId === "string") return {customerId: linked.hlCustomerId, accountId: linked.hlAccountId};
-  const opt = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
-  const {customer} = await books.createCustomer({
-    externalId: entityId,
-    name: String(entity.name ?? "Party"),
-    ...(opt(entity.phone) ? {phone: opt(entity.phone)} : {}),
-    ...(opt(entity.email) ? {email: opt(entity.email)} : {}),
-    ...(opt(entity.gstin) ? {gstin: opt(entity.gstin)} : {}),
-  });
-  await ref.set({hlCustomerId: customer.id, hlAccountId: customer.accountId, at: FieldValue.serverTimestamp()}, {merge: true});
+  const profile = partyProfile(entity);
+  const made = await books.createCustomer({externalId: entityId, ...profile});
+  // Already there (copied by HL with the year, or made earlier): bring its details up to date.
+  const customer = made.idempotent ? await books.updateCustomer(made.customer.id, profile) : made.customer;
+  await ref.set({kind: "party", entityId, hlCustomerId: customer.id, hlAccountId: customer.accountId, at: FieldValue.serverTimestamp()}, {merge: true});
   return {customerId: customer.id, accountId: customer.accountId};
 }
 
@@ -242,7 +239,76 @@ export async function routeToCompany(db: admin.firestore.Firestore, companyId: s
  */
 export async function companyToRead(db: admin.firestore.Firestore, role: string, raw: unknown, home: HlClient): Promise<{company: CompanyDoc; books: HlClient; isMain: boolean}> {
   const asked = typeof raw === "string" && raw.trim() ? raw.trim() : MAIN_COMPANY_ID;
-  if (!isMainCompany(asked) && role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can open another company.");
   const company = await loadCompany(db, asked);
+  // Accounts reads the main business (any of its financial years); a person's books are Admin's.
+  if (company.line !== MAIN_LINE && role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can open another company.");
   return {company, books: await booksFor(db, home, company.id), isMain: isMainCompany(company.id)};
+}
+
+/** HL profile of a party (blanks left out — HL rejects ""). Phones: the first one. */
+export function partyProfile(entity: admin.firestore.DocumentData): {name: string; phone?: string; email?: string; gstin?: string} {
+  const opt = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+  const phone = opt(Array.isArray(entity.phones) ? entity.phones[0] : entity.phone);
+  return {
+    name: String(entity.name ?? "Party"),
+    ...(phone ? {phone} : {}),
+    ...(opt(entity.email) ? {email: opt(entity.email)} : {}),
+    ...(opt(entity.gstin) ? {gstin: opt(entity.gstin)} : {}),
+  };
+}
+
+/**
+ * A party's name / phone / email / GSTIN changed: update its copy in every other company
+ * that already has it (main is synced by syncEntity). Best effort — a failure is logged and
+ * the next edit (or first use, which also refreshes the details) catches up; balances are
+ * never affected.
+ */
+export async function updatePartyInCompanies(db: admin.firestore.Firestore, home: HlClient, entityId: string, entity: admin.firestore.DocumentData): Promise<number> {
+  let updated = 0;
+  for (const c of await loadCompanies(db)) {
+    if (isMainCompany(c.id) || !c.hlCompanyId || c.accessLost) continue;
+    const link = (await linkRef(db, c.id, entityId).get()).data();
+    if (typeof link?.hlCustomerId !== "string") continue;
+    try {
+      await home.forCompany(c.hlCompanyId).updateCustomer(link.hlCustomerId, partyProfile(entity));
+      updated++;
+    } catch (e) {
+      logger.warn("Couldn't update a party in another company", {entityId, companyId: c.id, error: e instanceof Error ? e.message : String(e)});
+    }
+  }
+  return updated;
+}
+
+/**
+ * Records made before companies existed have no line / companyId: they are the main
+ * business's. Stamped once (officeSettings/companies.stampedLine), so the security rules can
+ * keep other companies' money records from Accounts. Safe to re-run.
+ */
+export async function stampMainLine(db: admin.firestore.Firestore): Promise<{stamped: number; already: boolean}> {
+  const marker = db.collection("officeSettings").doc("companies");
+  if ((await marker.get()).data()?.stampedLine === true) return {stamped: 0, already: true};
+  let stamped = 0;
+  for (const collection of ["moneyEntries", "registers"]) {
+    let last: admin.firestore.QueryDocumentSnapshot | null = null;
+    for (;;) {
+      let q = db.collection(collection).orderBy(FieldPath.documentId()).limit(400);
+      if (last) q = q.startAfter(last);
+      const snap = await q.get();
+      if (snap.empty) break;
+      const batch = db.batch();
+      let n = 0;
+      for (const d of snap.docs) {
+        const v = d.data();
+        if (typeof v.line === "string" && (collection === "registers" || typeof v.companyId === "string")) continue;
+        batch.set(d.ref, collection === "registers" ? {line: v.line ?? MAIN_LINE} : {line: v.line ?? MAIN_LINE, companyId: v.companyId ?? MAIN_COMPANY_ID}, {merge: true});
+        n++;
+      }
+      if (n) await batch.commit();
+      stamped += n;
+      last = snap.docs[snap.docs.length - 1];
+      if (snap.size < 400) break;
+    }
+  }
+  await marker.set({stampedLine: true, stampedAt: FieldValue.serverTimestamp(), stamped}, {merge: true});
+  return {stamped, already: false};
 }

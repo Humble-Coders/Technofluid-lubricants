@@ -15,7 +15,7 @@ import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
 import { CompanyProvider, useCompany } from "@/features/companies/CompanyContext";
 import { Banner } from "@/components/ui";
-import { MAIN_COMPANY_ID, companyPeriodIn } from "@technofluid/core";
+import { companyPeriodIn } from "@technofluid/core";
 
 const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
 const inDesktopApp = Boolean(window.office);
@@ -99,10 +99,10 @@ function Shell() {
         <div className="relative m-2 min-h-0 flex-1">
           <main className="absolute inset-0 overflow-auto rounded-sheet border border-line bg-surface shadow-card">
             <SheetOverlayContext.Provider value={overlay}>
-              {companyId !== MAIN_COMPANY_ID && company ? (
+              {company && company.line !== "main" ? (
                 <Banner tone="info" className="mx-8 mt-4">
-                  You're working in <strong>{company.name}</strong>. Money in &amp; out, expenses, cash &amp; bank and balances show this company.
-                  {company.line === "main" ? " Sales, purchases and stock are still recorded in the main company for now." : " It keeps money only — sales, purchases and stock belong to the main business."}
+                  You're working in <strong>{company.name}</strong> — separate, money-only books. Money in &amp; out, expenses, cash &amp; bank and balances show this company;
+                  sales, purchases and stock belong to the main business.
                 </Banner>
               ) : null}
               {/* A new key per company: every screen reloads its data when the company changes. */}

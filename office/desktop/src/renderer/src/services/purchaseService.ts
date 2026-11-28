@@ -6,6 +6,7 @@ import { db, functions } from "@/lib/firebase";
 import { friendlyError } from "./callErrors";
 import type { SyncStatus } from "./moneyService";
 import { newRequestId } from "./stockService";
+import { inSalesView } from "./currentCompany";
 
 /**
  * Purchases (supplier bills). Read straight from Firestore (Admin + Accounts, by the
@@ -79,7 +80,7 @@ export function watchPurchases(from: string, to: string, onChange: (rows: Purcha
     (snap) =>
       onChange(
         snap.docs
-          .filter((d) => d.data().deleted !== true)
+          .filter((d) => d.data().deleted !== true && inSalesView(d.data()))
           .map((d) => toPurchase(d.id, d.data({ serverTimestamps: "estimate" })))
           .sort((a, b) => b.billDate.localeCompare(a.billDate) || b.ref.localeCompare(a.ref, undefined, { numeric: true })),
       ),

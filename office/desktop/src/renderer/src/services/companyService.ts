@@ -1,4 +1,4 @@
-import { collection, onSnapshot, type DocumentData, type Unsubscribe } from "firebase/firestore";
+import { collection, onSnapshot, query, where, type DocumentData, type Unsubscribe } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { MAIN_COMPANY_ID, MAIN_LINE } from "@technofluid/core";
 import { db, functions } from "@/lib/firebase";
@@ -82,9 +82,10 @@ export function sortCompanies(rows: CompanyRow[]): CompanyRow[] {
   });
 }
 
-export function watchCompanies(onChange: (rows: CompanyRow[]) => void, onError: (e: Error) => void): Unsubscribe {
+/** Every company (Admin), or with `mainBusinessOnly` just the main business's years (Accounts, Stock — the rules allow no more). */
+export function watchCompanies(onChange: (rows: CompanyRow[]) => void, onError: (e: Error) => void, mainBusinessOnly = false): Unsubscribe {
   return onSnapshot(
-    collection(db, "companies"),
+    mainBusinessOnly ? query(collection(db, "companies"), where("line", "==", MAIN_LINE)) : collection(db, "companies"),
     (snap) => onChange(sortCompanies(snap.docs.filter((d) => d.data().deleted !== true).map((d) => toRow(d.id, d.data())))),
     onError,
   );

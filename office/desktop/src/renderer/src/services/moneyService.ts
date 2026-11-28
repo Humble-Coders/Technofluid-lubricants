@@ -5,7 +5,10 @@ import { DEFAULT_REGISTERS, type ExpenseGst, type MoneyAccountRef, type Register
 import { db, functions } from "@/lib/firebase";
 import { friendlyError } from "./callErrors";
 import { newRequestId } from "./stockService";
-import { companyOf, currentCompanyId, currentLine, lineOf } from "./currentCompany";
+import { currentCompanyId, currentLine, inMoneyView, lineOf, mainLineOnly } from "./currentCompany";
+
+/** Accounts may only ask for the main business's money records (the security rules). */
+const lineWhere = () => (mainLineOnly() ? [where("line", "==", "main")] : []);
 
 /**
  * Money in & out (registers, expense categories, entries). Read straight from Firestore
@@ -80,7 +83,7 @@ const toRegister = (id: string, d: DocumentData): RegisterRow => ({
 /** Cash first, then banks by their order. Defaults are stood in for until they exist. */
 export function watchRegisters(onChange: (rows: RegisterRow[]) => void, onError: (e: Error) => void): Unsubscribe {
   return onSnapshot(
-    query(collection(db, "registers"), where("deleted", "==", false)),
+    query(collection(db, "registers"), where("deleted", "==", false), ...lineWhere()),
     (snap) => {
       // Only the current company's cash & bank (registers belong to a line of companies).
       const line = currentLine();
@@ -133,11 +136,11 @@ const toEntry = (id: string, d: DocumentData): MoneyEntryRow => ({
 /** Entries whose business day is in [from, to], newest first. */
 export function watchMoneyEntries(from: string, to: string, onChange: (rows: MoneyEntryRow[]) => void, onError: (e: Error) => void): Unsubscribe {
   return onSnapshot(
-    query(collection(db, "moneyEntries"), where("businessDay", ">=", from), where("businessDay", "<=", to), orderBy("businessDay", "desc")),
+    query(collection(db, "moneyEntries"), ...lineWhere(), where("businessDay", ">=", from), where("businessDay", "<=", to), orderBy("businessDay", "desc")),
     (snap) =>
       onChange(
         snap.docs
-          .filter((d) => d.data().deleted !== true && companyOf(d.data()) === currentCompanyId())
+          .filter((d) => d.data().deleted !== true && inMoneyView(d.data()))
           .map((d) => toEntry(d.id, d.data({ serverTimestamps: "estimate" })))
           .sort((a, b) => b.businessDay.localeCompare(a.businessDay) || (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)),
       ),
@@ -151,7 +154,7 @@ export function watchMoneyEntryStatuses(ids: string[], onChange: (statuses: Reco
   const chunks: string[][] = [];
   for (let i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
   const stops = chunks.map((chunk) =>
-    onSnapshot(query(collection(db, "moneyEntries"), where(documentId(), "in", chunk)), (snap) => {
+    onSnapshot(query(collection(db, "moneyEntries"), ...lineWhere(), where(documentId(), "in", chunk)), (snap) => {
       for (const d of snap.docs) found[d.id] = status(d.data().syncStatus);
       onChange({ ...found });
     }),
@@ -178,7 +181,7 @@ function watchLinkedPayments(field: "saleId" | "purchaseId", ids: string[], onCh
     return () => {};
   }
   const stops = chunks.map((chunk, i) =>
-    onSnapshot(query(collection(db, "moneyEntries"), where(field, "in", chunk)), (snap) => {
+    onSnapshot(query(collection(db, "moneyEntries"), ...lineWhere(), where(field, "in", chunk)), (snap) => {
       found.set(String(i), snap.docs.filter((d) => d.data().deleted !== true).map((d) => toEntry(d.id, d.data({ serverTimestamps: "estimate" }))));
       onChange([...found.values()].flat());
     }),

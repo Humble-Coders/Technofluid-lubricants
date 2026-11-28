@@ -4,8 +4,56 @@
       "collectionGroup": "entities",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "deleted", "order": "ASCENDING" },
-        { "fieldPath": "nameLower", "order": "ASCENDING" }
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nameLower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "moneyEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "line",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "businessDay",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "moneyEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "line",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "moneyEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "line",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "purchaseId",
+          "order": "ASCENDING"
+        }
       ]
     }
   ],

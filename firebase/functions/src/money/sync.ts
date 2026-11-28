@@ -12,7 +12,7 @@ import {PURCHASES} from "../purchases/purchaseModel";
 import {cancelPurchaseInBooks, syncPurchase} from "../purchases/sync";
 import {accountCache, categoryAccountName, registerAccountName} from "./hlAccounts";
 import {MAIN_LINE, companyForDate} from "../companies/companyModel";
-import {booksFor, companyAccount, companyCustomer, isMainCompany, loadCompanies} from "../companies/companyStore";
+import {booksFor, companyAccount, companyCustomer, isMainCompany, loadCompanies, stampMainLine} from "../companies/companyStore";
 import {EXPENSE_CATEGORIES, MONEY_ENTRIES, REGISTERS, SYSTEM_ACCOUNTS, moneySourceIds, type MoneyAccountRef} from "./moneyModel";
 
 /**
@@ -265,7 +265,10 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClie
         let invoiceId: string | null = null;
         if (e.saleId) {
           const sale = (await db.collection(SALES).doc(String(e.saleId)).get()).data();
-          if (sale && sale.deleted !== true && sale.status !== "CANCELLED") {
+          // Only against an invoice in THIS company's books: one from an earlier year (carried
+          // forward under a new id) gets the money on account — matched to it later.
+          const sameBooks = (sale?.companyId ?? "main") === (e.companyId ?? "main");
+          if (sale && sale.deleted !== true && sale.status !== "CANCELLED" && sameBooks) {
             if (sale.syncStatus !== "SYNCED" || !sale.hlInvoiceId) throw new Waiting(`${sale.invoiceNo} isn't in the books yet`);
             invoiceId = String(sale.hlInvoiceId);
           }
@@ -371,6 +374,8 @@ async function sweep(
 /** One pass, in dependency order: entities → registers → categories → sales → purchases (each with its cancellations) → money entries. */
 export async function reconcileLedgerOnce(db: admin.firestore.Firestore, hl: HlClient, now = Date.now()) {
   if (hl.mode === "off") return {notConnected: true};
+  // Once, after companies arrive: older records are marked as the main business's.
+  await stampMainLine(db).catch((e) => logger.error("Stamping the main line failed", {error: String(e)}));
   const entities = await reconcileEntities(db, hl, now);
   const registers = await sweep(db, REGISTERS, (id) => syncRegister(db, hl, id), now);
   const categories = await sweep(db, EXPENSE_CATEGORIES, (id) => syncCategory(db, hl, id), now);

@@ -22,7 +22,7 @@ import {
   kindOfLine,
   prettyDay,
 } from "./companyModel";
-import {getHlClientFor, hlFields, loadCompanies, loadCompany, notInBooksYet, refreshCompanies} from "./companyStore";
+import {getHlClientFor, hlFields, loadCompanies, loadCompany, notInBooksYet, refreshCompanies, stampMainLine} from "./companyStore";
 
 /**
  * Companies (admin only — Sharnya, 28 Nov 2026). Every action goes through Humble
@@ -54,6 +54,8 @@ function companyIdOf(raw: unknown): string {
 /** Re-reads HL's company list into companies/*. */
 export const refreshCompaniesList = onCall(OPTS, async (request) => {
   await requireRole(request, ["admin"]);
+  // Once: older money records and cash/bank accounts are marked as the main business's.
+  await stampMainLine(admin.firestore()).catch((e) => logger.error("Stamping the main line failed", {error: String(e)}));
   try {
     return await refreshCompanies(admin.firestore());
   } catch (e) {

@@ -6,7 +6,8 @@ import {ENTITIES} from "../entities/entityModel";
 import {TRIGGER_RETRIES, type SyncOutcome} from "../entities/sync";
 import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, plainHlMessage, type HlClient, type HlSaleTaxLine} from "../ledger/hlClient";
-import {accountCache} from "../money/hlAccounts";
+import {accountCache, registerAccountName} from "../money/hlAccounts";
+import {booksFor, companyAccount, companyCustomer, isMainCompany} from "../companies/companyStore";
 import {REGISTERS} from "../money/moneyModel";
 import {SALES, SALE_ACCOUNTS, SALE_SYNC, saleSourceIds, type RateRow, type SaleTotals} from "./saleModel";
 
@@ -80,19 +81,35 @@ export async function syncSale(db: admin.firestore.Firestore, hl: HlClient, sale
   const actorRef = String(s.createdBy?.uid ?? "system");
 
   try {
+    // The sale's own company (the main-business company for its date; missing = main).
+    const other = isMainCompany(s.companyId) ? null : String(s.companyId);
+    const books = await booksFor(db, hl, s.companyId).catch((e) => {
+      throw new Permanent(e instanceof Error ? e.message : String(e));
+    });
     // Resolve everything before posting anything.
     const c = (await db.collection(ENTITIES).doc(String(s.customer.entityId)).get()).data();
     if (!c || c.deleted === true) throw new Permanent(`${s.customer.name} no longer exists.`);
-    if (c.syncStatus !== "SYNCED" || !c.hlCustomerId) throw new Waiting(`${s.customer.name} isn't in the books yet`);
+    let customerId: string;
+    if (other) {
+      customerId = (await companyCustomer(db, books, other, String(s.customer.entityId), c)).customerId;
+    } else {
+      if (c.syncStatus !== "SYNCED" || !c.hlCustomerId) throw new Waiting(`${s.customer.name} isn't in the books yet`);
+      customerId = String(c.hlCustomerId);
+    }
     const payments = (s.payments ?? []) as {registerId: string; kind: "CASH" | "BANK"; name: string; amountPaise: number}[];
     const regs = await Promise.all(payments.map((p) => db.collection(REGISTERS).doc(p.registerId).get()));
-    const regAccounts = regs.map((r, i) => {
-      const d = r.data();
+    const regAccounts: string[] = [];
+    for (let i = 0; i < regs.length; i++) {
+      const d = regs[i].data();
       if (!d || d.deleted === true) throw new Permanent(`${payments[i].name} no longer exists.`);
+      if (other) {
+        regAccounts.push((await companyAccount(db, books, other, regs[i].id, "ASSET", registerAccountName(d.kind, String(d.name), regs[i].id))) as string);
+        continue;
+      }
       if (!d.hlAccountId) throw new Waiting(`${d.name} isn't in the books yet`);
-      return String(d.hlAccountId);
-    });
-    const account = accountCache(hl);
+      regAccounts.push(String(d.hlAccountId));
+    }
+    const account = accountCache(books);
     const totals = s.totals as SaleTotals;
     const revenue = (await account(SALE_ACCOUNTS.revenue.name, "INCOME")).id;
     const taxLines = await taxLinesFor(totals, account);
@@ -101,8 +118,8 @@ export async function syncSale(db: admin.firestore.Firestore, hl: HlClient, sale
     let hlSaleTxnId: string | undefined = progress.hlSaleTxnId;
     let hlInvoiceId: string | undefined = progress.hlInvoiceId;
     if (!hlSaleTxnId || !hlInvoiceId) {
-      const r = await hl.postSale({
-        customerId: String(c.hlCustomerId),
+      const r = await books.postSale({
+        customerId,
         amountPaise: totals.taxablePaise + totals.roundOffPaise,
         taxLines,
         revenueAccountId: revenue,
@@ -120,8 +137,8 @@ export async function syncSale(db: admin.firestore.Firestore, hl: HlClient, sale
     const paymentTxns: string[] = Array.isArray(progress.paymentTxns) ? [...progress.paymentTxns] : [];
     for (let i = 0; i < payments.length; i++) {
       if (paymentTxns[i]) continue;
-      const r = await hl.postPayment({
-        customerId: String(c.hlCustomerId),
+      const r = await books.postPayment({
+        customerId,
         amountPaise: payments[i].amountPaise,
         method: payments[i].kind,
         paymentAccountId: regAccounts[i],
@@ -192,10 +209,11 @@ export async function cancelSaleInBooks(db: admin.firestore.Firestore, hl: HlCli
   if (!invoiceId) return "skipped";
   const prior = Number(s.cancelSyncAttempts ?? 0);
   try {
-    const inv = await hl.getInvoice(invoiceId);
+    const books = await booksFor(db, hl, s.companyId);
+    const inv = await books.getInvoice(invoiceId);
     if (inv.status !== "CANCELLED") {
       const day = String(s.cancel?.day ?? s.invoiceDate);
-      await hl.cancelInvoice(invoiceId, {reason: String(s.cancel?.reason ?? "Cancelled"), date: day < s.invoiceDate ? s.invoiceDate : day});
+      await books.cancelInvoice(invoiceId, {reason: String(s.cancel?.reason ?? "Cancelled"), date: day < s.invoiceDate ? s.invoiceDate : day});
     }
     await ref.set({cancelSyncStatus: "SYNCED", cancelSyncError: null, cancelSyncAttempts: 0, lastCancelAttemptAt: FieldValue.serverTimestamp()}, {merge: true});
     return "synced";

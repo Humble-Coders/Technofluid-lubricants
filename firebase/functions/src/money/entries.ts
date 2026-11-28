@@ -84,7 +84,8 @@ export const sideId = (r: MoneyAccountRef) =>
  */
 async function companyFor(db: admin.firestore.Firestore, caller: Caller, raw: unknown, input: MoneyEntryInput): Promise<CompanyDoc> {
   const asked = typeof raw === "string" && raw.trim() ? raw.trim() : MAIN_COMPANY_ID;
-  if (!isMainCompany(asked) && caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
+  // Accounts works in the main business (any of its financial years); a person's books are Admin's.
+  if (caller.role !== "admin" && (await loadCompany(db, asked)).line !== MAIN_LINE) throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
   const company = await routeToCompany(db, asked, input.businessDay);
   for (const side of [input.from, input.to]) {
     if (side.kind !== "CASH" && side.kind !== "BANK") continue;
@@ -150,7 +151,7 @@ export const recordMoneyEntry = onCall({region: "us-central1"}, async (request) 
     const link = saleId ? await saleLink(tx, db, saleId, input) : null;
     const bill = purchaseId ? await purchaseLink(tx, db, purchaseId, input) : null;
     const ref = db.collection(MONEY_ENTRIES).doc();
-    const doc = entryDoc(input, caller, {companyId: company.id, ...(link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : bill ? {purchaseId: bill.purchaseId, purchaseRef: bill.purchaseRef} : {})});
+    const doc = entryDoc(input, caller, {companyId: company.id, line: company.line, ...(link ? {saleId: link.saleId, invoiceNo: link.invoiceNo} : bill ? {purchaseId: bill.purchaseId, purchaseRef: bill.purchaseRef} : {})});
     if (link) doc.sideIds = [...doc.sideIds, link.saleId];
     if (bill) doc.sideIds = [...doc.sideIds, bill.purchaseId];
     tx.create(ref, doc);
@@ -246,7 +247,7 @@ export const recordExpense = onCall({region: "us-central1"}, async (request) => 
   const company = await companyFor(db, caller, data.companyId, input);
   return onceInTx(db, reqId, "recordExpense", async (tx) => {
     const ref = db.collection(MONEY_ENTRIES).doc();
-    tx.create(ref, entryDoc(input, caller, {companyId: company.id}));
+    tx.create(ref, entryDoc(input, caller, {companyId: company.id, line: company.line}));
     return {entryId: ref.id};
   });
 });
@@ -310,7 +311,7 @@ export const correctBalance = onCall({region: "us-central1", secrets: HL_SECRETS
   check(input);
   return onceInTx(db, reqId, "correctBalance", async (tx) => {
     const ref = db.collection(MONEY_ENTRIES).doc();
-    tx.create(ref, entryDoc(input, caller, {companyId: company.id, correctedFromPaise: current, correctedToPaise: wanted}));
+    tx.create(ref, entryDoc(input, caller, {companyId: company.id, line: company.line, correctedFromPaise: current, correctedToPaise: wanted}));
     return {entryId: ref.id, noChange: false, currentPaise: current};
   });
 });
@@ -332,8 +333,8 @@ export const reverseMoneyEntry = onCall({region: "us-central1"}, async (request)
   // The mirror goes to the original's company (it posts the original's own legs, flipped),
   // dated today — refused if that company is archived or today is in its closed year.
   const origCompanyId = String((await origRef.get()).data()?.companyId ?? MAIN_COMPANY_ID);
-  if (!isMainCompany(origCompanyId) && caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
   const origCompany = await loadCompany(db, origCompanyId);
+  if (origCompany.line !== MAIN_LINE && caller.role !== "admin") throw new HttpsError("permission-denied", "Only an Admin can work in another company.");
   if (origCompany.archived) throw new HttpsError("failed-precondition", `${origCompany.name} is archived (read-only) — nothing can be added to it.`, {code: "COMPANY_ARCHIVED"});
   assertOpenDay(origCompany, indiaToday(), "Today");
 
@@ -347,7 +348,7 @@ export const reverseMoneyEntry = onCall({region: "us-central1"}, async (request)
     }
     const mirrorRef = db.collection(MONEY_ENTRIES).doc();
     const mirror: MoneyEntryInput = {from: o.to, to: o.from, amountPaise: o.amountPaise, businessDay: indiaToday(), note: `Reversal: ${reason}`, isCorrection: o.isCorrection === true, gst: o.gst ?? null};
-    tx.create(mirrorRef, entryDoc(mirror, caller, {companyId: origCompanyId, reversesEntryId: entryId}));
+    tx.create(mirrorRef, entryDoc(mirror, caller, {companyId: origCompanyId, line: origCompany.line, reversesEntryId: entryId}));
     tx.update(origRef, {reversedByEntryId: mirrorRef.id, updatedAt: FieldValue.serverTimestamp()});
     return {entryId: mirrorRef.id, reversesEntryId: entryId};
   });

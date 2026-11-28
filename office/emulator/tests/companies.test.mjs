@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { adminDb, as, closeClients, denied, PROJECT, rejectsWith, seedStaff } from "./helpers.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +65,7 @@ describe("Who can see and manage companies", () => {
     await admin.call("refreshCompaniesList", {});
     const snap = await getDoc(doc(admin.db, "companies/main"));
     assert.equal(snap.exists(), true);
-    await denied(getDoc(doc(accounts.db, "companies/main")));
+    assert.equal((await getDoc(doc(accounts.db, "companies/main"))).exists(), true, "Accounts reads the main business's years");
     await denied(setDoc(doc(admin.db, "companies/main"), { name: "Hacked" }));
     await denied(setDoc(doc(admin.db, "companies/new-one"), { name: "Mine" }));
     await denied(getDoc(doc(admin.db, "companyRequests/x")));
@@ -409,5 +409,104 @@ describe("Routing by date within a company's books", () => {
       "failed-precondition",
       /closed year/,
     );
+  });
+});
+
+describe("Accounts sees only the main business", () => {
+  test("rules: a person's money records, cash/bank and company are Admin only", async () => {
+    const pc = (await admin.call("createCompany", { name: "Neha Gupta", requestId: rid() })).companyId;
+    const box = (await admin.call("saveRegister", { requestId: rid(), companyId: pc, name: `Neha cash ${rid()}`, kind: "CASH" })).registerId;
+    const someone = (await admin.call("saveEntity", { requestId: rid(), input: partyInput("TEST CO Neha Friend") })).entityId;
+    const { entryId } = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: pc, from: party(someone), to: cash(box), amountPaise: 900, businessDay: today });
+    assert.equal((await docOf("moneyEntries", entryId)).line, pc);
+    const mainEntry = await admin.call("recordMoneyEntry", { requestId: rid(), from: party(someone), to: cash("default-cash"), amountPaise: 300, businessDay: today });
+    assert.equal((await docOf("moneyEntries", mainEntry.entryId)).line, "main");
+
+    await denied(getDoc(doc(accounts.db, `moneyEntries/${entryId}`)));
+    await denied(getDoc(doc(accounts.db, `registers/${box}`)));
+    await denied(getDoc(doc(accounts.db, `companies/${pc}`)));
+    assert.equal((await getDoc(doc(accounts.db, `moneyEntries/${mainEntry.entryId}`))).exists(), true);
+    assert.equal((await getDoc(doc(accounts.db, "registers/default-cash"))).exists(), true);
+    assert.equal((await getDoc(doc(admin.db, `moneyEntries/${entryId}`))).exists(), true);
+    // Accounts' lists ask for the main business only — and get it.
+    const rows = await getDocs(query(collection(accounts.db, "moneyEntries"), where("line", "==", "main"), where("businessDay", "==", today)));
+    assert.ok(rows.docs.every((d) => d.data().line === "main"));
+    await denied(getDocs(query(collection(accounts.db, "moneyEntries"), where("businessDay", "==", today))));
+    const years = await getDocs(query(collection(accounts.db, "companies"), where("line", "==", "main")));
+    assert.ok(years.docs.some((d) => d.id === "main"));
+    await denied(getDocs(collection(stock.db, "moneyEntries")));
+  });
+
+  test("older records without a line are stamped as the main business's, once", async () => {
+    await adminDb.doc("moneyEntries/old-entry-test").set({ from: { kind: "ADJUSTMENT" }, to: { kind: "ADJUSTMENT" }, amountPaise: 1, businessDay: "2026-05-01", syncStatus: "SYNCED", deleted: false });
+    await adminDb.doc("registers/old-register-test").set({ name: "Old till", kind: "CASH", deleted: false, isActive: true });
+    await adminDb.doc("officeSettings/companies").delete();
+    await admin.call("refreshCompaniesList", {});
+    assert.equal((await docOf("moneyEntries", "old-entry-test")).line, "main");
+    assert.equal((await docOf("moneyEntries", "old-entry-test")).companyId, "main");
+    assert.equal((await docOf("registers", "old-register-test")).line, "main");
+    assert.equal((await docOf("officeSettings", "companies")).stampedLine, true);
+    await adminDb.doc("moneyEntries/old-entry-test").delete();
+    await adminDb.doc("registers/old-register-test").delete();
+  });
+
+  test("Accounts can work in the main business's current year, not in a person's books", async () => {
+    const pc = (await admin.call("createCompany", { name: "Arjun Rao", requestId: rid() })).companyId;
+    await rejectsWith(accounts.call("getRegisterBalances", { companyId: pc }), "permission-denied");
+    const r = await accounts.call("getRegisterBalances", { companyId: "main" });
+    assert.equal(r.companyId, "main");
+  });
+});
+
+describe("A party's details reach its copies in other companies", () => {
+  test("renaming a customer updates it in every company that has it", async () => {
+    const pc = (await admin.call("createCompany", { name: "Meera Iyer", requestId: rid() })).companyId;
+    const box = (await admin.call("saveRegister", { requestId: rid(), companyId: pc, name: `Meera cash ${rid()}`, kind: "CASH" })).registerId;
+    const input = partyInput("TEST CO Old Name Motors");
+    const e = (await admin.call("saveEntity", { requestId: rid(), input })).entityId;
+    const { entryId } = await admin.call("recordMoneyEntry", { requestId: rid(), companyId: pc, from: party(e), to: cash(box), amountPaise: 100, businessDay: today });
+    await synced("moneyEntries", entryId);
+    await synced("entities", e);
+    const link = (await adminDb.doc(`companies/${pc}/links/${e}`).get()).data();
+    await admin.call("saveEntity", { requestId: rid(), entityId: e, input: { ...input, name: "TEST CO New Name Motors" } });
+    const renamed = await waitFor(async () => {
+      const c = (await adminDb.doc(`_fakeHl/books-${pc}/customers/${link.hlCustomerId}`).get()).data();
+      return c?.name === "TEST CO New Name Motors" ? c : null;
+    }, "copy renamed");
+    assert.equal(renamed.name, "TEST CO New Name Motors");
+  });
+});
+
+describe("Sales go to the main business's company for their date", () => {
+  const SKU = "TEST-CO-HYD68-26L";
+  let yearCo;
+  after(async () => {
+    // Later test files post into the main company: retire this test year.
+    if (yearCo) await adminDb.doc(`companies/${yearCo}`).set({ deleted: true }, { merge: true });
+    await adminDb.doc(`products/${SKU}`).delete();
+    await adminDb.doc(`product_prices/${SKU}`).delete();
+  });
+
+  test("a sale dated in a new year of the main business is booked in that year's company", async () => {
+    await adminDb.doc(`products/${SKU}`).set({ sku: SKU, product: "TEST CO Hydraulic", grade: "68", orderableUnit: "26 Ltr Can", productKey: "test-co-hyd68", packQty: 26, baseUnit: "L", gstPct: 18, hsnCode: null, active: true, deleted: false });
+    await adminDb.doc(`product_prices/${SKU}`).set({ pricePer: "per litre", dealerPrice: 10000, distributorPrice: 9000 });
+    await adminDb.doc("stockItems/pool_test-co-hyd68").set({ kind: "product_pool", productKey: "test-co-hyd68", name: "TEST CO Hydraulic 68", nameLower: "test co hydraulic 68", baseUnit: "L", onHandMilli: 100_000, lastMovementAt: null, deleted: false });
+    await admin.call("saveCompanyProfile", {
+      legalName: "Lube Chem Industries", tradeName: "Technofluid Lubricants", gstin: "06AAACL1234M1ZO",
+      address: { line1: "Near Gaushala Road", line2: "Matak Majri", city: "Karnal", pincode: "132001" }, phone: "+91 88148 85245", email: null, invoicePrefix: "TF",
+    });
+    const buyer = (await admin.call("saveEntity", { requestId: rid(), input: partyInput("TEST CO Year Buyer") })).entityId;
+    yearCo = (await admin.call("createCompany", { name: "Technofluid Lubricants (test year)", requestId: rid(), booksBeginFrom: today, joinsLine: "main", lineFrom: today })).companyId;
+    const sale = await admin.call("createSale", {
+      requestId: rid(), customerEntityId: buyer, invoiceDate: today, lines: [{ sku: SKU, packs: 1, discountBp: 0 }], freightPaise: 0,
+      payments: [{ registerId: "default-cash", amountPaise: 100 }], note: null,
+    });
+    const s = await synced("sales", sale.saleId);
+    assert.equal(s.companyId, yearCo);
+    assert.equal(s.line, "main");
+    assert.ok((await adminDb.doc(`_fakeHl/books-${yearCo}/txns/technofluid-office~sale_${sale.saleId}:sale`).get()).exists, "in the year's books");
+    assert.equal((await adminDb.doc(`_fakeHl/books/txns/technofluid-office~sale_${sale.saleId}:sale`).get()).exists, false, "not in the main books");
+    const inv = (await adminDb.doc(`_fakeHl/books-${yearCo}/invoices/${s.hlInvoiceId}`).get()).data();
+    assert.equal(inv.amountPaidPaise, 100, "the payment at billing is applied to the invoice in the same books");
   });
 });
