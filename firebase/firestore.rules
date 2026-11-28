@@ -211,6 +211,16 @@ service cloud.firestore {
     // ─── Money in & out — office, with Humble Ledger ─────────────────────────
     // Admin + Accounts read; only Cloud Functions write. No balances are stored here.
 
+    // Companies (Tally-style separate books, one per Humble Ledger company). Only admin
+    // creates or switches companies; the Cloud Functions write them after HL accepts.
+    match /companies/{companyId} {
+      allow read:  if isAdmin();
+      allow write: if false;
+    }
+    match /companyRequests/{requestId} {
+      allow read, write: if false;
+    }
+
     match /moneyEntries/{entryId} {
       allow read:  if isAdmin() || isAccounts();
       allow write: if false;

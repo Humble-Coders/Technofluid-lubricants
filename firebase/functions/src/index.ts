@@ -43,3 +43,4 @@ export { onSaleWritten } from "./sales/triggers";
 export { createPurchase } from "./purchases/createPurchase";
 export { cancelPurchase, retryPurchaseSync } from "./purchases/cancelPurchase";
 export { onPurchaseWritten } from "./purchases/triggers";
+export { refreshCompaniesList, createCompany, getCompanyInfo, updateCompany, setCompanyArchived, closeCompanyYear, getGroupReport } from "./companies/companyFunctions";

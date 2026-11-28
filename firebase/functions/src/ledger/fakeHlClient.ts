@@ -6,7 +6,15 @@ import {
   HlError,
   type HlAccount,
   type HlAccountType,
+  type HlBooksLock,
   type HlClient,
+  type HlCompanyInfo,
+  type HlCompanyPatch,
+  type HlCompanySummary,
+  type HlCopied,
+  type HlCreateCompany,
+  type HlGroupReport,
+  type HlGroupReportKind,
   type HlCustomer,
   type HlInvoice,
   type HlLedgerRow,
@@ -39,7 +47,34 @@ import {
  * {down: true} fails every call (to try the "books unreachable" screens);
  * {omitBalance: true} returns only `outstanding` (as HL does), not `balance` as well.
  * Every call is logged in _fakeHl/books/log {op, key}. Rules deny all client access.
+ *
+ * Companies (HL multi-company): the home company's books stay at _fakeHl/books/*; every
+ * other company has its own at _fakeHl/books-<hlCompanyId>/*. The company list lives in
+ * _fakeHl/registry/companies/{id}. Like HL, posting is refused before booksBeginFrom (409
+ * BEFORE_BOOKS_BEGIN), inside the books lock (409 BOOKS_LOCKED) and in an archived company
+ * (409 COMPANY_ARCHIVED); creating a company copies accounts/customers and can carry the
+ * closing balances forward (the source must be locked through asOf: 409 SOURCE_NOT_LOCKED).
+ * Our login is an ACCOUNTANT, so alter/archive/reopen are 403 — unless _fakeHl/control
+ * {owner: true} (test switch) makes it act as an OWNER.
  */
+export const FAKE_HOME_COMPANY_ID = "hl-home";
+const REGISTRY = "_fakeHl/registry/companies";
+const REQUESTS = "_fakeHl/registry/requests";
+const RETAINED = "Retained Earnings";
+
+interface StoredCompany {
+  name: string;
+  currency: string;
+  fyStartMonth: number;
+  booksBeginFrom: string | null;
+  lockedThrough: string | null;
+  lockHistory: HlBooksLock["history"];
+  archived: boolean;
+  details: Record<string, string>;
+  /** The company it was carried forward from, and as of which day. */
+  carriedFrom: {companyId: string; asOf: string} | null;
+  createdAt: number;
+}
 
 const ROOT = "_fakeHl";
 const toAmount = (paise: number) => {
@@ -89,19 +124,26 @@ interface StoredTxn {
 
 export class FakeHlClient implements HlClient {
   readonly mode = "fake" as const;
-  constructor(private readonly db: admin.firestore.Firestore) {}
+  private readonly books: string;
+  constructor(private readonly db: admin.firestore.Firestore, readonly hlCompanyId: string | null = null) {
+    this.books = hlCompanyId && hlCompanyId !== FAKE_HOME_COMPANY_ID ? `${ROOT}/books-${hlCompanyId}` : `${ROOT}/books`;
+  }
+  /** This client's company id in the registry. */
+  private get companyId() {
+    return this.hlCompanyId ?? FAKE_HOME_COMPANY_ID;
+  }
 
   private customers() {
-    return this.db.collection(`${ROOT}/books/customers`);
+    return this.db.collection(`${this.books}/customers`);
   }
   private accounts() {
-    return this.db.collection(`${ROOT}/books/accounts`);
+    return this.db.collection(`${this.books}/accounts`);
   }
   private txns() {
-    return this.db.collection(`${ROOT}/books/txns`);
+    return this.db.collection(`${this.books}/txns`);
   }
   private invoices() {
-    return this.db.collection(`${ROOT}/books/invoices`);
+    return this.db.collection(`${this.books}/invoices`);
   }
   private txnRef(sourceId: string) {
     return this.txns().doc(`${HL_APP_ID}~${sourceId}`.replace(/\//g, "_"));
@@ -110,7 +152,7 @@ export class FakeHlClient implements HlClient {
   /** Every call goes through here first: the test hooks and the call log. */
   private async gate(op: string, key: string): Promise<{omitBalance: boolean}> {
     const ref = this.db.doc(`${ROOT}/control`);
-    await this.db.collection(`${ROOT}/books/log`).add({op, key, at: Date.now()});
+    await this.db.collection(`${this.books}/log`).add({op, key, at: Date.now()});
     return this.db.runTransaction(async (tx) => {
       const c = (await tx.get(ref)).data() ?? {};
       if (c.down === true) throw new HlError("Fake HL is down (test switch).", 503, true);
@@ -172,6 +214,12 @@ export class FakeHlClient implements HlClient {
   /** Posts a balanced transaction once per (appId, sourceId). */
   private async post(t: Omit<StoredTxn, "accountIds" | "seq" | "appId">): Promise<{txnId: string; idempotent: boolean}> {
     if (!t.sourceId || !t.date) throw new HlError("sourceId and date are required", 400, false);
+    const replay = await this.txnRef(t.sourceId).get();
+    if (replay.exists) return {txnId: replay.id, idempotent: true};
+    const co = await this.company();
+    if (co.archived) throw new HlError("This company is archived", 409, false, "COMPANY_ARCHIVED");
+    if (co.booksBeginFrom && t.date < co.booksBeginFrom) throw new HlError(`Books begin on ${co.booksBeginFrom}`, 409, false, "BEFORE_BOOKS_BEGIN");
+    if (co.lockedThrough && t.date <= co.lockedThrough) throw new HlError(`Books are locked through ${co.lockedThrough}`, 409, false, "BOOKS_LOCKED");
     if (t.legs.length < 2) throw new HlError("A transaction needs at least two entries", 400, false);
     let debit = 0;
     let credit = 0;
@@ -472,5 +520,275 @@ export class FakeHlClient implements HlClient {
       legs: sale.legs.map((l) => ({...l, type: l.type === "DEBIT" ? "CREDIT" : "DEBIT"})),
     });
     await invRef.set({status: "CANCELLED"}, {merge: true});
+  }
+
+  // ─── Companies ────────────────────────────────────────────────────────────────
+
+  /** The registry entry of a company (the home one is made on first use). */
+  private async companyOf(id: string): Promise<StoredCompany> {
+    const ref = this.db.collection(REGISTRY).doc(id);
+    const snap = await ref.get();
+    if (snap.exists) return snap.data() as StoredCompany;
+    if (id !== FAKE_HOME_COMPANY_ID) throw new HlError("You don't have access to that company", 403, false, "COMPANY_ACCESS_REVOKED");
+    const home: StoredCompany = {
+      name: "Technofluid Lubricants",
+      currency: "INR",
+      fyStartMonth: 4,
+      booksBeginFrom: null,
+      lockedThrough: null,
+      lockHistory: [],
+      archived: false,
+      details: {},
+      carriedFrom: null,
+      createdAt: 0,
+    };
+    await ref.set(home);
+    return home;
+  }
+
+  private company() {
+    return this.companyOf(this.companyId);
+  }
+
+  private static summary(id: string, c: StoredCompany): HlCompanySummary {
+    return {
+      id,
+      name: c.name,
+      currency: c.currency,
+      fyStartMonth: c.fyStartMonth,
+      booksBeginFrom: c.booksBeginFrom,
+      lockedThrough: c.lockedThrough,
+      archived: c.archived,
+      role: "ACCOUNTANT",
+      isHome: id === FAKE_HOME_COMPANY_ID,
+    };
+  }
+
+  private async asOwner(): Promise<void> {
+    const c = (await this.db.doc(`${ROOT}/control`).get()).data() ?? {};
+    if (c.owner !== true) throw new HlError("Only the company's OWNER can do this", 403, false, "FORBIDDEN");
+  }
+
+  async listCompanies() {
+    await this.gate("listCompanies", "");
+    await this.companyOf(FAKE_HOME_COMPANY_ID);
+    const snap = await this.db.collection(REGISTRY).get();
+    return snap.docs.map((d) => FakeHlClient.summary(d.id, d.data() as StoredCompany)).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async createCompany(p: HlCreateCompany): Promise<{company: HlCompanySummary; copied: HlCopied; idempotent: boolean}> {
+    await this.gate("createCompany", p.requestId);
+    if (!p.requestId) throw new HlError("requestId is required", 400, false);
+    const name = p.name?.trim();
+    if (!name) throw new HlError("name is required", 400, false);
+    const zero: HlCopied = {accounts: 0, customers: 0, vendors: 0, members: 0, openingBalanceLines: 0, pendingBills: 0, pendingSupplierBills: 0};
+    const reqRef = this.db.collection(REQUESTS).doc(p.requestId);
+    const prior = (await reqRef.get()).data();
+    if (prior) {
+      return {company: FakeHlClient.summary(prior.companyId, await this.companyOf(prior.companyId)), copied: prior.copied as HlCopied, idempotent: true};
+    }
+    const carry = p.copyFrom?.openingBalances;
+    const sourceId = p.copyFrom?.companyId ?? this.companyId;
+    const source = p.copyFrom ? await this.companyOf(sourceId) : null;
+    if (carry) {
+      if (!p.booksBeginFrom) throw new HlError("booksBeginFrom is required to carry balances", 400, false, "BOOKS_BEGIN_REQUIRED");
+      if (p.booksBeginFrom <= carry.asOf) throw new HlError("booksBeginFrom must be after asOf", 400, false, "BOOKS_BEGIN_NOT_AFTER_AS_OF");
+      if (!source?.lockedThrough || source.lockedThrough < carry.asOf) throw new HlError("Close the source year first: its books must be locked through asOf", 409, false, "SOURCE_NOT_LOCKED");
+    }
+    const ref = this.db.collection(REGISTRY).doc();
+    await ref.set({
+      name,
+      currency: "INR",
+      fyStartMonth: p.fyStartMonth ?? 4,
+      booksBeginFrom: p.booksBeginFrom ?? null,
+      lockedThrough: null,
+      lockHistory: [],
+      archived: false,
+      details: Object.fromEntries(Object.entries(p.details ?? {}).filter(([, v]) => typeof v === "string" && v)),
+      carriedFrom: carry ? {companyId: sourceId, asOf: carry.asOf} : null,
+      createdAt: Date.now(),
+    } satisfies StoredCompany);
+    const copied = {...zero};
+    if (p.copyFrom && source) {
+      const from = new FakeHlClient(this.db, sourceId);
+      const to = new FakeHlClient(this.db, ref.id);
+      const accountMap = new Map<string, string>();
+      const customerMap = new Map<string, {id: string; accountId: string}>();
+      const receivableMap = new Map<string, string>();
+      const receivables = new Set<string>();
+      const fromCustomers = await from.customers().get();
+      fromCustomers.docs.forEach((d) => receivables.add((d.data() as StoredCustomer).accountId));
+      if (p.copyFrom.accounts || carry) {
+        for (const a of (await from.accounts().get()).docs) {
+          if (receivables.has(a.id)) continue;
+          const acc = a.data() as StoredAccount;
+          const id = await to.systemAccount(acc.name, acc.type);
+          accountMap.set(a.id, id);
+          copied.accounts++;
+        }
+      }
+      if (p.copyFrom.customers || carry) {
+        for (const d of fromCustomers.docs) {
+          const c = d.data() as StoredCustomer;
+          const made = await to.createCustomer({name: c.name, externalId: c.externalId ?? `copied-${d.id}`, ...(c.phone ? {phone: c.phone} : {}), ...(c.email ? {email: c.email} : {}), ...(c.gstin ? {gstin: c.gstin} : {})});
+          customerMap.set(d.id, {id: made.customer.id, accountId: made.customer.accountId});
+          receivableMap.set(c.accountId, made.customer.accountId);
+          copied.customers++;
+        }
+      }
+      if (carry) {
+        const legs: HlLeg[] = [];
+        let profit = 0; // income + expense balances, debit-positive
+        for (const a of (await from.accounts().get()).docs) {
+          const acc = a.data() as StoredAccount;
+          const bal = await from.balanceOf(a.id, carry.asOf);
+          if (bal === 0) continue;
+          if (acc.type === "INCOME" || acc.type === "EXPENSE") {
+            profit += bal;
+            continue;
+          }
+          const target = receivables.has(a.id) ? receivableMap.get(a.id) : accountMap.get(a.id);
+          if (!target) continue;
+          legs.push({accountId: target, type: bal > 0 ? "DEBIT" : "CREDIT", amountPaise: Math.abs(bal)});
+        }
+        if (profit !== 0) {
+          const retained = await to.systemAccount(RETAINED, "EQUITY");
+          legs.push({accountId: retained, type: profit > 0 ? "DEBIT" : "CREDIT", amountPaise: Math.abs(profit)});
+        }
+        if (legs.length >= 2) {
+          await to.post({postingType: "JOURNAL", sourceId: `carry_${ref.id}`, date: p.booksBeginFrom as string, description: `Opening balances carried from ${source.name} (as of ${carry.asOf})`, actorRef: "hl", legs});
+          copied.openingBalanceLines = legs.length;
+        }
+        if (carry.pendingBills === "ITEMIZED") {
+          for (const inv of (await from.invoices().get()).docs) {
+            const i = inv.data() as StoredInvoice;
+            const owed = i.totalPaise - i.amountPaidPaise;
+            const cust = customerMap.get(i.customerId);
+            if (i.status === "CANCELLED" || owed <= 0 || i.issueDate > carry.asOf || !cust) continue;
+            await to.invoices().doc(`carried_${inv.id}`).set({...i, customerId: cust.id, saleTxnId: `carry_${ref.id}`, totalPaise: owed, amountPaidPaise: 0, status: "PENDING"} satisfies StoredInvoice);
+            copied.pendingBills++;
+          }
+        }
+      }
+    }
+    await reqRef.set({companyId: ref.id, copied});
+    return {company: FakeHlClient.summary(ref.id, await this.companyOf(ref.id)), copied, idempotent: false};
+  }
+
+  async getCompany(): Promise<HlCompanyInfo> {
+    await this.gate("getCompany", this.companyId);
+    const c = await this.company();
+    const txns = (await this.txns().get()).docs.map((d) => (d.data() as StoredTxn).date).sort();
+    return {
+      ...FakeHlClient.summary(this.companyId, c),
+      details: c.details,
+      transactionCount: txns.length,
+      firstEntryDate: txns[0] ?? null,
+      lastEntryDate: txns[txns.length - 1] ?? null,
+      carriedForwardAsOf: c.carriedFrom?.asOf ?? null,
+    };
+  }
+
+  async updateCompany(p: HlCompanyPatch) {
+    await this.gate("updateCompany", this.companyId);
+    await this.asOwner();
+    const patch: Partial<StoredCompany> = {};
+    if (p.name?.trim()) patch.name = p.name.trim();
+    if (p.fyStartMonth) patch.fyStartMonth = p.fyStartMonth;
+    if (p.booksBeginFrom) {
+      const first = (await this.txns().get()).docs.map((d) => (d.data() as StoredTxn).date).sort()[0];
+      if (first && first < p.booksBeginFrom) throw new HlError("There are entries before that date", 409, false, "ENTRIES_BEFORE_DATE");
+      patch.booksBeginFrom = p.booksBeginFrom;
+    }
+    if (p.details) patch.details = Object.fromEntries(Object.entries(p.details).filter(([, v]) => typeof v === "string" && v));
+    await this.db.collection(REGISTRY).doc(this.companyId).set(patch, {merge: true});
+    return this.getCompany();
+  }
+
+  async setCompanyArchived(archived: boolean) {
+    await this.gate("setCompanyArchived", this.companyId);
+    await this.asOwner();
+    await this.company();
+    await this.db.collection(REGISTRY).doc(this.companyId).set({archived}, {merge: true});
+  }
+
+  async getBooksLock(): Promise<HlBooksLock> {
+    await this.gate("getBooksLock", this.companyId);
+    const c = await this.company();
+    return {lockedThrough: c.lockedThrough, history: c.lockHistory ?? []};
+  }
+
+  async setBooksLock(p: {lockedThrough: string}): Promise<HlBooksLock> {
+    await this.gate("setBooksLock", p.lockedThrough);
+    const c = await this.company();
+    const today = new Intl.DateTimeFormat("en-CA", {timeZone: "Asia/Kolkata"}).format(new Date());
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(p.lockedThrough)) throw new HlError("lockedThrough must be YYYY-MM-DD", 400, false);
+    if (p.lockedThrough > today) throw new HlError("The lock date can't be in the future", 400, false, "LOCK_DATE_IN_FUTURE");
+    if (c.lockedThrough && p.lockedThrough < c.lockedThrough) await this.asOwner();
+    const history = [
+      {previousDate: c.lockedThrough, newDate: p.lockedThrough, changedByRole: "ACCOUNTANT", reason: null, createdAt: new Date().toISOString()},
+      ...(c.lockHistory ?? []),
+    ].slice(0, 20);
+    await this.db.collection(REGISTRY).doc(this.companyId).set({lockedThrough: p.lockedThrough, lockHistory: history}, {merge: true});
+    return {lockedThrough: p.lockedThrough, history};
+  }
+
+  async getGroupReport(p: {kind: HlGroupReportKind; hlCompanyIds: string[]; from?: string; to?: string; date?: string}): Promise<HlGroupReport> {
+    await this.gate("getGroupReport", p.kind);
+    const ids = [...new Set(p.hlCompanyIds)];
+    if (ids.length < 2 || ids.length > 20) throw new HlError("Pick 2 to 20 companies", 400, false);
+    const companies = new Map<string, StoredCompany>();
+    for (const id of ids) companies.set(id, await this.companyOf(id));
+    if (p.kind !== "pnl") {
+      for (const [id, c] of companies) {
+        let up = c.carriedFrom;
+        while (up) {
+          if (companies.has(up.companyId)) throw new HlError("A year and the year it was carried from can't be added together", 422, false, "CARRIED_FORWARD_PAIR");
+          up = (await this.companyOf(up.companyId)).carriedFrom;
+        }
+        void id;
+      }
+    }
+    // name → type → per-company debit-positive balance
+    const rows = new Map<string, {type: HlAccountType; by: Record<string, number>}>();
+    for (const id of ids) {
+      const books = new FakeHlClient(this.db, id);
+      for (const a of (await books.accounts().get()).docs) {
+        const acc = a.data() as StoredAccount;
+        let bal: number;
+        if (p.kind === "pnl") {
+          const snap = await books.txns().where("accountIds", "array-contains", a.id).get();
+          bal = 0;
+          for (const d of snap.docs) {
+            const t = d.data() as StoredTxn;
+            if ((p.from && t.date < p.from) || (p.to && t.date > p.to)) continue;
+            for (const l of t.legs) if (l.accountId === a.id) bal += l.type === "DEBIT" ? l.amountPaise : -l.amountPaise;
+          }
+        } else {
+          bal = await books.balanceOf(a.id, p.date);
+        }
+        if (bal === 0) continue;
+        if (p.kind === "pnl" && acc.type !== "INCOME" && acc.type !== "EXPENSE") continue;
+        const row = rows.get(acc.name) ?? {type: acc.type, by: {}};
+        row.by[id] = (row.by[id] ?? 0) + bal;
+        rows.set(acc.name, row);
+      }
+    }
+    const line = (name: string, by: Record<string, number>, sign: 1 | -1) => ({
+      name,
+      total: toAmount(sign * Object.values(by).reduce((x, y) => x + y, 0)),
+      byCompany: Object.fromEntries(Object.entries(by).map(([k, v]) => [k, toAmount(sign * v)])),
+    });
+    const section = (key: string, types: HlAccountType[], sign: 1 | -1) => ({
+      key,
+      lines: [...rows.entries()].filter(([, r]) => types.includes(r.type)).sort(([a], [b]) => a.localeCompare(b)).map(([n, r]) => line(n, r.by, sign)),
+    });
+    if (p.kind === "trial-balance") return {sections: [section("accounts", ["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"], 1)], totals: []};
+    if (p.kind === "balance-sheet") return {sections: [section("assets", ["ASSET"], 1), section("liabilities", ["LIABILITY"], -1), section("equity", ["EQUITY"], -1)], totals: []};
+    const income = section("income", ["INCOME"], -1);
+    const expenses = section("expenses", ["EXPENSE"], 1);
+    const net: Record<string, number> = {};
+    for (const [, r] of rows) for (const [k, v] of Object.entries(r.by)) net[k] = (net[k] ?? 0) - v;
+    return {sections: [income, expenses], totals: [line("netProfit", net, 1)].map((l) => ({key: l.name, total: l.total, byCompany: l.byCompany}))};
   }
 }
