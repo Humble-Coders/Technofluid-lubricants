@@ -1,7 +1,7 @@
 {
   "name": "@technofluid/desktop",
   "productName": "Technofluid Office",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "Technofluid Office — stock, sales, billing and accounts for Technofluid Lubricants",
   "author": "Humble Solutions",
