@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ChevronsUpDown, Download, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, Search, WifiOff } from "lucide-react";
+import { ChevronsUpDown, Download, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, RefreshCw, Search, WifiOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import mark from "@/assets/logo-mark.png";
@@ -15,7 +15,7 @@ import { useSession, useStaff } from "@/features/auth/session";
 import { CommandPalette } from "./CommandPalette";
 import { CompanyProvider, useCompany } from "@/features/companies/CompanyContext";
 import { Banner } from "@/components/ui";
-import { companyPeriodIn } from "@technofluid/core";
+import { CompanySwitcher } from "@/features/companies/CompanySwitcher";
 
 const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
 const inDesktopApp = Boolean(window.office);
@@ -56,6 +56,8 @@ function Shell() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const [overlay, setOverlay] = useState<HTMLDivElement | null>(null);
+  // Refresh (top bar): reloads the current screen — every list and figure is read again.
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => saveCollapsed(collapsed), [collapsed]);
 
@@ -93,7 +95,7 @@ function Shell() {
         onSearch={() => setPaletteOpen(true)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar items={items} />
+        <TopBar items={items} onRefresh={() => setRefreshKey((k) => k + 1)} />
         {/* ONE white sheet per screen, inset 8px. Every screen is a <Page> (or a <Workspace>) inside it.
             The overlay layer above it is where <SidePanel>s open, over the sheet's right side. */}
         <div className="relative m-2 min-h-0 flex-1">
@@ -106,7 +108,7 @@ function Shell() {
                 </Banner>
               ) : null}
               {/* A new key per company: every screen reloads its data when the company changes. */}
-              <Outlet key={companyId} />
+              <Outlet key={`${companyId}:${refreshKey}`} />
             </SheetOverlayContext.Provider>
           </main>
           <div ref={setOverlay} className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-sheet" />
@@ -150,11 +152,13 @@ function Sidebar({
           {collapsed ? null : (
             <span className="min-w-0">
               <span className="block truncate text-body font-semibold text-white">Technofluid Office</span>
-              <CompanySwitcher />
+              <span className="block truncate text-caption text-white/45">Technofluid Lubricants</span>
             </span>
           )}
         </div>
       </div>
+
+      <CompanySwitcher variant="sidebar" collapsed={collapsed} />
 
       <button
         type="button"
@@ -383,9 +387,10 @@ function UserMenu({ collapsed }: { collapsed: boolean }) {
 
 /** The orange bar above the sheet with the screen's name. Drags the window; on Windows the
  *  minimise/maximise/close buttons sit at its right end (main/index.ts colours them to match). */
-function TopBar({ items }: { items: NavItem[] }) {
+function TopBar({ items, onRefresh }: { items: NavItem[]; onRefresh: () => void }) {
   const { pathname } = useLocation();
   const current = items.find((i) => (i.path === "/" ? pathname === "/" : pathname.startsWith(i.path)));
+  const [spin, setSpin] = useState(false);
   return (
     <header
       className={clsx(
@@ -394,6 +399,19 @@ function TopBar({ items }: { items: NavItem[] }) {
       )}
     >
       <h1 className="pointer-events-none absolute left-1/2 max-w-[50%] -translate-x-1/2 truncate text-[15px] font-semibold text-white">{current?.label ?? "Technofluid Office"}</h1>
+      <button
+        type="button"
+        onClick={() => {
+          onRefresh();
+          setSpin(true);
+          window.setTimeout(() => setSpin(false), 700);
+        }}
+        title="Refresh this screen"
+        className="app-no-drag ml-auto mr-3 flex h-7 items-center gap-1.5 rounded-control bg-white/15 px-2.5 text-label font-medium text-white transition-colors hover:bg-white/25"
+      >
+        <RefreshCw className={clsx("size-4", spin && "animate-spin")} aria-hidden />
+        Refresh
+      </button>
     </header>
   );
 }
@@ -425,61 +443,5 @@ function UpdateButton({ collapsed }: { collapsed: boolean }) {
         </>
       )}
     </button>
-  );
-}
-
-/** Under the app name: the current company — a list to switch, for Admin when there's more than one. */
-function CompanySwitcher() {
-  const { company, companies, companyId, switchTo, canSwitch } = useCompany();
-  const [open, setOpen] = useState(false);
-  const box = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent | KeyboardEvent) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !box.current?.contains(e.target as Node)) setOpen(false);
-    };
-    window.addEventListener("mousedown", close);
-    window.addEventListener("keydown", close);
-    return () => {
-      window.removeEventListener("mousedown", close);
-      window.removeEventListener("keydown", close);
-    };
-  }, [open]);
-  const label = company ? company.name : "Technofluid Lubricants";
-  const period = company && companies.length > 1 ? companyPeriodIn(company, companies) : null;
-  if (!canSwitch) return <span className="block truncate text-caption text-white/45">{label}</span>;
-  const shown = companies.filter((c) => (!c.archived || c.id === companyId) && !c.accessLost);
-  return (
-    <span ref={box} className="app-no-drag relative block">
-      <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)} title="Switch company" className="flex max-w-full min-w-0 items-center gap-1 rounded text-caption text-white/60 hover:text-white">
-        <span className="truncate">
-          {label}
-          {period ? ` · ${period}` : ""}
-        </span>
-        <ChevronsUpDown className="size-3 shrink-0" aria-hidden />
-      </button>
-      {open ? (
-        <span role="listbox" aria-label="Companies" className="absolute top-full left-0 z-40 mt-1 block max-h-80 min-w-64 overflow-y-auto rounded-control border border-line bg-surface p-1 shadow-pop">
-          {shown.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              role="option"
-              aria-selected={c.id === companyId}
-              onClick={() => {
-                setOpen(false);
-                switchTo(c.id);
-              }}
-              className={clsx("flex w-full flex-col rounded-[6px] px-2.5 py-1.5 text-left hover:bg-surface-alt", c.id === companyId && "bg-accent-50")}
-            >
-              <span className="text-body font-medium text-ink">{c.name}</span>
-              <span className="text-caption text-ink-muted">
-                {companyPeriodIn(c, companies)} · {c.line === "main" ? "Main business" : "Money only"}
-              </span>
-            </button>
-          ))}
-        </span>
-      ) : null}
-    </span>
   );
 }
