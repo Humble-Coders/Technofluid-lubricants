@@ -175,3 +175,9 @@
     -webkit-app-region: no-drag;
   }
 }
+
+/* The thin "still loading" bar at the top of a screen (ScreenLoader). */
+@keyframes loadbar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}

@@ -7,6 +7,7 @@ import {
   type StockMovement,
 } from "@/services/stockService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /** Live list of stock items (product pools, raw materials, consumables). */
 export function useStockItems(): LoadState<StockItem[]> {
@@ -19,6 +20,7 @@ export function useStockItems(): LoadState<StockItem[]> {
       ),
     [],
   );
+  useLoadingSignal(state.status === "loading");
   return state;
 }
 
@@ -35,5 +37,6 @@ export function useMovements(filter: MovementFilter | null): LoadState<StockMove
       (err) => setState({ status: "error", message: err.message }),
     );
   }, [key]);
+  useLoadingSignal(state.status === "loading" && key !== null);
   return state;
 }

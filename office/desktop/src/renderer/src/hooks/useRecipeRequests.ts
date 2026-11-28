@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { watchRecipeRequests, type RecipeRequest, type RequestFilter } from "@/services/recipeService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 /** Live recipe-change requests. Pass null to skip (roles that can't read them). */
 export function useRecipeRequests(filter: RequestFilter | null): LoadState<RecipeRequest[]> {
@@ -15,5 +16,6 @@ export function useRecipeRequests(filter: RequestFilter | null): LoadState<Recip
       (err) => setState({ status: "error", message: err.message }),
     );
   }, [key]);
+  useLoadingSignal(state.status === "loading" && key !== null);
   return state;
 }

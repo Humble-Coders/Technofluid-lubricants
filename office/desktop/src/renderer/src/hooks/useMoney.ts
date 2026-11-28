@@ -14,6 +14,7 @@ import {
   type SyncStatus,
 } from "@/services/moneyService";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 function useWatch<T>(subscribe: (ok: (v: T) => void, err: (e: Error) => void) => () => void, deps: unknown[]): LoadState<T> {
   const [state, setState] = useState<LoadState<T>>({ status: "loading" });
@@ -25,6 +26,7 @@ function useWatch<T>(subscribe: (ok: (v: T) => void, err: (e: Error) => void) =>
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
+  useLoadingSignal(state.status === "loading");
   return state;
 }
 
@@ -87,6 +89,7 @@ export function useRegisterBalances() {
   useEffect(() => {
     void load();
   }, [load]);
+  useLoadingSignal(loading);
   return { balances, error, loading, retry: load };
 }
 
@@ -103,5 +106,6 @@ export function useRegisterStatement(registerId: string, from: string, to: strin
       alive = false;
     };
   }, [registerId, from, to, nonce]);
+  useLoadingSignal(state.status === "loading");
   return { state, retry: () => setNonce((x) => x + 1) };
 }

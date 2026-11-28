@@ -4,6 +4,7 @@ import { watchMoneyEntryStatuses, watchPurchasePayments, type MoneyEntryRow, typ
 import { watchPurchase, watchPurchases, type PurchaseRow } from "@/services/purchaseService";
 import type { SalePaid } from "./useSales";
 import type { LoadState } from "./useProducts";
+import { useLoadingSignal } from "@/lib/screenLoading";
 
 export function usePurchases(from: string, to: string): LoadState<PurchaseRow[]> {
   const [state, setState] = useState<LoadState<PurchaseRow[]>>({ status: "loading" });
@@ -16,6 +17,7 @@ export function usePurchases(from: string, to: string): LoadState<PurchaseRow[]>
       (e) => setState({ status: "error", message: e.message }),
     );
   }, [from, to]);
+  useLoadingSignal(state.status === "loading");
   return state;
 }
 
@@ -30,6 +32,7 @@ export function usePurchase(id: string | undefined): LoadState<PurchaseRow | nul
       (e) => setState({ status: "error", message: e.message }),
     );
   }, [id]);
+  useLoadingSignal(state.status === "loading" && Boolean(id));
   return state;
 }
 

@@ -16,6 +16,8 @@ import { CommandPalette } from "./CommandPalette";
 import { CompanyProvider, useCompany } from "@/features/companies/CompanyContext";
 import { Banner } from "@/components/ui";
 import { CompanySwitcher } from "@/features/companies/CompanySwitcher";
+import { useBusyCount } from "@/lib/screenLoading";
+import { Spinner } from "@/components/ui";
 
 const isMac = (window.office?.platform ?? (navigator.platform.toLowerCase().includes("mac") ? "darwin" : "")) === "darwin";
 const inDesktopApp = Boolean(window.office);
@@ -51,6 +53,7 @@ export function AppShell() {
 function Shell() {
   const { role } = useStaff();
   const { companyId, company } = useCompany();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const items = useMemo(() => navFor(role), [role]);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -111,6 +114,7 @@ function Shell() {
               <Outlet key={`${companyId}:${refreshKey}`} />
             </SheetOverlayContext.Provider>
           </main>
+          <ScreenLoader screen={`${companyId}:${refreshKey}:${pathname}`} />
           <div ref={setOverlay} className="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-sheet" />
         </div>
       </div>
@@ -444,4 +448,34 @@ function UpdateButton({ collapsed }: { collapsed: boolean }) {
       )}
     </button>
   );
+}
+
+/**
+ * One loader per screen: covers the sheet until every list and figure the screen asked for
+ * has loaded (or 10 s have passed), so it appears all at once instead of a spinner per tile.
+ * After that, a later load (a refresh in the background) shows only a thin bar at the top.
+ */
+function ScreenLoader({ screen }: { screen: string }) {
+  const busy = useBusyCount();
+  const [shown, setShown] = useState<string | null>(null);
+  const ready = shown === screen;
+  useEffect(() => {
+    if (ready) return;
+    // Wait a moment for the screen's data hooks to start; reveal once none is fetching.
+    const t = window.setTimeout(() => setShown(screen), busy > 0 ? 10_000 : 150);
+    return () => window.clearTimeout(t);
+  }, [busy, ready, screen]);
+  if (!ready) {
+    return (
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 rounded-sheet border border-line bg-surface">
+        <Spinner className="size-6 text-accent" />
+        <p className="text-label text-ink-muted">Loading…</p>
+      </div>
+    );
+  }
+  return busy > 0 ? (
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-0.5 overflow-hidden rounded-t-sheet">
+      <div className="h-full w-1/3 animate-[loadbar_1.1s_ease-in-out_infinite] bg-accent" />
+    </div>
+  ) : null;
 }
