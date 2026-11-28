@@ -9,7 +9,7 @@ interface CompanyApi {
   /** null until the list has loaded (and always for non-admins). */
   company: CompanyRow | null;
   companies: CompanyRow[];
-  /** Admin only — switches every screen to that company. */
+  /** Admin only — switches every screen to that company (the switcher shows for Admin even with one company, to reach "Add company"). */
   switchTo: (companyId: string) => void;
   canSwitch: boolean;
 }
@@ -49,7 +49,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ companyId, company: company ?? companies.find((c) => c.id === MAIN_COMPANY_ID) ?? null, companies, switchTo, canSwitch: isAdmin && companies.length > 1 }),
+    () => ({ companyId, company: company ?? companies.find((c) => c.id === MAIN_COMPANY_ID) ?? null, companies, switchTo, canSwitch: isAdmin }),
     [companyId, company, companies, switchTo, isAdmin],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

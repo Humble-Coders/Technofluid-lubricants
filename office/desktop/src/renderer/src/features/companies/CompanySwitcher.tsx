@@ -1,6 +1,7 @@
 import clsx from "clsx";
-import { Building2, Check, ChevronsUpDown } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, Settings2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { MAIN_LINE, companyPeriodIn } from "@technofluid/core";
 import { useCompany } from "./CompanyContext";
 
@@ -11,6 +12,7 @@ import { useCompany } from "./CompanyContext";
  */
 export function CompanySwitcher({ variant, collapsed = false }: { variant: "sidebar" | "page"; collapsed?: boolean }) {
   const { company, companies, companyId, switchTo, canSwitch } = useCompany();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -62,6 +64,20 @@ export function CompanySwitcher({ variant, collapsed = false }: { variant: "side
           </span>
         </button>
       ))}
+      {shown.length <= 1 ? <p className="px-2.5 py-1.5 text-caption text-ink-muted">Only one company so far. Add a company or a new financial year to switch between them.</p> : null}
+      <div className="mt-1 border-t border-line-row pt-1">
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            navigate("/companies");
+          }}
+          className="flex w-full items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-left text-body text-ink hover:bg-surface-alt"
+        >
+          <Settings2 className="size-4 shrink-0 text-ink-muted" aria-hidden />
+          Add or manage companies
+        </button>
+      </div>
     </div>
   ) : null;
 
