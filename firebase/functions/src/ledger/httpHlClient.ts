@@ -654,9 +654,10 @@ function toBooksLock(data: unknown): HlBooksLock {
  * VERIFY ON FIRST LIVE CALL: the guide says lines are merged by account name, each with a
  * total and byCompany {companyId: amount}. We take every array of such lines, wherever it
  * sits, as a section named by its key; any other object with total + byCompany is a total.
- * A body with no lines at all fails loud — never an empty report.
+ * A body that isn't an object fails loud; empty books give an empty report.
  */
 export function toGroupReport(data: unknown): HlGroupReport {
+  if (!obj(data) && !Array.isArray(data)) throw unexpected("group-report");
   const sections: HlGroupReport["sections"] = [];
   const totals: HlGroupReport["totals"] = [];
   const amount = (v: unknown) => strOrNull(v) ?? "0";
@@ -686,6 +687,5 @@ export function toGroupReport(data: unknown): HlGroupReport {
     for (const [k, v] of Object.entries(o)) walk(v, key ? `${key}.${k}` : k);
   };
   walk(data, "");
-  if (!sections.length && !totals.length) throw unexpected("group-report");
   return {sections, totals};
 }

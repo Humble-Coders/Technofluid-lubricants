@@ -78,6 +78,20 @@ export function companyPeriod(c: { booksBeginFrom: string | null; fyStartMonth: 
 }
 
 /**
+ * companyPeriod, plus where a later company of the same line takes over: the first company
+ * of the main business, continued from 1 Apr 2026, reads "Up to 31 Mar 2026".
+ */
+export function companyPeriodIn<T extends CompanyRouting & { booksBeginFrom: string | null; fyStartMonth: number | null }>(c: T, companies: readonly T[]): string {
+  const next = companies
+    .filter((x) => x.deleted !== true && x.line === c.line && x.id !== c.id && x.lineFrom && x.lineFrom > (c.lineFrom ?? ""))
+    .sort((a, b) => (a.lineFrom as string).localeCompare(b.lineFrom as string))[0];
+  if (!next?.lineFrom || (c.lineFrom ?? c.booksBeginFrom)) return companyPeriod(c);
+  const end = new Date(`${next.lineFrom}T00:00:00Z`);
+  end.setUTCDate(end.getUTCDate() - 1);
+  return `Up to ${prettyDay(end.toISOString().slice(0, 10))}`;
+}
+
+/**
  * The "New financial year" shortcut's dates, from the company it continues: carry the
  * closing balances of the year that has ended (as of its last day) into books beginning
  * the next day. Based on the company's own period, else the year `today` is in.

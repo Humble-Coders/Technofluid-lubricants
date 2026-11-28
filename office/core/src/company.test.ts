@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { companyForDate, companyFormErrors, companyPeriod, nextYearDates, yearEndOf, yearLabel, yearStartOf } from "./company";
+import { companyForDate, companyFormErrors, companyPeriod, companyPeriodIn, nextYearDates, yearEndOf, yearLabel, yearStartOf } from "./company";
 
 describe("companies", () => {
   const list = [
@@ -33,6 +33,15 @@ describe("companies", () => {
     expect(companyPeriod({ booksBeginFrom: "2027-06-15", fyStartMonth: 4 })).toBe("From 15 Jun 2027");
     expect(companyPeriod({ booksBeginFrom: null, fyStartMonth: 4 })).toBe("Year starts in Apr");
     expect(companyPeriod({ booksBeginFrom: "2026-04-01", fyStartMonth: 4, lineFrom: "2027-04-01" })).toBe("FY 2027-28");
+  });
+
+  it("says where the next year takes over", () => {
+    const rows = [
+      { id: "main", line: "main", lineFrom: null, booksBeginFrom: null, fyStartMonth: 4 },
+      { id: "y26", line: "main", lineFrom: "2026-04-01", booksBeginFrom: "2026-04-01", fyStartMonth: 4 },
+    ];
+    expect(companyPeriodIn(rows[0]!, rows)).toBe("Up to 31 Mar 2026");
+    expect(companyPeriodIn(rows[1]!, rows)).toBe("FY 2026-27");
   });
 
   it("suggests the next year's dates for the New financial year shortcut", () => {
