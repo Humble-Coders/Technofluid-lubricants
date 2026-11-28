@@ -4,6 +4,7 @@
  * `npm run emulators` is running and never touch your saved test data.
  *
  *   npm run test:emulator
+ *   npm run test:emulator -- companies     (only emulator/tests/companies.test.mjs)
  *
  * Uses the real security rules and the real Cloud Functions (built first).
  */
@@ -36,8 +37,11 @@ if (process.platform === "darwin") {
 }
 
 const testsDir = path.join(here, "tests");
+// `npm run test:emulator -- companies money` runs only those files; no names = all of them.
+const only = process.argv.slice(2).filter((a) => /^[\w-]+$/.test(a));
+const files = only.length ? only.map((name) => `"${testsDir}/${name}.test.mjs"`).join(" ") : `"${testsDir}/*.test.mjs"`;
 // One file at a time: the files share the test logins.
-const testCommand = `node --test --test-concurrency=1 "${testsDir}/*.test.mjs"`;
+const testCommand = `node --test --test-concurrency=1 ${files}`;
 const child = spawn(
   "firebase",
   [

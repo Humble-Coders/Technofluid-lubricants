@@ -4,6 +4,7 @@ import { db } from "@/lib/firebase";
 import { toPurchase, type PurchaseRow } from "./purchaseService";
 import { toSale, type SaleRow } from "./saleService";
 import { toStockItem, type StockItem } from "./stockService";
+import { lineOf, mainLineOnly } from "./currentCompany";
 
 /**
  * Reports (brief: docs/office/reports-brief.md) — ONE-SHOT reads (no listeners), all
@@ -65,11 +66,16 @@ const side = (r: DocumentData | undefined) => ({ kind: String(r?.kind ?? ""), en
  * and the mirrors of reversed ones.
  */
 export async function readPartyMoneyEntries(): Promise<MoneyEntryForReport[]> {
-  const [a, b] = await Promise.all([getDocs(query(collection(db, "moneyEntries"), where("from.kind", "==", "PARTY"))), getDocs(query(collection(db, "moneyEntries"), where("to.kind", "==", "PARTY")))]);
+  // Invoices and bills are the main business's: its money records only (Accounts may read no others).
+  const line = mainLineOnly() ? [where("line", "==", "main")] : [];
+  const [a, b] = await Promise.all([
+    getDocs(query(collection(db, "moneyEntries"), where("from.kind", "==", "PARTY"), ...line)),
+    getDocs(query(collection(db, "moneyEntries"), where("to.kind", "==", "PARTY"), ...line)),
+  ]);
   const out = new Map<string, MoneyEntryForReport>();
   for (const d of [...a.docs, ...b.docs]) {
     const x = d.data();
-    if (x.deleted === true || out.has(d.id)) continue;
+    if (x.deleted === true || out.has(d.id) || lineOf(x) !== "main") continue;
     out.set(d.id, {
       id: d.id,
       from: side(x.from),

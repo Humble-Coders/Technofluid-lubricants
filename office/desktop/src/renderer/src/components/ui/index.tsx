@@ -1039,7 +1039,13 @@ export function Dialog({
   const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const esc = (ev: KeyboardEvent) => ev.key === "Escape" && !busy && onClose();
+    const esc = (ev: KeyboardEvent) => {
+      if (ev.key !== "Escape" || busy) return;
+      // A dialog opened on top of another (Close year over New financial year): only the top one closes.
+      const open = document.querySelectorAll('[role="dialog"]');
+      if (open.length && open[open.length - 1] !== panel.current) return;
+      onClose();
+    };
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [busy, onClose]);

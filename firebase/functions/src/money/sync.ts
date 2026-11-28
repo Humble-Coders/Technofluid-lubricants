@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import {FieldValue} from "firebase-admin/firestore";
 import {logger} from "firebase-functions/v2";
 
-import {ENTITIES} from "../entities/entityModel";
+import {ENTITIES, hlAmountToPaise} from "../entities/entityModel";
 import {backoffMinutes, reconcileOnce as reconcileEntities, TRIGGER_RETRIES, type SyncOutcome} from "../entities/sync";
 import {platformRedelivers} from "../ledger/getHlClient";
 import {HlError, isNotConnected, plainHlMessage, type HlClient, type HlLeg, type HlPostingType} from "../ledger/hlClient";
@@ -10,7 +10,9 @@ import {SALES} from "../sales/saleModel";
 import {cancelSaleInBooks, syncSale} from "../sales/sync";
 import {PURCHASES} from "../purchases/purchaseModel";
 import {cancelPurchaseInBooks, syncPurchase} from "../purchases/sync";
-import {accountCache, categoryAccountName, registerAccountName} from "./hlAccounts";
+import {accountCache, categoryAccountName, companyAccountName, companySideId, registerAccountName} from "./hlAccounts";
+import {MAIN_LINE, companyForDate} from "../companies/companyModel";
+import {booksFor, companyAccount, companyCustomer, isMainCompany, loadCompanies, stampMainLine} from "../companies/companyStore";
 import {EXPENSE_CATEGORIES, MONEY_ENTRIES, REGISTERS, SYSTEM_ACCOUNTS, moneySourceIds, type MoneyAccountRef} from "./moneyModel";
 
 /**
@@ -64,28 +66,40 @@ export async function syncRegister(db: admin.firestore.Firestore, hl: HlClient, 
   if (!d || d.deleted === true || d.syncStatus === "SYNCED") return "skipped";
   const prior = Number(d.syncAttempts ?? 0);
   try {
+    // A register belongs to a line of companies (missing = the main business). Its own
+    // pinned account is the main company's; its opening goes to the company of its line
+    // that owns the opening date (companies, Ansh 28 Nov 2026).
+    const line: string = d.line ?? MAIN_LINE;
     const account = accountCache(hl);
-    const accountId: string = d.hlAccountId ?? (await account(registerAccountName(d.kind, d.name, id), "ASSET")).id;
+    const accountId: string | null = d.hlAccountId ?? (line === MAIN_LINE ? (await account(registerAccountName(d.kind, d.name, id), "ASSET")).id : null);
     let opening = d.opening ?? null;
     if (opening && opening.posted !== true) {
+      const owner = companyForDate(await loadCompanies(db), line, opening.asOf);
+      const ownerId = owner && !isMainCompany(owner.id) ? owner.id : null;
+      if (line !== MAIN_LINE && !owner) throw new Permanent(`No company of these books covers ${opening.asOf}.`);
+      const books = ownerId ? await booksFor(db, hl, ownerId) : hl;
+      const bookAccount = ownerId ? accountCache(books) : account;
+      const openingAccountId = ownerId ?
+        (await companyAccount(db, books, ownerId, id, "ASSET", registerAccountName(d.kind, d.name, id))) as string :
+        (accountId as string);
       if (opening.amountPaise === 0) {
         opening = {...opening, posted: true, hlTxnId: null};
       } else {
-        const equity = (await account(SYSTEM_ACCOUNTS.openingEquity.name, "EQUITY")).id;
+        const equity = (await bookAccount(SYSTEM_ACCOUNTS.openingEquity.name, "EQUITY")).id;
         const up = opening.amountPaise > 0;
         const amount = Math.abs(opening.amountPaise);
-        const r = await hl.postTransaction({
+        const r = await books.postTransaction({
           postingType: "JOURNAL",
           description: `Opening balance · ${d.name}`,
           date: opening.asOf,
           sourceId: moneySourceIds.registerOpening(id),
           actorRef: String(d.updatedBy?.uid ?? "system"),
           legs: [
-            {accountId, type: up ? "DEBIT" : "CREDIT", amountPaise: amount},
+            {accountId: openingAccountId, type: up ? "DEBIT" : "CREDIT", amountPaise: amount},
             {accountId: equity, type: up ? "CREDIT" : "DEBIT", amountPaise: amount},
           ],
         });
-        opening = {...opening, posted: true, hlTxnId: r.txnId};
+        opening = {...opening, posted: true, hlTxnId: r.txnId, companyId: ownerId};
       }
     }
     await db.runTransaction(async (tx) => {
@@ -141,11 +155,20 @@ interface Side {
   customerId: string | null;
 }
 
-async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef): Promise<Side> {
+/**
+ * One side of an entry, in the books of the entry's company: the main company uses the
+ * pinned ids; any other company finds (or makes) the same party / account in ITS books.
+ */
+async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef, company: {id: string | null; books: HlClient}): Promise<Side> {
   if (ref.kind === "ADJUSTMENT") return {ref, accountId: null, customerId: null};
+  const other = company.id && !isMainCompany(company.id) ? company.id : null;
   if (ref.kind === "PARTY") {
     const e = (await db.collection(ENTITIES).doc(ref.entityId).get()).data();
     if (!e || e.deleted === true) throw new Permanent(`${ref.name} no longer exists.`);
+    if (other) {
+      const c = await companyCustomer(db, company.books, other, ref.entityId, e);
+      return {ref, accountId: c.accountId, customerId: c.customerId};
+    }
     if (e.syncStatus !== "SYNCED" || !e.hlCustomerId || !e.hlAccountId) throw new Waiting(`${ref.name} isn't in the books yet`);
     return {ref, accountId: String(e.hlAccountId), customerId: String(e.hlCustomerId)};
   }
@@ -153,13 +176,22 @@ async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef):
     const c = (await db.collection(EXPENSE_CATEGORIES).doc(ref.categoryId).get()).data();
     if (!c || c.deleted === true) throw new Permanent(`The category ${ref.name} no longer exists.`);
     if (c.isActive === false) throw new Permanent(`The category ${ref.name} is archived.`);
+    if (other) return {ref, accountId: await companyAccount(db, company.books, other, ref.categoryId, "EXPENSE", categoryAccountName(String(c.name), ref.categoryId)), customerId: null};
     if (!c.hlAccountId) throw new Waiting(`${ref.name} isn't in the books yet`);
     return {ref, accountId: String(c.hlAccountId), customerId: null};
+  }
+  if (ref.kind === "COMPANY") {
+    // "Account with <other company>" in THIS company's books — found by the other company's
+    // line (so it continues across that company's years), made on first use.
+    const here = company.id ?? "main";
+    const accountId = await companyAccount(db, company.books, here, companySideId(ref.line), "ASSET", companyAccountName(ref.name, ref.line));
+    return {ref, accountId, customerId: null};
   }
   const r = (await db.collection(REGISTERS).doc(ref.registerId).get()).data();
   if (!r || r.deleted === true) throw new Permanent(`${ref.name} no longer exists.`);
   if (r.isActive === false) throw new Permanent(`${r.name} is archived.`);
   if (r.kind !== ref.kind) throw new Permanent(`${r.name} isn't a ${ref.kind.toLowerCase()} account.`);
+  if (other) return {ref, accountId: await companyAccount(db, company.books, other, ref.registerId, "ASSET", registerAccountName(r.kind, String(r.name), ref.registerId)), customerId: null};
   if (!r.hlAccountId) throw new Waiting(`${r.name} isn't in the books yet`);
   return {ref, accountId: String(r.hlAccountId), customerId: null};
 }
@@ -167,12 +199,20 @@ async function resolveSide(db: admin.firestore.Firestore, ref: MoneyAccountRef):
 const name = (r: MoneyAccountRef) => (r.kind === "ADJUSTMENT" ? "Adjustment" : r.name);
 const isReg = (r: MoneyAccountRef) => r.kind === "CASH" || r.kind === "BANK";
 
-export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient, id: string, opts: {fromTrigger?: boolean} = {}): Promise<SyncOutcome> {
-  if (hl.mode === "off") return "skipped";
+export async function syncMoneyEntry(db: admin.firestore.Firestore, home: HlClient, id: string, opts: {fromTrigger?: boolean} = {}): Promise<SyncOutcome> {
+  if (home.mode === "off") return "skipped";
   const ref = db.collection(MONEY_ENTRIES).doc(id);
   const e = (await ref.get()).data();
   if (!e || e.deleted === true || e.syncStatus === "SYNCED") return "skipped";
   const prior = Number(e.syncAttempts ?? 0);
+  // The entry's own company's books (missing companyId = the main company, as before).
+  let hl: HlClient;
+  try {
+    hl = await booksFor(db, home, e.companyId);
+  } catch (err) {
+    return fail(ref, id, new Permanent(err instanceof Error ? err.message : String(err)), prior, opts.fromTrigger === true);
+  }
+  const company = {id: typeof e.companyId === "string" ? e.companyId : null, books: hl};
   const sourceId = moneySourceIds.entry(id);
   const actorRef = String(e.createdBy?.uid ?? "system");
   const note: string = e.note ?? "";
@@ -180,6 +220,7 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
   try {
     let legs: HlLeg[];
     let txnId: string;
+    let carriedMatch: {invoiceId: string; amountPaise: number} | {error: string} | null = null;
 
     const journal = async (postingType: HlPostingType, description: string, l: HlLeg[]) => {
       legs = l;
@@ -196,7 +237,7 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
       await journal("REVERSAL", note || "Reversal", flipped);
     } else {
       // Resolve every side before posting anything.
-      const [from, to] = await Promise.all([resolveSide(db, e.from), resolveSide(db, e.to)]);
+      const [from, to] = await Promise.all([resolveSide(db, e.from, company), resolveSide(db, e.to, company)]);
       const account = accountCache(hl);
 
       if (e.isCorrection) {
@@ -232,7 +273,10 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
         let invoiceId: string | null = null;
         if (e.saleId) {
           const sale = (await db.collection(SALES).doc(String(e.saleId)).get()).data();
-          if (sale && sale.deleted !== true && sale.status !== "CANCELLED") {
+          // Only against an invoice in THIS company's books: one from an earlier year (carried
+          // forward under a new id) gets the money on account — matched to it later.
+          const sameBooks = (sale?.companyId ?? "main") === (e.companyId ?? "main");
+          if (sale && sale.deleted !== true && sale.status !== "CANCELLED" && sameBooks) {
             if (sale.syncStatus !== "SYNCED" || !sale.hlInvoiceId) throw new Waiting(`${sale.invoiceNo} isn't in the books yet`);
             invoiceId = String(sale.hlInvoiceId);
           }
@@ -253,6 +297,11 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
           {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
         ];
         txnId = r.txnId;
+        if (e.saleId && !invoiceId && e.invoiceNo) {
+          // An invoice from an earlier year's company: carried forward here under its own number.
+          // Match this payment to that carried bill (best effort — the money is in the books either way).
+          carriedMatch = await matchToCarriedBill(hl, {customerId: from.customerId!, txnId: r.txnId, invoiceNo: String(e.invoiceNo), amountPaise: e.amountPaise, date: e.businessDay, sourceId: `${sourceId}:match`, actorRef});
+        }
       } else if (isReg(from.ref) && to.ref.kind === "PARTY") {
         // 4. Money paid.
         const r = await hl.postPayout({
@@ -276,6 +325,13 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
           {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
           {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
         ]);
+      } else if ((isReg(from.ref) && to.ref.kind === "COMPANY") || (from.ref.kind === "COMPANY" && isReg(to.ref))) {
+        // 7. Money between companies: this company's half (the other half is its pair entry).
+        const out = to.ref.kind === "COMPANY";
+        await journal("JOURNAL", `${out ? `Money to ${name(to.ref)}` : `Money from ${name(from.ref)}`}${note ? `: ${note}` : ""}`, [
+          {accountId: to.accountId!, type: "DEBIT", amountPaise: e.amountPaise},
+          {accountId: from.accountId!, type: "CREDIT", amountPaise: e.amountPaise},
+        ]);
       } else if (isReg(from.ref) && isReg(to.ref)) {
         // 6. Deposit / withdrawal / transfer.
         await journal("JOURNAL", `Transfer from ${name(from.ref)} to ${name(to.ref)}${note ? `: ${note}` : ""}`, [
@@ -288,7 +344,10 @@ export async function syncMoneyEntry(db: admin.firestore.Firestore, hl: HlClient
     }
 
     await ref.set(
-      {syncStatus: "SYNCED", hlTxnId: txnId!, hlLegs: legs!, hlSyncError: null, syncAttempts: 0, hlSyncedAt: FieldValue.serverTimestamp(), lastSyncAttemptAt: FieldValue.serverTimestamp()},
+      {
+        syncStatus: "SYNCED", hlTxnId: txnId!, hlLegs: legs!, hlSyncError: null, syncAttempts: 0, hlSyncedAt: FieldValue.serverTimestamp(), lastSyncAttemptAt: FieldValue.serverTimestamp(),
+        ...(carriedMatch ? {carriedBillMatch: carriedMatch} : {}),
+      },
       {merge: true},
     );
     return "synced";
@@ -338,6 +397,8 @@ async function sweep(
 /** One pass, in dependency order: entities → registers → categories → sales → purchases (each with its cancellations) → money entries. */
 export async function reconcileLedgerOnce(db: admin.firestore.Firestore, hl: HlClient, now = Date.now()) {
   if (hl.mode === "off") return {notConnected: true};
+  // Once, after companies arrive: older records are marked as the main business's.
+  await stampMainLine(db).catch((e) => logger.error("Stamping the main line failed", {error: String(e)}));
   const entities = await reconcileEntities(db, hl, now);
   const registers = await sweep(db, REGISTERS, (id) => syncRegister(db, hl, id), now);
   const categories = await sweep(db, EXPENSE_CATEGORIES, (id) => syncCategory(db, hl, id), now);
@@ -365,4 +426,28 @@ export async function postWaitingFor(db: admin.firestore.Firestore, hl: HlClient
   for (const d of purchases.docs) await syncPurchase(db, hl, d.id);
   const waiting = await db.collection(MONEY_ENTRIES).where("sideIds", "array-contains", sideId).where("syncStatus", "==", "PENDING").limit(50).get();
   for (const d of waiting.docs) await syncMoneyEntry(db, hl, d.id);
+}
+
+/**
+ * A payment for an invoice that was carried into this company from an earlier year: the
+ * carried bill keeps its number, so find it among the customer's open bills and match the
+ * payment (already on account) to it — up to what it still owes. Never throws: the payment
+ * is in the books; a miss is recorded on the entry.
+ */
+export async function matchToCarriedBill(
+  hl: HlClient,
+  p: {customerId: string; txnId: string; invoiceNo: string; amountPaise: number; date: string; sourceId: string; actorRef: string},
+): Promise<{invoiceId: string; amountPaise: number} | {error: string}> {
+  try {
+    const credits = await hl.getCustomerCredits(p.customerId);
+    const bill = credits.openInvoices.find((i) => i.invoiceNumber === p.invoiceNo);
+    if (!bill) return {error: `${p.invoiceNo} isn't an open bill in these books — the payment stays on account.`};
+    const amount = Math.min(p.amountPaise, hlAmountToPaise(bill.outstanding));
+    if (amount <= 0) return {error: `${p.invoiceNo} is already settled here — the payment stays on account.`};
+    await hl.allocateCustomerCredit({customerId: p.customerId, sourceTransactionId: p.txnId, allocations: [{invoiceId: bill.id, amountPaise: amount}], date: p.date, sourceId: p.sourceId, actorRef: p.actorRef, note: `Payment for ${p.invoiceNo}`});
+    return {invoiceId: bill.id, amountPaise: amount};
+  } catch (e) {
+    logger.warn("Matching a payment to a carried bill failed", {invoiceNo: p.invoiceNo, error: e instanceof Error ? e.message : String(e)});
+    return {error: plainHlMessage(e)};
+  }
 }

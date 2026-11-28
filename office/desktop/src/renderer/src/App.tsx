@@ -11,6 +11,8 @@ import { ProductsScreen } from "@/features/products/ProductsScreen";
 import { StockScreen } from "@/features/stock/StockScreen";
 import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
 import { ToFillScreen } from "@/features/tofill/ToFillScreen";
+import { CompaniesScreen } from "@/features/companies/CompaniesScreen";
+import { GroupReportScreen } from "@/features/companies/GroupReportScreen";
 import { NewSaleScreen } from "@/features/sales/NewSaleScreen";
 import { SaleDetail } from "@/features/sales/SaleDetail";
 import { SalesScreen } from "@/features/sales/SalesScreen";
@@ -57,6 +59,8 @@ const router = createHashRouter([
           { path: "reports", element: <ReportsScreen /> },
           { path: "approvals", element: <ApprovalsScreen /> },
           { path: "to-fill", element: <ToFillScreen /> },
+          { path: "companies", element: <CompaniesScreen /> },
+          { path: "companies/report", element: <GroupReportScreen /> },
           { path: "settings", element: <SettingsScreen /> },
           { path: "*", element: <NoAccess /> },
         ],

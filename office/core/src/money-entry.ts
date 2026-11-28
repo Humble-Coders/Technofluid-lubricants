@@ -31,6 +31,8 @@ export type MoneyAccountRef =
   | { kind: "PARTY"; entityId: string; name: string }
   | { kind: "CASH" | "BANK"; registerId: string; name: string }
   | { kind: "EXPENSE"; categoryId: string; name: string }
+  /** Another company's books (money between companies — one entry in each company). */
+  | { kind: "COMPANY"; companyId: string; line: string; name: string }
   | { kind: "ADJUSTMENT" };
 
 export interface ExpenseGst {
@@ -102,6 +104,8 @@ export const isOwnAccount = isRegister;
 export function moneyDirection(e: { from: MoneyAccountRef; to: MoneyAccountRef }): MoneyDirection {
   if (e.to.kind === "EXPENSE") return "OUT";
   if (e.from.kind === "EXPENSE") return "IN"; // an expense's mirror
+  if (e.to.kind === "COMPANY") return "OUT";
+  if (e.from.kind === "COMPANY") return "IN";
   if (e.from.kind === "PARTY" && e.to.kind === "PARTY") return "INTERNAL";
   if (!isRegister(e.from)) return "IN";
   if (e.to.kind === "PARTY") return "OUT";
@@ -109,9 +113,9 @@ export function moneyDirection(e: { from: MoneyAccountRef; to: MoneyAccountRef }
 }
 
 /** What kind of money movement an entry is — for the label on each row and the filter. */
-export type MoneyCategory = "RECEIVED" | "PAID" | "TRANSFER" | "MOVE" | "EXPENSE" | "CORRECTION";
+export type MoneyCategory = "RECEIVED" | "PAID" | "TRANSFER" | "MOVE" | "EXPENSE" | "CORRECTION" | "COMPANY";
 
-export const MONEY_CATEGORIES: readonly MoneyCategory[] = ["RECEIVED", "PAID", "TRANSFER", "MOVE", "EXPENSE", "CORRECTION"];
+export const MONEY_CATEGORIES: readonly MoneyCategory[] = ["RECEIVED", "PAID", "TRANSFER", "MOVE", "EXPENSE", "CORRECTION", "COMPANY"];
 
 export const MONEY_CATEGORY_LABEL: Record<MoneyCategory, string> = {
   RECEIVED: "Money received",
@@ -120,6 +124,7 @@ export const MONEY_CATEGORY_LABEL: Record<MoneyCategory, string> = {
   MOVE: "Balance move",
   EXPENSE: "Expense",
   CORRECTION: "Correction",
+  COMPANY: "Between companies",
 };
 
 /**
@@ -132,6 +137,7 @@ export function moneyCategory(e: { from: MoneyAccountRef; to: MoneyAccountRef; i
   const [from, to] = e.reversesEntryId ? [e.to, e.from] : [e.from, e.to];
   if (e.isCorrection || from.kind === "ADJUSTMENT" || to.kind === "ADJUSTMENT") return "CORRECTION";
   if (from.kind === "EXPENSE" || to.kind === "EXPENSE") return "EXPENSE";
+  if (from.kind === "COMPANY" || to.kind === "COMPANY") return "COMPANY";
   if (from.kind === "PARTY" && to.kind === "PARTY") return "MOVE";
   if (from.kind === "PARTY") return "RECEIVED";
   if (to.kind === "PARTY") return "PAID";
@@ -143,6 +149,7 @@ export function isSameAccountAs(a: MoneyAccountRef, b: MoneyAccountRef): boolean
   if (a.kind === "ADJUSTMENT" || b.kind === "ADJUSTMENT") return a.kind === b.kind;
   if (a.kind === "PARTY" && b.kind === "PARTY") return a.entityId === b.entityId;
   if (a.kind === "EXPENSE" && b.kind === "EXPENSE") return a.categoryId === b.categoryId;
+  if (a.kind === "COMPANY" && b.kind === "COMPANY") return a.companyId === b.companyId;
   if (isRegister(a) && isRegister(b)) return a.registerId === b.registerId;
   return false;
 }

@@ -222,7 +222,7 @@ export function CorrectionDialog({
   } catch {
     wantedSigned = null;
   }
-  const draft = ref && current !== null && wantedSigned !== null && ref.kind !== "ADJUSTMENT" && ref.kind !== "EXPENSE" ? correctionFor(ref, current, wantedSigned) : null;
+  const draft = ref && current !== null && wantedSigned !== null && ref.kind !== "ADJUSTMENT" && ref.kind !== "EXPENSE" && ref.kind !== "COMPANY" ? correctionFor(ref, current, wantedSigned) : null;
   const describe = (p: number) => (isParty ? (p > 0 ? `${formatINR(p)} they owe us` : p < 0 ? `${formatINR(-p)} we owe them` : "settled") : formatINR(p));
   const blocked = done ? null : !ref ? "Choose whose balance." : wantedSigned === null ? "Enter what it should be." : draft && !reason.trim() ? "Give a reason." : null;
 

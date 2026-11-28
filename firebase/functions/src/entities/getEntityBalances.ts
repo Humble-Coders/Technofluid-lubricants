@@ -4,6 +4,8 @@ import {requireRole} from "../auth/requireRole";
 import {getHlClient, HL_SECRETS} from "../ledger/getHlClient";
 import {HL_MAX_PAGE, plainHlMessage} from "../ledger/hlClient";
 import {balanceDirection, hlAmountToPaise} from "./entityModel";
+import * as admin from "firebase-admin";
+import {companyToRead} from "../companies/companyStore";
 
 /**
  * Every entity's balance, from Humble Ledger (the app never stores one): pages GET
@@ -11,8 +13,9 @@ import {balanceDirection, hlAmountToPaise} from "./entityModel";
  * A failure is an error ("Books unreachable"), never an empty / ₹0 result (§9b.5).
  */
 export const getEntityBalances = onCall({region: "us-central1", secrets: HL_SECRETS}, async (request) => {
-  await requireRole(request, ["admin", "accounts"]);
-  const hl = getHlClient();
+  const caller = await requireRole(request, ["admin", "accounts"]);
+  // In another company the same parties are found by externalId (= entity id) too.
+  const {books: hl} = await companyToRead(admin.firestore(), caller.role, request.data?.companyId, getHlClient());
   const balances: Record<string, {balancePaise: number; direction: string}> = {};
   try {
     for (let page = 1; page <= 200; page++) {

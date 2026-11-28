@@ -26,6 +26,8 @@ import {
   type PurchaseLineInput,
   type PurchasePaymentInput,
 } from "./purchaseModel";
+import {MAIN_COMPANY_ID, MAIN_LINE} from "../companies/companyModel";
+import {routeToCompany} from "../companies/companyStore";
 
 /**
  * Record a supplier's bill (Admin or Accounts). The bill is re-priced HERE from the
@@ -132,12 +134,16 @@ export const createPurchase = onCall({region: "us-central1"}, async (request) =>
   }
   if (totalsCode) bad(PURCHASE_ERROR_TEXT[totalsCode], totalsCode);
 
+  // The main-business company that owns the bill date (a closed year is refused here).
+  const company = await routeToCompany(db, MAIN_COMPANY_ID, billDate, "The bill date");
+
   // Payment accounts.
   const regSnaps = payments.length ? await db.getAll(...payments.map((p) => db.collection(REGISTERS).doc(p.registerId))) : [];
   const paymentRows = payments.map((p, i) => {
     const r = regSnaps[i].data();
     if (!regSnaps[i].exists || !r || r.deleted === true) throw new HttpsError("not-found", "That cash / bank account doesn't exist.");
     if (r.isActive === false) bad(`${r.name} is archived.`);
+    if ((r.line ?? MAIN_LINE) !== MAIN_LINE) bad(`${r.name} belongs to another company's books.`);
     return {registerId: p.registerId, kind: r.kind === "BANK" ? "BANK" : "CASH", name: String(r.name), amountPaise: p.amountPaise, hlTxnId: null};
   });
 
@@ -190,6 +196,8 @@ export const createPurchase = onCall({region: "us-central1"}, async (request) =>
 
     tx.create(purchaseRefDoc, {
       ref, fy, seq,
+      companyId: company.id,
+      line: MAIN_LINE,
       billNo, billNoKey: key, billDate,
       supplier: {entityId: supplierId, name: String(s?.name ?? ""), gstin: supplierGstin, stateCode: gstState ?? (s?.address?.stateCode ?? null)},
       supplyType: priced.totals.supplyType,

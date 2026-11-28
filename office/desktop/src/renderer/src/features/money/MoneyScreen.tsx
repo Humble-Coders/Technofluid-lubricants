@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ArrowLeftRight, RefreshCw, Scale, Settings2, Undo2, X } from "lucide-react";
+import { ArrowLeftRight, ArrowRightLeft, RefreshCw, Scale, Settings2, Undo2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { canReverse, formatINR, indiaDate, isCancelled, MONEY_CATEGORY_LABEL, moneyCategory, moneyDirection, reversalState, type MoneyAccountRef } from "@technofluid/core";
 import {
@@ -33,6 +33,8 @@ import { retryMoneyEntrySync, reverseMoneyEntry, type MoneyEntryRow } from "@/se
 import { MoneyEntryPanel } from "./MoneyEntryPanel";
 import { amountClass, amountSign, CorrectionDialog } from "./MoneyForms";
 import { RegistersPanel } from "./RegistersPanel";
+import { CompanyTransferDialog } from "./CompanyTransferDialog";
+import { useCompany } from "@/features/companies/CompanyContext";
 
 type Preset = "today" | "week" | "month" | "custom";
 
@@ -96,6 +98,8 @@ export function MoneyScreen() {
   const [sort, setSort] = useState<Sort>({ key: "date", dir: "desc" });
   const [correcting, setCorrecting] = useState(false);
   const [managing, setManaging] = useState(false);
+  const [moving, setMoving] = useState(false);
+  const { companies } = useCompany();
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const saved = useMoneyEntry(lastSaved);
 
@@ -177,6 +181,7 @@ export function MoneyScreen() {
               items={[
                 { label: "Cash & bank accounts", icon: <Settings2 />, onSelect: () => setManaging(true) },
                 isAdmin ? { label: "Correct a balance", icon: <Scale />, onSelect: () => setCorrecting(true) } : null,
+                isAdmin && companies.length > 1 ? { label: "Move money to another company", icon: <ArrowRightLeft />, onSelect: () => setMoving(true) } : null,
               ]}
             />
           </>
@@ -308,6 +313,7 @@ export function MoneyScreen() {
           }}
         />
       ) : null}
+      {moving ? <CompanyTransferDialog registers={regs} onClose={() => setMoving(false)} onSaved={(id) => setLastSaved(id)} /> : null}
       {managing ? <RegistersPanel registers={regs} balances={books.balances} canManage={isAdmin} onClose={() => setManaging(false)} /> : null}
     </>
   );

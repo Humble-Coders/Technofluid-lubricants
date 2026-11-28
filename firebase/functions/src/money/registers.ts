@@ -9,6 +9,9 @@ import {hlAmountToPaise, formatRupees} from "../entities/entityModel";
 import {requestId as parseRequestId} from "../stock/stockModel";
 import {indiaToday, onceInTx, realDay, text} from "./common";
 import {DEFAULT_REGISTERS, REGISTERS, RESERVED_REGISTER_NAMES, bad} from "./moneyModel";
+import {MAIN_LINE, companyForDate} from "../companies/companyModel";
+import {booksFor, companyAccount, isMainCompany, loadCompanies, loadCompany} from "../companies/companyStore";
+import {registerAccountName} from "./hlAccounts";
 
 /**
  * Registers — Technofluid's own cash boxes and bank accounts (Admin only). Each is pinned
@@ -30,10 +33,12 @@ async function checkName(tx: admin.firestore.Transaction, db: admin.firestore.Fi
   if (same.docs.some((d) => d.id !== selfId && d.data().deleted !== true)) bad(`There's already a register called ${name}.`);
 }
 
-function newRegisterDoc(name: string, kind: "CASH" | "BANK", displayOrder: number, by: {uid: string; name: string}) {
+function newRegisterDoc(name: string, kind: "CASH" | "BANK", displayOrder: number, by: {uid: string; name: string}, line: string = MAIN_LINE) {
   const now = FieldValue.serverTimestamp();
   return {
     name,
+    /** The line of companies whose cash / bank this is (companies, 28 Nov 2026). */
+    line,
     nameLower: name.toLowerCase(),
     kind,
     isActive: true,
@@ -62,13 +67,15 @@ export const saveRegister = onCall({region: "us-central1"}, async (request) => {
   if (order !== null && (!Number.isInteger(order) || order < 0 || order > 999)) bad("Order must be a whole number from 0 to 999.");
   const db = admin.firestore();
   const by = {uid: caller.uid, name: caller.name};
+  // A new register belongs to the line of the company it was added in (default: main).
+  const line = registerId ? MAIN_LINE : (await loadCompany(db, typeof data.companyId === "string" ? data.companyId : null)).line;
 
   return onceInTx(db, reqId, "saveRegister", async (tx) => {
     if (!registerId) {
       if (data.kind !== "CASH" && data.kind !== "BANK") bad("Kind must be CASH or BANK.");
       await checkName(tx, db, name, null);
       const ref = db.collection(REGISTERS).doc();
-      tx.create(ref, newRegisterDoc(name, data.kind, order ?? 10, by));
+      tx.create(ref, newRegisterDoc(name, data.kind, order ?? 10, by, line));
       return {registerId: ref.id};
     }
     const ref = db.collection(REGISTERS).doc(registerId);
@@ -126,12 +133,24 @@ export const setRegisterActive = onCall({region: "us-central1", secrets: HL_SECR
   const ref = db.collection(REGISTERS).doc(registerId);
   const d = (await ref.get()).data();
   if (!d || d.deleted === true) throw new HttpsError("not-found", "That register doesn't exist.");
-  if (!active && d.hlAccountId) {
+  const line: string = d.line ?? MAIN_LINE;
+  if (!active && (d.hlAccountId || line !== MAIN_LINE)) {
     let balance: number;
     try {
-      const sheet = await getHlClient().getBalanceSheet(indiaToday());
-      balance = hlAmountToPaise(String(sheet[String(d.hlAccountId)] ?? "0"));
+      // Its balance today, in the company of its line that owns today.
+      const owner = companyForDate(await loadCompanies(db), line, indiaToday());
+      const home = getHlClient();
+      if (!owner || isMainCompany(owner.id)) {
+        const sheet = await home.getBalanceSheet(indiaToday());
+        balance = d.hlAccountId ? hlAmountToPaise(String(sheet[String(d.hlAccountId)] ?? "0")) : 0;
+      } else {
+        const books = await booksFor(db, home, owner.id);
+        const acc = await companyAccount(db, books, owner.id, registerId, "ASSET", registerAccountName(d.kind, String(d.name), registerId), false);
+        const sheet = acc ? await books.getBalanceSheet(indiaToday()) : {};
+        balance = acc ? hlAmountToPaise(String(sheet[acc] ?? "0")) : 0;
+      }
     } catch (e) {
+      if (e instanceof HttpsError) throw e;
       throw new HttpsError("unavailable", plainHlMessage(e));
     }
     if (balance !== 0) throw new HttpsError("failed-precondition", `Move or settle ${formatRupees(balance)} first — only a register at ₹0 can be archived.`);

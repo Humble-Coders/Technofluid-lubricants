@@ -6,7 +6,15 @@ import {
   HlError,
   type HlAccount,
   type HlAccountType,
+  type HlBooksLock,
   type HlClient,
+  type HlCompanyDetails,
+  type HlCompanyInfo,
+  type HlCompanyPatch,
+  type HlCompanySummary,
+  type HlCreateCompany,
+  type HlGroupReport,
+  type HlGroupReportKind,
   type HlCustomer,
   type HlInvoice,
   type HlLedgerRow,
@@ -73,6 +81,11 @@ function decimalPaise(v: string): number {
   const paise = Number(m[2]) * 100 + Number((m[3] ?? "").padEnd(2, "0"));
   return m[1] ? -paise : paise;
 }
+/** The error code of a response, read from a CLONE so the body can still be read after. */
+async function peekCode(res: Response): Promise<string> {
+  const b = obj(await res.clone().json().catch(() => null)) ?? {};
+  return String(obj(b.error)?.code ?? b.code ?? "");
+}
 const paiseDecimal = (p: number) => `${p < 0 ? "-" : ""}${Math.floor(Math.abs(p) / 100)}.${String(Math.abs(p) % 100).padStart(2, "0")}`;
 
 /** HL's Customer → ours; refuses anything without an id and an account. */
@@ -110,16 +123,26 @@ export class HttpHlClient implements HlClient {
   private token: string | null = null;
   private readonly api: string;
 
-  constructor(private readonly cfg: HttpHlConfig) {
+  /**
+   * @param hlCompanyId the HL company to post into; null = the login's home company.
+   *   For another company we sign in, then POST /auth/switch-company {companyId} and keep
+   *   THAT token pair, cached per company — a token from company A must never be used for
+   *   company B (it would silently write to A).
+   */
+  constructor(private readonly cfg: HttpHlConfig, readonly hlCompanyId: string | null = null) {
     if (!cfg.hlBaseUrl || !cfg.email || !cfg.password) {
       throw new HlError("Humble Ledger isn't configured (base URL, app login email or password missing).", 500, false, "NOT_CONNECTED");
     }
     const root = cfg.hlBaseUrl.replace(/\/+$/, "");
     this.api = root.endsWith("/api/v1") ? root : `${root}/api/v1`;
-    this.key = `${this.api}|${cfg.email.toLowerCase()}`;
+    this.key = `${this.api}|${cfg.email.toLowerCase()}|${hlCompanyId ?? "home"}`;
   }
 
   private readonly key: string;
+
+  forCompany(hlCompanyId: string | null): HlClient {
+    return new HttpHlClient(this.cfg, hlCompanyId);
+  }
 
   /**
    * POST /auth/login → 200 {data: {accessToken (15 min), refreshToken, token, user}}
@@ -145,7 +168,31 @@ export class HttpHlClient implements HlClient {
     if (!res.ok || !token) {
       throw new HlError(`Couldn't sign in to Humble Ledger (${res.status})`, res.status >= 500 ? res.status : 502, res.status >= 500 || res.status === 429);
     }
-    TOKENS.set(this.key, {token, until: Date.now() + TOKEN_LIFE_MS});
+    const scoped = this.hlCompanyId ? await this.switchTo(token, this.hlCompanyId) : token;
+    TOKENS.set(this.key, {token: scoped, until: Date.now() + TOKEN_LIFE_MS});
+    return scoped;
+  }
+
+  /**
+   * POST /auth/switch-company {companyId} → {accessToken, refreshToken, user} scoped to that
+   * company. 401/403 COMPANY_ACCESS_REVOKED (or any refusal) is permanent: surface it.
+   */
+  private async switchTo(homeToken: string, companyId: string): Promise<string> {
+    const res = await this.raw(`${this.api}/auth/switch-company`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "Authorization": `Bearer ${homeToken}`},
+      body: JSON.stringify({companyId}),
+    });
+    const body = obj(await res.json().catch(() => null)) ?? {};
+    const data = obj(body.data) ?? {};
+    const tokens = obj(data.tokens) ?? {};
+    const token = [data.accessToken, tokens.accessToken, body.accessToken].find((t): t is string => typeof t === "string" && t.length > 0);
+    if (!res.ok || !token) {
+      const err = obj(body.error) ?? {};
+      const code = strOrNull(err.code ?? body.code) ?? (res.status === 403 || res.status === 404 ? "COMPANY_ACCESS_REVOKED" : null);
+      logger.warn("HL switch-company refused", {status: res.status, code});
+      throw new HlError(`Couldn't open that company in Humble Ledger (${res.status})`, res.status >= 500 ? res.status : res.status || 502, res.status >= 500 || res.status === 429, code);
+    }
     return token;
   }
 
@@ -176,7 +223,7 @@ export class HttpHlClient implements HlClient {
       if (attempt === 0) return this.call(method, path, body, 1, refreshed);
       throw e;
     }
-    if (res.status === 401 && !refreshed) {
+    if (res.status === 401 && !refreshed && !(await peekCode(res)).includes("COMPANY_ACCESS_REVOKED")) {
       TOKENS.delete(this.key);
       this.token = await this.fetchToken();
       return this.call(method, path, body, attempt, true);
@@ -185,7 +232,8 @@ export class HttpHlClient implements HlClient {
     const json = obj(await res.json().catch(() => null)) ?? {};
     if (!res.ok || json.success === false) {
       const err = obj(json.error) ?? {};
-      const message = String(err.message ?? json.message ?? `HTTP ${res.status}`);
+      // HL sends {error: {message, code}} on most routes and {error: "<message>", code} on others (books lock).
+      const message = String(err.message ?? (typeof json.error === "string" ? json.error : undefined) ?? json.message ?? `HTTP ${res.status}`);
       const code = strOrNull(err.code ?? json.code);
       logger.warn("HL error", {method, path: path.replace(/\?.*$/, ""), status: res.status, code, message});
       throw new HlError(message, res.status, res.status >= 500 || res.status === 429, code);
@@ -462,4 +510,214 @@ export class HttpHlClient implements HlClient {
   async cancelInvoice(id: string, p: {reason: string; date: string}) {
     await this.call("POST", `/invoices/${encodeURIComponent(id)}/cancel`, {reason: p.reason, date: p.date});
   }
+
+  // ─── Companies (Ansh HL guide, 28 Nov 2026) ─────────────────────────────────
+
+  async listCompanies() {
+    const res = await this.call("GET", "/auth/companies");
+    const list = Array.isArray(res.data) ? res.data : Array.isArray(obj(res.data)?.companies) ? (obj(res.data)?.companies as unknown[]) : null;
+    if (!list) throw unexpected("list-companies");
+    return list.map((c) => toCompanySummary(c, "list-companies"));
+  }
+
+  async createCompany(p: HlCreateCompany) {
+    const body: Body = {name: p.name, requestId: p.requestId, ...(p.creatorIsOwner ? {creatorIsOwner: true} : {})};
+    if (p.fyStartMonth) body.fyStartMonth = p.fyStartMonth;
+    if (p.booksBeginFrom) body.booksBeginFrom = p.booksBeginFrom;
+    const details = cleanDetails(p.details);
+    if (details) body.details = details;
+    if (p.copyFrom) body.copyFrom = p.copyFrom;
+    const res = await this.call("POST", "/auth/companies", body);
+    const data = obj(res.data) ?? {};
+    const copied = obj(data.copied) ?? {};
+    const n = (k: string) => Number(copied[k] ?? 0) || 0;
+    return {
+      company: toCompanySummary(data.company, "create-company"),
+      copied: {
+        accounts: n("accounts"),
+        customers: n("customers"),
+        vendors: n("vendors"),
+        members: n("members"),
+        openingBalanceLines: n("openingBalanceLines"),
+        pendingBills: n("pendingBills"),
+        pendingSupplierBills: n("pendingSupplierBills"),
+      },
+      idempotent: res.idempotent === true || data.idempotent === true,
+    };
+  }
+
+  async getCompany() {
+    return toCompanyInfo((await this.call("GET", "/company")).data);
+  }
+
+  async updateCompany(p: HlCompanyPatch) {
+    const body: Body = {};
+    if (p.name) body.name = p.name;
+    if (p.fyStartMonth) body.fyStartMonth = p.fyStartMonth;
+    if (p.booksBeginFrom) body.booksBeginFrom = p.booksBeginFrom;
+    const details = cleanDetails(p.details);
+    if (details) body.details = details;
+    return toCompanyInfo((await this.call("PATCH", "/company", body)).data);
+  }
+
+  async setCompanyArchived(archived: boolean) {
+    await this.call("POST", archived ? "/company/archive" : "/company/unarchive", {});
+  }
+
+  async getBooksLock() {
+    return toBooksLock((await this.call("GET", "/books-lock")).data);
+  }
+
+  async setBooksLock(p: {lockedThrough: string}) {
+    return toBooksLock((await this.call("PUT", "/books-lock", {lockedThrough: p.lockedThrough})).data);
+  }
+
+  async getCustomerCredits(customerId: string) {
+    const res = await this.call("GET", `/customers/${encodeURIComponent(customerId)}/credits`);
+    const d = obj(res.data);
+    if (!d || !Array.isArray(d.openInvoices)) throw unexpected("customer-credits");
+    return {
+      availableCredit: strOrNull(d.availableCredit) ?? "0",
+      openInvoices: d.openInvoices.map((x) => {
+        const i = obj(x) ?? {};
+        if (typeof i.id !== "string") throw unexpected("customer-credits (invoice)");
+        return {id: i.id, invoiceNumber: strOrNull(i.invoiceNumber), outstanding: strOrNull(i.outstanding) ?? "0"};
+      }),
+    };
+  }
+
+  async allocateCustomerCredit(p: {customerId: string; sourceTransactionId: string; allocations: {invoiceId: string; amountPaise: number}[]; date: string; sourceId: string; actorRef: string; note?: string}) {
+    const res = await this.call("POST", `/customers/${encodeURIComponent(p.customerId)}/allocations`, {
+      sourceTransactionId: p.sourceTransactionId,
+      allocations: p.allocations.map((a) => ({invoiceId: a.invoiceId, amount: toHlAmount(a.amountPaise)})),
+      date: p.date,
+      appId: HL_APP_ID,
+      sourceId: p.sourceId,
+      actorRef: p.actorRef,
+      ...(p.note ? {note: p.note.slice(0, 200)} : {}),
+    });
+    const d = obj(res.data) ?? {};
+    return {batchId: strOrNull(d.batchId) ?? "", idempotent: res.idempotent === true || d.idempotent === true};
+  }
+
+  async getGroupReport(p: {kind: HlGroupReportKind; hlCompanyIds: string[]; from?: string; to?: string; date?: string}) {
+    const q = new URLSearchParams({companyIds: p.hlCompanyIds.join(",")});
+    if (p.kind === "pnl") {
+      if (p.from) q.set("from", p.from);
+      if (p.to) q.set("to", p.to);
+    } else if (p.date) {
+      q.set("date", p.date);
+    }
+    const res = await this.call("GET", `/group/reports/${p.kind}?${q.toString()}`);
+    return toGroupReport(res.data);
+  }
+}
+
+// ─── Company shapes ──────────────────────────────────────────────────────────
+
+const dayOrNull = (x: unknown) => {
+  const d = strOrNull(x);
+  return d && /^\d{4}-\d{2}-\d{2}/.test(d) ? d.slice(0, 10) : null;
+};
+
+function toCompanySummary(x: unknown, what: string): HlCompanySummary {
+  const c = obj(x);
+  if (!c || typeof c.id !== "string" || typeof c.name !== "string") throw unexpected(what);
+  const fy = Number(c.fyStartMonth);
+  return {
+    id: c.id,
+    name: c.name,
+    currency: strOrNull(c.currency),
+    fyStartMonth: Number.isInteger(fy) && fy >= 1 && fy <= 12 ? fy : null,
+    booksBeginFrom: dayOrNull(c.booksBeginFrom),
+    lockedThrough: dayOrNull(c.lockedThrough),
+    archived: c.archived === true,
+    role: strOrNull(c.role),
+    isHome: c.isHome === true,
+  };
+}
+
+function toCompanyInfo(x: unknown): HlCompanyInfo {
+  const c = obj(x);
+  if (!c) throw unexpected("company");
+  const d = obj(c.details) ?? {};
+  const details: HlCompanyDetails = {};
+  for (const k of ["mailingName", "address", "state", "country", "pincode", "phone", "email", "website"] as const) {
+    const v = strOrNull(d[k]);
+    if (v) details[k] = v;
+  }
+  return {
+    ...toCompanySummary(c, "company"),
+    details,
+    transactionCount: Number(c.transactionCount ?? 0) || 0,
+    firstEntryDate: dayOrNull(c.firstEntryDate),
+    lastEntryDate: dayOrNull(c.lastEntryDate),
+    carriedForwardAsOf: dayOrNull(c.carriedForwardAsOf),
+  };
+}
+
+/** Details with blanks left out (HL rejects ""); null when nothing is left. */
+function cleanDetails(d: HlCompanyDetails | undefined): HlCompanyDetails | null {
+  if (!d) return null;
+  const out = Object.fromEntries(Object.entries(d).filter(([, v]) => typeof v === "string" && v.trim() !== "")) as HlCompanyDetails;
+  return Object.keys(out).length ? out : null;
+}
+
+/** {lockedThrough: "YYYY-MM-DD" | null, history: [...]} — anything else is an unexpected shape. */
+function toBooksLock(data: unknown): HlBooksLock {
+  const o = obj(data);
+  if (!o || !("lockedThrough" in o)) throw unexpected("books-lock");
+  const day = strOrNull(o.lockedThrough);
+  if (day !== null && !/^\d{4}-\d{2}-\d{2}$/.test(day)) throw unexpected("books-lock");
+  const history = (Array.isArray(o.history) ? o.history : []).map((h) => {
+    const r = obj(h) ?? {};
+    return {
+      previousDate: strOrNull(r.previousDate),
+      newDate: strOrNull(r.newDate),
+      changedByRole: strOrNull(r.changedByRole),
+      reason: strOrNull(r.reason),
+      createdAt: strOrNull(r.createdAt),
+    };
+  });
+  return {lockedThrough: day, history};
+}
+
+/**
+ * VERIFY ON FIRST LIVE CALL: the guide says lines are merged by account name, each with a
+ * total and byCompany {companyId: amount}. We take every array of such lines, wherever it
+ * sits, as a section named by its key; any other object with total + byCompany is a total.
+ * A body that isn't an object fails loud; empty books give an empty report.
+ */
+export function toGroupReport(data: unknown): HlGroupReport {
+  if (!obj(data) && !Array.isArray(data)) throw unexpected("group-report");
+  const sections: HlGroupReport["sections"] = [];
+  const totals: HlGroupReport["totals"] = [];
+  const amount = (v: unknown) => strOrNull(v) ?? "0";
+  const split = (v: unknown) => Object.fromEntries(Object.entries(obj(v) ?? {}).map(([k, a]) => [k, amount(a)]));
+  const isLine = (x: unknown) => {
+    const o = obj(x);
+    return Boolean(o && obj(o.byCompany) && (typeof o.name === "string" || typeof o.accountName === "string"));
+  };
+  const walk = (x: unknown, key: string) => {
+    if (Array.isArray(x)) {
+      if (x.length && x.every(isLine)) {
+        sections.push({
+          key,
+          lines: x.map((l) => {
+            const o = obj(l) as Body;
+            return {name: String(o.name ?? o.accountName), total: amount(o.total ?? o.amount ?? o.balance), byCompany: split(o.byCompany)};
+          }),
+        });
+        return;
+      }
+      x.forEach((v, i) => walk(v, `${key}[${i}]`));
+      return;
+    }
+    const o = obj(x);
+    if (!o) return;
+    if (key && obj(o.byCompany) && "total" in o && !isLine(o)) totals.push({key, total: amount(o.total), byCompany: split(o.byCompany)});
+    for (const [k, v] of Object.entries(o)) walk(v, key ? `${key}.${k}` : k);
+  };
+  walk(data, "");
+  return {sections, totals};
 }
