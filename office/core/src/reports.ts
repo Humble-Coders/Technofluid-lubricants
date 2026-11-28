@@ -118,6 +118,24 @@ export interface PartyOwed {
   items: BalanceItem[];
   /** notMatched − Σ items: what our records don't explain (older documents, entries made directly in the books). */
   unexplainedPaise: number;
+  /**
+   * The open ledger (Tally's "on account"): the part of the balance not against any open
+   * invoice or bill — opening balance, money paid more or less than an invoice and kept on
+   * account, advances, corrections, transfers, credit from cancellations, and the
+   * unexplained part. Signed like the balance. Leaves out the "not in the books yet" items,
+   * which are only the books catching up with our records.
+   */
+  openLedgerPaise: number;
+  /** The pieces that make up `openLedgerPaise`, date order; the unexplained part last (no date, counted as over 90 days). */
+  openLedger: OpenLedgerLine[];
+}
+
+/** One piece of a party's open ledger, with its age (null when undated). */
+export interface OpenLedgerLine extends BalanceItem {
+  ageDays: number | null;
+  bucket: AgeBucket;
+  /** True for the part our records don't explain. */
+  unexplained: boolean;
 }
 
 export interface MoneyOwedReport {
@@ -133,7 +151,12 @@ export interface MoneyOwedReport {
   invoiceAgeing: BucketTotals;
   /** Due on open bills by age (positive paise). */
   billAgeing: BucketTotals;
+  /** The open ledger of every party by age of each piece, signed: + owed to us, − we owe / their advance. The unexplained part is dated before our records, so it counts as over 90 days. */
+  ledgerAgeing: BucketTotals;
 }
+
+/** Items that are only the books catching up with our records — not part of the open ledger. */
+const SYNC_ITEMS: ReadonlySet<BalanceItem["kind"]> = new Set(["NOT_IN_BOOKS", "PAYMENT_NOT_IN_BOOKS", "CANCEL_NOT_IN_BOOKS"]);
 
 const emptyBuckets = (): BucketTotals => ({ "0-30": 0, "31-60": 0, "61-90": 0, "90+": 0 });
 
@@ -167,6 +190,8 @@ export function moneyOwed(input: {
         notMatchedPaise: 0,
         items: [...(input.items?.[entityId] ?? [])],
         unexplainedPaise: 0,
+        openLedgerPaise: 0,
+        openLedger: [],
       };
       parties.set(entityId, p);
     }
@@ -193,6 +218,7 @@ export function moneyOwed(input: {
     }
   }
 
+  const ledgerAgeing = emptyBuckets();
   const owedToUs: PartyOwed[] = [];
   const weOwe: PartyOwed[] = [];
   const settled: PartyOwed[] = [];
@@ -200,6 +226,22 @@ export function moneyOwed(input: {
     p.documents.sort((a, b) => a.date.localeCompare(b.date) || a.ref.localeCompare(b.ref, undefined, { numeric: true }));
     p.notMatchedPaise = (p.balancePaise ?? 0) - (p.openInvoicesPaise - p.openBillsPaise);
     p.unexplainedPaise = p.notMatchedPaise - p.items.reduce((sum, i) => sum + i.amountPaise, 0);
+    // Only parties in the books have a ledger to speak of; the rest is records not saved yet.
+    if (p.balancePaise !== null) {
+      for (const i of p.items) {
+        if (SYNC_ITEMS.has(i.kind)) continue;
+        const days = i.date ? ageDays(i.date, input.today) : null;
+        const bucket = days === null ? "90+" : ageBucket(days);
+        p.openLedger.push({ ...i, ageDays: days, bucket, unexplained: false });
+        p.openLedgerPaise += i.amountPaise;
+        ledgerAgeing[bucket] += i.amountPaise;
+      }
+      if (p.unexplainedPaise !== 0) {
+        p.openLedger.push({ kind: "CORRECTION", date: null, label: "Not found in our records", detail: "Older than our date range, or entered directly in the books", amountPaise: p.unexplainedPaise, document: null, ageDays: null, bucket: "90+", unexplained: true });
+        p.openLedgerPaise += p.unexplainedPaise;
+        ledgerAgeing["90+"] += p.unexplainedPaise;
+      }
+    }
     const bal = p.balancePaise ?? 0;
     (bal > 0 ? owedToUs : bal < 0 ? weOwe : settled).push(p);
   }
@@ -215,6 +257,7 @@ export function moneyOwed(input: {
     weOwePaise: -weOwe.reduce((s, p) => s + (p.balancePaise ?? 0), 0),
     invoiceAgeing,
     billAgeing,
+    ledgerAgeing,
   };
 }
 
