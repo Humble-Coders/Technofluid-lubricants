@@ -237,7 +237,7 @@ describe("live HL client (stubbed fetch, OpenAPI shapes)", () => {
       sourceId: "purchase_p1:bill",
       actorRef: "u1",
     };
-    assert.deepEqual(await c.postCustomerPurchase(bill), { txnId: "pt-1", idempotent: false });
+    assert.deepEqual(await c.postCustomerPurchase(bill), { txnId: "pt-1", idempotent: false, billId: null });
     assert.equal(s.hl()[0].url, "https://hl.example/api/v1/customer-purchases");
     assert.deepEqual(s.hl()[0].body, {
       customerId: "c1",

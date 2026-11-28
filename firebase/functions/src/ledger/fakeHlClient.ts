@@ -111,6 +111,16 @@ interface StoredInvoice {
   amountPaidPaise: number;
   status: "PENDING" | "PARTIAL" | "PAID" | "CANCELLED";
 }
+interface StoredBill {
+  customerId: string;
+  billNumber: string;
+  reference: string | null;
+  billDate: string;
+  totalPaise: number;
+  amountPaidPaise: number;
+  status: "OPEN" | "PARTIALLY_PAID" | "PAID" | "CANCELLED";
+  purchaseTxnId: string;
+}
 interface StoredTxn {
   appId: string;
   sourceId: string;
@@ -150,6 +160,9 @@ export class FakeHlClient implements HlClient {
   }
   private invoices() {
     return this.db.collection(`${this.books}/invoices`);
+  }
+  private bills() {
+    return this.db.collection(`${this.books}/bills`);
   }
   private txnRef(sourceId: string) {
     return this.txns().doc(`${HL_APP_ID}~${sourceId}`.replace(/\//g, "_"));
@@ -434,6 +447,25 @@ export class FakeHlClient implements HlClient {
       if (!r.idempotent) await invRef.set({amountPaidPaise: paid, status: paid >= inv.totalPaise ? "PAID" : "PARTIAL"}, {merge: true});
       return r;
     }
+    if (!into && p.billId) {
+      if ((await this.txnRef(p.sourceId).get()).exists) return {txnId: this.txnRef(p.sourceId).id, idempotent: true};
+      const billRef = this.bills().doc(p.billId);
+      const bill = (await billRef.get()).data() as StoredBill | undefined;
+      if (!bill) throw new HlError(`Bill ${p.billId} not found`, 404, false);
+      if (bill.customerId !== p.customerId) throw new HlError("That bill belongs to another party", 422, false, "BILL_VENDOR_MISMATCH");
+      if (bill.status === "CANCELLED") throw new HlError("That bill is cancelled", 422, false, "BILL_CANCELLED");
+      const paid = bill.amountPaidPaise + p.amountPaise;
+      if (paid > bill.totalPaise) throw new HlError("More than the bill still owes", 422, false, "OVERPAYMENT");
+      const r = await this.post({
+        postingType: "PAYOUT", sourceId: p.sourceId, date: p.date, description: p.description || "Payment made", actorRef: p.actorRef,
+        legs: [
+          {accountId: p.paymentAccountId, type: "CREDIT", amountPaise: p.amountPaise},
+          {accountId: c.accountId, type: "DEBIT", amountPaise: p.amountPaise},
+        ],
+      });
+      if (!r.idempotent) await billRef.set({amountPaidPaise: paid, status: paid >= bill.totalPaise ? "PAID" : "PARTIALLY_PAID"}, {merge: true});
+      return r;
+    }
     return this.post({
       postingType: kind,
       sourceId: p.sourceId,
@@ -498,7 +530,51 @@ export class FakeHlClient implements HlClient {
       ...p.taxLines.filter((l) => l.amountPaise > 0).map((l): HlLeg => ({accountId: l.accountId, type: "DEBIT", amountPaise: l.amountPaise})),
       {accountId: c.accountId, type: "CREDIT", amountPaise: p.amountPaise + tax},
     ];
-    return this.post({postingType: "PURCHASE", sourceId: p.sourceId, date: p.date, description: p.description, actorRef: p.actorRef, legs});
+    const replay = await this.txnRef(p.sourceId).get();
+    if (replay.exists) {
+      const b = await this.bills().doc(`bill_${replay.id}`).get();
+      return {txnId: replay.id, idempotent: true, billId: b.exists ? b.id : null};
+    }
+    if (p.billNumber) {
+      const dup = await this.bills().where("customerId", "==", p.customerId).where("billNumber", "==", p.billNumber).limit(1).get();
+      if (!dup.empty) throw new HlError(`Bill number ${p.billNumber} already exists for this party`, 409, false, "DUPLICATE_BILL_NUMBER");
+    }
+    const r = await this.post({postingType: "PURCHASE", sourceId: p.sourceId, date: p.date, description: p.description, actorRef: p.actorRef, legs});
+    let billId: string | null = null;
+    if (p.billNumber) {
+      const ref = this.bills().doc(`bill_${r.txnId}`);
+      await ref.set({customerId: p.customerId, billNumber: p.billNumber, reference: p.reference ?? null, billDate: p.date, totalPaise: p.amountPaise + tax, amountPaidPaise: 0, status: "OPEN", purchaseTxnId: r.txnId} satisfies StoredBill);
+      billId = ref.id;
+    }
+    return {...r, billId};
+  }
+
+  async getPayableBills(customerId: string) {
+    await this.gate("getPayableBills", customerId);
+    await this.load(customerId);
+    return (await this.bills().where("customerId", "==", customerId).get()).docs
+      .map((d) => ({id: d.id, ...(d.data() as StoredBill)}))
+      .filter((b) => b.status !== "CANCELLED" && b.totalPaise > b.amountPaidPaise)
+      .map((b) => ({id: b.id, billNumber: b.billNumber, outstanding: toAmount(b.totalPaise - b.amountPaidPaise)}));
+  }
+
+  async cancelSupplierBill(id: string, p: {reason: string; date: string}) {
+    await this.gate("cancelSupplierBill", id);
+    const ref = this.bills().doc(id);
+    const b = (await ref.get()).data() as StoredBill | undefined;
+    if (!b) throw new HlError(`Bill ${id} not found`, 404, false);
+    if (b.status === "CANCELLED") return {txnId: (await this.txnRef(`billcancel_${id}`).get()).exists ? this.txnRef(`billcancel_${id}`).id : null};
+    const txn = (await this.txns().doc(b.purchaseTxnId).get()).data() as StoredTxn | undefined;
+    let txnId: string | null = null;
+    if (txn) {
+      txnId = (await this.post({
+        postingType: "REVERSAL", sourceId: `billcancel_${id}`, date: p.date < b.billDate ? b.billDate : p.date,
+        description: `Cancelled bill ${b.billNumber}: ${p.reason}`, actorRef: "hl",
+        legs: txn.legs.map((l) => ({...l, type: l.type === "DEBIT" ? "CREDIT" : "DEBIT"})),
+      })).txnId;
+    }
+    await ref.set({status: "CANCELLED"}, {merge: true});
+    return {txnId};
   }
 
   async getInvoice(id: string): Promise<HlInvoice> {
@@ -716,6 +792,14 @@ export class FakeHlClient implements HlClient {
             if (i.status === "CANCELLED" || owed <= 0 || i.issueDate > carry.asOf || !cust) continue;
             await to.invoices().doc(`carried_${inv.id}`).set({...i, customerId: cust.id, saleTxnId: `carry_${ref.id}`, totalPaise: owed, amountPaidPaise: 0, status: "PENDING"} satisfies StoredInvoice);
             copied.pendingBills++;
+          }
+          for (const bd of (await from.bills().get()).docs) {
+            const b = bd.data() as StoredBill;
+            const owed = b.totalPaise - b.amountPaidPaise;
+            const cust = customerMap.get(b.customerId);
+            if (b.status === "CANCELLED" || owed <= 0 || b.billDate > carry.asOf || !cust) continue;
+            await to.bills().doc(`carried_${bd.id}`).set({...b, customerId: cust.id, purchaseTxnId: `carry_${ref.id}`, totalPaise: owed, amountPaidPaise: 0, status: "OPEN"} satisfies StoredBill);
+            copied.pendingSupplierBills++;
           }
         }
       }

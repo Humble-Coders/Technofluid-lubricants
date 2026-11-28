@@ -120,24 +120,42 @@ export async function syncPurchase(db: admin.firestore.Firestore, hl: HlClient, 
     const progress = (await progressRef.get()).data() ?? {};
     let hlTxnId: string | undefined = progress.hlTxnId;
     let hlLegs: HlLeg[] | undefined = progress.hlLegs;
+    let hlBillId: string | null = typeof progress.hlBillId === "string" ? progress.hlBillId : null;
+    let hlBillNumber: string | null = typeof progress.hlBillNumber === "string" ? progress.hlBillNumber : null;
     if (!hlTxnId || !hlLegs) {
-      const r = await books.postCustomerPurchase({
-        customerId: supplier.customerId,
-        amountPaise: totals.subtotalPaise,
-        taxLines,
-        expenseAccountId: inventory,
-        description,
-        date: p.billDate,
-        sourceId: purchaseSourceIds.bill(id),
-        actorRef,
-      });
+      // Kept in HL as a supplier bill too (bill-by-bill payables, carried into a new year one by
+      // one). HL wants each party's bill numbers unique: a number already used there (a bill
+      // re-entered after a cancel) goes in with our own reference added.
+      const post = (billNumber: string) =>
+        books.postCustomerPurchase({
+          customerId: supplier.customerId,
+          amountPaise: totals.subtotalPaise,
+          taxLines,
+          expenseAccountId: inventory,
+          description,
+          date: p.billDate,
+          sourceId: purchaseSourceIds.bill(id),
+          actorRef,
+          billNumber,
+          reference: String(p.ref),
+        });
+      hlBillNumber = String(p.billNo);
+      let r;
+      try {
+        r = await post(hlBillNumber);
+      } catch (e) {
+        if (!(e instanceof HlError && e.code === "DUPLICATE_BILL_NUMBER")) throw e;
+        hlBillNumber = `${p.billNo} · ${p.ref}`;
+        r = await post(hlBillNumber);
+      }
+      hlBillId = r.billId;
       hlTxnId = r.txnId;
       hlLegs = [
         {accountId: inventory, type: "DEBIT", amountPaise: totals.subtotalPaise},
         ...taxLines.map((l): HlLeg => ({accountId: l.accountId, type: "DEBIT", amountPaise: l.amountPaise})),
         {accountId: supplier.accountId, type: "CREDIT", amountPaise: totals.subtotalPaise + taxLines.reduce((sum, l) => sum + l.amountPaise, 0)},
       ];
-      await progressRef.set({hlTxnId, hlLegs, at: FieldValue.serverTimestamp()}, {merge: true});
+      await progressRef.set({hlTxnId, hlLegs, hlBillId, hlBillNumber, at: FieldValue.serverTimestamp()}, {merge: true});
     }
 
     const paymentTxns: string[] = Array.isArray(progress.paymentTxns) ? [...progress.paymentTxns] : [];
@@ -152,6 +170,8 @@ export async function syncPurchase(db: admin.firestore.Firestore, hl: HlClient, 
         sourceId: purchaseSourceIds.payout(id, i),
         actorRef,
         description: `Payment made with ${p.ref} (bill ${p.billNo})`,
+        // Paid against the bill — unless it was cancelled in the books meanwhile.
+        billId: p.status === "CANCELLED" && p.cancelSyncStatus === "SYNCED" ? null : hlBillId,
       });
       paymentTxns[i] = r.txnId;
       await progressRef.set({paymentTxns}, {merge: true});
@@ -166,6 +186,8 @@ export async function syncPurchase(db: admin.firestore.Firestore, hl: HlClient, 
           syncStatus: "SYNCED",
           hlTxnId,
           hlLegs,
+          hlBillId,
+          hlBillNumber,
           payments: payments.map((x, i) => ({...x, hlTxnId: paymentTxns[i] ?? null})),
           // HL's ledger rows carry only a txn id — these let a statement row find its purchase.
           paymentTxnIds: paymentTxns.filter(Boolean),
@@ -189,7 +211,7 @@ export async function syncPurchase(db: admin.firestore.Firestore, hl: HlClient, 
     const done = (await progressRef.get().catch(() => null))?.data();
     let billInBooks: Record<string, unknown> = {};
     if (done?.hlTxnId && Array.isArray(done.hlLegs)) {
-      billInBooks = {hlTxnId: done.hlTxnId, hlLegs: done.hlLegs};
+      billInBooks = {hlTxnId: done.hlTxnId, hlLegs: done.hlLegs, hlBillId: done.hlBillId ?? null, hlBillNumber: done.hlBillNumber ?? null};
       // Cancelled before the bill went in (so the cancel didn't ask for a reversal) → ask now.
       const latest = (await ref.get().catch(() => null))?.data();
       if (latest?.status === "CANCELLED" && !latest.cancelSyncStatus) billInBooks = {...billInBooks, cancelSyncStatus: "PENDING", cancelSyncError: null, cancelSyncAttempts: 0};
@@ -220,6 +242,14 @@ export async function cancelPurchaseInBooks(db: admin.firestore.Firestore, hl: H
     const flipped = legs.map((l) => ({...l, type: l.type === "DEBIT" ? ("CREDIT" as const) : ("DEBIT" as const)}));
     const day = String(p.cancel?.day ?? p.billDate);
     const books = await booksFor(db, hl, p.companyId);
+    const billId = typeof p.hlBillId === "string" ? p.hlBillId : typeof progress.hlBillId === "string" ? progress.hlBillId : null;
+    if (billId) {
+      // Kept as a supplier bill: HL's own cancel reverses the purchase and marks the bill
+      // CANCELLED (idempotent). Money already paid on it stays with the supplier as credit.
+      const c = await books.cancelSupplierBill(billId, {reason: `${String(p.cancel?.reason ?? "Cancelled")} (${p.ref})`, date: day < p.billDate ? p.billDate : day});
+      await ref.set({cancelSyncStatus: "SYNCED", cancelHlTxnId: c.txnId, cancelSyncError: null, cancelSyncAttempts: 0, lastCancelAttemptAt: FieldValue.serverTimestamp()}, {merge: true});
+      return "synced";
+    }
     const r = await books.postTransaction({
       postingType: "REVERSAL",
       description: `Cancelled ${p.ref} (bill ${p.billNo}): ${String(p.cancel?.reason ?? "Cancelled")}`.slice(0, 250),
